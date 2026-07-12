@@ -4,11 +4,51 @@ plugins {
     id 'io.freefair.lombok' version '8.6'
 }
 
-version = project.mod_version
+def buildDate = java.time.LocalDate.now(java.time.ZoneId.systemDefault())
+        .format(java.time.format.DateTimeFormatter.ofPattern("yyMMdd"))
+def buildVersion = "${buildDate}-SNAPSHOT"
+
+version = buildVersion
 group = project.maven_group
 
 base {
     archivesName = project.archives_base_name
+}
+
+def syncModVersion = tasks.register("syncModVersion") {
+    inputs.property("buildVersion", buildVersion)
+    outputs.files(
+            layout.projectDirectory.file("gradle.properties"),
+            layout.projectDirectory.file("src/main/resources/fabric.mod.json")
+    )
+
+    doLast {
+        def propertiesFile = layout.projectDirectory.file("gradle.properties").asFile
+        def propertiesContent = propertiesFile.getText("UTF-8")
+        def updatedProperties = propertiesContent.replaceFirst(
+                /(?m)^mod_version=.*$/,
+                "mod_version=${buildVersion}"
+        )
+
+        if (updatedProperties != propertiesContent) {
+            propertiesFile.setText(updatedProperties, "UTF-8")
+        }
+
+        def metadataFile = layout.projectDirectory.file("src/main/resources/fabric.mod.json").asFile
+        def metadataContent = metadataFile.getText("UTF-8")
+        def updatedMetadata = metadataContent.replaceFirst(
+                /(?m)^(\s*"version"\s*:\s*")[^"]*(".*)$/,
+                '$1' + buildVersion + '$2'
+        )
+
+        if (updatedMetadata != metadataContent) {
+            metadataFile.setText(updatedMetadata, "UTF-8")
+        }
+    }
+}
+
+tasks.withType(Jar).configureEach {
+    dependsOn syncModVersion
 }
 
 
@@ -35,6 +75,8 @@ dependencies {
 }
 
 processResources {
+    dependsOn syncModVersion
+
     inputs.property "version", project.version
     inputs.property "minecraft_version", project.minecraft_version
     inputs.property "loader_version", project.loader_version

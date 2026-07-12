@@ -13,7 +13,7 @@ import java.util.List;
 public final class ConfigCommand extends Command {
 
     public ConfigCommand() {
-        super(".config <load/save/list/delete> [name]", "config", "cfg");
+        super(".config <load/save/list> [name]", "config", "cfg", "c");
     }
 
     @Override
@@ -23,7 +23,12 @@ public final class ConfigCommand extends Command {
             return;
         }
 
-        final String action = arguments[1].toLowerCase();
+        final String inputAction = arguments[1].toLowerCase();
+        final String action = switch (inputAction) {
+            case "l" -> arguments.length >= 3 ? "load" : "list";
+            case "s" -> "save";
+            default -> inputAction;
+        };
 
         switch (action) {
             case "list" -> {
@@ -35,10 +40,10 @@ public final class ConfigCommand extends Command {
 
             case "save" -> {
                 if (arguments.length < 3) {
-                    final Config defaultConfig = Client.instance.getConfigManager().getConfig("Default");
-                    if (defaultConfig != null) {
-                        defaultConfig.save();
-                        Util.log("Saved default configuration.");
+                    final Config currentConfig = Client.instance.getConfigManager().getCurrentConfig();
+                    if (currentConfig != null) {
+                        currentConfig.save();
+                        Util.log("Saved current config: " + Formatting.GREEN + currentConfig.getName());
                     }
                     return;
                 }
@@ -62,15 +67,16 @@ public final class ConfigCommand extends Command {
                 }
 
                 final String configName = arguments[2];
-                final Config targetConfig = Client.instance.getConfigManager().getConfig(configName);
+                final Config targetConfig = Client.instance.getConfigManager().loadConfig(configName);
 
                 if (targetConfig != null) {
-                    targetConfig.load();
                     Util.log("Loaded config: " + Formatting.AQUA + targetConfig.getName());
                 } else {
-                    Util.log(Formatting.RED + "Config not found in memory: " + configName);
+                    Util.log(Formatting.RED + "Config not found: " + configName);
                 }
             }
+
+            default -> Util.log(this.getUsage());
         }
     }
 
@@ -78,6 +84,8 @@ public final class ConfigCommand extends Command {
     public List<String> getCompletions(final String[] arguments) {
         final List<String> completions = new ArrayList<>();
         if (arguments.length == 2) {
+            completions.add("l");
+            completions.add("s");
             completions.add("load");
             completions.add("save");
             completions.add("list");

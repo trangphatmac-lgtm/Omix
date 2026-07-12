@@ -12,6 +12,7 @@ import java.util.Locale;
 
 public final class ConfigManager implements IMinecraft {
     private final List<Config> configs = new ArrayList<>();
+    private Config currentConfig;
 
     public ConfigManager() {
         instance.getEventManager().register(this);
@@ -20,6 +21,7 @@ public final class ConfigManager implements IMinecraft {
                 new ModuleConfig()
         );
 
+        currentConfig = findConfig("Default");
         loadAll();
         discoverConfigs();
     }
@@ -32,6 +34,19 @@ public final class ConfigManager implements IMinecraft {
     public List<Config> getConfigs() {
         discoverConfigs();
         return List.copyOf(configs);
+    }
+
+    public Config getCurrentConfig() {
+        return currentConfig;
+    }
+
+    public Config loadConfig(final String name) {
+        Config config = getConfig(name);
+        if (config == null) return null;
+
+        config.load();
+        currentConfig = config;
+        return config;
     }
 
     private Config findConfig(final String name) {

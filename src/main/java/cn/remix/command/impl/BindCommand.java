@@ -13,11 +13,17 @@ import java.util.Locale;
 public final class BindCommand extends Command {
 
     public BindCommand() {
-        super(".bind <module> <key/none>", "bind", "b");
+        super(".bind <module> <key/none> | .bind list", "bind", "b");
     }
 
     @Override
     public void execute(final String[] arguments) {
+        if (arguments.length == 2
+                && (arguments[1].equalsIgnoreCase("list") || arguments[1].equalsIgnoreCase("l"))) {
+            listBindings();
+            return;
+        }
+
         if (arguments.length < 3) {
             Util.log(this.getUsage());
             return;
@@ -42,15 +48,34 @@ public final class BindCommand extends Command {
         }
     }
 
+    private void listBindings() {
+        boolean found = false;
+
+        for (Module module : Client.instance.getModuleManager().getModuleMap().values()) {
+            if (module.getKey() > 0) {
+                Util.log(module.getName() + " -> " + KeyUtil.getKeyName(module.getKey()));
+                found = true;
+            }
+        }
+
+        if (!found) {
+            Util.log("No modules are currently bound.");
+        }
+    }
+
     @Override
     public List<String> getCompletions(final String[] arguments) {
         List<String> completions = new ArrayList<>();
 
         if (arguments.length == 2) {
+            completions.add("list");
+            completions.add("l");
             for (Module module : Client.instance.getModuleManager().getModuleMap().values()) {
                 completions.add(module.getName().replace(" ", ""));
             }
-        } else if (arguments.length == 3) {
+        } else if (arguments.length == 3
+                && !arguments[1].equalsIgnoreCase("list")
+                && !arguments[1].equalsIgnoreCase("l")) {
             completions.add("none");
         }
 
