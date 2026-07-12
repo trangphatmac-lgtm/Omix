@@ -26,7 +26,6 @@ public final class ToggleCommand extends Command {
         for (Module module : Client.instance.getModuleManager().getModuleMap().values()) {
             if (module.getName().replace(" ", "").equalsIgnoreCase(moduleName)) {
                 module.toggle();
-                Util.log(String.format("Toggled %s %s.", module.getName(), (module.isEnabled() ? "on" : "off")));
                 return;
             }
         }

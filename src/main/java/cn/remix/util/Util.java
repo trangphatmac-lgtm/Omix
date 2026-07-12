@@ -1,6 +1,7 @@
 package cn.remix.util;
 
 import cn.remix.Client;
+import cn.remix.module.impl.render.Notify;
 import lombok.experimental.UtilityClass;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -15,7 +16,24 @@ public class Util implements IMinecraft{
     }
 
     public void log(String message) {
-        addChatMessage(Formatting.DARK_GRAY + "[" + Formatting.AQUA + Client.name + Formatting.DARK_GRAY + "] " + Formatting.RESET + message);
+        if (Client.instance != null && Client.instance.getModuleManager() != null) {
+            Notify notify = Client.instance.getModuleManager().getModule(Notify.class);
+            if (notify != null && notify.isEnabled()) {
+                notify.post(message);
+                return;
+            }
+        }
+
+        logToChat(message);
+    }
+
+    public void logToChat(String message) {
+        addChatMessage(Formatting.DARK_GRAY + "[" + Formatting.AQUA + Client.name
+                + Formatting.DARK_GRAY + "] " + Formatting.RESET + formatCodes(message));
+    }
+
+    public String formatCodes(String message) {
+        return message == null ? "" : message.replace('&', '§');
     }
 
     public void debug(String message) {

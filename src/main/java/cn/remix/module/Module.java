@@ -1,8 +1,10 @@
 package cn.remix.module;
 
 import cn.remix.Client;
+import cn.remix.module.impl.render.Notify;
 import cn.remix.module.value.Value;
 import cn.remix.util.IMinecraft;
+import cn.remix.util.Util;
 import cn.remix.util.animation.Easing;
 import cn.remix.util.animation.EasingAnimation;
 import lombok.Getter;
@@ -39,6 +41,14 @@ public abstract class Module implements IMinecraft {
                 enable();
             } else {
                 disable();
+            }
+
+            if (this.enabled == enabled
+                    && !(this instanceof Notify)
+                    && Client.instance != null
+                    && Client.instance.getModuleManager() != null
+                    && Client.instance.getModuleManager().getModuleMap().containsValue(this)) {
+                Util.log(getName() + ": " + (isEnabled() ? "&a&lON" : "&c&lOFF"));
             }
         }
     }

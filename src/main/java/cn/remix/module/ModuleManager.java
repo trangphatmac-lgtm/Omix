@@ -57,6 +57,7 @@ public class ModuleManager implements IMinecraft {
                 new Brightness(),
                 new NoHurtCam(),
                 new ItemPhysics(),
+                new Notify(),
                 new KeepSprint(),
                 new Animation(),
                 new ESP(),
