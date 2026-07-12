@@ -40,10 +40,9 @@ public abstract class MixinInGameHud implements IMinecraft {
     @Inject(method = "renderStatusEffectOverlay", at = @At("HEAD"), cancellable = true)
     private void renderStatusEffectOverlay(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         HUD hud = instance.getModuleManager().getModule(HUD.class);
-        if (hud.isEnabled() && hud.getNoPotionIcons().getValue()) {
+        if (hud.isEnabled() && hud.getHudMode().is("Remix") && hud.getNoPotionIcons().getValue()) {
             ci.cancel();
         }
     }
 }
-
 

@@ -61,6 +61,7 @@ public class ModuleManager implements IMinecraft {
                 new KeepSprint(),
                 new Animation(),
                 new ESP(),
+                new TargetHUD(),
                 new MoreParticles(),
                 new Sprint()
         );
