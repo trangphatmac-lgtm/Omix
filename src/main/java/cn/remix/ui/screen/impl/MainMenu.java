@@ -2,9 +2,9 @@ package cn.remix.ui.screen.impl;
 
 import cn.remix.ui.screen.AbstractScreen;
 import cn.remix.ui.screen.impl.proxy.ProxyScreen;
-import cn.remix.ui.screen.impl.token.TokenScreen;
 import cn.remix.ui.screen.util.AdaptiveButton;
 import cn.remix.util.render.Render2D;
+import me.ksyz.accountmanager.gui.AccountManagerScreen;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.option.OptionsScreen;
@@ -30,9 +30,9 @@ public class MainMenu extends AbstractScreen {
         multi.setBounds(centerX, centerY + gap, 200, 22);
         buttons.add(multi);
 
-        AdaptiveButton token = new AdaptiveButton("Token Manager", () -> mc.setScreen(new TokenScreen(this)));
-        token.setBounds(centerX, centerY + gap * 2, 200, 22);
-        buttons.add(token);
+        AdaptiveButton accounts = new AdaptiveButton("Account Manager", () -> mc.setScreen(new AccountManagerScreen(this)));
+        accounts.setBounds(centerX, centerY + gap * 2, 200, 22);
+        buttons.add(accounts);
 
         AdaptiveButton options = new AdaptiveButton("Options", () -> mc.setScreen(new OptionsScreen(this, mc.options)));
         options.setBounds(centerX, centerY + gap * 3, 98, 22);

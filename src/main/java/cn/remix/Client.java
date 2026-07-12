@@ -10,6 +10,7 @@ import cn.remix.management.TargetManager;
 import cn.remix.module.ModuleManager;
 import cn.remix.ui.font.FontManager;
 import cn.remix.util.IMinecraft;
+import me.ksyz.accountmanager.AccountManager;
 import lombok.Getter;
 import org.apache.logging.log4j.Logger;
 
@@ -43,9 +44,11 @@ public class Client implements IMinecraft {
         friendManager = new FriendManager();
         fontManager = new FontManager();
         packetManager = new PacketManager();
+        AccountManager.init();
     }
 
     public void shutdown() {
         configManager.saveAll();
+        AccountManager.save();
     }
 }
