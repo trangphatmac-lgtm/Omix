@@ -35,7 +35,7 @@ public final class ConfigCommand extends Command {
 
             case "save" -> {
                 if (arguments.length < 3) {
-                    final Config defaultConfig = Client.instance.getConfigManager().getConfig("Modules");
+                    final Config defaultConfig = Client.instance.getConfigManager().getConfig("Default");
                     if (defaultConfig != null) {
                         defaultConfig.save();
                         Util.log("Saved default configuration.");

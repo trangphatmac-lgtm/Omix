@@ -8,18 +8,22 @@ import java.io.File;
 
 @Getter
 public abstract class Config implements IMinecraft {
+    private static final File DIRECTORY = new File(Client.name, "configs");
+
     private final String name;
     private final File file;
 
     public Config(final String name) {
-        final File directory = new File(Client.name, "configs");
-
-        if (!directory.exists() && !directory.mkdirs()) {
-            Client.logger.debug("Failed to create configs directory: {}", directory.getPath());
+        if (!DIRECTORY.exists() && !DIRECTORY.mkdirs()) {
+            Client.logger.debug("Failed to create configs directory: {}", DIRECTORY.getPath());
         }
 
         this.name = name;
-        this.file = new File(directory, name.toLowerCase() + ".json");
+        this.file = new File(DIRECTORY, name.toLowerCase() + ".json");
+    }
+
+    public static File getDirectory() {
+        return DIRECTORY;
     }
 
     public abstract void save();
