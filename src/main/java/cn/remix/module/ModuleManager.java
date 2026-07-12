@@ -9,6 +9,7 @@ import cn.remix.module.impl.combat.TargetStrafe;
 import cn.remix.module.impl.combat.Velocity;
 import cn.remix.module.impl.exploits.Disabler;
 import cn.remix.module.impl.exploits.Regen;
+import cn.remix.module.impl.exploits.ResourcepackSpoof;
 import cn.remix.module.impl.move.*;
 import cn.remix.module.impl.player.*;
 import cn.remix.module.impl.render.*;
@@ -38,6 +39,7 @@ public class ModuleManager implements IMinecraft {
                 new Targets(),
                 new Teams(),
                 new Disabler(),
+                new ResourcepackSpoof(),
                 new TargetStrafe(),
                 new DamageTint(),
                 new Criticals(),
