@@ -92,6 +92,7 @@ public class HUD extends Module {
 
                 if (disabler.isWaiting()) {
                     text = Formatting.RED + "You are playing Cubecraft with disabler disabled!";
+                    disabler.refresh();
                 } else {
                     text = String.valueOf(disabler.getPacketQueue().size());
                 }

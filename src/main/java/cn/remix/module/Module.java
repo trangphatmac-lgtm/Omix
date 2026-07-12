@@ -47,7 +47,7 @@ public abstract class Module implements IMinecraft {
         return instance.getModuleManager().getModule(clazz);
     }
 
-    private void enable() {
+    protected void enable() {
         instance.getEventManager().register(this);
 
         try {
@@ -57,7 +57,7 @@ public abstract class Module implements IMinecraft {
         }
     }
 
-    private void disable() {
+    protected void disable() {
         instance.getEventManager().unregister(this);
 
         try {
