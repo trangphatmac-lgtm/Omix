@@ -28,6 +28,7 @@ public abstract class MixinClientCommonNetworkHandler {
         ResourcepackSpoof module = Client.instance.getModuleManager().getModule(ResourcepackSpoof.class);
         if (module == null || !module.isEnabled()) return;
 
+        module.spoofed();
         UUID id = packet.id();
         sendStatus(id, ResourcePackStatusC2SPacket.Status.ACCEPTED);
         sendStatus(id, ResourcePackStatusC2SPacket.Status.DOWNLOADED);
