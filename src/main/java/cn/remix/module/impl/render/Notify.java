@@ -22,7 +22,7 @@ public final class Notify extends Module {
     private static final long EXIT_TIME = 300L;
     private static final int MAX_NOTIFICATIONS = 5;
 
-    private final ModeValue mode = new ModeValue("Mode", "HUD", "Chat", "HUD");
+    private final ModeValue mode = new ModeValue("Mode", "HUD", "Chat", "HUD", "Both");
     private final List<Notification> notifications = new CopyOnWriteArrayList<>();
 
     public Notify() {
@@ -30,8 +30,11 @@ public final class Notify extends Module {
     }
 
     public void post(String message) {
-        if (mode.is("Chat")) {
+        if (mode.is("Chat") || mode.is("Both")) {
             Util.logToChat(message);
+        }
+
+        if (mode.is("Chat")) {
             return;
         }
 
@@ -48,7 +51,7 @@ public final class Notify extends Module {
 
     @EventTarget
     public void onRender2D(Render2DEvent event) {
-        if (!mode.is("HUD")) return;
+        if (!mode.is("HUD") && !mode.is("Both")) return;
 
         long now = System.currentTimeMillis();
         notifications.removeIf(notification -> now - notification.createdAt() >= DISPLAY_TIME);
