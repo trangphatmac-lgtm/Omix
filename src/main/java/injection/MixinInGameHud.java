@@ -35,6 +35,9 @@ public abstract class MixinInGameHud implements IMinecraft {
         }
 
         cachedHudState.forEachSimpleElement(context.state::addSimpleElement, GuiRenderState.LayerFilter.ALL);
+        cachedHudState.forEachTextElement(context.state::addText);
+        cachedHudState.forEachItemElement(context.state::addItem);
+        cachedHudState.forEachSpecialElement(context.state::addSpecialElement);
     }
 
     @Inject(method = "renderStatusEffectOverlay", at = @At("HEAD"), cancellable = true)
@@ -45,4 +48,3 @@ public abstract class MixinInGameHud implements IMinecraft {
         }
     }
 }
-
