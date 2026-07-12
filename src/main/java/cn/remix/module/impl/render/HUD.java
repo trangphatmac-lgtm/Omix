@@ -348,10 +348,19 @@ public class HUD extends Module {
         }
 
         Disabler disabler = getModule(Disabler.class);
+
         if (classicDisablerQueue.getValue() && disabler.isEnabled()) {
             drawClassicOverlay(context, String.valueOf(disabler.getPacketQueue().size()), time, row);
         }
 
+        if (disabler.isEnabled()) {
+            String text;
+
+            if (disabler.isWaiting()) {
+                disabler.refresh();
+                drawClassicOverlay(context, "You are playing Cubecraft with disabler disabled!", time, row);
+            }
+        }
         context.getMatrices().popMatrix();
     }
 
