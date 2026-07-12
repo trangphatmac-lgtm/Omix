@@ -353,8 +353,7 @@ public class HUD extends Module {
             drawClassicOverlay(context, String.valueOf(disabler.getPacketQueue().size()), time, row);
         }
 
-        if (disabler.isEnabled()) {
-            String text;
+        if (classicDisablerQueue.getValue() && disabler.isEnabled()) {
 
             if (disabler.isWaiting()) {
                 disabler.refresh();
