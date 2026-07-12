@@ -2,6 +2,7 @@ package injection.accessor;
 
 import com.mojang.authlib.minecraft.UserApiService;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.session.ProfileKeys;
 import net.minecraft.client.session.Session;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -16,4 +17,8 @@ public interface MinecraftClientAccessor {
     @Mutable
     @Accessor("userApiService")
     void setUserApiService(UserApiService userApiService);
+
+    @Mutable
+    @Accessor("profileKeys")
+    void setProfileKeys(ProfileKeys profileKeys);
 }
