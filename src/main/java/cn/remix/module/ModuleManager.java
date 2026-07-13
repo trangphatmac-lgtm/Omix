@@ -13,6 +13,7 @@ import cn.remix.module.impl.exploits.ResourcepackSpoof;
 import cn.remix.module.impl.move.*;
 import cn.remix.module.impl.player.*;
 import cn.remix.module.impl.render.*;
+import cn.remix.module.impl.world.Scaffold;
 import cn.remix.module.impl.world.ScaffoldOld;
 import cn.remix.module.impl.world.WorldTweaks;
 import cn.remix.module.value.Value;
@@ -32,6 +33,7 @@ public class ModuleManager implements IMinecraft {
         addModules(
                 new HUD(),
                 new ClickGui(),
+                new Scaffold(),
                 new ScaffoldOld(),
                 new WorldTweaks(),
                 new AntiBot(),
