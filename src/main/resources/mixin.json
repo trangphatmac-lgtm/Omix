@@ -26,6 +26,7 @@
     "MixinMinecraftClient",
     "MixinNetworkThreadUtils",
     "MixinPlayerEntity",
+    "MixinRenderTickCounterDynamic",
     "MixinTitleScreen",
     "accessor.ClientPlayerEntityAccessor",
     "accessor.ClientWorldAccessor",

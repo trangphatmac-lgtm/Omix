@@ -49,6 +49,7 @@ public class ModuleManager implements IMinecraft {
                 new ModuleList(),
                 new Speed(),
                 new Fly(),
+                new NoFall(),
                 new Velocity(),
                 new ChestStealer(),
                 new InventoryManager(),
