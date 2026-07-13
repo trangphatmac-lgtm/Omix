@@ -60,6 +60,7 @@ public class ModuleManager implements IMinecraft {
                 new Regen(),
                 new Brightness(),
                 new NoHurtCam(),
+                new ViewClip(),
                 new ItemPhysics(),
                 new Notify(),
                 new KeepSprint(),

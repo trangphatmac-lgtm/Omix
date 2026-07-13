@@ -8,6 +8,7 @@
     "MixinClientConnection$Proxy"
   ],
   "client": [
+    "MixinCamera",
     "MixinChatInputSuggestor",
     "MixinChatScreen",
     "MixinClientCommonNetworkHandler",
