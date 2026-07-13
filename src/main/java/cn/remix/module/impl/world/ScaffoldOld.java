@@ -56,12 +56,8 @@ public class ScaffoldOld extends Module {
 
     @Override
     public void onEnable() {
+        ScaffoldMutex.activate(getModule(Scaffold.class));
         if (mc.player == null || mc.world == null) return;
-
-        Scaffold scaffold = getModule(Scaffold.class);
-        if (scaffold != null && scaffold.isEnabled()) {
-            scaffold.setEnabled(false);
-        }
 
         oldSlot = mc.player.getInventory().getSelectedSlot();
         canPlace = false;

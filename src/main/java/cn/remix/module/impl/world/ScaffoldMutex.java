@@ -1,0 +1,17 @@
+package cn.remix.module.impl.world;
+
+import cn.remix.module.Module;
+
+/**
+ * Serializes Scaffold activation and guarantees that only one implementation
+ * remains enabled, including during config loading before a world is joined.
+ */
+final class ScaffoldMutex {
+    private ScaffoldMutex() {}
+
+    static synchronized void activate(Module other) {
+        if (other != null && other.isEnabled()) {
+            other.setEnabled(false);
+        }
+    }
+}

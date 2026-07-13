@@ -93,12 +93,8 @@ public final class Scaffold extends Module {
 
     @Override
     public void onEnable() {
+        ScaffoldMutex.activate(getModule(ScaffoldOld.class));
         if (mc.player == null || mc.world == null) return;
-
-        ScaffoldOld old = getModule(ScaffoldOld.class);
-        if (old != null && old.isEnabled()) {
-            old.setEnabled(false);
-        }
 
         oldSlot = mc.player.getInventory().getSelectedSlot();
         startHotbarCount = Math.max(1, getBlockCountHotbar());
