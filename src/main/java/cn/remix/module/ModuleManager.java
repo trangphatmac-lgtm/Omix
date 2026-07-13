@@ -54,6 +54,7 @@ public class ModuleManager implements IMinecraft {
                 new Velocity(),
                 new ChestStealer(),
                 new InventoryManager(),
+                new AutoTool(),
                 new AutoArmor(),
                 new AntiHunger(),
                 new LightningTracker(),
