@@ -26,7 +26,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 @Getter
-public class Scaffold extends Module {
+public class ScaffoldOld extends Module {
     public static NumberValue delay = new NumberValue("Delay", 0, 0, 200, 10);
     private final ModeValue mode = new ModeValue("Mode", "Normal", "Normal", "Telly Bridge");
     private final NumberValue tellyTick = new NumberValue("Telly Tick", 1, 1, 5, 1, () -> !mode.is("Normal"));
@@ -50,8 +50,8 @@ public class Scaffold extends Module {
     private float[] rotations;
     private PlaceInfo data;
 
-    public Scaffold() {
-        super("Scaffold", Category.World);
+    public ScaffoldOld() {
+        super("ScaffoldOld", Category.World);
     }
 
     @Override
@@ -114,7 +114,7 @@ public class Scaffold extends Module {
             keepYCoord = Math.floor(mc.player.getY() - 1.0);
         }
 
-        BlockPos targetBlock = BlockPos.ofFloored(mc.player.getX(), getYLevel() - (Scaffold.isDownwards() ? 1 : 0), mc.player.getZ());
+        BlockPos targetBlock = BlockPos.ofFloored(mc.player.getX(), getYLevel() - (ScaffoldOld.isDownwards() ? 1 : 0), mc.player.getZ());
         data = getBlockData(targetBlock);
 
         if (itemSpoof.getValue()) {

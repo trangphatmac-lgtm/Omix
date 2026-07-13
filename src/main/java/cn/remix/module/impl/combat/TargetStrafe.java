@@ -4,7 +4,7 @@ import cn.remix.event.base.annotation.EventTarget;
 import cn.remix.event.impl.MoveEvent;
 import cn.remix.module.Category;
 import cn.remix.module.Module;
-import cn.remix.module.impl.world.Scaffold;
+import cn.remix.module.impl.world.ScaffoldOld;
 import cn.remix.module.value.impl.BoolValue;
 import cn.remix.module.value.impl.ModeValue;
 import cn.remix.module.value.impl.NumberValue;
@@ -106,7 +106,7 @@ public final class TargetStrafe extends Module {
     private boolean check() {
         if (mc.player == null) return true;
         setSuffix(mode.getValue());
-        if (getModule(Scaffold.class).isEnabled()) return true;
+        if (getModule(ScaffoldOld.class).isEnabled()) return true;
         return space.getValue() && !mc.options.jumpKey.isPressed();
     }
 
