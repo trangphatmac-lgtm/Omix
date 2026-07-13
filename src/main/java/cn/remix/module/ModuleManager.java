@@ -49,6 +49,7 @@ public class ModuleManager implements IMinecraft {
                 new ModuleList(),
                 new Speed(),
                 new Fly(),
+                new AntiVoid(),
                 new NoFall(),
                 new Velocity(),
                 new ChestStealer(),
@@ -64,6 +65,8 @@ public class ModuleManager implements IMinecraft {
                 new KeepSprint(),
                 new Animation(),
                 new ESP(),
+                new BedESP(),
+                new ChestESP(),
                 new TargetHUD(),
                 new MoreParticles(),
                 new Sprint()

@@ -7,10 +7,10 @@ import net.minecraft.network.packet.Packet;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 public abstract class SubCore implements IMinecraft {
-    public final ConcurrentLinkedQueue<Packet<?>> packets = new ConcurrentLinkedQueue<>();
+    public final ConcurrentLinkedDeque<Packet<?>> packets = new ConcurrentLinkedDeque<>();
     private final List<Object> holders = new ArrayList<>();
     public boolean active;
 
