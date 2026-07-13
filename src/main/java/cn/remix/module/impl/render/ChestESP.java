@@ -14,25 +14,26 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.ChestBlock;
 import net.minecraft.block.EnderChestBlock;
 import net.minecraft.block.TrappedChestBlock;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.WorldChunk;
 
 import java.awt.Color;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 public final class ChestESP extends Module {
-    private static final int SCAN_RADIUS = 64;
-    private static final int SCAN_PER_TICK = 4096;
-
+    private static final int SCAN_CHUNK_RADIUS = 4;
     private final ColorValue chestColor = new ColorValue("Chest", new Color(255, 170, 0));
     private final ColorValue trappedChestColor = new ColorValue("Trapped Chest", new Color(255, 43, 0));
     private final ColorValue enderChestColor = new ColorValue("Ender Chest", new Color(26, 17, 170));
     private final BoolValue tracers = new BoolValue("Tracers", false);
-    private final Set<BlockPos> chests = new CopyOnWriteArraySet<>();
-    private int scanIndex;
+    private Set<BlockPos> chests = Set.of();
 
     public ChestESP() {
         super("ChestESP", Category.Render);
@@ -41,6 +42,7 @@ public final class ChestESP extends Module {
     @Override
     public void onEnable() {
         reset();
+        scanForChests();
     }
 
     @Override
@@ -76,7 +78,6 @@ public final class ChestESP extends Module {
             BlockState state = mc.world.getBlockState(pos);
             Block block = state.getBlock();
             if (!isChest(block)) {
-                chests.remove(pos);
                 continue;
             }
 
@@ -97,22 +98,24 @@ public final class ChestESP extends Module {
     }
 
     private void scanForChests() {
-        BlockPos origin = mc.player.getBlockPos();
-        int width = SCAN_RADIUS * 2 + 1;
-        int total = width * width * width;
+        if (mc.world == null || mc.player == null) return;
 
-        for (int scanned = 0; scanned < SCAN_PER_TICK; scanned++) {
-            int index = scanIndex++;
-            if (scanIndex >= total) scanIndex = 0;
+        Set<BlockPos> found = new HashSet<>();
+        ChunkPos origin = mc.player.getChunkPos();
+        for (int chunkX = origin.x - SCAN_CHUNK_RADIUS; chunkX <= origin.x + SCAN_CHUNK_RADIUS; chunkX++) {
+            for (int chunkZ = origin.z - SCAN_CHUNK_RADIUS; chunkZ <= origin.z + SCAN_CHUNK_RADIUS; chunkZ++) {
+                WorldChunk chunk = mc.world.getChunkManager().getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
+                if (chunk == null) continue;
 
-            int dx = index % width - SCAN_RADIUS;
-            int dy = index / width % width - SCAN_RADIUS;
-            int dz = index / (width * width) - SCAN_RADIUS;
-            BlockPos pos = origin.add(dx, dy, dz);
-            if (mc.world.isInBuildLimit(pos) && isChest(mc.world.getBlockState(pos).getBlock())) {
-                chests.add(pos.toImmutable());
+                for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
+                    BlockState state = blockEntity.getCachedState();
+                    if (isChest(state.getBlock())) {
+                        found.add(blockEntity.getPos().toImmutable());
+                    }
+                }
             }
         }
+        chests = Set.copyOf(found);
     }
 
     private boolean isChest(Block block) {
@@ -130,7 +133,6 @@ public final class ChestESP extends Module {
     }
 
     private void reset() {
-        chests.clear();
-        scanIndex = 0;
+        chests = Set.of();
     }
 }

@@ -48,6 +48,10 @@ public final class Render3D implements IMinecraft {
                     .build()
     );
 
+    public void init() {
+        // Forces the custom pipelines to register before Minecraft reloads shaders.
+    }
+
     public void drawBox(Render3DEvent event, Box box, Color color, boolean fill, boolean outline) {
         if ((!fill && !outline) || mc.gameRenderer == null) return;
 

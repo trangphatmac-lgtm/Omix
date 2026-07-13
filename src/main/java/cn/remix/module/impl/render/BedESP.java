@@ -15,18 +15,21 @@ import net.minecraft.block.BedBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.enums.BedPart;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.WorldChunk;
 
 import java.awt.Color;
 import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 public final class BedESP extends Module {
-    private static final int SCAN_RADIUS = 64;
-    private static final int SCAN_PER_TICK = 4096;
+    private static final int SCAN_CHUNK_RADIUS = 4;
     private static final List<Direction> OBSIDIAN_DIRECTIONS = List.of(
             Direction.UP,
             Direction.NORTH,
@@ -41,8 +44,7 @@ public final class BedESP extends Module {
     private final NumberValue opacity = new NumberValue("Opacity", 25, 0, 100, 1);
     private final BoolValue outline = new BoolValue("Outline", false);
     private final BoolValue obsidian = new BoolValue("Obsidian", true);
-    private final Set<BlockPos> beds = new CopyOnWriteArraySet<>();
-    private int scanIndex;
+    private Set<BlockPos> beds = Set.of();
 
     public BedESP() {
         super("BedESP", Category.Render);
@@ -51,6 +53,7 @@ public final class BedESP extends Module {
     @Override
     public void onEnable() {
         reset();
+        scanForBeds();
     }
 
     @Override
@@ -76,7 +79,6 @@ public final class BedESP extends Module {
         for (BlockPos head : beds) {
             BlockState headState = mc.world.getBlockState(head);
             if (!(headState.getBlock() instanceof BedBlock) || headState.get(BedBlock.PART) != BedPart.HEAD) {
-                beds.remove(head);
                 continue;
             }
 
@@ -111,25 +113,25 @@ public final class BedESP extends Module {
     }
 
     private void scanForBeds() {
-        BlockPos origin = mc.player.getBlockPos();
-        int width = SCAN_RADIUS * 2 + 1;
-        int total = width * width * width;
+        if (mc.world == null || mc.player == null) return;
 
-        for (int scanned = 0; scanned < SCAN_PER_TICK; scanned++) {
-            int index = scanIndex++;
-            if (scanIndex >= total) scanIndex = 0;
+        Set<BlockPos> found = new HashSet<>();
+        ChunkPos origin = mc.player.getChunkPos();
+        for (int chunkX = origin.x - SCAN_CHUNK_RADIUS; chunkX <= origin.x + SCAN_CHUNK_RADIUS; chunkX++) {
+            for (int chunkZ = origin.z - SCAN_CHUNK_RADIUS; chunkZ <= origin.z + SCAN_CHUNK_RADIUS; chunkZ++) {
+                WorldChunk chunk = mc.world.getChunkManager().getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
+                if (chunk == null) continue;
 
-            int dx = index % width - SCAN_RADIUS;
-            int dy = index / width % width - SCAN_RADIUS;
-            int dz = index / (width * width) - SCAN_RADIUS;
-            BlockPos pos = origin.add(dx, dy, dz);
-            if (!mc.world.isInBuildLimit(pos)) continue;
-
-            BlockState state = mc.world.getBlockState(pos);
-            if (state.getBlock() instanceof BedBlock && state.get(BedBlock.PART) == BedPart.HEAD) {
-                beds.add(pos.toImmutable());
+                for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
+                    BlockPos pos = blockEntity.getPos();
+                    BlockState state = blockEntity.getCachedState();
+                    if (state.getBlock() instanceof BedBlock && state.get(BedBlock.PART) == BedPart.HEAD) {
+                        found.add(pos.toImmutable());
+                    }
+                }
             }
         }
+        beds = Set.copyOf(found);
     }
 
     private void drawObsidian(Render3DEvent event, BlockPos head, BlockPos foot) {
@@ -166,7 +168,6 @@ public final class BedESP extends Module {
     }
 
     private void reset() {
-        beds.clear();
-        scanIndex = 0;
+        beds = Set.of();
     }
 }
