@@ -10,11 +10,31 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 @UtilityClass
 public class PacketUtil implements IMinecraft {
     @Getter
     private final ArrayList<Packet<?>> packets = new ArrayList<>();
+    private final ThreadLocal<Integer> eventBypassDepth = ThreadLocal.withInitial(() -> 0);
+
+    public boolean isBypassingEvents() {
+        return eventBypassDepth.get() > 0;
+    }
+
+    public <T> T runWithoutEvents(Supplier<T> action) {
+        eventBypassDepth.set(eventBypassDepth.get() + 1);
+        try {
+            return action.get();
+        } finally {
+            int depth = eventBypassDepth.get() - 1;
+            if (depth == 0) {
+                eventBypassDepth.remove();
+            } else {
+                eventBypassDepth.set(depth);
+            }
+        }
+    }
 
     public void sendPacket(Packet<?> packet) {
         if (mc.getNetworkHandler() == null) return;

@@ -46,7 +46,7 @@ public final class NoFall extends Module {
 
     private boolean slowFalling;
     private boolean blinking;
-    private boolean lastOnGround;
+    private boolean blinkArmed;
     private String activeMode;
     private int lastSlot = -1;
     private long lastPlace;
@@ -107,25 +107,37 @@ public final class NoFall extends Module {
             mc.player.fallDistance = 0.0F;
         }
 
+        if (mode.is("Blink") && blinking && mc.player.isOnGround()) {
+            finishBlink();
+        }
+
         if (mode.is("Blink")
                 && !blinking
                 && mc.player.isOnGround()
                 && canBlink()
                 && canTrigger()) {
-            lastOnGround = true;
+            blinkArmed = true;
         }
     }
 
     @EventTarget
-    @EventPriority(1)
+    @EventPriority(1000)
     public void onMotion(MotionEvent event) {
-        if (mc.player == null || !event.isPre()) return;
+        if (mc.player == null) return;
 
         syncModeState();
+        if (event.isPre() && mode.is("Blink") && blinking && event.isOnGround()) {
+            finishBlink();
+        }
         if (!mode.is("MLG")) return;
         setSuffix(mode.getValue());
-        handleMlgUpdate(event);
-        handleMlgPlace();
+
+        if (event.isPre()) {
+            applyMlgRotation(event);
+        } else {
+            handleMlgPickup();
+            handleMlgPlace();
+        }
     }
 
     private void handlePacket(PlayerMoveC2SPacket packet) {
@@ -145,30 +157,58 @@ public final class NoFall extends Module {
     private void handleBlink(PlayerMoveC2SPacket packet) {
         boolean allowed = canBlink();
 
-        if (!blinking) {
-            if (lastOnGround
-                    && !packet.isOnGround()
-                    && allowed
-                    && canBlinkFall(distance.getValue().intValue())
-                    && mc.player.getVelocity().y < 0.0) {
-                instance.getPacketManager().getBlink().start(this);
-                blinking = true;
-            }
-        } else if (!allowed || isInFluid() || isOverVoid()) {
-            instance.getPacketManager().getBlink().dispatch(this);
-            blinking = false;
-        } else if (packet.isOnGround()) {
-            for (Packet<?> blinkedPacket : instance.getPacketManager().getBlink().packets) {
-                if (blinkedPacket instanceof PlayerMoveC2SPacket movePacket) {
-                    setOnGround(movePacket, true);
-                }
-            }
-            instance.getPacketManager().getBlink().dispatch(this);
-            blinking = false;
-            packetDelayTimer.reset();
+        if (!allowed) {
+            abortBlink();
+            return;
         }
 
-        lastOnGround = packet.isOnGround() && allowed && canTrigger();
+        if (blinking) {
+            if (isInFluid() || isOverVoid()) {
+                abortBlink();
+            } else if (packet.isOnGround()) {
+                finishBlink();
+            }
+            return;
+        }
+
+        if (packet.isOnGround()) {
+            if (canTrigger()) {
+                blinkArmed = true;
+            }
+            return;
+        }
+
+        if (blinkArmed
+                && canBlinkFall(distance.getValue().intValue())
+                && mc.player.getVelocity().y < 0.0
+                && !isInFluid()
+                && !isOverVoid()) {
+            instance.getPacketManager().getBlink().start(this);
+            blinking = true;
+            blinkArmed = false;
+        }
+    }
+
+    private void finishBlink() {
+        if (!blinking) return;
+
+        for (Packet<?> blinkedPacket : instance.getPacketManager().getBlink().packets) {
+            if (blinkedPacket instanceof PlayerMoveC2SPacket movePacket) {
+                setOnGround(movePacket, true);
+            }
+        }
+        instance.getPacketManager().getBlink().dispatch(this);
+        blinking = false;
+        blinkArmed = false;
+        packetDelayTimer.reset();
+    }
+
+    private void abortBlink() {
+        if (blinking) {
+            instance.getPacketManager().getBlink().dispatch(this);
+        }
+        blinking = false;
+        blinkArmed = false;
     }
 
     private void handleSpoof(PlayerMoveC2SPacket packet) {
@@ -272,14 +312,17 @@ public final class NoFall extends Module {
         }
     }
 
-    private void handleMlgUpdate(MotionEvent event) {
+    private void applyMlgRotation(MotionEvent event) {
         long now = System.currentTimeMillis();
         if (rotation.getValue()
                 && (fallCheck() || placedWaterPos != null && elapsed(lastPlace, now) < PLACE_DELAY)
                 && getWaterBucketSlot() != -1) {
             event.setPitch(90.0F);
         }
+    }
 
+    private void handleMlgPickup() {
+        long now = System.currentTimeMillis();
         if (placedWaterPos == null || elapsed(lastPlace, now) <= PICKUP_WAIT) return;
 
         if (!isPlacedWaterStillThere()) {
@@ -357,7 +400,7 @@ public final class NoFall extends Module {
         float oldPitch = mc.player.getPitch();
         if (silentRotation) mc.player.setPitch(90.0F);
         try {
-            mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);
+            PacketUtil.runWithoutEvents(() -> mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND));
         } finally {
             if (silentRotation) mc.player.setPitch(oldPitch);
         }
@@ -372,7 +415,9 @@ public final class NoFall extends Module {
         float oldPitch = mc.player.getPitch();
         if (silentRotation) mc.player.setPitch(90.0F);
         try {
-            ActionResult result = mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);
+            ActionResult result = PacketUtil.runWithoutEvents(
+                    () -> mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND)
+            );
             if (result.isAccepted()) mc.player.swingHand(Hand.MAIN_HAND);
             return result.isAccepted();
         } finally {
@@ -404,7 +449,7 @@ public final class NoFall extends Module {
     }
 
     private void resetState(boolean releaseBlink) {
-        lastOnGround = false;
+        blinkArmed = false;
         slowFalling = false;
         TimerSpeedUtil.reset();
 

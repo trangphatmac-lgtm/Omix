@@ -18,6 +18,7 @@ public abstract class MixinClientConnection implements IMinecraft {
     @Inject(method = "send(Lnet/minecraft/network/packet/Packet;)V", at = @At("HEAD"), cancellable = true)
     private void send(Packet<?> packet, CallbackInfo ci) {
         if (PacketUtil.getPackets().remove(packet)) return;
+        if (PacketUtil.isBypassingEvents()) return;
         if (mc.player == null || mc.world == null) return;
 
         PacketEvent event = new PacketEvent(packet, PacketEvent.Type.Send);
