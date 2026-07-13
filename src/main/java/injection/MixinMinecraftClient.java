@@ -1,6 +1,7 @@
 package injection;
 
 import cn.remix.Client;
+import cn.remix.event.impl.RotationAppliedEvent;
 import cn.remix.event.impl.TickEvent;
 import cn.remix.event.impl.WorldEvent;
 import cn.remix.util.IMinecraft;
@@ -54,6 +55,12 @@ public abstract class MixinMinecraftClient implements IMinecraft {
         }
 
         instance.getEventManager().call(new TickEvent());
+    }
+
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;handleInputEvents()V", shift = At.Shift.BEFORE))
+    private void beforeHandleInputEvents(CallbackInfo ci) {
+        if (mc.player == null || mc.world == null) return;
+        instance.getEventManager().call(new RotationAppliedEvent());
     }
 
     @Inject(method = "setWorld(Lnet/minecraft/client/world/ClientWorld;)V", at = @At("HEAD"))

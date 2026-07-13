@@ -2,10 +2,10 @@ package cn.remix.module.impl.world;
 
 import cn.remix.event.base.annotation.EventTarget;
 import cn.remix.event.impl.LivingUpdateEvent;
-import cn.remix.event.impl.MotionEvent;
 import cn.remix.event.impl.MoveInputEvent;
 import cn.remix.event.impl.Render2DEvent;
 import cn.remix.event.impl.Render3DEvent;
+import cn.remix.event.impl.RotationAppliedEvent;
 import cn.remix.management.RotationManager;
 import cn.remix.module.Category;
 import cn.remix.module.Module;
@@ -233,10 +233,8 @@ public final class Scaffold extends Module {
     }
 
     @EventTarget
-    public void onMotion(MotionEvent event) {
-        if (event.isPost()) {
-            place();
-        }
+    public void onRotationApplied(RotationAppliedEvent event) {
+        place();
     }
 
     @EventTarget
@@ -298,6 +296,13 @@ public final class Scaffold extends Module {
     private void place() {
         if (!canPlace || !canRotation || blockData == null || blockSlot == null || !blockSlot.isValid()
                 || mc.player == null || mc.world == null || mc.interactionManager == null) return;
+
+        if (!isSolidSupport(blockData.pos()) || !isReplaceable(blockData.placePos())) {
+            blockData = null;
+            canPlace = false;
+            canRotation = false;
+            return;
+        }
 
         float[] applied = RotationManager.currentRotations != null ? RotationManager.currentRotations : rotations;
         if (applied == null) return;
