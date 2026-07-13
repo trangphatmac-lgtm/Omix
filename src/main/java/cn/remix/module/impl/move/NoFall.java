@@ -22,7 +22,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.util.ActionResult;
@@ -36,7 +35,8 @@ import net.minecraft.util.math.MathHelper;
 
 public final class NoFall extends Module {
     private static final long PLACE_DELAY = 500L;
-    private static final long PICKUP_WAIT = 150L;
+    private static final long PICKUP_WAIT = 200L;
+    private static final long CONFIRM_TIMEOUT = 1500L;
 
     private final ModeValue mode = new ModeValue("Mode", "Packet", "Packet", "Blink", "NoGround", "Spoof", "MLG");
     private final NumberValue distance = new NumberValue("Distance", 3.0, 0.0, 20.0, 0.5);
@@ -50,7 +50,13 @@ public final class NoFall extends Module {
     private String activeMode;
     private int lastSlot = -1;
     private long lastPlace;
+    private long lastPickup;
+    private long waterContactTime;
     private BlockPos placedWaterPos;
+    private boolean awaitingPlaceConfirmation;
+    private boolean awaitingPickupConfirmation;
+    private boolean mlgActionThisTick;
+    private int restoreSlotTicks;
 
     public NoFall() {
         super("NoFall", Category.Move);
@@ -102,6 +108,9 @@ public final class NoFall extends Module {
 
         syncModeState();
         setSuffix(mode.getValue());
+        mlgActionThisTick = false;
+        handleScheduledSlotRestore();
+
         if (mode.is("Packet") && slowFalling) {
             sendGroundPacket();
             mc.player.fallDistance = 0.0F;
@@ -118,26 +127,24 @@ public final class NoFall extends Module {
                 && canTrigger()) {
             blinkArmed = true;
         }
+
+        if (mode.is("MLG")) {
+            handleMlgTick();
+        }
     }
 
     @EventTarget
     @EventPriority(1000)
     public void onMotion(MotionEvent event) {
-        if (mc.player == null) return;
+        if (mc.player == null || !event.isPre()) return;
 
         syncModeState();
-        if (event.isPre() && mode.is("Blink") && blinking && event.isOnGround()) {
+        if (mode.is("Blink") && blinking && event.isOnGround()) {
             finishBlink();
         }
         if (!mode.is("MLG")) return;
         setSuffix(mode.getValue());
-
-        if (event.isPre()) {
-            applyMlgRotation(event);
-        } else {
-            handleMlgPickup();
-            handleMlgPlace();
-        }
+        applyMlgRotation(event);
     }
 
     private void handlePacket(PlayerMoveC2SPacket packet) {
@@ -313,28 +320,85 @@ public final class NoFall extends Module {
     }
 
     private void applyMlgRotation(MotionEvent event) {
-        long now = System.currentTimeMillis();
-        if (rotation.getValue()
-                && (fallCheck() || placedWaterPos != null && elapsed(lastPlace, now) < PLACE_DELAY)
-                && getWaterBucketSlot() != -1) {
+        if (rotation.getValue() && mlgActionThisTick) {
             event.setPitch(90.0F);
+        }
+    }
+
+    private void handleMlgTick() {
+        if (awaitingPlaceConfirmation) {
+            handlePlaceConfirmation();
+            return;
+        }
+
+        if (awaitingPickupConfirmation) {
+            handlePickupConfirmation();
+            return;
+        }
+
+        if (placedWaterPos != null) {
+            handleMlgPickup();
+        } else {
+            handleMlgPlace();
+        }
+    }
+
+    private void handlePlaceConfirmation() {
+        if (isItem(mc.player.getMainHandStack(), Items.BUCKET)) {
+            awaitingPlaceConfirmation = false;
+            return;
+        }
+
+        if (elapsed(lastPlace, System.currentTimeMillis()) > CONFIRM_TIMEOUT
+                && !isPlacedWaterStillThere()) {
+            clearMlgWaterState();
+            scheduleSlotRestore();
+        }
+    }
+
+    private void handlePickupConfirmation() {
+        if (isItem(mc.player.getMainHandStack(), Items.WATER_BUCKET)) {
+            awaitingPickupConfirmation = false;
+            clearMlgWaterState();
+            scheduleSlotRestore();
+            return;
+        }
+
+        if (elapsed(lastPickup, System.currentTimeMillis()) > CONFIRM_TIMEOUT
+                && isPlacedWaterStillThere()
+                && isItem(mc.player.getMainHandStack(), Items.BUCKET)) {
+            awaitingPickupConfirmation = false;
+            waterContactTime = System.currentTimeMillis();
         }
     }
 
     private void handleMlgPickup() {
         long now = System.currentTimeMillis();
-        if (placedWaterPos == null || elapsed(lastPlace, now) <= PICKUP_WAIT) return;
+        if (placedWaterPos == null) return;
 
         if (!isPlacedWaterStillThere()) {
-            clearMlgWaterState();
-            restoreSlot();
+            if (elapsed(lastPlace, now) > CONFIRM_TIMEOUT) {
+                clearMlgWaterState();
+                scheduleSlotRestore();
+            }
             return;
         }
 
+        if (waterContactTime == 0L) {
+            if (mc.player.isOnGround() || mc.player.isTouchingWater()) {
+                waterContactTime = now;
+            }
+            return;
+        }
+
+        if (elapsed(waterContactTime, now) < PICKUP_WAIT) return;
+
         if (isItem(mc.player.getMainHandStack(), Items.BUCKET)) {
-            useCurrentItem(rotation.getValue());
-            clearMlgWaterState();
-            restoreSlot();
+            mlgActionThisTick = true;
+            if (useCurrentItem(rotation.getValue())) {
+                awaitingPickupConfirmation = true;
+                lastPickup = now;
+            }
         }
     }
 
@@ -354,11 +418,14 @@ public final class NoFall extends Module {
         if (elapsed(lastPlace, now) < PLACE_DELAY) return;
 
         if (!isItem(mc.player.getMainHandStack(), Items.WATER_BUCKET) && !attemptSwitch()) return;
+        mlgActionThisTick = true;
         if (useWaterBucket(rotation.getValue())) {
             lastPlace = now;
             placedWaterPos = target.getBlockPos().offset(target.getSide());
+            awaitingPlaceConfirmation = true;
+            waterContactTime = 0L;
         } else {
-            restoreSlot();
+            scheduleSlotRestore();
         }
     }
 
@@ -379,11 +446,23 @@ public final class NoFall extends Module {
             setSelectedSlot(lastSlot);
         }
         lastSlot = -1;
+        restoreSlotTicks = 0;
+    }
+
+    private void scheduleSlotRestore() {
+        if (lastSlot != -1) {
+            restoreSlotTicks = 1;
+        }
+    }
+
+    private void handleScheduledSlotRestore() {
+        if (restoreSlotTicks > 0 && --restoreSlotTicks == 0) {
+            restoreSlot();
+        }
     }
 
     private void setSelectedSlot(int slot) {
         mc.player.getInventory().setSelectedSlot(slot);
-        PacketUtil.sendPacketNoEvent(new UpdateSelectedSlotC2SPacket(slot));
     }
 
     private int getWaterBucketSlot() {
@@ -394,14 +473,19 @@ public final class NoFall extends Module {
         return -1;
     }
 
-    private void useCurrentItem(boolean silentRotation) {
-        if (mc.interactionManager == null || mc.player == null) return;
+    private boolean useCurrentItem(boolean silentRotation) {
+        if (mc.interactionManager == null || mc.player == null) return false;
 
+        ItemStack originalStack = mc.player.getMainHandStack().copy();
         float oldPitch = mc.player.getPitch();
         if (silentRotation) mc.player.setPitch(90.0F);
         try {
-            PacketUtil.runWithoutEvents(() -> mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND));
+            ActionResult result = PacketUtil.runWithoutEvents(
+                    () -> mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND)
+            );
+            return result.isAccepted();
         } finally {
+            mc.player.setStackInHand(Hand.MAIN_HAND, originalStack);
             if (silentRotation) mc.player.setPitch(oldPitch);
         }
     }
@@ -412,6 +496,7 @@ public final class NoFall extends Module {
             return false;
         }
 
+        ItemStack originalStack = mc.player.getMainHandStack().copy();
         float oldPitch = mc.player.getPitch();
         if (silentRotation) mc.player.setPitch(90.0F);
         try {
@@ -421,6 +506,7 @@ public final class NoFall extends Module {
             if (result.isAccepted()) mc.player.swingHand(Hand.MAIN_HAND);
             return result.isAccepted();
         } finally {
+            mc.player.setStackInHand(Hand.MAIN_HAND, originalStack);
             if (silentRotation) mc.player.setPitch(oldPitch);
         }
     }
@@ -433,7 +519,10 @@ public final class NoFall extends Module {
 
     private void clearMlgWaterState() {
         placedWaterPos = null;
-        lastPlace = 0L;
+        awaitingPlaceConfirmation = false;
+        awaitingPickupConfirmation = false;
+        waterContactTime = 0L;
+        lastPickup = 0L;
     }
 
     private boolean fallCheck() {
@@ -460,6 +549,8 @@ public final class NoFall extends Module {
 
         restoreSlot();
         clearMlgWaterState();
+        lastPlace = 0L;
+        mlgActionThisTick = false;
         packetDelayTimer.reset();
     }
 
