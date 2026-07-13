@@ -23,6 +23,7 @@ import net.minecraft.client.resource.language.I18n;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffectUtil;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.Formatting;
 import org.lwjgl.glfw.GLFW;
 
@@ -75,6 +76,7 @@ public class HUD extends Module {
     private final BoolValue classicShadow = new BoolValue("Classic Shadow", true, () -> hudMode.is("Classic"));
     private final BoolValue classicSuffixes = new BoolValue("Classic Suffixes", true, () -> hudMode.is("Classic"));
     private final BoolValue classicLowerCase = new BoolValue("Classic Lower Case", false, () -> hudMode.is("Classic"));
+    private final BoolValue classicBlinkTicks = new BoolValue("Classic Blink Ticks", true, () -> hudMode.is("Classic"));
     private final BoolValue classicDisablerQueue = new BoolValue("Classic Disabler Queue", true, () -> hudMode.is("Classic"));
     private final EasingAnimation yAnimation = new EasingAnimation(Easing.EASE_OUT_QUART, 250);
     private final EasingAnimation selectorAnimation = new EasingAnimation(Easing.EASE_OUT_QUART, 200);
@@ -347,27 +349,34 @@ public class HUD extends Module {
             row++;
         }
 
-        Disabler disabler = getModule(Disabler.class);
-
-        if (classicDisablerQueue.getValue() && disabler.isEnabled()) {
-            drawClassicOverlay(context, String.valueOf(disabler.getPacketQueue().size()), time, row);
+        int overlayRow = 0;
+        long blinkTicks = instance.getPacketManager().getBlink().packets.stream()
+                .filter(PlayerMoveC2SPacket.class::isInstance)
+                .count();
+        if (classicBlinkTicks.getValue()
+                && instance.getPacketManager().getBlink().active
+                && blinkTicks > 0) {
+            drawClassicOverlay(context, String.valueOf(blinkTicks), time, row++, overlayRow++);
         }
 
+        Disabler disabler = getModule(Disabler.class);
         if (classicDisablerQueue.getValue() && disabler.isEnabled()) {
-
+            String text = String.valueOf(disabler.getPacketQueue().size());
             if (disabler.isWaiting()) {
                 disabler.refresh();
-                drawClassicOverlay(context, "You are playing Cubecraft with disabler disabled!", time, row);
+                text = "You are playing Cubecraft with disabler disabled!";
             }
+            drawClassicOverlay(context, text, time, row, overlayRow);
         }
         context.getMatrices().popMatrix();
     }
 
-    private void drawClassicOverlay(DrawContext context, String text, long time, int colorOffset) {
+    private void drawClassicOverlay(DrawContext context, String text, long time, int colorOffset, int overlayRow) {
         float scale = classicScale.getValue();
         int color = getClassicColor(time, colorOffset).getRGB() & 0x00FFFFFF | 0xBF000000;
         int drawX = Math.round((mc.getWindow().getScaledWidth() / 2f - mc.textRenderer.getWidth(text) * scale / 2f) / scale);
-        int drawY = Math.round((mc.getWindow().getScaledHeight() / 5f * 3f) / scale);
+        float lineHeight = (mc.textRenderer.fontHeight + 2) * scale;
+        int drawY = Math.round((mc.getWindow().getScaledHeight() / 5f * 3f + overlayRow * lineHeight) / scale);
         context.drawText(mc.textRenderer, text, drawX, drawY, color, classicShadow.getValue());
     }
 
