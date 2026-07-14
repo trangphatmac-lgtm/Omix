@@ -16,13 +16,15 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SpawnerBlock;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.render.Camera;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockRenderView;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 import java.awt.Color;
 import java.util.List;
@@ -31,6 +33,8 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public final class Xray extends Module {
+    private static final float LINE_START_NDC_Z = 0.6F;
+
     private static final Set<Block> DIAMOND_BLOCKS = Set.of(Blocks.DIAMOND_ORE, Blocks.DEEPSLATE_DIAMOND_ORE);
     private static final Set<Block> GOLD_BLOCKS = Set.of(Blocks.GOLD_ORE, Blocks.DEEPSLATE_GOLD_ORE);
     private static final Set<Block> IRON_BLOCKS = Set.of(Blocks.IRON_ORE, Blocks.DEEPSLATE_IRON_ORE);
@@ -180,7 +184,8 @@ public final class Xray extends Module {
     public void onRender3D(Render3DEvent event) {
         if (mc.player == null || mc.world == null) return;
 
-        Vec3d lineStart = getLineStart(event);
+        Camera camera = mc.gameRenderer.getCamera();
+        Vec3d lineStart = getLineStart(event, camera.getCameraPos());
         for (BlockPos pos : trackedBlocks) {
             if (pendingBlocks.contains(pos)) {
                 trackedBlocks.remove(pos);
@@ -284,16 +289,16 @@ public final class Xray extends Module {
         }
     }
 
-    private Vec3d getLineStart(Render3DEvent event) {
-        Entity cameraEntity = mc.getCameraEntity();
-        if (cameraEntity == null) return mc.player.getEyePos();
-
-        Vec3d lineStart = cameraEntity.getLerpedPos(event.getTickDelta())
-                .add(0.0, cameraEntity.getEyeHeight(cameraEntity.getPose()), 0.0);
-        if (mc.options.getPerspective().isFirstPerson()) {
-            lineStart = lineStart.add(cameraEntity.getRotationVec(event.getTickDelta()));
+    private Vec3d getLineStart(Render3DEvent event, Vec3d cameraPos) {
+        Matrix4f inverseViewProjection = new Matrix4f(event.getProjectionMatrix())
+                .mul(event.getModelViewMatrix())
+                .invert();
+        Vector4f relative = new Vector4f(0.0F, 0.0F, LINE_START_NDC_Z, 1.0F)
+                .mul(inverseViewProjection);
+        if (Math.abs(relative.w) > 1.0E-6F) {
+            relative.div(relative.w);
         }
-        return lineStart;
+        return cameraPos.add(relative.x, relative.y, relative.z);
     }
 
     private Color getBlockColor(Block block) {
