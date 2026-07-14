@@ -67,6 +67,9 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+    // Temporary local runtime dependency for Sodium compatibility verification.
+    modRuntimeOnly files('/Users/wwwklft/Desktop/.minecraft/versions/1.21.11-Fabric/mods/sodium-fabric-0.8.13+mc1.21.11.jar')
+
     implementation "io.netty:netty-handler-proxy:${"4.1.111.Final"}"
     include "io.netty:netty-handler-proxy:${"4.1.111.Final"}"
     implementation "io.netty:netty-codec-socks:${"4.1.111.Final"}"
