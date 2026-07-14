@@ -36,6 +36,8 @@
     "MixinPlayerEntity",
     "MixinRenderTickCounterDynamic",
     "MixinSectionBuilder",
+    "MixinSodiumBlockRenderContext",
+    "MixinSodiumBlockRenderer",
     "MixinTitleScreen",
     "MixinStatusEffectFogModifier",
     "MixinWorldRenderer",
