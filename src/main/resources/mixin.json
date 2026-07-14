@@ -33,6 +33,7 @@
     "accessor.ClientWorldAccessor",
     "accessor.EntityAccessor",
     "accessor.EntityVelocityUpdateS2CPacketAccessor",
+    "accessor.LivingEntityAccessor",
     "accessor.MinecraftClientAccessor",
     "accessor.NativeImageAccessor",
     "accessor.PlayerMoveC2SPacketAccessor"

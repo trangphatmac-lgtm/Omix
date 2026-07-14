@@ -45,6 +45,7 @@ public class ModuleManager implements IMinecraft {
                 new TargetStrafe(),
                 new DamageTint(),
                 new Criticals(),
+                new NoJumpDelay(),
                 new NoSlowDown(),
                 new ModuleList(),
                 new Speed(),
