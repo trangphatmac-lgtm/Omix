@@ -72,6 +72,7 @@ public class ModuleManager implements IMinecraft {
                 new ESP(),
                 new BedESP(),
                 new ChestESP(),
+                new Xray(),
                 new TargetHUD(),
                 new Tracers(),
                 new Trajectories(),

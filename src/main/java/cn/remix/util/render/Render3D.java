@@ -53,6 +53,10 @@ public final class Render3D implements IMinecraft {
     }
 
     public void drawBox(Render3DEvent event, Box box, Color color, boolean fill, boolean outline) {
+        drawBox(event, box, color, fill, outline, 2.0F);
+    }
+
+    public void drawBox(Render3DEvent event, Box box, Color color, boolean fill, boolean outline, float lineWidth) {
         if ((!fill && !outline) || mc.gameRenderer == null) return;
 
         Vec3d camera = mc.gameRenderer.getCamera().getCameraPos();
@@ -65,11 +69,15 @@ public final class Render3D implements IMinecraft {
 
         if (outline) {
             Color outlineColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), 255);
-            drawBoxLines(entry, event.getConsumers().getBuffer(SEE_THROUGH_LINES), relative, outlineColor);
+            drawBoxLines(entry, event.getConsumers().getBuffer(SEE_THROUGH_LINES), relative, outlineColor, lineWidth);
         }
     }
 
     public void drawLine(Render3DEvent event, Vec3d start, Vec3d end, Color color) {
+        drawLine(event, start, end, color, 2.0F);
+    }
+
+    public void drawLine(Render3DEvent event, Vec3d start, Vec3d end, Color color, float lineWidth) {
         if (mc.gameRenderer == null) return;
 
         Vec3d camera = mc.gameRenderer.getCamera().getCameraPos();
@@ -78,7 +86,8 @@ public final class Render3D implements IMinecraft {
                 event.getConsumers().getBuffer(SEE_THROUGH_LINES),
                 start.subtract(camera),
                 end.subtract(camera),
-                color
+                color,
+                lineWidth
         );
     }
 
@@ -98,7 +107,7 @@ public final class Render3D implements IMinecraft {
         quad(entry, buffer, color, maxX, minY, minZ, maxX, maxY, minZ, maxX, maxY, maxZ, maxX, minY, maxZ);
     }
 
-    private void drawBoxLines(MatrixStack.Entry entry, VertexConsumer buffer, Box box, Color color) {
+    private void drawBoxLines(MatrixStack.Entry entry, VertexConsumer buffer, Box box, Color color, float lineWidth) {
         Vec3d nnn = new Vec3d(box.minX, box.minY, box.minZ);
         Vec3d nnx = new Vec3d(box.minX, box.minY, box.maxZ);
         Vec3d nxn = new Vec3d(box.minX, box.maxY, box.minZ);
@@ -108,21 +117,21 @@ public final class Render3D implements IMinecraft {
         Vec3d xxn = new Vec3d(box.maxX, box.maxY, box.minZ);
         Vec3d xxx = new Vec3d(box.maxX, box.maxY, box.maxZ);
 
-        drawLine(entry, buffer, nnn, nnx, color);
-        drawLine(entry, buffer, nnx, xnx, color);
-        drawLine(entry, buffer, xnx, xnn, color);
-        drawLine(entry, buffer, xnn, nnn, color);
-        drawLine(entry, buffer, nxn, nxx, color);
-        drawLine(entry, buffer, nxx, xxx, color);
-        drawLine(entry, buffer, xxx, xxn, color);
-        drawLine(entry, buffer, xxn, nxn, color);
-        drawLine(entry, buffer, nnn, nxn, color);
-        drawLine(entry, buffer, nnx, nxx, color);
-        drawLine(entry, buffer, xnx, xxx, color);
-        drawLine(entry, buffer, xnn, xxn, color);
+        drawLine(entry, buffer, nnn, nnx, color, lineWidth);
+        drawLine(entry, buffer, nnx, xnx, color, lineWidth);
+        drawLine(entry, buffer, xnx, xnn, color, lineWidth);
+        drawLine(entry, buffer, xnn, nnn, color, lineWidth);
+        drawLine(entry, buffer, nxn, nxx, color, lineWidth);
+        drawLine(entry, buffer, nxx, xxx, color, lineWidth);
+        drawLine(entry, buffer, xxx, xxn, color, lineWidth);
+        drawLine(entry, buffer, xxn, nxn, color, lineWidth);
+        drawLine(entry, buffer, nnn, nxn, color, lineWidth);
+        drawLine(entry, buffer, nnx, nxx, color, lineWidth);
+        drawLine(entry, buffer, xnx, xxx, color, lineWidth);
+        drawLine(entry, buffer, xnn, xxn, color, lineWidth);
     }
 
-    private void drawLine(MatrixStack.Entry entry, VertexConsumer buffer, Vec3d start, Vec3d end, Color color) {
+    private void drawLine(MatrixStack.Entry entry, VertexConsumer buffer, Vec3d start, Vec3d end, Color color, float lineWidth) {
         Vec3d normal = end.subtract(start);
         if (normal.lengthSquared() < 1.0E-7) {
             normal = new Vec3d(0.0, 1.0, 0.0);
@@ -133,11 +142,11 @@ public final class Render3D implements IMinecraft {
         buffer.vertex(entry, (float) start.x, (float) start.y, (float) start.z)
                 .color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha())
                 .normal(entry, (float) normal.x, (float) normal.y, (float) normal.z)
-                .lineWidth(2.0F);
+                .lineWidth(lineWidth);
         buffer.vertex(entry, (float) end.x, (float) end.y, (float) end.z)
                 .color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha())
                 .normal(entry, (float) normal.x, (float) normal.y, (float) normal.z)
-                .lineWidth(2.0F);
+                .lineWidth(lineWidth);
     }
 
     private void quad(MatrixStack.Entry entry, VertexConsumer buffer, Color color,
