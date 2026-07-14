@@ -76,6 +76,7 @@ public class ModuleManager implements IMinecraft {
                 new Tracers(),
                 new Trajectories(),
                 new MoreParticles(),
+                new KillEffect(),
                 new Sprint()
         );
 
