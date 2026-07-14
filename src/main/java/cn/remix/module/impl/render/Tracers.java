@@ -17,6 +17,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 import java.awt.Color;
 
@@ -44,10 +46,7 @@ public final class Tracers extends Module {
         if (cameraEntity == null || !camera.isReady()) return;
 
         float tickDelta = event.getTickDelta();
-        Vec3d start = camera.getCameraPos();
-        if (mc.options.getPerspective().isFirstPerson()) {
-            start = start.add(Vec3d.fromPolar(camera.getPitch(), camera.getYaw()).multiply(0.25));
-        }
+        Vec3d start = getLineStart(event, camera.getCameraPos());
 
         for (PlayerEntity player : mc.world.getPlayers()) {
             if (!shouldRender(player, cameraEntity, camera.getCameraPos())) continue;
@@ -121,6 +120,15 @@ public final class Tracers extends Module {
         Vec3d target = player.getLerpedPos(tickDelta);
         float targetYaw = (float) Math.toDegrees(Math.atan2(target.z - self.z, target.x - self.x)) - 90.0F;
         return MathHelper.wrapDegrees(targetYaw - camera.getYaw());
+    }
+
+    private Vec3d getLineStart(Render3DEvent event, Vec3d cameraPos) {
+        Matrix4f inverseView = new Matrix4f(event.getModelViewMatrix()).invert();
+        Vector4f relative = new Vector4f(0.0F, 0.0F, -0.25F, 1.0F).mul(inverseView);
+        if (relative.w != 0.0F && relative.w != 1.0F) {
+            relative.div(relative.w);
+        }
+        return cameraPos.add(relative.x, relative.y, relative.z);
     }
 
     private float getArrowAlpha(float yaw) {
