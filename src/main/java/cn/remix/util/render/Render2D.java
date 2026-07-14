@@ -25,6 +25,7 @@ public final class Render2D implements IMinecraft {
             RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)
                     .withLocation(Identifier.of("remix", "pipeline/gui_triangles"))
                     .withVertexFormat(VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.TRIANGLES)
+                    .withCull(false)
                     .build()
     );
 

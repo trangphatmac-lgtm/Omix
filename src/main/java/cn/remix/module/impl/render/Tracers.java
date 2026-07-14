@@ -12,6 +12,7 @@ import cn.remix.module.value.impl.ModeValue;
 import cn.remix.module.value.impl.NumberValue;
 import cn.remix.util.render.Render2D;
 import cn.remix.util.render.Render3D;
+import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
@@ -39,17 +40,17 @@ public final class Tracers extends Module {
         if (!lines.getValue() || mc.player == null || mc.world == null) return;
 
         Entity cameraEntity = mc.getCameraEntity();
-        if (cameraEntity == null) return;
+        Camera camera = mc.gameRenderer.getCamera();
+        if (cameraEntity == null || !camera.isReady()) return;
 
         float tickDelta = event.getTickDelta();
-        Vec3d start = cameraEntity.getLerpedPos(tickDelta)
-                .add(0.0, cameraEntity.getEyeHeight(cameraEntity.getPose()), 0.0);
+        Vec3d start = camera.getCameraPos();
         if (mc.options.getPerspective().isFirstPerson()) {
-            start = start.add(cameraEntity.getRotationVec(tickDelta).multiply(0.25));
+            start = start.add(Vec3d.fromPolar(camera.getPitch(), camera.getYaw()).multiply(0.25));
         }
 
         for (PlayerEntity player : mc.world.getPlayers()) {
-            if (!shouldRender(player, cameraEntity)) continue;
+            if (!shouldRender(player, cameraEntity, camera.getCameraPos())) continue;
 
             Vec3d end = player.getLerpedPos(tickDelta)
                     .add(0.0, player.getEyeHeight(player.getPose()) - (player.isSneaking() ? 0.125 : 0.0), 0.0);
@@ -62,34 +63,37 @@ public final class Tracers extends Module {
         if (!arrows.getValue() || mc.player == null || mc.world == null) return;
 
         Entity cameraEntity = mc.getCameraEntity();
-        if (cameraEntity == null) return;
+        Camera camera = mc.gameRenderer.getCamera();
+        if (cameraEntity == null || !camera.isReady()) return;
 
         float tickDelta = event.getPartialTicks();
         float centerX = mc.getWindow().getScaledWidth() / 2.0F;
         float centerY = mc.getWindow().getScaledHeight() / 2.0F;
 
         for (PlayerEntity player : mc.world.getPlayers()) {
-            if (!shouldRender(player, cameraEntity)) continue;
+            if (!shouldRender(player, cameraEntity, camera.getCameraPos())) continue;
 
-            float yaw = getYawBetween(cameraEntity, player, tickDelta);
-            if (mc.options.getPerspective().isFrontView()) yaw += 180.0F;
+            float yaw = getYawBetween(camera, player, tickDelta);
 
             float alpha = getArrowAlpha(yaw);
             if (alpha <= 0.0F) continue;
 
-            double angle = Math.toRadians(yaw - 90.0F);
-            float x = centerX + (float) Math.cos(angle) * 55.0F;
-            float y = centerY + (float) Math.sin(angle) * 55.0F;
-            Render2D.drawTriangle(event.getContext(), x, y, (float) angle, 10.0F,
+            double yawRadians = Math.toRadians(yaw);
+            float directionX = (float) Math.sin(yawRadians);
+            float directionY = -(float) Math.cos(yawRadians);
+            float x = centerX + directionX * 55.0F;
+            float y = centerY + directionY * 55.0F;
+            float angle = (float) Math.atan2(directionY, directionX);
+            Render2D.drawTriangle(event.getContext(), x, y, angle, 10.0F,
                     getEntityColor(player, alpha).getRGB());
         }
     }
 
-    private boolean shouldRender(PlayerEntity player, Entity cameraEntity) {
+    private boolean shouldRender(PlayerEntity player, Entity cameraEntity, Vec3d cameraPos) {
         if (player == mc.player || player == cameraEntity || !player.isAlive() || player.isSpectator()) return false;
 
         double maxDistance = distance.getValue();
-        if (cameraEntity.squaredDistanceTo(player) > maxDistance * maxDistance) return false;
+        if (cameraPos.squaredDistanceTo(player.getX(), player.getY(), player.getZ()) > maxDistance * maxDistance) return false;
 
         if (isBot(player)) return bots.getValue();
         if (isFriend(player)) return friends.getValue();
@@ -112,11 +116,11 @@ public final class Tracers extends Module {
         return teams.isEnabled() && !teams.isTeam(player);
     }
 
-    private float getYawBetween(Entity cameraEntity, PlayerEntity player, float tickDelta) {
-        Vec3d self = cameraEntity.getLerpedPos(tickDelta);
+    private float getYawBetween(Camera camera, PlayerEntity player, float tickDelta) {
+        Vec3d self = camera.getCameraPos();
         Vec3d target = player.getLerpedPos(tickDelta);
         float targetYaw = (float) Math.toDegrees(Math.atan2(target.z - self.z, target.x - self.x)) - 90.0F;
-        return MathHelper.wrapDegrees(targetYaw - cameraEntity.getYaw(tickDelta));
+        return MathHelper.wrapDegrees(targetYaw - camera.getYaw());
     }
 
     private float getArrowAlpha(float yaw) {
