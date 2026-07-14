@@ -80,9 +80,9 @@ public final class Tracers extends Module {
             double yawRadians = Math.toRadians(yaw);
             float directionX = (float) Math.sin(yawRadians);
             float directionY = -(float) Math.cos(yawRadians);
-            float x = centerX + directionX * 55.0F;
-            float y = centerY + directionY * 55.0F;
-            float angle = (float) Math.atan2(directionY, directionX);
+            float x = centerX + directionX * 55.0F + 1.0F;
+            float y = centerY + directionY * 55.0F + 1.0F;
+            float angle = (float) (Math.atan2(directionY, directionX) + Math.PI);
             Render2D.drawTriangle(event.getContext(), x, y, angle, 10.0F,
                     getEntityColor(player, alpha).getRGB());
         }

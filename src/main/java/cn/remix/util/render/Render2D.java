@@ -2,6 +2,7 @@ package cn.remix.util.render;
 
 import cn.remix.util.IMinecraft;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
@@ -9,6 +10,7 @@ import net.minecraft.client.gui.ScreenRect;
 import net.minecraft.client.gui.render.state.SimpleGuiElementRenderState;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.texture.TextureSetup;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
@@ -19,8 +21,16 @@ import org.jspecify.annotations.Nullable;
 
 @UtilityClass
 public final class Render2D implements IMinecraft {
+    private final RenderPipeline TRIANGLE_PIPELINE = RenderPipelines.register(
+            RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)
+                    .withLocation(Identifier.of("remix", "pipeline/gui_triangles"))
+                    .withVertexFormat(VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.TRIANGLES)
+                    .withCull(false)
+                    .build()
+    );
+
     public void init() {
-        // Reserved for render setup that must happen during client initialization.
+        // Forces the custom GUI pipeline to register before Minecraft reloads shaders.
     }
 
     public void drawRect(DrawContext context, float x, float y, float width, float height, int color) {
@@ -45,26 +55,18 @@ public final class Render2D implements IMinecraft {
         drawRect(context, x + width - thickness, y + thickness, thickness, height - thickness - thickness, color);
     }
 
-    public void drawTriangle(DrawContext context, float centerX, float centerY, float angle, float size, int color) {
-        var matrices = context.getMatrices();
-        matrices.pushMatrix();
-        matrices.translate(centerX, centerY);
-        matrices.rotate(angle);
+    public void drawTriangle(DrawContext context, float centerX, float centerY, float angle, float length, int color) {
+        float left = angle + (float) Math.toRadians(26.25);
+        float right = angle - (float) Math.toRadians(26.25);
+        float leftX = centerX + length * (float) Math.cos(left);
+        float leftY = centerY + length * (float) Math.sin(left);
+        float rightX = centerX + length * (float) Math.cos(right);
+        float rightY = centerY + length * (float) Math.sin(right);
 
-        drawRect(context, -size * 0.55F, -1.0F, size * 0.75F, 2.0F, color);
-        drawArrowWing(context, size * 0.35F, size * 0.45F, 2.35F, color);
-        drawArrowWing(context, size * 0.35F, size * 0.45F, -2.35F, color);
-
-        matrices.popMatrix();
-    }
-
-    private void drawArrowWing(DrawContext context, float tipX, float length, float angle, int color) {
-        var matrices = context.getMatrices();
-        matrices.pushMatrix();
-        matrices.translate(tipX, 0.0F);
-        matrices.rotate(angle);
-        drawRect(context, 0.0F, -1.0F, length, 2.0F, color);
-        matrices.popMatrix();
+        context.state.addSimpleElement(new TriangleGuiElementRenderState(
+                TRIANGLE_PIPELINE, TextureSetup.empty(), new Matrix3x2f(context.getMatrices()),
+                centerX, centerY, leftX, leftY, rightX, rightY, color, context.scissorStack.peekLast()
+        ));
     }
 
     public static void beginScissor(DrawContext context, float x, float y, float width, float height) {
@@ -132,6 +134,43 @@ public final class Render2D implements IMinecraft {
 
         private static @Nullable ScreenRect createBounds(float x0, float y0, float x1, float y1, Matrix3x2fc pose, @Nullable ScreenRect scissorArea) {
             ScreenRect rect = new ScreenRect(Math.round(x0), Math.round(y0), Math.round(x1 - x0), Math.round(y1 - y0)).transformEachVertex(pose);
+            return scissorArea != null ? scissorArea.intersection(rect) : rect;
+        }
+    }
+
+    private record TriangleGuiElementRenderState(
+            RenderPipeline pipeline, TextureSetup textureSetup, Matrix3x2fc pose,
+            float x1, float y1, float x2, float y2, float x3, float y3, int color,
+            @Nullable ScreenRect scissorArea, @Nullable ScreenRect bounds
+    ) implements SimpleGuiElementRenderState {
+
+        private TriangleGuiElementRenderState(
+                RenderPipeline pipeline, TextureSetup textureSetup, Matrix3x2fc pose,
+                float x1, float y1, float x2, float y2, float x3, float y3, int color,
+                @Nullable ScreenRect scissorArea
+        ) {
+            this(pipeline, textureSetup, pose, x1, y1, x2, y2, x3, y3, color, scissorArea,
+                    createBounds(x1, y1, x2, y2, x3, y3, pose, scissorArea));
+        }
+
+        @Override
+        public void setupVertices(VertexConsumer v) {
+            v.vertex(pose, x1, y1).color(color);
+            v.vertex(pose, x2, y2).color(color);
+            v.vertex(pose, x3, y3).color(color);
+        }
+
+        private static @Nullable ScreenRect createBounds(
+                float x1, float y1, float x2, float y2, float x3, float y3,
+                Matrix3x2fc pose, @Nullable ScreenRect scissorArea
+        ) {
+            float minX = Math.min(x1, Math.min(x2, x3));
+            float minY = Math.min(y1, Math.min(y2, y3));
+            float maxX = Math.max(x1, Math.max(x2, x3));
+            float maxY = Math.max(y1, Math.max(y2, y3));
+            ScreenRect rect = new ScreenRect(Math.round(minX), Math.round(minY),
+                    Math.max(1, Math.round(maxX - minX)), Math.max(1, Math.round(maxY - minY)))
+                    .transformEachVertex(pose);
             return scissorArea != null ? scissorArea.intersection(rect) : rect;
         }
     }
