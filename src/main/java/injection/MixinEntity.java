@@ -54,14 +54,14 @@ public abstract class MixinEntity implements IMinecraft {
     @Redirect(method = "updateVelocity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;movementInputToVelocity(Lnet/minecraft/util/math/Vec3d;FF)Lnet/minecraft/util/math/Vec3d;"))
     private Vec3d updateVelocity(Vec3d movementInput, float speed, float yaw) {
         if (((Object) this) instanceof ClientPlayerEntity) {
-            StrafeEvent event = new StrafeEvent(yaw);
+            StrafeEvent event = new StrafeEvent(yaw, speed);
             instance.getEventManager().call(event);
 
             if (event.isCancelled()) {
                 return Vec3d.ZERO;
             }
 
-            return MovementUtil.movementInputToVelocity(movementInput, speed, event.getYaw());
+            return MovementUtil.movementInputToVelocity(movementInput, event.getFriction(), event.getYaw());
         }
 
         return MovementUtil.movementInputToVelocity(movementInput, speed, yaw);

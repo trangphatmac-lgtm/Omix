@@ -1,8 +1,11 @@
 package cn.remix.util.player;
 
 import cn.remix.event.impl.MoveInputEvent;
+import cn.remix.management.RotationManager;
 import cn.remix.util.IMinecraft;
 import lombok.experimental.UtilityClass;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
@@ -28,6 +31,13 @@ public class MovementUtil implements IMinecraft {
     public boolean isMoving() {
         if (mc.player == null) return false;
         return mc.player.input.getMovementInput().y != 0.0f || mc.player.input.getMovementInput().x != 0.0f;
+    }
+
+    public boolean isForwardPressed() {
+        if (mc.player == null || mc.player.input == null) return false;
+
+        var input = mc.player.input.playerInput;
+        return input.forward() != input.backward() || input.left() != input.right();
     }
 
     public double getDirection() {
@@ -57,6 +67,62 @@ public class MovementUtil implements IMinecraft {
         return Math.sqrt(x * x + z * z);
     }
 
+    public double getJumpMotion() {
+        int speedLevel = 0;
+        StatusEffectInstance speed = mc.player == null ? null : mc.player.getStatusEffect(StatusEffects.SPEED);
+        if (speed != null && speed.getDuration() > 0) {
+            speedLevel = speed.getAmplifier() + 1;
+        }
+
+        if (speedLevel == 1) return 0.49720000000000003;
+        if (speedLevel >= 2) return 0.452 * 1.2;
+        return 0.452;
+    }
+
+    public float getMoveYaw() {
+        if (mc.player == null || mc.player.input == null) return 0.0F;
+
+        float yaw = RotationManager.isRotating() ? RotationManager.currentRotations[0] : mc.player.getYaw();
+        return MathHelper.wrapDegrees((float) Math.toDegrees(getDirection(
+                yaw,
+                mc.player.input.getMovementInput().y,
+                mc.player.input.getMovementInput().x
+        )));
+    }
+
+    public float getDirectionYaw() {
+        if (mc.player == null) return 0.0F;
+
+        Vec3d velocity = mc.player.getVelocity();
+        if (Math.hypot(velocity.x, velocity.z) == 0.0) {
+            return MathHelper.wrapDegrees(mc.player.getYaw());
+        }
+        return MathHelper.wrapDegrees((float) Math.toDegrees(Math.atan2(velocity.z, velocity.x)) - 90.0F);
+    }
+
+    public void setSpeed(double speed, float yaw) {
+        if (mc.player == null) return;
+
+        double radians = Math.toRadians(yaw);
+        mc.player.setVelocity(
+                -MathHelper.sin((float) radians) * speed,
+                mc.player.getVelocity().y,
+                MathHelper.cos((float) radians) * speed
+        );
+    }
+
+    public void addSpeed(double speed, float yaw) {
+        if (mc.player == null) return;
+
+        double radians = Math.toRadians(yaw);
+        Vec3d velocity = mc.player.getVelocity();
+        mc.player.setVelocity(
+                velocity.x - MathHelper.sin((float) radians) * speed,
+                velocity.y,
+                velocity.z + MathHelper.cos((float) radians) * speed
+        );
+    }
+
     public void fixMovement(MoveInputEvent event, float yaw) {
         if (mc.player == null) return;
 
@@ -74,7 +140,7 @@ public class MovementUtil implements IMinecraft {
                 if (predictedStrafe == 0 && predictedForward == 0) continue;
 
                 double predictedAngle = MathHelper.wrapDegrees(Math.toDegrees(getDirection(yaw, predictedForward, predictedStrafe)));
-                double difference = Math.abs(angle - predictedAngle);
+                double difference = Math.abs(MathHelper.wrapDegrees(angle - predictedAngle));
 
                 if (difference < closestDifference) {
                     closestDifference = (float) difference;

@@ -5,6 +5,7 @@ import cn.remix.event.base.annotation.EventTarget;
 import cn.remix.event.impl.*;
 import cn.remix.management.movement.MovementCorrection;
 import cn.remix.module.impl.combat.Aura;
+import cn.remix.module.impl.move.Speed;
 import cn.remix.module.impl.world.Scaffold;
 import cn.remix.module.impl.world.ScaffoldOld;
 import cn.remix.util.IMinecraft;
@@ -42,8 +43,10 @@ public class RotationManager implements IMinecraft {
         if (mc.player == null) return;
 
         Aura aura = instance.getModuleManager().getModule(Aura.class);
+        Speed speed = instance.getModuleManager().getModule(Speed.class);
         Scaffold scaffold = instance.getModuleManager().getModule(Scaffold.class);
         ScaffoldOld scaffoldOld = instance.getModuleManager().getModule(ScaffoldOld.class);
+        boolean instantRotation = false;
 
         if (scaffold.isEnabled() && scaffold.isCanRotation() && scaffold.getRotations() != null) {
             setRotations(scaffold.getRotations(), scaffold.getRotationSpeed().getValue(), scaffold.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
@@ -51,13 +54,25 @@ public class RotationManager implements IMinecraft {
             setRotations(scaffoldOld.getRotations(), scaffoldOld.getRotationSpeed().getValue(), scaffoldOld.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
         } else if (aura.isEnabled() && aura.getTarget() != null && aura.getRotations() != null) {
             setRotations(aura.getRotations(), aura.getRotationSpeed().getValue(), aura.getMovementFixMode().is("None") ? MovementCorrection.None : (aura.getMovementFixMode().is("Silent") ? MovementCorrection.Silent : MovementCorrection.Strict));
+        } else if (speed.isPredictionRotationActive()) {
+            // Myau's `2` is a rotation priority, not a two-degrees-per-tick
+            // smoothing speed. Prediction requires movement correction and the
+            // applied yaw to use the exact same value in the current tick.
+            setRotations(new float[]{speed.getPredictionRotationYaw(), mc.player.getPitch()}, 0.0, MovementCorrection.Prediction);
+            instantRotation = true;
         } else {
             enabled = false;
         }
 
-
-        lastRotations = currentRotations;
-        currentRotations = RotationUtil.getSmoothRotation(lastRotations, targetRotations, rotationSpeed + Math.random());
+        if (currentRotations == null) {
+            currentRotations = new float[]{mc.player.getYaw(), mc.player.getPitch()};
+        }
+        lastRotations = currentRotations.clone();
+        if (instantRotation) {
+            currentRotations = targetRotations.clone();
+        } else if (enabled && targetRotations != null) {
+            currentRotations = RotationUtil.getSmoothRotation(lastRotations, targetRotations, rotationSpeed + Math.random());
+        }
         mc.gameRenderer.updateCrosshairTarget(1.0f);
     }
 
@@ -66,7 +81,7 @@ public class RotationManager implements IMinecraft {
     public void onLook(LookEvent e) {
         if (mc.player == null) return;
 
-        if (canRotation()) {
+        if (canRotation() && correctMovement != MovementCorrection.Prediction) {
             e.setRotation(currentRotations);
             e.setLastRotation(lastRotations);
         }
@@ -87,7 +102,9 @@ public class RotationManager implements IMinecraft {
     public void onJump(JumpEvent e) {
         if (mc.player == null) return;
 
-        if (canRotation() && correctMovement != MovementCorrection.None) {
+        if (canRotation()
+                && correctMovement != MovementCorrection.None
+                && correctMovement != MovementCorrection.Prediction) {
             e.setYaw(currentRotations[0]);
         }
     }
@@ -130,5 +147,13 @@ public class RotationManager implements IMinecraft {
 
     private boolean canRotation() {
         return enabled && currentRotations != null && lastRotations != null && targetRotations != null;
+    }
+
+    public static boolean isRotating() {
+        return enabled && currentRotations != null && lastRotations != null && targetRotations != null;
+    }
+
+    public static float getAppliedYaw(float fallback) {
+        return isRotating() ? currentRotations[0] : fallback;
     }
 }

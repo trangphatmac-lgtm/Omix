@@ -14,6 +14,7 @@ import cn.remix.ui.hud.Drag;
 import cn.remix.util.animation.Easing;
 import cn.remix.util.animation.EasingAnimation;
 import cn.remix.util.misc.RomanNumeralUtil;
+import cn.remix.util.misc.TimerSpeedUtil;
 import cn.remix.util.render.ColorUtil;
 import cn.remix.util.render.Render2D;
 import lombok.Getter;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 @Getter
 public class HUD extends Module {
@@ -78,6 +80,7 @@ public class HUD extends Module {
     private final BoolValue classicLowerCase = new BoolValue("Classic Lower Case", false, () -> hudMode.is("Classic"));
     private final BoolValue classicBlinkTicks = new BoolValue("Classic Blink Ticks", true, () -> hudMode.is("Classic"));
     private final BoolValue classicDisablerQueue = new BoolValue("Classic Disabler Queue", true, () -> hudMode.is("Classic"));
+    private final BoolValue classicTimerSpeed = new BoolValue("Classic Timer Speed", true, () -> hudMode.is("Classic"));
     private final EasingAnimation yAnimation = new EasingAnimation(Easing.EASE_OUT_QUART, 250);
     private final EasingAnimation selectorAnimation = new EasingAnimation(Easing.EASE_OUT_QUART, 200);
     private final EasingAnimation moduleAnimation = new EasingAnimation(Easing.EASE_OUT_QUART, 200);
@@ -366,7 +369,12 @@ public class HUD extends Module {
                 disabler.refresh();
                 text = "You are playing Cubecraft with disabler disabled!";
             }
-            drawClassicOverlay(context, text, time, row, overlayRow);
+            drawClassicOverlay(context, text, time, row++, overlayRow++);
+        }
+
+        float timerSpeed = TimerSpeedUtil.getTimerSpeed();
+        if (classicTimerSpeed.getValue() && Math.abs(timerSpeed - 1) > .001f) {
+            drawClassicOverlay(context, String.format(Locale.US, "%.2fx", timerSpeed), time, row, overlayRow);
         }
         context.getMatrices().popMatrix();
     }
