@@ -166,4 +166,8 @@ public final class AntiVoid extends Module {
         wasInVoid = false;
         wasUsePressed = false;
     }
+
+    public boolean isBufferingPackets() {
+        return blinking;
+    }
 }

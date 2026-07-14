@@ -23,6 +23,8 @@ import org.joml.Vector4f;
 import java.awt.Color;
 
 public final class Tracers extends Module {
+    private static final float LINE_START_NDC_Z = 0.6F;
+
     private final ModeValue colorMode = new ModeValue("Color", "Default", "Default", "Teams", "HUD");
     private final BoolValue lines = new BoolValue("Lines", true);
     private final BoolValue arrows = new BoolValue("Arrows", false);
@@ -80,9 +82,9 @@ public final class Tracers extends Module {
             double yawRadians = Math.toRadians(yaw);
             float directionX = (float) Math.sin(yawRadians);
             float directionY = -(float) Math.cos(yawRadians);
-            float x = centerX + directionX * 55.0F + 1.0F;
-            float y = centerY + directionY * 55.0F + 1.0F;
-            float angle = (float) (Math.atan2(directionY, directionX) + Math.PI);
+            float x = centerX + directionX * 55.0F;
+            float y = centerY + directionY * 55.0F;
+            float angle = (float) Math.atan2(directionY, directionX);
             Render2D.drawTriangle(event.getContext(), x, y, angle, 10.0F,
                     getEntityColor(player, alpha).getRGB());
         }
@@ -123,9 +125,12 @@ public final class Tracers extends Module {
     }
 
     private Vec3d getLineStart(Render3DEvent event, Vec3d cameraPos) {
-        Matrix4f inverseView = new Matrix4f(event.getModelViewMatrix()).invert();
-        Vector4f relative = new Vector4f(0.0F, 0.0F, -0.25F, 1.0F).mul(inverseView);
-        if (relative.w != 0.0F && relative.w != 1.0F) {
+        Matrix4f inverseViewProjection = new Matrix4f(event.getProjectionMatrix())
+                .mul(event.getModelViewMatrix())
+                .invert();
+        Vector4f relative = new Vector4f(0.0F, 0.0F, LINE_START_NDC_Z, 1.0F)
+                .mul(inverseViewProjection);
+        if (Math.abs(relative.w) > 1.0E-6F) {
             relative.div(relative.w);
         }
         return cameraPos.add(relative.x, relative.y, relative.z);

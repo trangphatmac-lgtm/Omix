@@ -24,7 +24,7 @@ public final class Render2D implements IMinecraft {
     private final RenderPipeline TRIANGLE_PIPELINE = RenderPipelines.register(
             RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)
                     .withLocation(Identifier.of("remix", "pipeline/gui_triangles"))
-                    .withVertexFormat(VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.TRIANGLES)
+                    .withVertexFormat(VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.QUADS)
                     .withCull(false)
                     .build()
     );
@@ -55,17 +55,24 @@ public final class Render2D implements IMinecraft {
         drawRect(context, x + width - thickness, y + thickness, thickness, height - thickness - thickness, color);
     }
 
-    public void drawTriangle(DrawContext context, float centerX, float centerY, float angle, float length, int color) {
-        float left = angle + (float) Math.toRadians(26.25);
-        float right = angle - (float) Math.toRadians(26.25);
-        float leftX = centerX + length * (float) Math.cos(left);
-        float leftY = centerY + length * (float) Math.sin(left);
-        float rightX = centerX + length * (float) Math.cos(right);
-        float rightY = centerY + length * (float) Math.sin(right);
+    public void drawTriangle(DrawContext context, float centerX, float centerY, float angle, float size, int color) {
+        float directionX = (float) Math.cos(angle);
+        float directionY = (float) Math.sin(angle);
+        float perpendicularX = -directionY;
+        float perpendicularY = directionX;
+
+        float tipX = centerX + directionX * size * 0.65F;
+        float tipY = centerY + directionY * size * 0.65F;
+        float baseX = centerX - directionX * size * 0.35F;
+        float baseY = centerY - directionY * size * 0.35F;
+        float halfWidth = size * 0.45F;
 
         context.state.addSimpleElement(new TriangleGuiElementRenderState(
                 TRIANGLE_PIPELINE, TextureSetup.empty(), new Matrix3x2f(context.getMatrices()),
-                centerX, centerY, leftX, leftY, rightX, rightY, color, context.scissorStack.peekLast()
+                tipX, tipY,
+                baseX + perpendicularX * halfWidth, baseY + perpendicularY * halfWidth,
+                baseX - perpendicularX * halfWidth, baseY - perpendicularY * halfWidth,
+                color, context.scissorStack.peekLast()
         ));
     }
 
@@ -158,6 +165,9 @@ public final class Render2D implements IMinecraft {
             v.vertex(pose, x1, y1).color(color);
             v.vertex(pose, x2, y2).color(color);
             v.vertex(pose, x3, y3).color(color);
+            // GUI batches are indexed as quads; repeating the tip makes the
+            // second triangle degenerate and keeps adjacent arrows isolated.
+            v.vertex(pose, x1, y1).color(color);
         }
 
         private static @Nullable ScreenRect createBounds(

@@ -58,6 +58,7 @@ public class ModuleManager implements IMinecraft {
                 new AutoTool(),
                 new AutoArmor(),
                 new AntiHunger(),
+                new Stuck(),
                 new LightningTracker(),
                 new Regen(),
                 new AntiDebuff(),
@@ -73,6 +74,7 @@ public class ModuleManager implements IMinecraft {
                 new ChestESP(),
                 new TargetHUD(),
                 new Tracers(),
+                new Trajectories(),
                 new MoreParticles(),
                 new Sprint()
         );
