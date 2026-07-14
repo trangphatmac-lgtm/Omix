@@ -60,6 +60,7 @@ public class ModuleManager implements IMinecraft {
                 new AntiHunger(),
                 new LightningTracker(),
                 new Regen(),
+                new AntiDebuff(),
                 new Brightness(),
                 new NoHurtCam(),
                 new ViewClip(),

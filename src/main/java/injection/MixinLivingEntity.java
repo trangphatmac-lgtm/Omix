@@ -3,10 +3,13 @@ package injection;
 import cn.remix.event.impl.JumpEvent;
 import cn.remix.event.impl.MoveMathEvent;
 import cn.remix.event.impl.RenderRotationEvent;
+import cn.remix.module.impl.render.AntiDebuff;
 import cn.remix.module.impl.render.Animation;
 import cn.remix.util.IMinecraft;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,6 +20,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class MixinLivingEntity implements IMinecraft {
+    @Inject(method = "getEffectFadeFactor", at = @At("HEAD"), cancellable = true)
+    private void getEffectFadeFactor(RegistryEntry<StatusEffect> effect, float tickDelta,
+                                     CallbackInfoReturnable<Float> cir) {
+        if (AntiDebuff.suppresses(effect)) {
+            cir.setReturnValue(0.0F);
+        }
+    }
+
     @Inject(method = "getHandSwingDuration", at = @At("HEAD"), cancellable = true)
     public void getHandSwingDuration(CallbackInfoReturnable<Integer> cir) {
         Animation animation = instance.getModuleManager().getModule(Animation.class);

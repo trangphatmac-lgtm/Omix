@@ -29,6 +29,8 @@
     "MixinPlayerEntity",
     "MixinRenderTickCounterDynamic",
     "MixinTitleScreen",
+    "MixinStatusEffectFogModifier",
+    "MixinWorldRenderer",
     "accessor.ClientPlayerEntityAccessor",
     "accessor.ClientWorldAccessor",
     "accessor.EntityAccessor",
