@@ -10,6 +10,7 @@ import cn.remix.management.TargetManager;
 import cn.remix.module.ModuleManager;
 import cn.remix.ui.font.FontManager;
 import cn.remix.util.IMinecraft;
+import cn.remix.util.render.Render2D;
 import cn.remix.util.render.Render3D;
 import me.ksyz.accountmanager.AccountManager;
 import lombok.Getter;
@@ -36,6 +37,7 @@ public class Client implements IMinecraft {
     public void init() {
 
         // Why did you do that?
+        Render2D.init();
         Render3D.init();
         eventManager = new EventManager();
         moduleManager = new ModuleManager();
