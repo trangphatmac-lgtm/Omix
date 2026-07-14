@@ -63,6 +63,8 @@ public class ModuleManager implements IMinecraft {
                 new Regen(),
                 new AntiDebuff(),
                 new Brightness(),
+                new Chams(),
+                new NoFog(),
                 new NoHurtCam(),
                 new ViewClip(),
                 new ItemPhysics(),
