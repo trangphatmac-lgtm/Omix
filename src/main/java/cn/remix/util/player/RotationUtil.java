@@ -8,6 +8,8 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.world.RaycastContext;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 @UtilityClass
 public class RotationUtil implements IMinecraft {
 
@@ -148,8 +150,31 @@ public class RotationUtil implements IMinecraft {
         if (axis != Direction.Axis.X) { minX += shrink; maxX -= shrink; }
         if (axis != Direction.Axis.Y) { minY += shrink; maxY -= shrink; }
         if (axis != Direction.Axis.Z) { minZ += shrink; maxZ -= shrink; }
+
         Vec3d nearest = closestPointOnPlaneToRay(eyePos, lookVec, facing, minX, minY, minZ, maxX, maxY, maxZ);
-        return getRotations(nearest);
+
+        double finalX = nearest.x;
+        double finalY = nearest.y;
+        double finalZ = nearest.z;
+
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+
+        double jitter = 0.5;
+
+        if (axis != Direction.Axis.X) {
+            double jitterX = (random.nextDouble() - 0.5) * jitter;
+            finalX = net.minecraft.util.math.MathHelper.clamp(nearest.x + jitterX, minX, maxX);
+        }
+        if (axis != Direction.Axis.Y) {
+            double jitterY = (random.nextDouble() - 0.5) * jitter;
+            finalY = net.minecraft.util.math.MathHelper.clamp(nearest.y + jitterY, minY, maxY);
+        }
+        if (axis != Direction.Axis.Z) {
+            double jitterZ = (random.nextDouble() - 0.5) * jitter;
+            finalZ = net.minecraft.util.math.MathHelper.clamp(nearest.z + jitterZ, minZ, maxZ);
+        }
+
+        return getRotations(new Vec3d(finalX, finalY, finalZ));
     }
     
     private Vec3d closestPointOnPlaneToRay(Vec3d eye, Vec3d dir, Direction facing, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {

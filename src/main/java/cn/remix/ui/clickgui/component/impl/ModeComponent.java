@@ -7,6 +7,7 @@ import cn.remix.util.animation.Easing;
 import cn.remix.util.animation.EasingAnimation;
 import cn.remix.util.render.ColorUtil;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.util.math.MathHelper;
 
 import java.awt.*;
 
@@ -35,9 +36,9 @@ public final class ModeComponent extends Component {
         var font = instance.getFontManager().getFont(16);
         float textY = y + (14.0f - font.getHeight()) / 2.0f + 1.0f;
 
-        int alpha = (int) (255.0f * finalProgress);
+        int alpha = MathHelper.clamp((int) (255.0f * finalProgress), 0, 255);
         font.drawString(context, mv.getName(), x + 4.0f, textY, new Color(204, 204, 204, alpha).getRGB());
-        font.drawString(context, mv.getValue(), x + width - 4.0f - font.getStringWidth(mv.getValue()), textY, ColorUtil.applyAlpha(parent.getPanel().getAccent(), alpha));
+        font.drawString(context, mv.getValue(), x + width - 4.0f - font.getStringWidth(mv.getValue()), textY, ColorUtil.applyAlpha(parent.getModulePanel().getAccent(), alpha));
     }
 
     @Override

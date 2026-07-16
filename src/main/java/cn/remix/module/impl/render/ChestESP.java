@@ -1,6 +1,7 @@
 package cn.remix.module.impl.render;
 
 import cn.remix.event.base.annotation.EventTarget;
+import cn.remix.event.impl.PacketEvent;
 import cn.remix.event.impl.Render3DEvent;
 import cn.remix.event.impl.TickEvent;
 import cn.remix.event.impl.WorldEvent;
@@ -8,6 +9,7 @@ import cn.remix.module.Category;
 import cn.remix.module.Module;
 import cn.remix.module.value.impl.BoolValue;
 import cn.remix.module.value.impl.ColorValue;
+import cn.remix.module.value.impl.ModeValue;
 import cn.remix.util.render.Render3D;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -15,7 +17,11 @@ import net.minecraft.block.ChestBlock;
 import net.minecraft.block.EnderChestBlock;
 import net.minecraft.block.TrappedChestBlock;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.ChestBlockEntity;
+import net.minecraft.block.entity.EnderChestBlockEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.BlockEventS2CPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
@@ -24,16 +30,37 @@ import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public final class ChestESP extends Module {
-    private static final int SCAN_CHUNK_RADIUS = 4;
-    private final ColorValue chestColor = new ColorValue("Chest", new Color(255, 170, 0));
-    private final ColorValue trappedChestColor = new ColorValue("Trapped Chest", new Color(255, 43, 0));
-    private final ColorValue enderChestColor = new ColorValue("Ender Chest", new Color(26, 17, 170));
-    private final BoolValue tracers = new BoolValue("Tracers", false);
-    private Set<BlockPos> chests = Set.of();
+    private static final int CLASSIC_SCAN_CHUNK_RADIUS = 4;
+
+    private final ModeValue implementation = new ModeValue("Implementation", "Classic", "Classic", "Remix");
+
+    private final ColorValue chestColor = new ColorValue(
+            "Chest",
+            new Color(255, 170, 0),
+            () -> implementation.is("Classic")
+    );
+    private final ColorValue trappedChestColor = new ColorValue(
+            "Trapped Chest",
+            new Color(255, 43, 0),
+            () -> implementation.is("Classic")
+    );
+    private final ColorValue enderChestColor = new ColorValue(
+            "Ender Chest",
+            new Color(26, 17, 170),
+            () -> implementation.is("Classic")
+    );
+    private final BoolValue tracers = new BoolValue("Tracers", false, () -> implementation.is("Classic"));
+
+    private Set<BlockPos> classicChests = Set.of();
+    private final List<BlockPos> remixOpenedChests = Collections.synchronizedList(new ArrayList<>());
+    private final List<BlockEntity> remixChests = new ArrayList<>();
 
     public ChestESP() {
         super("ChestESP", Category.Render);
@@ -42,7 +69,9 @@ public final class ChestESP extends Module {
     @Override
     public void onEnable() {
         reset();
-        scanForChests();
+        if (implementation.is("Classic")) {
+            scanClassicChests();
+        }
     }
 
     @Override
@@ -56,15 +85,46 @@ public final class ChestESP extends Module {
     }
 
     @EventTarget
+    public void onPacket(PacketEvent event) {
+        if (!implementation.is("Remix") || mc.player == null || mc.world == null) return;
+
+        if (event.getType() == PacketEvent.Type.Received) {
+            Packet<?> packet = event.getPacket();
+            if (packet instanceof BlockEventS2CPacket blockEvent
+                    && blockEvent.getType() == 1
+                    && blockEvent.getData() > 0) {
+                BlockPos pos = blockEvent.getPos();
+                if (!remixOpenedChests.contains(pos)) {
+                    remixOpenedChests.add(pos);
+                }
+            }
+        }
+    }
+
+    @EventTarget
     public void onTick(TickEvent event) {
         if (mc.player == null || mc.world == null) return;
-        scanForChests();
+
+        setSuffix(implementation.getValue());
+        if (implementation.is("Classic")) {
+            scanClassicChests();
+        } else {
+            scanRemixChests();
+        }
     }
 
     @EventTarget
     public void onRender3D(Render3DEvent event) {
         if (mc.world == null) return;
 
+        if (implementation.is("Remix")) {
+            renderRemix(event);
+        } else {
+            renderClassic(event);
+        }
+    }
+
+    private void renderClassic(Render3DEvent event) {
         Entity cameraEntity = mc.getCameraEntity();
         if (cameraEntity == null) return;
 
@@ -74,14 +134,12 @@ public final class ChestESP extends Module {
             lineStart = lineStart.add(cameraEntity.getRotationVec(event.getTickDelta()).multiply(0.25));
         }
 
-        for (BlockPos pos : chests) {
+        for (BlockPos pos : classicChests) {
             BlockState state = mc.world.getBlockState(pos);
             Block block = state.getBlock();
-            if (!isChest(block)) {
-                continue;
-            }
+            if (!isChest(block)) continue;
 
-            Color color = getChestColor(block);
+            Color color = getClassicChestColor(block);
             Render3D.drawBox(event, new Box(
                     pos.getX() + 0.0625,
                     pos.getY(),
@@ -97,32 +155,72 @@ public final class ChestESP extends Module {
         }
     }
 
-    private void scanForChests() {
-        if (mc.world == null || mc.player == null) return;
+    private void renderRemix(Render3DEvent event) {
+        if (mc.player == null || remixChests.isEmpty()) return;
 
+        for (BlockEntity chest : remixChests) {
+            BlockPos pos = chest.getPos();
+            Color color;
+
+            if (chest instanceof EnderChestBlockEntity) {
+                color = new Color(255, 0, 255, 60);
+            } else if (remixOpenedChests.contains(pos)) {
+                color = new Color(255, 0, 0, 60);
+            } else {
+                color = new Color(0, 255, 0, 60);
+            }
+
+            Render3D.drawBox(event.getMatrixStack(), pos, color.getRGB());
+        }
+    }
+
+    private void scanClassicChests() {
         Set<BlockPos> found = new HashSet<>();
         ChunkPos origin = mc.player.getChunkPos();
-        for (int chunkX = origin.x - SCAN_CHUNK_RADIUS; chunkX <= origin.x + SCAN_CHUNK_RADIUS; chunkX++) {
-            for (int chunkZ = origin.z - SCAN_CHUNK_RADIUS; chunkZ <= origin.z + SCAN_CHUNK_RADIUS; chunkZ++) {
+        for (int chunkX = origin.x - CLASSIC_SCAN_CHUNK_RADIUS;
+             chunkX <= origin.x + CLASSIC_SCAN_CHUNK_RADIUS;
+             chunkX++) {
+            for (int chunkZ = origin.z - CLASSIC_SCAN_CHUNK_RADIUS;
+                 chunkZ <= origin.z + CLASSIC_SCAN_CHUNK_RADIUS;
+                 chunkZ++) {
                 WorldChunk chunk = mc.world.getChunkManager().getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
                 if (chunk == null) continue;
 
                 for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
-                    BlockState state = blockEntity.getCachedState();
-                    if (isChest(state.getBlock())) {
+                    if (isChest(blockEntity.getCachedState().getBlock())) {
                         found.add(blockEntity.getPos().toImmutable());
                     }
                 }
             }
         }
-        chests = Set.copyOf(found);
+        classicChests = Set.copyOf(found);
+    }
+
+    private void scanRemixChests() {
+        remixChests.clear();
+        int playerChunkX = mc.player.getBlockX() >> 4;
+        int playerChunkZ = mc.player.getBlockZ() >> 4;
+
+        for (int x = -16; x <= 16; x++) {
+            for (int z = -16; z <= 16; z++) {
+                WorldChunk chunk = mc.world.getChunkManager().getWorldChunk(playerChunkX + x, playerChunkZ + z);
+                if (chunk == null) continue;
+
+                for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
+                    if (blockEntity instanceof ChestBlockEntity
+                            || blockEntity instanceof EnderChestBlockEntity) {
+                        remixChests.add(blockEntity);
+                    }
+                }
+            }
+        }
     }
 
     private boolean isChest(Block block) {
         return block instanceof ChestBlock || block instanceof EnderChestBlock;
     }
 
-    private Color getChestColor(Block block) {
+    private Color getClassicChestColor(Block block) {
         if (block instanceof TrappedChestBlock) {
             return trappedChestColor.getValue();
         }
@@ -133,6 +231,8 @@ public final class ChestESP extends Module {
     }
 
     private void reset() {
-        chests = Set.of();
+        classicChests = Set.of();
+        remixOpenedChests.clear();
+        remixChests.clear();
     }
 }

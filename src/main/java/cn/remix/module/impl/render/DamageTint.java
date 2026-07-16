@@ -18,7 +18,7 @@ public class DamageTint extends Module {
     public void onRender2D(Render2DEvent event) {
         if (mc.player == null) return;
 
-        float health = 5;
+        float health = mc.player.getHealth();
         float factor = 1 - MathHelper.clamp(health, 0, 12) / 12;
 
         if (factor > 0) {

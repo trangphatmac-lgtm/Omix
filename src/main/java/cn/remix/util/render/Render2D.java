@@ -9,6 +9,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.ScreenRect;
 import net.minecraft.client.gui.render.state.SimpleGuiElementRenderState;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.texture.TextureSetup;
@@ -93,6 +94,14 @@ public final class Render2D implements IMinecraft {
         context.getMatrices().popMatrix();
     }
 
+    public void drawPlayerHead(DrawContext context, AbstractClientPlayerEntity player, float x, float y, float width, float height) {
+        if (player == null) return;
+
+        var skin = player.getSkin().body().texturePath();
+        drawTexture(context, skin, x, y, width, height, 0.125f, 0.125f, 0.25f, 0.25f, -1);
+        drawTexture(context, skin, x, y, width, height, 0.625f, 0.125f, 0.75f, 0.25f, -1);
+    }
+
     public void drawTexture(DrawContext context, Identifier texture, float x, float y, float width, float height) {
         drawTexture(context, texture, x, y, width, height, 0f, 0f, 1f, 1f, -1);
     }
@@ -114,6 +123,7 @@ public final class Render2D implements IMinecraft {
 
     public void drawModel(DrawContext context, LivingEntity entity, float x, float y) {
         if (entity == null) return;
+
         int x1 = (int) (x + 5);
         int y1 = (int) (y + 5);
         int x2 = (int) (x + 40);

@@ -4,6 +4,7 @@ import cn.remix.Client;
 import cn.remix.module.Category;
 import cn.remix.module.Module;
 import cn.remix.module.value.impl.BoolValue;
+import cn.remix.module.value.impl.NumberValue;
 import cn.remix.ui.font.TrueTypeFont;
 import cn.remix.ui.hud.Drag;
 import cn.remix.util.render.ColorUtil;
@@ -15,6 +16,7 @@ import java.util.List;
 
 public final class ModuleList extends Drag {
     private final BoolValue important = new BoolValue("Only Important", false);
+    private final NumberValue spacing = new NumberValue("Spacing", 0, -3, 0, 1);
 
     public ModuleList() {
         super("ModuleList");
@@ -62,10 +64,11 @@ public final class ModuleList extends Drag {
             float alpha = m.getAnimation().getValue().floatValue();
             if (alpha <= 0.01f) continue;
             float textWidth = font.getStringWidth(getModuleName(m));
-            float x = (right ? renderX - textWidth : renderX) + (1 - alpha) * (this.width + 10);
+            float offset = (1 - alpha) * (this.width + 10);
+            float x = right ? (renderX - textWidth + offset) : (renderX - offset);
             int fontColor =  getModule(HUD.class).getWhiteMode().getValue() ? -1 : getModule(HUD.class).getColor(index++);
             font.drawStringWithShadow(context, getModuleName(m), right ? x - 2 : x + 2, offsetY, ColorUtil.applyAlpha(fontColor, alpha));
-            offsetY += fontH * alpha;
+            offsetY += (fontH + spacing.getValue()) * alpha;
         }
         this.height = Math.max(fontH, offsetY - renderY);
     }

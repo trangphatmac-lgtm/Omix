@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 public abstract class Module implements IMinecraft {
-    private final EasingAnimation animation = new EasingAnimation(Easing.EASE_OUT_QUART, 300);
+    private final EasingAnimation animation = new EasingAnimation(Easing.EASE_OUT_QUART, 600);
     private final List<Value> values = new ArrayList<>();
     private final String name;
     private final Category category;

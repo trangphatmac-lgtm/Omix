@@ -38,7 +38,7 @@ public final class ColorComponent extends Component {
 
         ColorValue cv = (ColorValue) getValue();
         var font = instance.getFontManager().getFont(16);
-        int alpha = (int) (255 * finalProgress);
+        int alpha = MathHelper.clamp((int) (255 * finalProgress), 0, 255);
 
         font.drawString(context, cv.getName(), x + 4, y + (14 - font.getHeight()) / 2.0f + 1, new Color(204, 204, 204, alpha).getRGB());
         Render2D.drawRect(context, x + width - 11, y + 3.5f, 7, 7, ColorUtil.applyAlpha(cv.getValue().getRGB(), alpha));

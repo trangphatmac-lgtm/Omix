@@ -4,16 +4,22 @@ import cn.remix.event.impl.Render3DEvent;
 import cn.remix.util.IMinecraft;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DepthTestFunction;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.LayeringTransform;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderSetup;
+import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import org.joml.Matrix4f;
 
 import java.awt.Color;
 
@@ -50,6 +56,55 @@ public final class Render3D implements IMinecraft {
 
     public void init() {
         // Forces the custom pipelines to register before Minecraft reloads shaders.
+    }
+
+    public void drawBox(MatrixStack stack, BlockPos pos, int color) {
+        Vec3d camera = mc.gameRenderer.getCamera().getCameraPos();
+        Box box = new Box(pos).offset(-camera.x, -camera.y, -camera.z);
+        fill(stack, box, color);
+    }
+
+    private void fill(MatrixStack stack, Box box, int color) {
+        BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+        Matrix4f matrix = stack.peek().getPositionMatrix();
+        float minX = (float) box.minX;
+        float minY = (float) box.minY;
+        float minZ = (float) box.minZ;
+        float maxX = (float) box.maxX;
+        float maxY = (float) box.maxY;
+        float maxZ = (float) box.maxZ;
+
+        buffer.vertex(matrix, minX, minY, minZ).color(color);
+        buffer.vertex(matrix, maxX, minY, minZ).color(color);
+        buffer.vertex(matrix, maxX, minY, maxZ).color(color);
+        buffer.vertex(matrix, minX, minY, maxZ).color(color);
+
+        buffer.vertex(matrix, minX, maxY, minZ).color(color);
+        buffer.vertex(matrix, minX, maxY, maxZ).color(color);
+        buffer.vertex(matrix, maxX, maxY, maxZ).color(color);
+        buffer.vertex(matrix, maxX, maxY, minZ).color(color);
+
+        buffer.vertex(matrix, minX, minY, minZ).color(color);
+        buffer.vertex(matrix, minX, maxY, minZ).color(color);
+        buffer.vertex(matrix, maxX, maxY, minZ).color(color);
+        buffer.vertex(matrix, maxX, minY, minZ).color(color);
+
+        buffer.vertex(matrix, minX, minY, maxZ).color(color);
+        buffer.vertex(matrix, maxX, minY, maxZ).color(color);
+        buffer.vertex(matrix, maxX, maxY, maxZ).color(color);
+        buffer.vertex(matrix, minX, maxY, maxZ).color(color);
+
+        buffer.vertex(matrix, minX, minY, minZ).color(color);
+        buffer.vertex(matrix, minX, minY, maxZ).color(color);
+        buffer.vertex(matrix, minX, maxY, maxZ).color(color);
+        buffer.vertex(matrix, minX, maxY, minZ).color(color);
+
+        buffer.vertex(matrix, maxX, minY, minZ).color(color);
+        buffer.vertex(matrix, maxX, maxY, minZ).color(color);
+        buffer.vertex(matrix, maxX, maxY, maxZ).color(color);
+        buffer.vertex(matrix, maxX, minY, maxZ).color(color);
+
+        Pipelines.box.draw(buffer.end());
     }
 
     public void drawBox(Render3DEvent event, Box box, Color color, boolean fill, boolean outline) {

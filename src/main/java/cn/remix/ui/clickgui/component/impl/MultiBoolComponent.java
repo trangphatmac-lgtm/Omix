@@ -9,6 +9,7 @@ import cn.remix.util.animation.EasingAnimation;
 import cn.remix.util.render.ColorUtil;
 import cn.remix.util.render.Render2D;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.util.math.MathHelper;
 
 import java.awt.*;
 import java.util.List;
@@ -41,7 +42,7 @@ public final class MultiBoolComponent extends Component {
         float finalProgress = progress * globalAlpha;
         if (finalProgress < 0.01f) return;
 
-        int alpha = (int) (255.0f * finalProgress);
+        int alpha = MathHelper.clamp((int) (255.0f * finalProgress), 0, 255);
         String title = " - " + getValue().getName() + " - ";
         font.drawString(context, title, x + (width - font.getStringWidth(title)) / 2.0f, y + 2.0f, new Color(204, 204, 204, alpha).getRGB());
 
@@ -50,7 +51,7 @@ public final class MultiBoolComponent extends Component {
             BoolValue bool = subValues.get(i);
             font.drawString(context, bool.getName(), x + 4.0f, y + offset + (14.0f - font.getHeight()) / 2.0f + 0.5f, new Color(170, 170, 170, alpha).getRGB());
             animations[i].run(bool.getValue() ? 1.0 : 0.0);
-            Render2D.drawRect(context, x + width - 11.0f, y + offset + 3.5f, 7.0f, 7.0f, ColorUtil.applyAlpha(ColorUtil.interpolate(new Color(58, 58, 63, alpha).getRGB(), parent.getPanel().getAccent(), animations[i].getValue().floatValue()), alpha));
+            Render2D.drawRect(context, x + width - 11.0f, y + offset + 3.5f, 7.0f, 7.0f, ColorUtil.applyAlpha(ColorUtil.interpolate(new Color(58, 58, 63, alpha).getRGB(), parent.getModulePanel().getAccent(), animations[i].getValue().floatValue()), alpha));
             offset += 14.0f;
         }
     }

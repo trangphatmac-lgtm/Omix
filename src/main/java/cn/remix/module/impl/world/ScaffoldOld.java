@@ -30,8 +30,8 @@ public class ScaffoldOld extends Module {
     public static NumberValue delay = new NumberValue("Delay", 0, 0, 200, 10);
     private final ModeValue mode = new ModeValue("Mode", "Normal", "Normal", "Telly Bridge");
     private final NumberValue tellyTick = new NumberValue("Telly Tick", 1, 1, 5, 1, () -> !mode.is("Normal"));
-    private final ModeValue rotationMode = new ModeValue("Rotation Mode", "Normal", "Normal", "Facing", "Hit Vec", "Nearest");
-    private final NumberValue shrink = new NumberValue("Shrink", .1f, 0, .45f, .01f, () -> rotationMode.is("Nearest"));
+    private final ModeValue rotationMode = new ModeValue("Rotation Mode", "Normal", "Normal", "Facing", "Hit Vec", "Nearest", "Hypixel");
+    private final NumberValue shrink = new NumberValue("Shrink", .1f, 0, .45f, .01f, () -> rotationMode.is("Nearest") || rotationMode.is("Hypixel"));
     private final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 180, 0, 180, 5);
     private final ModeValue towerMode = new ModeValue("Tower Mode", "None", "None", "Vanilla");
     public static BoolValue downwards = new BoolValue("Downwards", false);
@@ -151,7 +151,7 @@ public class ScaffoldOld extends Module {
         switch (rotationMode.getValue()) {
             case "Normal" -> rotations = RotationUtil.getRotations(data.blockPos());
             case "Hit Vec" -> rotations = RotationUtil.getRotations(getVec(data.blockPos(), data.facing()));
-            case "Nearest" -> rotations = new float[]{RotationUtil.getNearestRotation(data.blockPos(), data.facing(), RotationManager.currentRotations, shrink.getValue())[0], RotationUtil.getRotations(data.blockPos())[1]};
+            case "Nearest", "Hypixel" -> rotations = new float[]{RotationUtil.getNearestRotation(data.blockPos(), data.facing(), RotationManager.currentRotations, shrink.getValue())[0], RotationUtil.getRotations(data.blockPos())[1]};
             case "Facing" -> rotations = RotationUtil.getRotations(data.blockPos(), data.facing());
         }
     }
@@ -235,6 +235,26 @@ public class ScaffoldOld extends Module {
             case UP    -> y += 0.5;
         }
         return new Vec3d(x, y, z);
+    }
+
+    public int getRotationSpeed() {
+        if (mc.player == null || mc.world == null) return 0;
+
+        int speed = rotationSpeed.getValue().intValue();
+        if (rotationMode.is("Hypixel")) {
+            if (mc.options.jumpKey.isPressed() && !MovementUtil.movementInput()) {
+                speed = rotationSpeed.getValue().intValue();
+            } else if (mc.player.getMovement().y <= 0) {
+                speed = rotationSpeed.getValue().intValue();
+            } else if (!canPlace) {
+                speed = rotationSpeed.getValue().intValue();
+            } else if (Util.offGroundTicks == tellyTick.getValue().intValue()) {
+                speed = 120;
+            } else {
+                speed = 35;
+            }
+        }
+        return speed;
     }
 
     public static boolean isDownwards() {

@@ -6,6 +6,7 @@ import cn.remix.event.impl.*;
 import cn.remix.management.movement.MovementCorrection;
 import cn.remix.module.impl.combat.Aura;
 import cn.remix.module.impl.move.Speed;
+import cn.remix.module.impl.player.AntiLava;
 import cn.remix.module.impl.world.Scaffold;
 import cn.remix.module.impl.world.ScaffoldOld;
 import cn.remix.util.IMinecraft;
@@ -44,14 +45,17 @@ public class RotationManager implements IMinecraft {
 
         Aura aura = instance.getModuleManager().getModule(Aura.class);
         Speed speed = instance.getModuleManager().getModule(Speed.class);
+        AntiLava antiLava = instance.getModuleManager().getModule(AntiLava.class);
         Scaffold scaffold = instance.getModuleManager().getModule(Scaffold.class);
         ScaffoldOld scaffoldOld = instance.getModuleManager().getModule(ScaffoldOld.class);
         boolean instantRotation = false;
 
-        if (scaffold.isEnabled() && scaffold.isCanRotation() && scaffold.getRotations() != null) {
+        if (antiLava.isEnabled() && antiLava.getRotations() != null) {
+            setRotations(antiLava.getRotations(), 180, antiLava.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
+        } else if (scaffold.isEnabled() && scaffold.isCanRotation() && scaffold.getRotations() != null) {
             setRotations(scaffold.getRotations(), scaffold.getRotationSpeed().getValue(), scaffold.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
         } else if (scaffoldOld.isEnabled() && scaffoldOld.isCanRotation() && scaffoldOld.getRotations() != null) {
-            setRotations(scaffoldOld.getRotations(), scaffoldOld.getRotationSpeed().getValue(), scaffoldOld.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
+            setRotations(scaffoldOld.getRotations(), scaffoldOld.getRotationSpeed(), scaffoldOld.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
         } else if (aura.isEnabled() && aura.getTarget() != null && aura.getRotations() != null) {
             setRotations(aura.getRotations(), aura.getRotationSpeed().getValue(), aura.getMovementFixMode().is("None") ? MovementCorrection.None : (aura.getMovementFixMode().is("Silent") ? MovementCorrection.Silent : MovementCorrection.Strict));
         } else if (speed.isPredictionRotationActive()) {

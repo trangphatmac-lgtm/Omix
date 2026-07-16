@@ -8,6 +8,7 @@ import cn.remix.management.PacketManager;
 import cn.remix.management.RotationManager;
 import cn.remix.management.TargetManager;
 import cn.remix.module.ModuleManager;
+import cn.remix.ui.clickgui.ClickGuiScreen;
 import cn.remix.ui.font.FontManager;
 import cn.remix.util.IMinecraft;
 import cn.remix.util.render.Render2D;
@@ -33,6 +34,7 @@ public class Client implements IMinecraft {
     private FriendManager friendManager;
     private FontManager fontManager;
     private PacketManager packetManager;
+    private ClickGuiScreen clickGuiScreen;
 
     public void init() {
 
@@ -48,6 +50,7 @@ public class Client implements IMinecraft {
         friendManager = new FriendManager();
         fontManager = new FontManager();
         packetManager = new PacketManager();
+        clickGuiScreen = new ClickGuiScreen();
         AccountManager.init();
     }
 

@@ -131,9 +131,22 @@ public class ItemUtil implements IMinecraft {
         if (!isArmor(stack)) return -1.0F;
 
         float score = 0.0F;
-        AttributeModifiersComponent modifiers = stack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
+        String registryName = stack.getItem().toString().toLowerCase();
+        if (registryName.contains("diamond") || registryName.contains("netherite")) {
+            score += 20.0F;
+        } else if (registryName.contains("iron")) {
+            score += 15.0F;
+        } else if (registryName.contains("chainmail")) {
+            score += 12.0F;
+        } else if (registryName.contains("gold")) {
+            score += 11.0F;
+        } else if (registryName.contains("leather")) {
+            score += 7.0F;
+        }
 
-        if (modifiers != null) {
+        AttributeModifiersComponent modifiers = stack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
+        if (modifiers != null && !modifiers.modifiers().isEmpty()) {
+            score = 0.0F;
             for (AttributeModifiersComponent.Entry entry : modifiers.modifiers()) {
                 if (entry.attribute().equals(EntityAttributes.ARMOR)) {
                     score += (float) (entry.modifier().value() * 5);

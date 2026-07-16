@@ -166,6 +166,10 @@ public class MovementUtil implements IMinecraft {
         }
     }
 
+    public static boolean movementInput() {
+        return mc.options.forwardKey.isPressed() || mc.options.backKey.isPressed() || mc.options.leftKey.isPressed() || mc.options.rightKey.isPressed();
+    }
+
     public double getBPS() {
         if (mc.player == null) return 0.0;
 

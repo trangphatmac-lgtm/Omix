@@ -5,6 +5,7 @@ import cn.remix.module.value.Value;
 import cn.remix.module.value.impl.*;
 import cn.remix.ui.clickgui.component.Component;
 import cn.remix.ui.clickgui.component.impl.*;
+import cn.remix.ui.clickgui.panel.impl.ModulePanel;
 import cn.remix.util.IMinecraft;
 import cn.remix.util.animation.Easing;
 import cn.remix.util.animation.EasingAnimation;
@@ -21,7 +22,7 @@ import java.util.List;
 @Getter
 public final class ModuleButton implements IMinecraft {
     public static final float height = 16;
-    private final Panel panel;
+    private final ModulePanel modulePanel;
     private final Module module;
     private final List<Component> components = new ArrayList<>();
     private final EasingAnimation openAnimation = new EasingAnimation(Easing.EASE_OUT_CUBIC, 200);
@@ -30,8 +31,8 @@ public final class ModuleButton implements IMinecraft {
     private boolean extended, binding;
     private float renderHeight = height;
 
-    public ModuleButton(Panel panel, Module module) {
-        this.panel = panel;
+    public ModuleButton(ModulePanel modulePanel, Module module) {
+        this.modulePanel = modulePanel;
         this.module = module;
         for (Value value : module.getValues()) {
             if (value instanceof BoolValue bool) components.add(new BoolComponent(this, bool));

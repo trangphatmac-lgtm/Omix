@@ -2,6 +2,7 @@ package cn.remix.ui.font;
 
 import cn.remix.Client;
 import cn.remix.util.IMinecraft;
+import lombok.Getter;
 
 import java.awt.*;
 import java.io.InputStream;
@@ -19,6 +20,9 @@ public final class FontManager implements IMinecraft {
     public FontManager() {
         Collections.addAll(systemFonts, GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts());
     }
+
+    @Getter
+    private final MinecraftFont mcFont = new MinecraftFont();
 
     public TrueTypeFont getFont(int size) {
         return get("MiSans-Medium.ttf", size);

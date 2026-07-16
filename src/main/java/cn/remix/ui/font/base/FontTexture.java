@@ -20,23 +20,32 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class FontTexture implements IMinecraft {
-    private static final int atlasSize = 4096, maxGlyph = 512;
+
+    private static final int atlasSize = 4096;
+    private static final int maxGlyph = 512;
+    private static final float invAtlasSize = 1f / atlasSize;
     private static final AtomicInteger pageCounter = new AtomicInteger(0);
-    private final Map<Long, FontData> glyphCache = new HashMap<>(512, 0.5f);
+
+    private final Font[] bmpFontCache = new Font[65536];
+    private final Map<Integer, Font> extFontCache = new HashMap<>();
+    private final Map<Long, FontData> glyphCache = new HashMap<>(8192, 0.5f);
     private final IdentityHashMap<Font, Integer> fontIdMap = new IdentityHashMap<>();
     private final List<TexturePage> pages = new ArrayList<>();
-    private final Map<Integer, Font> charFontCache = new HashMap<>();
     private final Font primaryFont;
     private final List<Font> fallbackFonts;
-    private int nextFontId;
-    private TexturePage page;
+    private final int[] pixels;
+    private final Graphics2D graphics;
+    private final int[] singleGlyphCode = new int[1];
 
     @Getter
     private final FontRenderContext context;
     @Getter
-    private final int fontHeight, fontAscent;
-    private final int[] pixels;
-    private final Graphics2D graphics;
+    private final int fontHeight;
+    @Getter
+    private final int fontAscent;
+
+    private int nextFontId;
+    private TexturePage page;
 
     public FontTexture(Font primaryFont, List<Font> fallbackFonts) {
         Map<TextAttribute, Object> attr = new HashMap<>();
@@ -60,43 +69,65 @@ public class FontTexture implements IMinecraft {
     }
 
     public Font getFont(int character) {
-        Font cached = charFontCache.get(character);
-        if (cached != null) return cached;
-        Font result = primaryFont;
+        if (character < 65536) {
+            Font cached = bmpFontCache[character];
+            if (cached != null) {
+                return cached;
+            }
+            Font result = primaryFont.canDisplay(character) ? primaryFont : findFallback(character);
+            bmpFontCache[character] = result;
+            return result;
+        }
+        Font cached = extFontCache.get(character);
+        if (cached != null) {
+            return cached;
+        }
+        Font result = findFallback(character);
+        extFontCache.put(character, result);
+        return result;
+    }
 
-        if (!primaryFont.canDisplay(character)) {
-            for (Font f : fallbackFonts) {
-                if (f.canDisplay(character)) {
-                    result = f;
-                    break;
-                }
+    private Font findFallback(int character) {
+        for (Font font : fallbackFonts) {
+            if (font.canDisplay(character)) {
+                return font;
             }
         }
-        charFontCache.put(character, result);
-        return result;
+        return primaryFont;
     }
 
     public FontData getGlyphTexture(Font font, int glyphCode) {
         long key = ((long) fontIdMap.computeIfAbsent(font, ignored -> nextFontId++) << 32) | (glyphCode & 0xFFFFFFFFL);
         FontData existing = glyphCache.get(key);
-        if (existing != null) return existing;
+        if (existing != null) {
+            return existing;
+        }
 
-        GlyphVector gv = font.createGlyphVector(context, new int[]{glyphCode});
+        singleGlyphCode[0] = glyphCode;
+        GlyphVector gv = font.createGlyphVector(context, singleGlyphCode);
         Shape outline = gv.getGlyphOutline(0);
         Rectangle2D bounds = outline.getBounds2D();
-        float adv = gv.getGlyphMetrics(0).getAdvance();
+        float advance = gv.getGlyphMetrics(0).getAdvance();
 
         if (bounds.isEmpty() || bounds.getWidth() <= 0 || bounds.getHeight() <= 0) {
-            FontData empty = new FontData(page.id, 0, 0, 0, 0, 0, 0, adv, 0, 0);
+            FontData empty = new FontData(page.id, 0, 0, 0, 0, 0, 0, advance, 0, 0);
             glyphCache.put(key, empty);
             return empty;
         }
 
-        float offX = (float) bounds.getX() - 2, offY = (float) bounds.getY() - 2;
-        int w = (int) Math.ceil(bounds.getWidth()) + 4, h = (int) Math.ceil(bounds.getHeight()) + 4;
+        float offX = (float) bounds.getX() - 2;
+        float offY = (float) bounds.getY() - 2;
+        int w = (int) Math.ceil(bounds.getWidth()) + 4;
+        int h = (int) Math.ceil(bounds.getHeight()) + 4;
 
-        if (page.x + w > atlasSize) { page.x = 1; page.y += page.h + 1; page.h = 0; }
-        if (page.y + h > atlasSize) pages.add(page = new TexturePage());
+        if (page.x + w > atlasSize) {
+            page.x = 1;
+            page.y += page.h + 1;
+            page.h = 0;
+        }
+        if (page.y + h > atlasSize) {
+            pages.add(page = new TexturePage());
+        }
 
         graphics.setComposite(AlphaComposite.Clear);
         graphics.fillRect(0, 0, w, h);
@@ -108,24 +139,10 @@ public class FontTexture implements IMinecraft {
 
         long ptr = ((NativeImageAccessor) (Object) page.image).getPointer();
         for (int r = 0; r < h; r++) {
-            int rowOff = r * maxGlyph, last = 0xFFFFFF;
-            for (int c = 0; c < w; c++) {
-                int p = pixels[rowOff + c];
-                if ((p >>> 24) > 5) last = p & 0xFFFFFF;
-                else pixels[rowOff + c] = (p & 0xFF000000) | last;
-            }
-            long rowPtr = ptr + ((long) (page.y + r) * atlasSize + page.x) * 4;
-            last = 0xFFFFFF;
-            for (int c = w - 1; c >= 0; c--) {
-                int p = pixels[rowOff + c];
-                if ((p >>> 24) > 5) last = p & 0xFFFFFF;
-                else p = (p & 0xFF000000) | last;
-                MemoryUtil.memPutInt(rowPtr + (c * 4L), (p & 0xFF00FF00) | ((p & 0xFF) << 16) | ((p >> 16) & 0xFF));
-            }
+            copyGlyphRow(ptr, r, w);
         }
 
-        float inv = 1f / atlasSize;
-        FontData data = new FontData(page.id, page.x * inv, page.y * inv, (page.x + w) * inv, (page.y + h) * inv, w, h, adv, offX, offY);
+        FontData data = new FontData(page.id, page.x * invAtlasSize, page.y * invAtlasSize, (page.x + w) * invAtlasSize, (page.y + h) * invAtlasSize, w, h, advance, offX, offY);
         glyphCache.put(key, data);
         page.x += w + 1;
         page.h = Math.max(page.h, h);
@@ -133,20 +150,48 @@ public class FontTexture implements IMinecraft {
         return data;
     }
 
+    private void copyGlyphRow(long atlasPtr, int row, int w) {
+        int rowOff = row * maxGlyph;
+
+        int last = 0xFFFFFF;
+        for (int c = 0; c < w; c++) {
+            int p = pixels[rowOff + c];
+            if ((p >>> 24) > 5) {
+                last = p & 0xFFFFFF;
+            } else {
+                pixels[rowOff + c] = (p & 0xFF000000) | last;
+            }
+        }
+
+        long rowPtr = atlasPtr + ((long) (page.y + row) * atlasSize + page.x) * 4;
+        last = 0xFFFFFF;
+        for (int c = w - 1; c >= 0; c--) {
+            int p = pixels[rowOff + c];
+            if ((p >>> 24) > 5) {
+                last = p & 0xFFFFFF;
+            } else {
+                p = (p & 0xFF000000) | last;
+            }
+            MemoryUtil.memPutInt(rowPtr + (c * 4L), (p & 0xFF00FF00) | ((p & 0xFF) << 16) | ((p >> 16) & 0xFF));
+        }
+    }
+
     public void flush() {
-        pages.forEach(p -> {
+        for (TexturePage p : pages) {
             if (p.dirty) {
                 p.texture.upload();
                 p.dirty = false;
             }
-        });
+        }
     }
 
     private static class TexturePage {
-        final NativeImage image = new NativeImage(atlasSize, atlasSize, false);
-        final Identifier id = Identifier.of("flux", "_" + pageCounter.incrementAndGet());
-        final NativeImageBackedTexture texture;
-        int x = 1, y = 1, h = 0;
+        NativeImage image = new NativeImage(atlasSize, atlasSize, false);
+        Identifier id = Identifier.of("remix", "_" + pageCounter.incrementAndGet());
+        NativeImageBackedTexture texture;
+        int x = 1;
+        int y = 1;
+        int h = 0;
         boolean dirty;
 
         TexturePage() {
