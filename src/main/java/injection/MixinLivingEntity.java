@@ -14,6 +14,7 @@ import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -51,17 +52,16 @@ public abstract class MixinLivingEntity implements IMinecraft {
         }
     }
 
-    @Redirect(method = "jump", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getYaw()F"))
-    private float jump(LivingEntity entity) {
-        if (mc.player == null || mc.world == null) return entity.getYaw();
+    @ModifyVariable(method = "jump", at = @At("STORE"), index = 3)
+    private float modifyJumpYaw(float yawRadians) {
+        if (mc.player == null || mc.world == null || (Object) this != mc.player) return yawRadians;
 
-        if (entity == mc.player) {
-            JumpEvent event = new JumpEvent(entity.getYaw());
-            instance.getEventManager().call(event);
-            return event.getYaw();
-        }
-
-        return entity.getYaw();
+        // Modify the computed sprint-jump angle instead of redirecting getYaw().
+        // Baritone redirects that same call to apply its pathing rotation, so using
+        // the local value lets both transformations compose without a Mixin conflict.
+        JumpEvent event = new JumpEvent((float) Math.toDegrees(yawRadians));
+        instance.getEventManager().call(event);
+        return (float) Math.toRadians(event.getYaw());
     }
 
     @Redirect(method = "turnHead", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getYaw()F"))
