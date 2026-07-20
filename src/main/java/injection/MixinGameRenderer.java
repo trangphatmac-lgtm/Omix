@@ -1,6 +1,7 @@
 package injection;
 
 import cn.remix.event.impl.Render3DEvent;
+import cn.remix.module.impl.player.Freecam;
 import cn.remix.module.impl.render.NoHurtCam;
 import cn.remix.module.impl.render.Zoom;
 import cn.remix.util.IMinecraft;
@@ -56,6 +57,13 @@ public abstract class MixinGameRenderer implements IMinecraft {
     private void renderHand(float tickProgress, boolean sleeping, Matrix4f positionMatrix, CallbackInfo ci) {
         Zoom zoom = Zoom.getInstance();
         if (zoom != null && zoom.shouldHideHand()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(at = @At("HEAD"), method = "bobView(Lnet/minecraft/client/util/math/MatrixStack;F)V", cancellable = true)
+    private void remix$disableFreecamBobbing(MatrixStack matrices, float tickProgress, CallbackInfo ci) {
+        if (Freecam.isActive()) {
             ci.cancel();
         }
     }

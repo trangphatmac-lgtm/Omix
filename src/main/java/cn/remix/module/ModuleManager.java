@@ -70,6 +70,7 @@ public class ModuleManager implements IMinecraft {
                 new AntiLava(),
                 new Stuck(),
                 new LightningTracker(),
+                new Freecam(),
                 new LookTP(),
                 new Regen(),
                 new AntiDebuff(),

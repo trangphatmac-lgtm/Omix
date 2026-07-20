@@ -41,6 +41,7 @@
     "MixinSectionBuilder",
     "MixinSodiumBlockRenderContext",
     "MixinSodiumBlockRenderer",
+    "MixinSodiumRenderSectionManager",
     "MixinTitleScreen",
     "MixinStatusEffectFogModifier",
     "MixinWorldRenderer",

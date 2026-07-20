@@ -2,6 +2,7 @@ package injection;
 
 import cn.remix.event.impl.LookEvent;
 import cn.remix.event.impl.StrafeEvent;
+import cn.remix.module.impl.player.Freecam;
 import cn.remix.util.IMinecraft;
 import cn.remix.util.player.MovementUtil;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -13,6 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Entity.class)
@@ -49,6 +51,14 @@ public abstract class MixinEntity implements IMinecraft {
 
             cir.setReturnValue(this.getRotationVector(getPitch, getYaw));
         }
+    }
+
+    @Inject(method = "changeLookDirection", at = @At("HEAD"), cancellable = true)
+    private void remix$freecamTurn(double deltaYaw, double deltaPitch, CallbackInfo ci) {
+        if ((Object) this != mc.player || !Freecam.isActive()) return;
+
+        Freecam.turn(deltaYaw, deltaPitch);
+        ci.cancel();
     }
 
     @Redirect(method = "updateVelocity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;movementInputToVelocity(Lnet/minecraft/util/math/Vec3d;FF)Lnet/minecraft/util/math/Vec3d;"))

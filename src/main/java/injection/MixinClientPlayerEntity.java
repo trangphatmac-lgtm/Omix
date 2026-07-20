@@ -2,6 +2,7 @@ package injection;
 
 import cn.remix.Client;
 import cn.remix.event.impl.*;
+import cn.remix.module.impl.player.Freecam;
 import cn.remix.util.IMinecraft;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.MinecraftClient;
@@ -9,14 +10,18 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.input.Input;
 import net.minecraft.entity.MovementType;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.world.RaycastContext;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -55,6 +60,15 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
     protected MinecraftClient client;
 
     @Shadow
+    public Input input;
+
+    @Unique
+    private Input remix$freecamInput;
+
+    @Unique
+    private int remix$freecamInputSwapDepth;
+
+    @Shadow
     private void sendSprintingPacket() {}
     @Shadow
     protected abstract boolean isCamera();
@@ -66,6 +80,46 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo ci) {
         Client.instance.getEventManager().call(new UpdateEvent());
+        remix$swapFreecamInput();
+    }
+
+    @Inject(method = "tick", at = @At("RETURN"))
+    private void remix$restoreFreecamInput(CallbackInfo ci) {
+        remix$restoreFreecamInput();
+    }
+
+    @Inject(method = "tickRiding", at = @At("HEAD"))
+    private void remix$swapFreecamRidingInput(CallbackInfo ci) {
+        remix$swapFreecamInput();
+    }
+
+    @Inject(method = "tickRiding", at = @At("RETURN"))
+    private void remix$restoreFreecamRidingInput(CallbackInfo ci) {
+        remix$restoreFreecamInput();
+    }
+
+    @Unique
+    private void remix$swapFreecamInput() {
+        if (!Freecam.isActive()) return;
+
+        remix$freecamInputSwapDepth++;
+        if (remix$freecamInputSwapDepth > 1) return;
+
+        remix$freecamInput = this.input;
+        remix$freecamInput.tick();
+        this.input = new Input();
+    }
+
+    @Unique
+    private void remix$restoreFreecamInput() {
+        if (remix$freecamInputSwapDepth > 0) {
+            remix$freecamInputSwapDepth--;
+        }
+
+        if (remix$freecamInputSwapDepth > 0 || remix$freecamInput == null) return;
+
+        this.input = remix$freecamInput;
+        remix$freecamInput = null;
     }
 
     @Inject(method = "tickMovement", at = @At("HEAD"))
@@ -84,6 +138,29 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
             super.move(movementType, new Vec3d(event.getX(), event.getY(), event.getZ()));
             ci.cancel();
         }
+    }
+
+    @Inject(method = "isSneaking", at = @At("HEAD"), cancellable = true)
+    private void remix$freecamSneaking(CallbackInfoReturnable<Boolean> cir) {
+        if (Freecam.isActive()) {
+            cir.setReturnValue(false);
+        }
+    }
+
+    @Inject(method = "getCrosshairTarget", at = @At("HEAD"), cancellable = true)
+    private void remix$freecamCrosshair(float tickDelta, net.minecraft.entity.Entity cameraEntity,
+                                        CallbackInfoReturnable<HitResult> cir) {
+        if (!Freecam.isActive()) return;
+
+        Vec3d start = Freecam.getCameraPosition(tickDelta);
+        Vec3d end = start.add(Freecam.getCameraDirection(this.getBlockInteractionRange()));
+        cir.setReturnValue(this.getEntityWorld().raycast(new RaycastContext(
+                start,
+                end,
+                RaycastContext.ShapeType.OUTLINE,
+                RaycastContext.FluidHandling.NONE,
+                this
+        )));
     }
 
     @Redirect(method = "applyMovementSpeedFactors", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
