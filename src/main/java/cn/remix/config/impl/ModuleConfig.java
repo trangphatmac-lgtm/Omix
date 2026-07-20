@@ -29,7 +29,7 @@ public final class ModuleConfig extends Config {
 
             for (Module module : instance.getModuleManager().getModuleMap().values()) {
                 final JsonObject moduleObject = new JsonObject();
-                moduleObject.addProperty("enabled", module.isEnabled());
+                moduleObject.addProperty("enabled", !module.isHoldToUse() && module.isEnabled());
                 moduleObject.addProperty("key", module.getKey());
 
                 if (module instanceof Drag drag) {
@@ -100,7 +100,7 @@ public final class ModuleConfig extends Config {
 
     private void deserializeModule(final Module module, final JsonObject moduleObject) {
         if (moduleObject.has("enabled")) {
-            final boolean shouldEnable = moduleObject.get("enabled").getAsBoolean();
+            final boolean shouldEnable = !module.isHoldToUse() && moduleObject.get("enabled").getAsBoolean();
             if (shouldEnable != module.isEnabled()) {
                 module.toggle();
             }

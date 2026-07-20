@@ -79,4 +79,8 @@ public abstract class Module implements IMinecraft {
 
     public void onEnable() {}
     public void onDisable() {}
+
+    public boolean isHoldToUse() {
+        return false;
+    }
 }

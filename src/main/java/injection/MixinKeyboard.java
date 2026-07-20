@@ -14,8 +14,8 @@ public class MixinKeyboard implements IMinecraft {
 
     @Inject(method = "onKey", at = @At(value = "HEAD"))
     private void onKey(long window, int action, KeyInput input, CallbackInfo ci) {
-        if (action == 1) {
-            KeyInputEvent event = new KeyInputEvent(input.key());
+        if (action == 0 || action == 1) {
+            KeyInputEvent event = new KeyInputEvent(input.key(), action);
             instance.getEventManager().call(event);
         }
     }

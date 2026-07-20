@@ -2,6 +2,7 @@ package injection;
 
 import cn.remix.event.impl.Render3DEvent;
 import cn.remix.module.impl.render.NoHurtCam;
+import cn.remix.module.impl.render.Zoom;
 import cn.remix.util.IMinecraft;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.render.*;
@@ -13,6 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(GameRenderer.class)
 public abstract class MixinGameRenderer implements IMinecraft {
@@ -38,6 +40,22 @@ public abstract class MixinGameRenderer implements IMinecraft {
     @Inject(at = @At("HEAD"), method = "tiltViewWhenHurt(Lnet/minecraft/client/util/math/MatrixStack;F)V", cancellable = true)
     private void tiltViewWhenHurt(MatrixStack matrices, float tickProgress, CallbackInfo ci) {
         if (instance.getModuleManager().getModule(NoHurtCam.class).isEnabled()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "getFov", at = @At("RETURN"), cancellable = true)
+    private void getFov(Camera camera, float tickProgress, boolean changingFov, CallbackInfoReturnable<Float> cir) {
+        Zoom zoom = Zoom.getInstance();
+        if (zoom != null) {
+            cir.setReturnValue(zoom.applyFov(cir.getReturnValue()));
+        }
+    }
+
+    @Inject(method = "renderHand", at = @At("HEAD"), cancellable = true)
+    private void renderHand(float tickProgress, boolean sleeping, Matrix4f positionMatrix, CallbackInfo ci) {
+        Zoom zoom = Zoom.getInstance();
+        if (zoom != null && zoom.shouldHideHand()) {
             ci.cancel();
         }
     }

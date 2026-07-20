@@ -72,6 +72,7 @@ public class ModuleManager implements IMinecraft {
                 new Chams(),
                 new NoFog(),
                 new NoHurtCam(),
+                new Zoom(),
                 new ViewClip(),
                 new ItemPhysics(),
                 new Notify(),
@@ -134,11 +135,17 @@ public class ModuleManager implements IMinecraft {
 
     @EventTarget
     private void onKeyInput(KeyInputEvent event) {
-        if (event.getKey() == 0 || mc.currentScreen != null) return;
+        if (event.getKey() <= 0) return;
 
         for (Module module : moduleMap.values()) {
             if (module.getKey() == event.getKey()) {
-                module.toggle();
+                if (module.isHoldToUse()) {
+                    if (event.getAction() == 0 || mc.currentScreen == null) {
+                        module.setEnabled(event.getAction() == 1);
+                    }
+                } else if (event.getAction() == 1 && mc.currentScreen == null) {
+                    module.toggle();
+                }
             }
         }
     }

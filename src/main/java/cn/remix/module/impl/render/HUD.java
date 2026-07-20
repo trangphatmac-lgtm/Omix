@@ -263,7 +263,7 @@ public class HUD extends Module {
 
     @EventTarget
     public void onKey(KeyInputEvent event) {
-        if (mc.currentScreen != null || hudMode.is("Classic")) return;
+        if (event.getAction() != 1 || mc.currentScreen != null || hudMode.is("Classic")) return;
         int code = event.getKey();
         List<Module> modules = instance.getModuleManager().getModuleMap().values().stream().filter(m -> m.getCategory() == categories.get(current)).toList();
 

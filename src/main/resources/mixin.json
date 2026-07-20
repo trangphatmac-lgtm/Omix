@@ -34,6 +34,7 @@
     "MixinLivingEntityRenderState",
     "MixinLivingEntityRenderer",
     "MixinMinecraftClient",
+    "MixinMouse",
     "MixinNetworkThreadUtils",
     "MixinPlayerEntity",
     "MixinRenderTickCounterDynamic",
