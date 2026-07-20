@@ -1,7 +1,6 @@
 package cn.remix.module.impl.combat;
 
 import cn.remix.event.base.annotation.EventTarget;
-import cn.remix.event.impl.AttackEvent;
 import cn.remix.event.impl.LivingUpdateEvent;
 import cn.remix.event.impl.MotionEvent;
 import cn.remix.event.impl.UpdateEvent;
@@ -181,8 +180,6 @@ public class Aura extends Module {
     private void doAttack(LivingEntity entity) {
         if (mc.player == null || mc.world == null || mc.interactionManager == null) return;
 
-        AttackEvent event = new AttackEvent(target);
-        instance.getEventManager().call(event);
         mc.interactionManager.attackEntity(mc.player, entity);
         mc.player.swingHand(Hand.MAIN_HAND);
     }

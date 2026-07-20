@@ -5,6 +5,7 @@ import cn.remix.event.base.annotation.EventTarget;
 import cn.remix.event.impl.KeyInputEvent;
 import cn.remix.module.impl.combat.Aura;
 import cn.remix.module.impl.combat.Criticals;
+import cn.remix.module.impl.combat.MaceExploit;
 import cn.remix.module.impl.combat.TargetStrafe;
 import cn.remix.module.impl.combat.Velocity;
 import cn.remix.module.impl.exploits.Disabler;
@@ -39,6 +40,7 @@ public class ModuleManager implements IMinecraft {
                 new WorldTweaks(),
                 new AntiBot(),
                 new Aura(),
+                new MaceExploit(),
                 new Targets(),
                 new Teams(),
                 new Disabler(),
