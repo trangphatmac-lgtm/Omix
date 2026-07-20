@@ -8,6 +8,7 @@ import cn.remix.module.impl.combat.Criticals;
 import cn.remix.module.impl.combat.TargetStrafe;
 import cn.remix.module.impl.combat.Velocity;
 import cn.remix.module.impl.exploits.Disabler;
+import cn.remix.module.impl.exploits.PathFinder;
 import cn.remix.module.impl.exploits.Regen;
 import cn.remix.module.impl.exploits.ResourcepackSpoof;
 import cn.remix.module.impl.move.*;
@@ -41,6 +42,7 @@ public class ModuleManager implements IMinecraft {
                 new Targets(),
                 new Teams(),
                 new Disabler(),
+                new PathFinder(),
                 new MCF(),
                 new GuiMove(),
                 new FastWeb(),
@@ -66,6 +68,7 @@ public class ModuleManager implements IMinecraft {
                 new AntiLava(),
                 new Stuck(),
                 new LightningTracker(),
+                new LookTP(),
                 new Regen(),
                 new AntiDebuff(),
                 new Brightness(),
