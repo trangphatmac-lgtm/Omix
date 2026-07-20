@@ -17,6 +17,7 @@
     "MixinChunkOcclusionDataBuilder",
     "MixinClientCommonNetworkHandler",
     "MixinClientConnection",
+    "MixinClientPlayNetworkHandler",
     "MixinClientPlayerEntity",
     "MixinClientPlayerInteractionManager",
     "MixinEntity",

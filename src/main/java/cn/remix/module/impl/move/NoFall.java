@@ -5,7 +5,9 @@ import cn.remix.event.base.annotation.EventTarget;
 import cn.remix.event.impl.MotionEvent;
 import cn.remix.event.impl.MoveInputEvent;
 import cn.remix.event.impl.PacketEvent;
+import cn.remix.event.impl.PlayerPositionLookEvent;
 import cn.remix.event.impl.TickEvent;
+import cn.remix.event.impl.UpdateEvent;
 import cn.remix.event.impl.WorldEvent;
 import cn.remix.module.Category;
 import cn.remix.module.Module;
@@ -26,7 +28,6 @@ import net.minecraft.item.Items;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
-import net.minecraft.network.packet.s2c.play.PositionFlag;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -75,15 +76,18 @@ public final class NoFall extends Module {
     private int grimJumpTick;
     private int grimDuplicateResync;
     private double grimLastGroundHeight;
-    private Vec3d grimLastServerPos;
+    private Vec3d grimPosAtTickStart;
     private Vec3d grimWaitStartPos;
     private Vec3d grimAcceptedSetbackPos;
-    private volatile Vec3d grimPendingSetbackPos;
-    private boolean grimLastServerOnGround;
+    private boolean grimOnGroundAtTickStart;
+    private boolean grimHorizontalCollisionAtTickStart;
     private boolean grimSuppressInput;
     private boolean grimApplyJumpThisTick;
     private boolean grimFloodRecovery;
     private boolean grimCancelMovementPacket;
+    private boolean grimFinishAfterCancelledMotion;
+    private boolean grimPendingGroundPacket;
+    private boolean grimPendingHorizontalCollision;
     private boolean grimRestoreYaw;
     private float grimPreviousYaw;
     private float grimJumpYaw;
@@ -107,10 +111,8 @@ public final class NoFall extends Module {
     @EventTarget
     @EventPriority(1)
     public void onPacket(PacketEvent event) {
-        if (event.getType() == PacketEvent.Type.Received && event.getPacket() instanceof PlayerPositionLookS2CPacket packet) {
-            if (mode.is("Grim")) {
-                captureGrimSetback(packet);
-            } else {
+        if (event.getType() == PacketEvent.Type.Received && event.getPacket() instanceof PlayerPositionLookS2CPacket) {
+            if (!mode.is("Grim")) {
                 resetState(true);
             }
             return;
@@ -130,7 +132,6 @@ public final class NoFall extends Module {
             case "Blink" -> handleBlink(packet);
             case "NoGround" -> setOnGround(packet, false);
             case "Spoof" -> handleSpoof(packet);
-            case "Grim" -> handleGrimPacket(event, packet);
             default -> {
             }
         }
@@ -145,10 +146,6 @@ public final class NoFall extends Module {
         setSuffix(mode.getValue());
         mlgActionThisTick = false;
         handleScheduledSlotRestore();
-
-        if (mode.is("Grim")) {
-            handleGrimTick();
-        }
 
         if (mode.is("Packet") && slowFalling) {
             sendGroundPacket();
@@ -174,22 +171,60 @@ public final class NoFall extends Module {
 
     @EventTarget
     @EventPriority(1000)
+    public void onUpdate(UpdateEvent event) {
+        if (mc.player == null) return;
+
+        syncModeState();
+        if (mode.is("Grim")) {
+            setSuffix(mode.getValue());
+            handleGrimTick();
+        }
+    }
+
+    @EventTarget
+    @EventPriority(1000)
     public void onMotion(MotionEvent event) {
         if (mc.player == null) return;
 
+        if (event.isPre()) {
+            syncModeState();
+        }
+
         if (mode.is("Grim")) {
             if (event.isPost()) {
+                sendPendingGrimGroundPacket();
+                if (grimFinishAfterCancelledMotion) {
+                    grimFinishAfterCancelledMotion = false;
+                    finishGrimJump();
+                } else if (grimStep == GrimStep.APPLY_JUMP && grimApplyJumpThisTick) {
+                    finishGrimJump();
+                }
                 restoreGrimYaw();
                 return;
             }
-            if (grimApplyJumpThisTick && grimRestoreYaw) {
-                event.setYaw(grimJumpYaw);
+
+            if (grimCancelMovementPacket) {
+                event.setCancelled();
+                grimFinishAfterCancelledMotion = true;
+                return;
+            }
+
+            if (shouldStartGrimLanding()) {
+                startGrimLanding(event);
+                return;
+            }
+
+            if (grimApplyJumpThisTick) {
+                // The reference overrides the vanilla post-jump cooldown back to zero.
+                ((LivingEntityAccessor) mc.player).setJumpingCooldown(0);
+                if (grimRestoreYaw) {
+                    event.setYaw(grimJumpYaw);
+                }
             }
         }
 
         if (!event.isPre()) return;
 
-        syncModeState();
         if (mode.is("Blink") && blinking && event.isOnGround()) {
             finishBlink();
         }
@@ -213,11 +248,27 @@ public final class NoFall extends Module {
     }
 
     @EventTarget
+    public void onPlayerPositionLook(PlayerPositionLookEvent event) {
+        if (!mode.is("Grim")
+                || grimWaitStartPos == null
+                || grimWaitStartPos.squaredDistanceTo(event.getPosition()) >= GRIM_SETBACK_RANGE_SQUARED
+                || grimTick >= grimWaitStartTick + GRIM_LATENCY_TICKS) {
+            return;
+        }
+
+        grimWaitStartPos = null;
+        grimAcceptedSetbackPos = event.getPosition();
+        grimAcceptedSetbackTick = grimTick;
+        grimStep = GrimStep.WAIT_FOR_RESYNC;
+    }
+
+    @EventTarget
     public void onWorld(WorldEvent event) {
         resetGrimState();
         grimLastGroundHeight = 0.0;
-        grimLastServerPos = null;
-        grimLastServerOnGround = false;
+        grimPosAtTickStart = null;
+        grimOnGroundAtTickStart = false;
+        grimHorizontalCollisionAtTickStart = false;
     }
 
     private void handlePacket(PlayerMoveC2SPacket packet) {
@@ -299,77 +350,54 @@ public final class NoFall extends Module {
         }
     }
 
-    private void handleGrimPacket(PacketEvent event, PlayerMoveC2SPacket packet) {
-        if (grimCancelMovementPacket) {
-            event.setCancelled();
-            finishGrimJump();
-            return;
-        }
-
-        Vec3d packetPos = packet.changesPosition()
-                ? new Vec3d(
-                packet.getX(mc.player.getX()),
-                packet.getY(mc.player.getY()),
-                packet.getZ(mc.player.getZ()))
-                : grimLastServerPos;
-
-        boolean dangerousLanding = grimStep == GrimStep.COMMON
+    private boolean shouldStartGrimLanding() {
+        // LAZY_GRIM_PLUS_2 compares the tick-start snapshot with the real entity state;
+        // packet/motion onGround may already have been spoofed by Criticals or AntiHunger.
+        return grimStep == GrimStep.COMMON
                 && grimTick > grimWaitStartTick + GRIM_LATENCY_TICKS
-                && !grimLastServerOnGround
-                && packet.isOnGround()
-                && packet.changesPosition()
+                && !grimOnGroundAtTickStart
                 && mc.player.isOnGround()
                 && isGrimUnsafeLanding();
-
-        if (dangerousLanding) {
-            Vec3d landingPos = new Vec3d(mc.player.getX(), mc.player.getY(), mc.player.getZ());
-
-            event.setCancelled();
-            PacketUtil.sendPacketNoEvent(new PlayerMoveC2SPacket.OnGroundOnly(true, packet.horizontalCollision()));
-
-            grimLastServerOnGround = true;
-            grimLastGroundHeight = packetPos == null ? landingPos.y : packetPos.y;
-            grimWaitStartPos = landingPos;
-            grimWaitStartTick = grimTick;
-            grimAcceptedSetbackPos = null;
-            grimPendingSetbackPos = null;
-            grimSuppressInput = true;
-            grimApplyJumpThisTick = false;
-            grimFloodRecovery = false;
-            grimCancelMovementPacket = false;
-            grimStep = GrimStep.WAIT_FOR_RESYNC;
-
-            if (grimLastServerPos != null) {
-                mc.player.setPosition(grimLastServerPos.x, landingPos.y, grimLastServerPos.z);
-            }
-            mc.player.setOnGround(true);
-            return;
-        }
-
-        grimLastServerOnGround = packet.isOnGround();
-        if (packetPos != null) {
-            grimLastServerPos = packetPos;
-        }
-
-        if (grimStep == GrimStep.APPLY_JUMP && grimApplyJumpThisTick) {
-            finishGrimJump();
-        }
     }
 
-    private void captureGrimSetback(PlayerPositionLookS2CPacket packet) {
-        if (mc.player == null) return;
+    private void startGrimLanding(MotionEvent event) {
+        Vec3d landingPos = new Vec3d(mc.player.getX(), mc.player.getY(), mc.player.getZ());
 
-        Vec3d base = new Vec3d(mc.player.getX(), mc.player.getY(), mc.player.getZ());
-        Vec3d change = packet.change().position();
-        grimPendingSetbackPos = new Vec3d(
-                packet.relatives().contains(PositionFlag.X) ? base.x + change.x : change.x,
-                packet.relatives().contains(PositionFlag.Y) ? base.y + change.y : change.y,
-                packet.relatives().contains(PositionFlag.Z) ? base.z + change.z : change.z
-        );
+        event.setCancelled();
+        grimPendingGroundPacket = true;
+        grimPendingHorizontalCollision = grimHorizontalCollisionAtTickStart;
+        grimLastGroundHeight = grimPosAtTickStart == null ? landingPos.y : grimPosAtTickStart.y;
+        grimWaitStartPos = landingPos;
+        grimWaitStartTick = grimTick;
+        grimAcceptedSetbackPos = null;
+        grimSuppressInput = true;
+        grimApplyJumpThisTick = false;
+        grimFloodRecovery = false;
+        grimCancelMovementPacket = false;
+        grimStep = GrimStep.WAIT_FOR_RESYNC;
+
+        if (grimPosAtTickStart != null) {
+            mc.player.setPosition(grimPosAtTickStart.x, landingPos.y, grimPosAtTickStart.z);
+        }
+        mc.player.setOnGround(true);
+    }
+
+    private void sendPendingGrimGroundPacket() {
+        if (!grimPendingGroundPacket || mc.player == null) return;
+
+        grimPendingGroundPacket = false;
+        mc.player.setOnGround(true);
+        PacketUtil.sendPacketNoEvent(new PlayerMoveC2SPacket.OnGroundOnly(
+                true,
+                grimPendingHorizontalCollision
+        ));
     }
 
     private void handleGrimTick() {
         grimTick++;
+        grimOnGroundAtTickStart = mc.player.isOnGround();
+        grimHorizontalCollisionAtTickStart = mc.player.horizontalCollision;
+        grimPosAtTickStart = new Vec3d(mc.player.getX(), mc.player.getY(), mc.player.getZ());
         grimSuppressInput = false;
 
         if (!canUseGrim()) {
@@ -383,18 +411,9 @@ public final class NoFall extends Module {
             grimLastGroundHeight = playerY;
         }
 
-        boolean acceptedSetback = false;
-        Vec3d setbackPos = grimPendingSetbackPos;
-        grimPendingSetbackPos = null;
-        if (setbackPos != null
-                && grimStep == GrimStep.WAIT_FOR_RESYNC
-                && grimWaitStartPos != null
-                && grimWaitStartPos.squaredDistanceTo(setbackPos) < GRIM_SETBACK_RANGE_SQUARED
-                && grimTick < grimWaitStartTick + GRIM_LATENCY_TICKS) {
-            grimAcceptedSetbackPos = setbackPos;
-            grimAcceptedSetbackTick = grimTick;
-            acceptedSetback = true;
-        }
+        boolean acceptedSetback = grimStep == GrimStep.WAIT_FOR_RESYNC
+                && grimAcceptedSetbackPos != null
+                && grimTick <= grimAcceptedSetbackTick + 1;
 
         grimDuplicateResync = Math.max(0, grimDuplicateResync + (acceptedSetback ? 2 : -1));
 
@@ -518,6 +537,7 @@ public final class NoFall extends Module {
         grimApplyJumpThisTick = false;
         grimFloodRecovery = false;
         grimCancelMovementPacket = false;
+        grimFinishAfterCancelledMotion = false;
     }
 
     private void resetGrimCycle() {
@@ -528,11 +548,13 @@ public final class NoFall extends Module {
         grimJumpTick = 0;
         grimWaitStartPos = null;
         grimAcceptedSetbackPos = null;
-        grimPendingSetbackPos = null;
         grimSuppressInput = false;
         grimApplyJumpThisTick = false;
         grimFloodRecovery = false;
         grimCancelMovementPacket = false;
+        grimFinishAfterCancelledMotion = false;
+        grimPendingGroundPacket = false;
+        grimPendingHorizontalCollision = false;
     }
 
     private void resetGrimState() {
@@ -541,12 +563,14 @@ public final class NoFall extends Module {
         grimDuplicateResync = 0;
         if (mc.player != null) {
             grimLastGroundHeight = mc.player.getY();
-            grimLastServerPos = new Vec3d(mc.player.getX(), mc.player.getY(), mc.player.getZ());
-            grimLastServerOnGround = mc.player.isOnGround();
+            grimPosAtTickStart = new Vec3d(mc.player.getX(), mc.player.getY(), mc.player.getZ());
+            grimOnGroundAtTickStart = mc.player.isOnGround();
+            grimHorizontalCollisionAtTickStart = mc.player.horizontalCollision;
         } else {
             grimLastGroundHeight = 0.0;
-            grimLastServerPos = null;
-            grimLastServerOnGround = false;
+            grimPosAtTickStart = null;
+            grimOnGroundAtTickStart = false;
+            grimHorizontalCollisionAtTickStart = false;
         }
     }
 
