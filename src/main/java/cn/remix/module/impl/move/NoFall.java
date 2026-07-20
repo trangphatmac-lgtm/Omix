@@ -91,9 +91,7 @@ public final class NoFall extends Module {
     private boolean grimPendingGroundPacket;
     private boolean grimPendingHorizontalCollision;
     private boolean grimRestoreYaw;
-    private boolean grimRestorePitch;
     private float grimPreviousYaw;
-    private float grimPreviousPitch;
     private float grimJumpYaw;
 
     public NoFall() {
@@ -136,13 +134,19 @@ public final class NoFall extends Module {
             case "Blink" -> handleBlink(packet);
             case "NoGround" -> setOnGround(packet, false);
             case "Spoof" -> handleSpoof(packet);
-            case "Grim" -> {
-                if (isGrimControlWindowActive()) {
-                    ((PlayerMoveC2SPacketAccessor) packet).setPitch(90.0F);
-                }
-            }
             default -> {
             }
+        }
+    }
+
+    @EventTarget
+    @EventPriority(1000)
+    public void onGrimPacket(PacketEvent event) {
+        if (!event.isCancelled()
+                && event.getType() == PacketEvent.Type.Send
+                && event.getPacket() instanceof PlayerMoveC2SPacket packet
+                && isGrimSilentRotationActive()) {
+            ((PlayerMoveC2SPacketAccessor) packet).setPitch(90.0F);
         }
     }
 
@@ -212,11 +216,6 @@ public final class NoFall extends Module {
                 return;
             }
 
-            if (isGrimControlWindowActive()) {
-                mc.player.setPitch(90.0F);
-                event.setPitch(90.0F);
-            }
-
             if (grimCancelMovementPacket) {
                 event.setCancelled();
                 grimFinishAfterCancelledMotion = true;
@@ -264,10 +263,6 @@ public final class NoFall extends Module {
     @EventTarget
     public void onPlayerPositionLook(PlayerPositionLookEvent event) {
         if (!mode.is("Grim")) return;
-
-        if (mc.player != null && isGrimControlWindowActive()) {
-            mc.player.setPitch(90.0F);
-        }
 
         if (grimWaitStartPos == null
                 || grimWaitStartPos.squaredDistanceTo(event.getPosition()) >= GRIM_SETBACK_RANGE_SQUARED
@@ -415,7 +410,9 @@ public final class NoFall extends Module {
 
     private void handleGrimTick() {
         grimTick++;
-        updateGrimControlWindow();
+        if (grimControlEndTick != 0 && grimTick >= grimControlEndTick) {
+            grimControlEndTick = 0;
+        }
         grimOnGroundAtTickStart = mc.player.isOnGround();
         grimHorizontalCollisionAtTickStart = mc.player.horizontalCollision;
         grimPosAtTickStart = new Vec3d(mc.player.getX(), mc.player.getY(), mc.player.getZ());
@@ -423,7 +420,7 @@ public final class NoFall extends Module {
 
         if (!canUseGrim()) {
             grimLastGroundHeight = mc.player.getY();
-            restoreGrimPitch();
+            grimControlEndTick = 0;
             resetGrimCycle();
             return;
         }
@@ -532,14 +529,9 @@ public final class NoFall extends Module {
     }
 
     private void startGrimControlWindow() {
-        if (mc.player == null) return;
-
         if (!isGrimControlWindowActive()) {
-            grimPreviousPitch = mc.player.getPitch();
-            grimRestorePitch = true;
             grimControlEndTick = grimTick + GRIM_CONTROL_TICKS;
         }
-        mc.player.setPitch(90.0F);
     }
 
     private boolean shouldPrepareGrimLanding() {
@@ -560,18 +552,12 @@ public final class NoFall extends Module {
         return mc.world.getBlockCollisions(mc.player, landingPath).iterator().hasNext();
     }
 
-    private void updateGrimControlWindow() {
-        if (mc.player == null) return;
-
-        if (isGrimControlWindowActive()) {
-            mc.player.setPitch(90.0F);
-        } else {
-            restoreGrimPitch();
-        }
+    private boolean isGrimControlWindowActive() {
+        return grimControlEndTick != 0 && grimTick < grimControlEndTick;
     }
 
-    private boolean isGrimControlWindowActive() {
-        return grimRestorePitch && grimTick < grimControlEndTick;
+    public boolean isGrimSilentRotationActive() {
+        return isEnabled() && mode.is("Grim") && isGrimControlWindowActive();
     }
 
     private GrimCollision getGrimCollision() {
@@ -638,7 +624,6 @@ public final class NoFall extends Module {
 
     private void resetGrimState() {
         resetGrimCycle();
-        restoreGrimPitch();
         grimTick = 0;
         grimControlEndTick = 0;
         grimDuplicateResync = 0;
@@ -660,14 +645,6 @@ public final class NoFall extends Module {
             mc.player.setYaw(grimPreviousYaw);
         }
         grimRestoreYaw = false;
-    }
-
-    private void restoreGrimPitch() {
-        if (grimRestorePitch && mc.player != null) {
-            mc.player.setPitch(grimPreviousPitch);
-        }
-        grimRestorePitch = false;
-        grimControlEndTick = 0;
     }
 
     private boolean shouldSpoofFall() {

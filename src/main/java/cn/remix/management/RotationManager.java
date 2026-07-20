@@ -5,6 +5,7 @@ import cn.remix.event.base.annotation.EventTarget;
 import cn.remix.event.impl.*;
 import cn.remix.management.movement.MovementCorrection;
 import cn.remix.module.impl.combat.Aura;
+import cn.remix.module.impl.move.NoFall;
 import cn.remix.module.impl.move.Speed;
 import cn.remix.module.impl.player.AntiLava;
 import cn.remix.module.impl.world.Scaffold;
@@ -48,6 +49,7 @@ public class RotationManager implements IMinecraft {
         AntiLava antiLava = instance.getModuleManager().getModule(AntiLava.class);
         Scaffold scaffold = instance.getModuleManager().getModule(Scaffold.class);
         ScaffoldOld scaffoldOld = instance.getModuleManager().getModule(ScaffoldOld.class);
+        NoFall noFall = instance.getModuleManager().getModule(NoFall.class);
         boolean instantRotation = false;
 
         if (antiLava.isEnabled() && antiLava.getRotations() != null) {
@@ -66,6 +68,12 @@ public class RotationManager implements IMinecraft {
             instantRotation = true;
         } else {
             enabled = false;
+        }
+
+        if (noFall.isGrimSilentRotationActive()) {
+            float yaw = enabled && targetRotations != null ? targetRotations[0] : mc.player.getYaw();
+            setRotations(new float[]{yaw, 90.0F}, 0.0, MovementCorrection.None);
+            instantRotation = true;
         }
 
         if (currentRotations == null) {
