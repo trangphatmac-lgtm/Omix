@@ -68,6 +68,7 @@ public class ModuleManager implements IMinecraft {
                 new NoSlowDown(),
                 new ModuleList(),
                 new Speed(),
+                new Spider(),
                 new Step(),
                 new Strafe(),
                 new Fly(),
