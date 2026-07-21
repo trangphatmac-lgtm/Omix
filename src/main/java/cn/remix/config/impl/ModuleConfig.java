@@ -3,6 +3,7 @@ package cn.remix.config.impl;
 import cn.remix.Client;
 import cn.remix.config.Config;
 import cn.remix.module.Module;
+import cn.remix.module.value.DynamicBoolValueProvider;
 import cn.remix.module.value.Value;
 import cn.remix.module.value.impl.*;
 import cn.remix.ui.hud.Drag;
@@ -10,6 +11,7 @@ import com.google.gson.*;
 
 import java.io.FileReader;
 import java.io.PrintWriter;
+import java.util.Map;
 
 public final class ModuleConfig extends Config {
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -37,8 +39,9 @@ public final class ModuleConfig extends Config {
                     moduleObject.addProperty("percentY", drag.percentY);
                 }
 
-                if (!module.getValues().isEmpty()) {
-                    moduleObject.add("values", this.serializeValues(module));
+                JsonObject valuesObject = this.serializeValues(module);
+                if (!valuesObject.isEmpty()) {
+                    moduleObject.add("values", valuesObject);
                 }
                 jsonObject.add(module.getName(), moduleObject);
             }
@@ -120,34 +123,48 @@ public final class ModuleConfig extends Config {
             }
         }
 
-        if (moduleObject.has("values") && !module.getValues().isEmpty()) {
+        if (moduleObject.has("values")) {
             final JsonObject valuesObject = moduleObject.getAsJsonObject("values");
-            for (final Value value : module.getValues()) {
-                if (!valuesObject.has(value.getName())) {
-                    continue;
+            for (Map.Entry<String, JsonElement> entry : valuesObject.entrySet()) {
+                Value value = module.getValues().stream()
+                        .filter(candidate -> candidate.getName().equals(entry.getKey()))
+                        .findFirst()
+                        .orElse(null);
+
+                if (value == null
+                        && module instanceof DynamicBoolValueProvider provider
+                        && entry.getValue().isJsonPrimitive()
+                        && entry.getValue().getAsJsonPrimitive().isBoolean()) {
+                    value = provider.getOrCreateBoolValue(entry.getKey(), entry.getValue().getAsBoolean());
                 }
-                final JsonElement element = valuesObject.get(value.getName());
+
+                if (value == null) continue;
+
                 try {
-                    switch (value) {
-                        case BoolValue bool -> bool.setValue(element.getAsBoolean());
-                        case NumberValue num -> num.setValue(element.getAsFloat());
-                        case ModeValue mode -> mode.setValue(element.getAsString());
-                        case TextValue text -> text.setValue(element.getAsString());
-                        case ColorValue color -> color.setValue(new java.awt.Color(element.getAsInt()));
-                        case MultiBoolValue multi when element.isJsonObject() -> {
-                            final JsonObject multiObject = element.getAsJsonObject();
-                            for (final BoolValue child : multi.getValues()) {
-                                if (multiObject.has(child.getName())) {
-                                    child.setValue(multiObject.get(child.getName()).getAsBoolean());
-                                }
-                            }
-                        }
-                        default -> {}
-                    }
+                    deserializeValue(value, entry.getValue());
                 } catch (final Exception exception) {
                     Client.logger.debug("Failed to load value {}: {}", value.getName(), exception.getMessage());
                 }
             }
+        }
+    }
+
+    private void deserializeValue(Value value, JsonElement element) {
+        switch (value) {
+            case BoolValue bool -> bool.setValue(element.getAsBoolean());
+            case NumberValue num -> num.setValue(element.getAsFloat());
+            case ModeValue mode -> mode.setValue(element.getAsString());
+            case TextValue text -> text.setValue(element.getAsString());
+            case ColorValue color -> color.setValue(new java.awt.Color(element.getAsInt()));
+            case MultiBoolValue multi when element.isJsonObject() -> {
+                final JsonObject multiObject = element.getAsJsonObject();
+                for (final BoolValue child : multi.getValues()) {
+                    if (multiObject.has(child.getName())) {
+                        child.setValue(multiObject.get(child.getName()).getAsBoolean());
+                    }
+                }
+            }
+            default -> {}
         }
     }
 }

@@ -10,14 +10,14 @@ import cn.remix.util.animation.EasingAnimation;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Getter
 @Setter
 public abstract class Module implements IMinecraft {
     private final EasingAnimation animation = new EasingAnimation(Easing.EASE_OUT_QUART, 600);
-    private final List<Value> values = new ArrayList<>();
+    private final List<Value> values = new CopyOnWriteArrayList<>();
     private final String name;
     private final Category category;
     private String suffix = "";

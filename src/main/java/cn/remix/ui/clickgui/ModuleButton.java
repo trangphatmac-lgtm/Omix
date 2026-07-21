@@ -19,7 +19,10 @@ import net.minecraft.client.input.KeyInput;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 public final class ModuleButton implements IMinecraft {
@@ -27,6 +30,7 @@ public final class ModuleButton implements IMinecraft {
     private final ModulePanel modulePanel;
     private final Module module;
     private final List<Component> components = new ArrayList<>();
+    private final Set<Value> componentValues = Collections.newSetFromMap(new IdentityHashMap<>());
     private final EasingAnimation openAnimation = new EasingAnimation(Easing.EASE_OUT_CUBIC, 200);
     private final EasingAnimation toggleAnimation = new EasingAnimation(Easing.EASE_OUT_CUBIC, 150);
     private final EasingAnimation hoverAnimation = new EasingAnimation(Easing.EASE_OUT_CUBIC, 150);
@@ -36,17 +40,30 @@ public final class ModuleButton implements IMinecraft {
     public ModuleButton(ModulePanel modulePanel, Module module) {
         this.modulePanel = modulePanel;
         this.module = module;
+        syncComponents();
+    }
+
+    private void syncComponents() {
         for (Value value : module.getValues()) {
-            if (value instanceof BoolValue bool) components.add(new BoolComponent(this, bool));
-            else if (value instanceof NumberValue num) components.add(new NumberComponent(this, num));
-            else if (value instanceof ModeValue mode) components.add(new ModeComponent(this, mode));
-            else if (value instanceof MultiBoolValue multi) components.add(new MultiBoolComponent(this, multi));
-            else if (value instanceof ColorValue color) components.add(new ColorComponent(this, color));
-            else if (value instanceof TextValue text) components.add(new TextComponent(this, text));
+            if (componentValues.contains(value)) continue;
+
+            Component component = null;
+            if (value instanceof BoolValue bool) component = new BoolComponent(this, bool);
+            else if (value instanceof NumberValue num) component = new NumberComponent(this, num);
+            else if (value instanceof ModeValue mode) component = new ModeComponent(this, mode);
+            else if (value instanceof MultiBoolValue multi) component = new MultiBoolComponent(this, multi);
+            else if (value instanceof ColorValue color) component = new ColorComponent(this, color);
+            else if (value instanceof TextValue text) component = new TextComponent(this, text);
+
+            if (component != null) {
+                components.add(component);
+                componentValues.add(value);
+            }
         }
     }
 
     public float render(DrawContext context, float x, float y, float width, int mouseX, int mouseY, float globalAlpha) {
+        syncComponents();
         var font = instance.getFontManager().getBoldFont(16);
         boolean hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
         int alphaInt = (int) (255 * globalAlpha);

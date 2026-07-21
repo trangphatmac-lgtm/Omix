@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 @Getter
 @Setter
 public final class BoolValue extends Value {
-    private boolean value;
+    private volatile boolean value;
 
     public BoolValue(String name, boolean value, Supplier<Boolean> visible) {
         super(name, visible);
