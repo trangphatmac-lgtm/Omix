@@ -32,8 +32,6 @@ import net.minecraft.util.math.Vec3d;
 @Getter
 public class Scaffold extends Module {
     private static final double CLUTCH_REACH = 4.5;
-    private static final double CLUTCH_GROUND_DISTANCE = 5.0;
-    private static final long CLUTCH_MAX_NANOS = 5_000_000_000L;
 
     public static NumberValue delay = new NumberValue("Delay", 0, 0, 200, 10);
     private final ModeValue mode = new ModeValue("Mode", "Normal", "Normal", "Telly Bridge");
@@ -51,6 +49,10 @@ public class Scaffold extends Module {
     private final BoolValue noSwing = new BoolValue("No Swing", false);
     private final BoolValue movementFix = new BoolValue("Movement Fix", false);
     private final BoolValue clutch = new BoolValue("Clutch", false);
+    private final NumberValue clutchEyeTick = new NumberValue("Clutch Eye Tick", 2, 1, 20, 1, clutch::getValue);
+    private final NumberValue clutchHeightTick = new NumberValue("Clutch Height Tick", 3, 1, 20, 1, clutch::getValue);
+    private final NumberValue clutchGroundDistance = new NumberValue("Clutch Ground Distance", 3, 1, 20, 1, clutch::getValue);
+    private final NumberValue clutchStuckTime = new NumberValue("Clutch Stuck Time (s)", 5.0F, .5F, 30.0F, .5F, clutch::getValue);
     private final TimerUtil delayTimer = new TimerUtil();
     private boolean canRotation;
     private boolean canPlace;
@@ -297,7 +299,8 @@ public class Scaffold extends Module {
         }
 
         if (clutchActive) {
-            if (System.nanoTime() - clutchStartedAt >= CLUTCH_MAX_NANOS) {
+            long maxStuckNanos = (long) (clutchStuckTime.getValue().doubleValue() * 1_000_000_000.0);
+            if (System.nanoTime() - clutchStartedAt >= maxStuckNanos) {
                 stopClutch(true);
                 clutchTimedOut = true;
                 return;
@@ -316,11 +319,13 @@ public class Scaffold extends Module {
     }
 
     private boolean isPredictedClutchDanger() {
-        FallingPlayer prediction = new FallingPlayer(mc.player);
-        prediction.calculate(1);
-        Vec3d nextEyePos = prediction.getEyePos();
-        prediction.calculate(1);
-        Vec3d secondTickPos = prediction.getPos();
+        FallingPlayer eyePrediction = new FallingPlayer(mc.player);
+        eyePrediction.calculate(clutchEyeTick.getValue().intValue());
+        Vec3d predictedEyePos = eyePrediction.getEyePos();
+
+        FallingPlayer heightPrediction = new FallingPlayer(mc.player);
+        heightPrediction.calculate(clutchHeightTick.getValue().intValue());
+        Vec3d predictedHeightPos = heightPrediction.getPos();
 
         if (data == null) return true;
 
@@ -329,8 +334,8 @@ public class Scaffold extends Module {
                 data.blockPos().getY() + 0.5,
                 data.blockPos().getZ() + 0.5
         );
-        boolean tooFarFromSupport = nextEyePos.distanceTo(supportCenter) >= CLUTCH_REACH;
-        boolean fallingBelowSupport = secondTickPos.y < data.blockPos().getY();
+        boolean tooFarFromSupport = predictedEyePos.distanceTo(supportCenter) >= CLUTCH_REACH;
+        boolean fallingBelowSupport = predictedHeightPos.y < data.blockPos().getY();
         return tooFarFromSupport || fallingBelowSupport;
     }
 
@@ -343,7 +348,7 @@ public class Scaffold extends Module {
         int startY = MathHelper.floor(box.minY - 1.0E-6);
 
         for (int y = startY;
-             y >= mc.world.getBottomY() && box.minY - (y + 1.0) <= CLUTCH_GROUND_DISTANCE;
+             y >= mc.world.getBottomY() && box.minY - (y + 1.0) <= clutchGroundDistance.getValue();
              y--) {
             for (int x = minX; x <= maxX; x++) {
                 for (int z = minZ; z <= maxZ; z++) {
