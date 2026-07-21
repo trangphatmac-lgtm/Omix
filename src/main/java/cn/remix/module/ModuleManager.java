@@ -4,6 +4,7 @@ import cn.remix.Client;
 import cn.remix.event.base.annotation.EventTarget;
 import cn.remix.event.impl.KeyInputEvent;
 import cn.remix.module.impl.combat.Aura;
+import cn.remix.module.impl.combat.AutoTotem;
 import cn.remix.module.impl.combat.Criticals;
 import cn.remix.module.impl.combat.CrossbowExploit;
 import cn.remix.module.impl.combat.FastBow;
@@ -47,6 +48,7 @@ public class ModuleManager implements IMinecraft {
                 new WorldTweaks(),
                 new AntiBot(),
                 new Aura(),
+                new AutoTotem(),
                 new CrossbowExploit(),
                 new FastBow(),
                 new FastEat(),
