@@ -5,7 +5,7 @@ import cn.remix.event.base.annotation.EventTarget;
 import cn.remix.event.impl.KeyInputEvent;
 import cn.remix.module.impl.combat.Aura;
 import cn.remix.module.impl.combat.Criticals;
-import cn.remix.module.impl.combat.MaceExploit;
+import cn.remix.module.impl.combat.MaceDamageBooster;
 import cn.remix.module.impl.combat.TargetStrafe;
 import cn.remix.module.impl.combat.Velocity;
 import cn.remix.module.impl.exploits.Disabler;
@@ -15,8 +15,8 @@ import cn.remix.module.impl.exploits.ResourcepackSpoof;
 import cn.remix.module.impl.move.*;
 import cn.remix.module.impl.player.*;
 import cn.remix.module.impl.render.*;
+import cn.remix.module.impl.world.ScaffoldX;
 import cn.remix.module.impl.world.Scaffold;
-import cn.remix.module.impl.world.ScaffoldOld;
 import cn.remix.module.impl.world.WorldTweaks;
 import cn.remix.module.value.Value;
 import cn.remix.util.IMinecraft;
@@ -35,12 +35,12 @@ public class ModuleManager implements IMinecraft {
         addModules(
                 new HUD(),
                 new ClickGui(),
+                new ScaffoldX(),
                 new Scaffold(),
-                new ScaffoldOld(),
                 new WorldTweaks(),
                 new AntiBot(),
                 new Aura(),
-                new MaceExploit(),
+                new MaceDamageBooster(),
                 new Targets(),
                 new Teams(),
                 new Disabler(),

@@ -3,7 +3,7 @@ package cn.remix.module.impl.world;
 import cn.remix.module.Module;
 
 /**
- * Serializes Scaffold activation and guarantees that only one implementation
+ * Serializes ScaffoldX activation and guarantees that only one implementation
  * remains enabled, including during config loading before a world is joined.
  */
 final class ScaffoldMutex {

@@ -7,8 +7,8 @@ import cn.remix.event.impl.UpdateEvent;
 import cn.remix.management.RotationManager;
 import cn.remix.module.Category;
 import cn.remix.module.Module;
+import cn.remix.module.impl.world.ScaffoldX;
 import cn.remix.module.impl.world.Scaffold;
-import cn.remix.module.impl.world.ScaffoldOld;
 import cn.remix.module.value.impl.BoolValue;
 import cn.remix.module.value.impl.ModeValue;
 import cn.remix.module.value.impl.NumberValue;
@@ -266,8 +266,8 @@ public class Aura extends Module {
     private boolean check() {
         if (mc.player == null || mc.world == null) return true;
 
-        if ((getModule(Scaffold.class).isEnabled() && getModule(Scaffold.class).isCanRotation())
-                || (getModule(ScaffoldOld.class).isEnabled() && getModule(ScaffoldOld.class).isCanRotation())) {
+        if ((getModule(ScaffoldX.class).isEnabled() && getModule(ScaffoldX.class).isCanRotation())
+                || (getModule(Scaffold.class).isEnabled() && getModule(Scaffold.class).isCanRotation())) {
             return true;
         }
 

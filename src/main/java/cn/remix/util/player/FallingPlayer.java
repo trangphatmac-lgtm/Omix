@@ -4,7 +4,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 
 /**
- * Lightweight airborne prediction used by Scaffold's clutch logic.
+ * Lightweight airborne prediction used by ScaffoldX's clutch logic.
  * Adapted for Remix from OpenSSNGScaffoldAndClutch (MIT, Copyright 2026 Un4nown).
  */
 public final class FallingPlayer {

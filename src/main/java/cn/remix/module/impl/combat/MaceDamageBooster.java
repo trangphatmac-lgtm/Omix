@@ -9,10 +9,10 @@ import cn.remix.util.network.PacketUtil;
 import net.minecraft.item.MaceItem;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 
-public final class MaceExploit extends Module {
+public final class MaceDamageBooster extends Module {
     private final NumberValue height = new NumberValue("Height", 10, 1, 100, 1);
 
-    public MaceExploit() {
+    public MaceDamageBooster() {
         super("Mace Exploit", Category.Combat);
     }
 

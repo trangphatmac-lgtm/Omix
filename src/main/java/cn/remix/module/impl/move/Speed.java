@@ -13,7 +13,7 @@ import cn.remix.module.Category;
 import cn.remix.module.Module;
 import cn.remix.module.impl.combat.Aura;
 import cn.remix.module.impl.world.Scaffold;
-import cn.remix.module.impl.world.ScaffoldOld;
+import cn.remix.module.impl.world.ScaffoldX;
 import cn.remix.module.value.impl.BoolValue;
 import cn.remix.module.value.impl.ModeValue;
 import cn.remix.module.value.impl.NumberValue;
@@ -241,10 +241,10 @@ public class Speed extends Module {
     private boolean canBoost() {
         if (mc.player == null || mc.world == null) return false;
 
+        ScaffoldX scaffoldX = getModule(ScaffoldX.class);
         Scaffold scaffold = getModule(Scaffold.class);
-        ScaffoldOld scaffoldOld = getModule(ScaffoldOld.class);
-        return !scaffold.isEnabled()
-                && !scaffoldOld.isEnabled()
+        return !scaffoldX.isEnabled()
+                && !scaffold.isEnabled()
                 && MovementUtil.isForwardPressed()
                 && mc.player.getHungerManager().getFoodLevel() > 6
                 && !mc.player.isSneaking()

@@ -15,7 +15,7 @@ import cn.remix.module.Category;
 import cn.remix.module.Module;
 import cn.remix.module.impl.move.AntiVoid;
 import cn.remix.module.impl.world.Scaffold;
-import cn.remix.module.impl.world.ScaffoldOld;
+import cn.remix.module.impl.world.ScaffoldX;
 import cn.remix.module.value.impl.BoolValue;
 import cn.remix.module.value.impl.ModeValue;
 import cn.remix.module.value.impl.NumberValue;
@@ -327,15 +327,15 @@ public final class Stuck extends Module {
     }
 
     private boolean disableScaffold() {
-        Scaffold scaffold = getModule(Scaffold.class);
-        if (scaffold != null && scaffold.isEnabled()) {
-            scaffold.setEnabled(false);
+        ScaffoldX scaffoldX = getModule(ScaffoldX.class);
+        if (scaffoldX != null && scaffoldX.isEnabled()) {
+            scaffoldX.setEnabled(false);
             return true;
         }
 
-        ScaffoldOld scaffoldOld = getModule(ScaffoldOld.class);
-        if (scaffoldOld != null && scaffoldOld.isEnabled()) {
-            scaffoldOld.setEnabled(false);
+        Scaffold scaffold = getModule(Scaffold.class);
+        if (scaffold != null && scaffold.isEnabled()) {
+            scaffold.setEnabled(false);
             return true;
         }
 
