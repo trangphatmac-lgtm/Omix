@@ -54,6 +54,7 @@ public final class ModuleButton implements IMinecraft {
             else if (value instanceof MultiBoolValue multi) component = new MultiBoolComponent(this, multi);
             else if (value instanceof ColorValue color) component = new ColorComponent(this, color);
             else if (value instanceof TextValue text) component = new TextComponent(this, text);
+            else if (value instanceof KeyValue key) component = new KeyComponent(this, key);
 
             if (component != null) {
                 components.add(component);
