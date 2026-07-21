@@ -14,11 +14,15 @@ import cn.remix.util.misc.TimerUtil;
 import cn.remix.util.network.PacketUtil;
 import cn.remix.util.player.pathfinder.MainPathFinder;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.block.BlockState;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.RaycastContext;
 
 import java.util.ArrayList;
@@ -29,6 +33,7 @@ public final class LookTP extends Module {
 
     private final BoolValue tpOnGroundPacket = new BoolValue("TP On Ground Packet", true);
     private final BoolValue clientsideTeleport = new BoolValue("Clientside Teleport", false);
+    private final BoolValue alwaysTop = new BoolValue("Always Top", false);
     private final TimerUtil teleportTimer = new TimerUtil();
 
     private ArrayList<Vec3d> clientsidePath;
@@ -109,7 +114,13 @@ public final class LookTP extends Module {
             return;
         }
 
-        Vec3d targetPosition = hit.getPos();
+        Vec3d targetPosition = getTargetPosition(hit);
+        if (targetPosition == null) {
+            Util.log("&cLookTP: No free space above target");
+            teleportTimer.reset();
+            return;
+        }
+
         ArrayList<Vec3d> path = MainPathFinder.computePath(mc.player.getEntityPos(), targetPosition);
         if (path.isEmpty()) {
             Util.log("&cLookTP: Failed to teleport");
@@ -184,6 +195,46 @@ public final class LookTP extends Module {
                 mc.player
         );
         return mc.world.raycast(context);
+    }
+
+    private Vec3d getTargetPosition(BlockHitResult hit) {
+        if (!alwaysTop.getValue()) return hit.getPos();
+
+        BlockPos blockPos = hit.getBlockPos();
+        BlockState blockState = mc.world.getBlockState(blockPos);
+        VoxelShape collisionShape = blockState.getCollisionShape(mc.world, blockPos);
+        double topOffset = collisionShape.isEmpty() ? 1.0 : collisionShape.getMax(Direction.Axis.Y);
+
+        BlockPos spaceAbove = blockPos.up();
+        if (hasTwoFreeBlocks(spaceAbove)) {
+            return new Vec3d(
+                    blockPos.getX() + 0.5,
+                    blockPos.getY() + topOffset,
+                    blockPos.getZ() + 0.5
+            );
+        }
+
+        int highestFeetY = mc.world.getTopYInclusive() - 1;
+        for (BlockPos candidate = spaceAbove.up(); candidate.getY() <= highestFeetY; candidate = candidate.up()) {
+            if (hasTwoFreeBlocks(candidate)) {
+                return new Vec3d(
+                        blockPos.getX() + 0.5,
+                        candidate.getY(),
+                        blockPos.getZ() + 0.5
+                );
+            }
+        }
+
+        return null;
+    }
+
+    private boolean hasTwoFreeBlocks(BlockPos feetPosition) {
+        return isFree(feetPosition) && isFree(feetPosition.up());
+    }
+
+    private boolean isFree(BlockPos position) {
+        BlockState state = mc.world.getBlockState(position);
+        return state.getCollisionShape(mc.world, position).isEmpty();
     }
 
     private void beginClientsideTeleport(ArrayList<Vec3d> path, Vec3d targetPosition) {
