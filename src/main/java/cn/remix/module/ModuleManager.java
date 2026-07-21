@@ -5,6 +5,9 @@ import cn.remix.event.base.annotation.EventTarget;
 import cn.remix.event.impl.KeyInputEvent;
 import cn.remix.module.impl.combat.Aura;
 import cn.remix.module.impl.combat.Criticals;
+import cn.remix.module.impl.combat.CrossbowExploit;
+import cn.remix.module.impl.combat.FastBow;
+import cn.remix.module.impl.combat.FastEat;
 import cn.remix.module.impl.combat.MaceDamageBooster;
 import cn.remix.module.impl.combat.TargetStrafe;
 import cn.remix.module.impl.combat.Velocity;
@@ -40,6 +43,9 @@ public class ModuleManager implements IMinecraft {
                 new WorldTweaks(),
                 new AntiBot(),
                 new Aura(),
+                new CrossbowExploit(),
+                new FastBow(),
+                new FastEat(),
                 new MaceDamageBooster(),
                 new Targets(),
                 new Teams(),
