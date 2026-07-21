@@ -14,8 +14,10 @@ import cn.remix.util.render.ColorUtil;
 import cn.remix.util.render.Render2D;
 import lombok.Getter;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.input.CharInput;
+import net.minecraft.client.input.KeyInput;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +42,7 @@ public final class ModuleButton implements IMinecraft {
             else if (value instanceof ModeValue mode) components.add(new ModeComponent(this, mode));
             else if (value instanceof MultiBoolValue multi) components.add(new MultiBoolComponent(this, multi));
             else if (value instanceof ColorValue color) components.add(new ColorComponent(this, color));
+            else if (value instanceof TextValue text) components.add(new TextComponent(this, text));
         }
     }
 
@@ -80,6 +83,7 @@ public final class ModuleButton implements IMinecraft {
 
     public void mouseClicked(double mouseX, double mouseY, int button, float x, float y, float width) {
         if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height) {
+            clearComponentFocus();
             if (button == 0) module.toggle();
             else if (button == 1) extended = !extended;
             else if (button == 2) binding = true;
@@ -96,12 +100,27 @@ public final class ModuleButton implements IMinecraft {
         components.forEach(c -> c.mouseReleased(mouseX, mouseY, button));
     }
 
-    public boolean keyTyped(int keyCode) {
+    public boolean keyTyped(KeyInput input) {
+        for (Component component : components) {
+            if (component.keyPressed(input)) return true;
+        }
+
         if (binding) {
-            module.setKey(keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE ? -1 : keyCode);
+            module.setKey(input.key() == org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE ? -1 : input.key());
             binding = false;
             return true;
         }
         return false;
+    }
+
+    public boolean charTyped(CharInput input) {
+        for (Component component : components) {
+            if (component.charTyped(input)) return true;
+        }
+        return false;
+    }
+
+    public void clearComponentFocus() {
+        components.forEach(Component::focusLost);
     }
 }

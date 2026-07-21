@@ -11,6 +11,7 @@ import cn.remix.module.impl.combat.FastEat;
 import cn.remix.module.impl.combat.MaceDamageBooster;
 import cn.remix.module.impl.combat.TargetStrafe;
 import cn.remix.module.impl.combat.Velocity;
+import cn.remix.module.impl.exploits.BrandSpoofer;
 import cn.remix.module.impl.exploits.Disabler;
 import cn.remix.module.impl.exploits.PathFinder;
 import cn.remix.module.impl.exploits.Regen;
@@ -49,6 +50,7 @@ public class ModuleManager implements IMinecraft {
                 new MaceDamageBooster(),
                 new Targets(),
                 new Teams(),
+                new BrandSpoofer(),
                 new Disabler(),
                 new PathFinder(),
                 new MCF(),

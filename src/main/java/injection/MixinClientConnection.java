@@ -1,5 +1,6 @@
 package injection;
 
+import cn.remix.Client;
 import cn.remix.event.impl.PacketEvent;
 import cn.remix.ui.screen.impl.proxy.ProxyScreen;
 import cn.remix.util.IMinecraft;
@@ -19,13 +20,23 @@ public abstract class MixinClientConnection implements IMinecraft {
     private void send(Packet<?> packet, CallbackInfo ci) {
         if (PacketUtil.getPackets().remove(packet)) return;
         if (PacketUtil.isBypassingEvents()) return;
-        if (mc.player == null || mc.world == null) return;
+        if (Client.instance == null || Client.instance.getEventManager() == null) return;
 
         PacketEvent event = new PacketEvent(packet, PacketEvent.Type.Send);
-        instance.getEventManager().call(event);
+        Client.instance.getEventManager().call(event);
 
         if (event.isCancelled()) {
             ci.cancel();
+            return;
+        }
+
+        Packet<?> replacement = event.getPacket();
+        if (replacement != null && replacement != packet) {
+            ci.cancel();
+            PacketUtil.runWithoutEvents(() -> {
+                ((ClientConnection) (Object) this).send(replacement);
+                return null;
+            });
         }
     }
 

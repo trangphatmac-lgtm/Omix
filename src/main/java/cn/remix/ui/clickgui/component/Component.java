@@ -5,6 +5,8 @@ import cn.remix.ui.clickgui.ModuleButton;
 import cn.remix.util.IMinecraft;
 import lombok.Getter;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.input.CharInput;
+import net.minecraft.client.input.KeyInput;
 
 @Getter
 public abstract class Component implements IMinecraft {
@@ -25,6 +27,9 @@ public abstract class Component implements IMinecraft {
 
     public void mouseClicked(double mouseX, double mouseY, int button) {}
     public void mouseReleased(double mouseX, double mouseY, int button) {}
+    public void focusLost() {}
+    public boolean keyPressed(KeyInput input) { return false; }
+    public boolean charTyped(CharInput input) { return false; }
 
     protected boolean hovered(double mouseX, double mouseY) {
         return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;

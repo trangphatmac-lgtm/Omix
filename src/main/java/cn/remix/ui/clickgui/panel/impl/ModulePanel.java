@@ -9,6 +9,7 @@ import cn.remix.util.render.ColorUtil;
 import cn.remix.util.render.Render2D;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.input.CharInput;
 import net.minecraft.client.input.KeyInput;
 
 import java.awt.*;
@@ -76,14 +77,19 @@ public final class ModulePanel extends Panel {
     public void mouseClicked(Click click) {
         handleDrag(click);
         if (dragging) {
+            buttons.forEach(ModuleButton::clearComponentFocus);
             return;
         }
-        if (isHovered(click.x(), click.y(), x, y + headerHeight, width, Math.min(totalHeight(), maxHeight))) {
+        boolean bodyHovered = isHovered(click.x(), click.y(), x, y + headerHeight,
+                width, Math.min(totalHeight(), maxHeight));
+        if (bodyHovered) {
             float buttonY = y + headerHeight + scrollAnimation.getValue().floatValue();
             for (ModuleButton mb : buttons) {
                 mb.mouseClicked(click.x(), click.y(), click.button(), x, buttonY, width);
                 buttonY += mb.getRenderHeight();
             }
+        } else {
+            buttons.forEach(ModuleButton::clearComponentFocus);
         }
     }
 
@@ -103,7 +109,12 @@ public final class ModulePanel extends Panel {
 
     @Override
     public boolean keyTyped(KeyInput input) {
-        return buttons.stream().anyMatch(mb -> mb.keyTyped(input.key()));
+        return buttons.stream().anyMatch(mb -> mb.keyTyped(input));
+    }
+
+    @Override
+    public boolean charTyped(CharInput input) {
+        return buttons.stream().anyMatch(mb -> mb.charTyped(input));
     }
 
     private float totalHeight() {
