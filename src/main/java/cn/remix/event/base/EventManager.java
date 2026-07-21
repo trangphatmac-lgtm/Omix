@@ -86,4 +86,9 @@ public class EventManager {
         }
 
     }
+
+    public boolean hasListeners(Class<? extends Event> eventClass) {
+        List<Method> methods = priorityMethodMap.get(eventClass);
+        return methods != null && !methods.isEmpty();
+    }
 }

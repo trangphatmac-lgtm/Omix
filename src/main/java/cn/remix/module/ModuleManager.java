@@ -59,6 +59,7 @@ public class ModuleManager implements IMinecraft {
                 new PathFinder(),
                 new MCF(),
                 new GuiMove(),
+                new Jesus(),
                 new FastWeb(),
                 new ResourcepackSpoof(),
                 new TargetStrafe(),

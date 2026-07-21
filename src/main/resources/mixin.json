@@ -9,8 +9,10 @@
     "MixinCobwebBlock"
   ],
   "client": [
+    "MixinAbstractBlockState",
     "MixinBlockModelRenderer",
     "MixinBlockRenderLayers",
+    "MixinBlockCollisionSpliterator",
     "MixinCamera",
     "MixinChatInputSuggestor",
     "MixinChatScreen",
