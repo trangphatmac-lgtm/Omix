@@ -5,9 +5,11 @@ import cn.remix.event.impl.LivingUpdateEvent;
 import cn.remix.event.impl.MotionEvent;
 import cn.remix.event.impl.MoveInputEvent;
 import cn.remix.event.impl.UpdateEvent;
+import cn.remix.event.impl.WorldEvent;
 import cn.remix.management.RotationManager;
 import cn.remix.module.Category;
 import cn.remix.module.Module;
+import cn.remix.module.impl.player.Stuck;
 import cn.remix.module.value.impl.BoolValue;
 import cn.remix.module.value.impl.ModeValue;
 import cn.remix.module.value.impl.NumberValue;
@@ -22,14 +24,20 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 @Getter
 public class Scaffold extends Module {
+    private static final double CLUTCH_REACH = 4.5;
+    private static final double CLUTCH_GROUND_DISTANCE = 5.0;
+    private static final long CLUTCH_MAX_NANOS = 5_000_000_000L;
+
     public static NumberValue delay = new NumberValue("Delay", 0, 0, 200, 10);
     private final ModeValue mode = new ModeValue("Mode", "Normal", "Normal", "Telly Bridge");
-    private final NumberValue tellyTick = new NumberValue("Telly Tick", 1, 1, 5, 1, () -> !mode.is("Normal"));
+    private final NumberValue tellyTick = new NumberValue("Telly Tick", 1, 0, 5, 1, () -> !mode.is("Normal"));
     private final ModeValue rotationMode = new ModeValue("Rotation Mode", "Normal", "Normal", "Facing", "Hit Vec", "Nearest", "Hypixel");
     private final NumberValue shrink = new NumberValue("Shrink", .1f, 0, .45f, .01f, () -> rotationMode.is("Nearest") || rotationMode.is("Hypixel"));
     private final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 180, 0, 180, 5);
@@ -42,10 +50,16 @@ public class Scaffold extends Module {
     private final BoolValue itemSpoof = new BoolValue("Item Spoof", false);
     private final BoolValue noSwing = new BoolValue("No Swing", false);
     private final BoolValue movementFix = new BoolValue("Movement Fix", false);
+    private final BoolValue clutch = new BoolValue("Clutch", false);
     private final TimerUtil delayTimer = new TimerUtil();
     private boolean canRotation;
     private boolean canPlace;
+    private boolean clutchActive;
+    private boolean clutchTimedOut;
     private int oldSlot;
+    private float savedDelay;
+    private float savedTellyTick;
+    private long clutchStartedAt;
     private double keepYCoord;
     private float[] rotations;
     private PlaceInfo data;
@@ -62,10 +76,14 @@ public class Scaffold extends Module {
         oldSlot = mc.player.getInventory().getSelectedSlot();
         canPlace = false;
         data = null;
+        resetClutchState();
     }
 
     @Override
     public void onDisable() {
+        stopClutch(true);
+        clutchTimedOut = false;
+
         if (mc.player == null || mc.world == null) return;
 
         if (itemSpoof.getValue()) {
@@ -75,6 +93,12 @@ public class Scaffold extends Module {
         mc.player.getInventory().setSelectedSlot(oldSlot);
         canPlace = false;
         data = null;
+    }
+
+    @EventTarget
+    public void onWorld(WorldEvent event) {
+        stopClutch(false);
+        clutchTimedOut = false;
     }
 
     @EventTarget
@@ -117,6 +141,7 @@ public class Scaffold extends Module {
 
         BlockPos targetBlock = BlockPos.ofFloored(mc.player.getX(), getYLevel() - (Scaffold.isDownwards() ? 1 : 0), mc.player.getZ());
         data = getBlockData(targetBlock);
+        updateClutch();
 
         if (itemSpoof.getValue()) {
             ItemSpoofUtil.startSpoof(oldSlot);
@@ -255,6 +280,114 @@ public class Scaffold extends Module {
             }
         }
         return speed;
+    }
+
+    private void updateClutch() {
+        if (!clutch.getValue()) {
+            stopClutch(true);
+            clutchTimedOut = false;
+            return;
+        }
+
+        boolean unsupported = isGroundBeyondClutchDistance();
+        if (!unsupported) {
+            stopClutch(true);
+            clutchTimedOut = false;
+            return;
+        }
+
+        if (clutchActive) {
+            if (System.nanoTime() - clutchStartedAt >= CLUTCH_MAX_NANOS) {
+                stopClutch(true);
+                clutchTimedOut = true;
+                return;
+            }
+
+            Stuck stuck = getModule(Stuck.class);
+            if (stuck != null) {
+                stuck.beginClutchFreeze();
+            }
+            return;
+        }
+
+        if (!clutchTimedOut && isPredictedClutchDanger()) {
+            startClutch();
+        }
+    }
+
+    private boolean isPredictedClutchDanger() {
+        FallingPlayer prediction = new FallingPlayer(mc.player);
+        prediction.calculate(1);
+        Vec3d nextEyePos = prediction.getEyePos();
+        prediction.calculate(1);
+        Vec3d secondTickPos = prediction.getPos();
+
+        if (data == null) return true;
+
+        Vec3d supportCenter = new Vec3d(
+                data.blockPos().getX() + 0.5,
+                data.blockPos().getY() + 0.5,
+                data.blockPos().getZ() + 0.5
+        );
+        boolean tooFarFromSupport = nextEyePos.distanceTo(supportCenter) >= CLUTCH_REACH;
+        boolean fallingBelowSupport = secondTickPos.y < data.blockPos().getY();
+        return tooFarFromSupport || fallingBelowSupport;
+    }
+
+    private boolean isGroundBeyondClutchDistance() {
+        Box box = mc.player.getBoundingBox();
+        int minX = MathHelper.floor(box.minX + 1.0E-6);
+        int maxX = MathHelper.floor(box.maxX - 1.0E-6);
+        int minZ = MathHelper.floor(box.minZ + 1.0E-6);
+        int maxZ = MathHelper.floor(box.maxZ - 1.0E-6);
+        int startY = MathHelper.floor(box.minY - 1.0E-6);
+
+        for (int y = startY;
+             y >= mc.world.getBottomY() && box.minY - (y + 1.0) <= CLUTCH_GROUND_DISTANCE;
+             y--) {
+            for (int x = minX; x <= maxX; x++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    BlockState state = mc.world.getBlockState(new BlockPos(x, y, z));
+                    if (!state.isReplaceable() && state.getFluidState().isEmpty()) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private void startClutch() {
+        savedDelay = delay.getValue();
+        savedTellyTick = tellyTick.getValue();
+        delay.setValue(0);
+        tellyTick.setValue(0);
+        clutchStartedAt = System.nanoTime();
+        clutchActive = true;
+
+        Stuck stuck = getModule(Stuck.class);
+        if (stuck != null) {
+            stuck.beginClutchFreeze();
+        }
+    }
+
+    private void stopClutch(boolean restoreStuckState) {
+        if (!clutchActive) return;
+
+        clutchActive = false;
+        delay.setValue(savedDelay);
+        tellyTick.setValue(savedTellyTick);
+
+        Stuck stuck = getModule(Stuck.class);
+        if (stuck != null) {
+            stuck.endClutchFreeze(restoreStuckState);
+        }
+    }
+
+    private void resetClutchState() {
+        clutchActive = false;
+        clutchTimedOut = false;
+        clutchStartedAt = 0L;
     }
 
     public static boolean isDownwards() {

@@ -74,6 +74,11 @@ public final class Stuck extends Module {
 
     private int remixStuckTick;
     private String activeImplementation = "Classic";
+    private boolean clutchFreezeOverride;
+    private boolean clutchWasEnabled;
+    private String clutchPreviousImplementation;
+    private String clutchPreviousRemixMode;
+    private int clutchPreviousRemixStuckTick;
 
     public Stuck() {
         super("Stuck", Category.Player);
@@ -244,7 +249,11 @@ public final class Stuck extends Module {
         capturedPacket = null;
         pongQueue.clear();
         remixStuckTick = 0;
-        setEnabled(false);
+        if (clutchFreezeOverride) {
+            endClutchFreeze(false);
+        } else {
+            setEnabled(false);
+        }
     }
 
     @EventTarget
@@ -296,6 +305,54 @@ public final class Stuck extends Module {
                     ? RotationManager.currentRotations[1]
                     : mc.player.getPitch();
         }
+    }
+
+    public void beginClutchFreeze() {
+        if (!clutchFreezeOverride) {
+            clutchFreezeOverride = true;
+            clutchWasEnabled = isEnabled();
+            clutchPreviousImplementation = implementation.getValue();
+            clutchPreviousRemixMode = remixMode.getValue();
+            clutchPreviousRemixStuckTick = remixStuckTick;
+            remixStuckTick = 0;
+        }
+
+        implementation.setValue("Remix");
+        remixMode.setValue("Freeze");
+        if (isEnabled()) {
+            syncImplementation();
+        } else {
+            setEnabled(true);
+        }
+    }
+
+    public void endClutchFreeze(boolean restoreEnabledState) {
+        if (!clutchFreezeOverride) return;
+
+        boolean shouldRemainEnabled = restoreEnabledState && clutchWasEnabled;
+        if (!shouldRemainEnabled && isEnabled()) {
+            setEnabled(false);
+        }
+
+        implementation.setValue(clutchPreviousImplementation);
+        remixMode.setValue(clutchPreviousRemixMode);
+        if (shouldRemainEnabled && implementation.is("Remix")) {
+            remixStuckTick = clutchPreviousRemixStuckTick;
+        }
+        clutchFreezeOverride = false;
+
+        if (shouldRemainEnabled) {
+            if (isEnabled()) {
+                syncImplementation();
+            } else {
+                setEnabled(true);
+            }
+        }
+
+        clutchWasEnabled = false;
+        clutchPreviousImplementation = null;
+        clutchPreviousRemixMode = null;
+        clutchPreviousRemixStuckTick = 0;
     }
 
     private void resetClassicState() {
