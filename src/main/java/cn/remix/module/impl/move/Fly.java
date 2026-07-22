@@ -1,7 +1,9 @@
 package cn.remix.module.impl.move;
 
 import cn.remix.event.base.annotation.EventTarget;
+import cn.remix.event.impl.LivingUpdateEvent;
 import cn.remix.event.impl.MotionEvent;
+import cn.remix.event.impl.MoveEvent;
 import cn.remix.module.Category;
 import cn.remix.module.Module;
 import cn.remix.module.impl.combat.TargetStrafe;
@@ -10,11 +12,14 @@ import cn.remix.module.value.impl.ModeValue;
 import cn.remix.module.value.impl.NumberValue;
 import cn.remix.util.player.MovementUtil;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public final class Fly extends Module {
-    public final ModeValue mode = new ModeValue("Mode", "Vanilla", "Vanilla", "Sentinel");
+    public final ModeValue mode = new ModeValue("Mode", "Vanilla", "Vanilla", "SentinelA", "SentinelC");
     private final NumberValue horizontalSpeed = new NumberValue("Horizontal Speed", 3.5, .1, 10, .1);
     private final NumberValue verticalSpeed = new NumberValue("Vertical Speed", .7, .1, 5, .1);
     private int tick;
+    private int sentinel2Cooldown;
 
     public Fly() {
         super("Fly", Category.Move);
@@ -23,6 +28,7 @@ public final class Fly extends Module {
     @Override
     public void onEnable() {
         tick = 0;
+        sentinel2Cooldown = 0;
     }
 
     @Override
@@ -71,6 +77,46 @@ public final class Fly extends Module {
                 mc.player.setVelocity(mc.player.getVelocity().x, targetY, mc.player.getVelocity().z);
             }
         }
+    }
+
+    @EventTarget
+    public void onLivingUpdate(LivingUpdateEvent event) {
+        if (mc.player == null || !mode.is("Sentinel2")) return;
+
+        if (sentinel2Cooldown > 0) {
+            sentinel2Cooldown--;
+        }
+
+        if (mc.player.isOnGround() || sentinel2Cooldown > 0) return;
+
+        double motionY;
+        if (mc.options.sneakKey.isPressed()) {
+            motionY = -0.4;
+        } else if (mc.options.jumpKey.isPressed()) {
+            motionY = 0.42;
+        } else {
+            motionY = 0.2;
+        }
+
+        mc.player.setVelocity(mc.player.getVelocity().x, motionY, mc.player.getVelocity().z);
+        MovementUtil.strafe(ThreadLocalRandom.current().nextDouble(0.33, 0.34));
+        sentinel2Cooldown = 6;
+    }
+
+    @EventTarget
+    public void onMove(MoveEvent event) {
+        if (mc.player == null || !mode.is("Sentinel2")) return;
+
+        if (!MovementUtil.isMoving()) {
+            event.setX(0.0);
+            event.setZ(0.0);
+            return;
+        }
+
+        double speed = Math.hypot(event.getX(), event.getZ());
+        double direction = MovementUtil.getDirection();
+        event.setX(-Math.sin(direction) * speed);
+        event.setZ(Math.cos(direction) * speed);
     }
 
     private boolean check() {
