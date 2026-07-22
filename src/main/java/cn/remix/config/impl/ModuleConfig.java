@@ -33,6 +33,7 @@ public final class ModuleConfig extends Config {
                 final JsonObject moduleObject = new JsonObject();
                 moduleObject.addProperty("enabled", !module.isHoldToUse() && module.isEnabled());
                 moduleObject.addProperty("key", module.getKey());
+                moduleObject.addProperty("hidden", module.isHidden());
 
                 if (module instanceof Drag drag) {
                     moduleObject.addProperty("percentX", drag.percentX);
@@ -113,6 +114,10 @@ public final class ModuleConfig extends Config {
 
         if (moduleObject.has("key")) {
             module.setKey(moduleObject.get("key").getAsInt());
+        }
+
+        if (moduleObject.has("hidden")) {
+            module.setHidden(moduleObject.get("hidden").getAsBoolean());
         }
 
         if (module instanceof Drag drag) {

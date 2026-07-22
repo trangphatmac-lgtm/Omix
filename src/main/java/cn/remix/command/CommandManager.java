@@ -2,9 +2,13 @@ package cn.remix.command;
 
 import cn.remix.command.impl.BindCommand;
 import cn.remix.command.impl.ConfigCommand;
+import cn.remix.command.impl.HelpCommand;
 import cn.remix.command.impl.ModuleCommand;
 import cn.remix.command.impl.ModulesCommand;
 import cn.remix.command.impl.ToggleCommand;
+import cn.remix.command.impl.UsernameCommand;
+import cn.remix.command.impl.VClipCommand;
+import cn.remix.command.impl.VisibilityCommand;
 import cn.remix.event.base.annotation.EventTarget;
 import cn.remix.event.impl.PacketEvent;
 import cn.remix.util.IMinecraft;
@@ -25,10 +29,15 @@ public final class CommandManager implements IMinecraft {
         instance.getEventManager().register(this);
 
         addCommands(
+                new HelpCommand(),
                 new ToggleCommand(),
                 new BindCommand(),
                 new ConfigCommand(),
-                new ModulesCommand()
+                new ModulesCommand(),
+                new VisibilityCommand(false, ".show <module>", "show", "s", "unhide"),
+                new VisibilityCommand(true, ".hide <module>", "hide", "h"),
+                new UsernameCommand(),
+                new VClipCommand()
         );
     }
 

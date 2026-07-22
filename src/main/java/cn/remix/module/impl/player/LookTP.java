@@ -13,6 +13,7 @@ import cn.remix.util.Util;
 import cn.remix.util.misc.TimerUtil;
 import cn.remix.util.network.PacketUtil;
 import cn.remix.util.player.pathfinder.MainPathFinder;
+import cn.remix.util.player.pathfinder.PathFinder;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
@@ -23,6 +24,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.RaycastContext;
 
 import java.util.ArrayList;
@@ -121,28 +123,7 @@ public final class LookTP extends Module {
             return;
         }
 
-        ArrayList<Vec3d> path = MainPathFinder.computePath(mc.player.getEntityPos(), targetPosition);
-        if (path.isEmpty()) {
-            Util.log("&cLookTP: Failed to teleport");
-            teleportTimer.reset();
-            return;
-        }
-
-        if (clientsideTeleport.getValue()) {
-            beginClientsideTeleport(path, targetPosition);
-            return;
-        }
-
-        for (Vec3d position : path) {
-            PacketUtil.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
-                    position,
-                    tpOnGroundPacket.getValue(),
-                    mc.player.horizontalCollision
-            ));
-        }
-        mc.player.setPosition(targetPosition);
-        notifySuccess();
-        teleportTimer.reset();
+        teleportTo(targetPosition);
     }
 
     @EventTarget
@@ -182,6 +163,61 @@ public final class LookTP extends Module {
 
     public int getTeleportProgressPercent() {
         return isClientsideTeleporting() ? clientsideProgress : 0;
+    }
+
+    public boolean teleportToSurface() {
+        if (mc.player == null || mc.world == null) {
+            Util.log("&cLookTP: Player or world is unavailable");
+            return false;
+        }
+        if (isClientsideTeleporting()) {
+            Util.log("&cLookTP: A teleport is already in progress");
+            return false;
+        }
+
+        int x = mc.player.getBlockX();
+        int z = mc.player.getBlockZ();
+        int topY = mc.world.getTopY(Heightmap.Type.MOTION_BLOCKING, x, z);
+        for (int feetY = Math.min(topY, mc.world.getTopYInclusive() - 1);
+             feetY > mc.world.getBottomY(); feetY--) {
+            if (PathFinder.isValid(x, feetY, z, true)) {
+                return teleportTo(new Vec3d(mc.player.getX(), feetY, mc.player.getZ()));
+            }
+        }
+
+        Util.log("&cLookTP: No safe surface found at the current X/Z");
+        return false;
+    }
+
+    public boolean teleportTo(Vec3d targetPosition) {
+        if (mc.player == null || mc.world == null || targetPosition == null) {
+            Util.log("&cLookTP: Invalid teleport target");
+            return false;
+        }
+
+        ArrayList<Vec3d> path = MainPathFinder.computePath(mc.player.getEntityPos(), targetPosition);
+        if (path.isEmpty()) {
+            Util.log("&cLookTP: Failed to teleport");
+            teleportTimer.reset();
+            return false;
+        }
+
+        if (clientsideTeleport.getValue() && isEnabled()) {
+            beginClientsideTeleport(path, targetPosition);
+            return true;
+        }
+
+        for (Vec3d position : path) {
+            PacketUtil.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
+                    position,
+                    tpOnGroundPacket.getValue(),
+                    mc.player.horizontalCollision
+            ));
+        }
+        mc.player.setPosition(targetPosition);
+        notifySuccess();
+        teleportTimer.reset();
+        return true;
     }
 
     private BlockHitResult raycastTarget() {
