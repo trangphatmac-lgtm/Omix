@@ -2,6 +2,8 @@ package cn.remix.command;
 
 import cn.remix.command.impl.BindCommand;
 import cn.remix.command.impl.ConfigCommand;
+import cn.remix.command.impl.ModuleCommand;
+import cn.remix.command.impl.ModulesCommand;
 import cn.remix.command.impl.ToggleCommand;
 import cn.remix.event.base.annotation.EventTarget;
 import cn.remix.event.impl.PacketEvent;
@@ -17,6 +19,7 @@ import java.util.List;
 @Getter
 public final class CommandManager implements IMinecraft {
     private final List<Command> commands = new ArrayList<>();
+    private final ModuleCommand moduleCommand = new ModuleCommand();
 
     public CommandManager() {
         instance.getEventManager().register(this);
@@ -24,7 +27,8 @@ public final class CommandManager implements IMinecraft {
         addCommands(
                 new ToggleCommand(),
                 new BindCommand(),
-                new ConfigCommand()
+                new ConfigCommand(),
+                new ModulesCommand()
         );
     }
 
@@ -45,6 +49,11 @@ public final class CommandManager implements IMinecraft {
                     }
                 }
             }
+            for (String module : moduleCommand.getModuleCompletions()) {
+                if (module.toLowerCase().startsWith(label.toLowerCase())) {
+                    suggestions.add(module);
+                }
+            }
         } else {
             for (Command command : commands) {
                 for (String alias : command.getAliases()) {
@@ -62,6 +71,14 @@ public final class CommandManager implements IMinecraft {
                     }
                 }
             }
+
+            List<String> moduleCompletions = moduleCommand.getCompletions(split);
+            String currentArg = split[split.length - 1].toLowerCase();
+            for (String completion : moduleCompletions) {
+                if (completion.toLowerCase().startsWith(currentArg)) {
+                    suggestions.add(completion);
+                }
+            }
         }
         return suggestions;
     }
@@ -73,14 +90,14 @@ public final class CommandManager implements IMinecraft {
 
             if (message.startsWith(".")) {
                 event.setCancelled(true);
-                String input = message.substring(".".length());
+                String input = message.substring(".".length()).trim();
 
                 if (input.isEmpty()) {
                     Util.log("No command entered.");
                     return;
                 }
 
-                String[] arguments = input.split(" ");
+                String[] arguments = input.split("\\s+");
                 String label = arguments[0];
 
                 for (Command command : commands) {
@@ -94,6 +111,14 @@ public final class CommandManager implements IMinecraft {
                             return;
                         }
                     }
+                }
+                try {
+                    if (moduleCommand.execute(arguments)) {
+                        return;
+                    }
+                } catch (Exception exception) {
+                    Util.log("Execution error: " + exception.getMessage());
+                    return;
                 }
                 Util.log(String.format("'%s' is not a command.", label));
             }

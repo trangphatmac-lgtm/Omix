@@ -19,7 +19,7 @@ public final class Fly extends Module {
     private final NumberValue horizontalSpeed = new NumberValue("Horizontal Speed", 3.5, .1, 10, .1);
     private final NumberValue verticalSpeed = new NumberValue("Vertical Speed", .7, .1, 5, .1);
     private int tick;
-    private int sentinel2Cooldown;
+    private int sentinelCCooldown;
 
     public Fly() {
         super("Fly", Category.Move);
@@ -28,7 +28,7 @@ public final class Fly extends Module {
     @Override
     public void onEnable() {
         tick = 0;
-        sentinel2Cooldown = 0;
+        sentinelCCooldown = 0;
     }
 
     @Override
@@ -64,7 +64,7 @@ public final class Fly extends Module {
                 MovementUtil.strafe(horizontalSpeed.getValue().doubleValue());
             }
 
-            case "Sentinel" -> {
+            case "SentinelA" -> {
                 if (tick++ % 6 == 0) {
                     instance.getPacketManager().getBlink().start(this);
                     mc.player.setVelocity(strafing ? mc.player.getVelocity().x : 0.0, mc.player.getVelocity().y, strafing ? mc.player.getVelocity().z : 0.0);
@@ -81,13 +81,13 @@ public final class Fly extends Module {
 
     @EventTarget
     public void onLivingUpdate(LivingUpdateEvent event) {
-        if (mc.player == null || !mode.is("Sentinel2")) return;
+        if (mc.player == null || !mode.is("SentinelC")) return;
 
-        if (sentinel2Cooldown > 0) {
-            sentinel2Cooldown--;
+        if (sentinelCCooldown > 0) {
+            sentinelCCooldown--;
         }
 
-        if (mc.player.isOnGround() || sentinel2Cooldown > 0) return;
+        if (mc.player.isOnGround() || sentinelCCooldown > 0) return;
 
         double motionY;
         if (mc.options.sneakKey.isPressed()) {
@@ -100,12 +100,12 @@ public final class Fly extends Module {
 
         mc.player.setVelocity(mc.player.getVelocity().x, motionY, mc.player.getVelocity().z);
         MovementUtil.strafe(ThreadLocalRandom.current().nextDouble(0.33, 0.34));
-        sentinel2Cooldown = 6;
+        sentinelCCooldown = 6;
     }
 
     @EventTarget
     public void onMove(MoveEvent event) {
-        if (mc.player == null || !mode.is("Sentinel2")) return;
+        if (mc.player == null || !mode.is("SentinelC")) return;
 
         if (!MovementUtil.isMoving()) {
             event.setX(0.0);

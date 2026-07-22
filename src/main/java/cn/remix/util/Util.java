@@ -32,6 +32,10 @@ public class Util implements IMinecraft{
                 + Formatting.DARK_GRAY + "] " + Formatting.RESET + formatCodes(message));
     }
 
+    public void logRaw(String message) {
+        addChatMessage(formatCodes(message));
+    }
+
     public String formatCodes(String message) {
         return message == null ? "" : message.replace('&', '§');
     }
