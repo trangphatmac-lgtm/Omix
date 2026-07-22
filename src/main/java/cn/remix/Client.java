@@ -23,7 +23,7 @@ public class Client implements IMinecraft {
     public static Logger logger;
 
     public static String name = "Remix";
-    public static String version = "v1.7.0";
+    public static String version = "260722-SNAPSHOT";
 
     private EventManager eventManager;
     private ModuleManager moduleManager;

@@ -19,7 +19,8 @@ def syncModVersion = tasks.register("syncModVersion") {
     inputs.property("buildVersion", buildVersion)
     outputs.files(
             layout.projectDirectory.file("gradle.properties"),
-            layout.projectDirectory.file("src/main/resources/fabric.mod.json")
+            layout.projectDirectory.file("src/main/resources/fabric.mod.json"),
+            layout.projectDirectory.file("src/main/java/cn/remix/Client.java")
     )
 
     doLast {
@@ -43,6 +44,17 @@ def syncModVersion = tasks.register("syncModVersion") {
 
         if (updatedMetadata != metadataContent) {
             metadataFile.setText(updatedMetadata, "UTF-8")
+        }
+
+        def clientFile = layout.projectDirectory.file("src/main/java/cn/remix/Client.java").asFile
+        def clientContent = clientFile.getText("UTF-8")
+        def updatedClient = clientContent.replaceFirst(
+                /(?m)^(\s*public static String version\s*=\s*")[^"]*("\s*;.*)$/,
+                '$1' + buildVersion + '$2'
+        )
+
+        if (updatedClient != clientContent) {
+            clientFile.setText(updatedClient, "UTF-8")
         }
     }
 }
@@ -92,6 +104,8 @@ processResources {
 
 def targetJavaVersion = 21
 tasks.withType(JavaCompile).configureEach {
+    dependsOn syncModVersion
+
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly
     // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
