@@ -42,7 +42,7 @@ import net.minecraft.util.math.Vec3d;
 
 public final class NoFall extends Module {
     private static final long PLACE_DELAY = 500L;
-    private static final long PICKUP_WAIT = 200L;
+    private static final long PICKUP_WAIT = 20L;
     private static final long CONFIRM_TIMEOUT = 1500L;
     private static final int GRIM_LATENCY_TICKS = 5;
     private static final int GRIM_CONTROL_TICKS = 10;
