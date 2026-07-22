@@ -61,6 +61,7 @@ public class Scaffold extends Module {
     private int oldSlot;
     private float savedDelay;
     private float savedTellyTick;
+    private String savedRotationMode;
     private long clutchStartedAt;
     private double keepYCoord;
     private float[] rotations;
@@ -306,6 +307,7 @@ public class Scaffold extends Module {
                 return;
             }
 
+            rotationMode.setValue("Nearest");
             Stuck stuck = getModule(Stuck.class);
             if (stuck != null) {
                 stuck.beginClutchFreeze();
@@ -365,8 +367,10 @@ public class Scaffold extends Module {
     private void startClutch() {
         savedDelay = delay.getValue();
         savedTellyTick = tellyTick.getValue();
+        savedRotationMode = rotationMode.getValue();
         delay.setValue(0);
         tellyTick.setValue(0);
+        rotationMode.setValue("Nearest");
         clutchStartedAt = System.nanoTime();
         clutchActive = true;
 
@@ -382,6 +386,8 @@ public class Scaffold extends Module {
         clutchActive = false;
         delay.setValue(savedDelay);
         tellyTick.setValue(savedTellyTick);
+        rotationMode.setValue(savedRotationMode);
+        savedRotationMode = null;
 
         Stuck stuck = getModule(Stuck.class);
         if (stuck != null) {
