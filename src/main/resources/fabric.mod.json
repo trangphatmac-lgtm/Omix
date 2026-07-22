@@ -3,10 +3,10 @@
   "id": "remix",
   "version": "260722-SNAPSHOT",
   "name": "remix",
-  "description": "",
+  "description": "A Minecraft client project for Fabric 1.21.11.",
   "authors": [],
   "contact": {},
-  "license": "All-Rights-Reserved",
+  "license": "MIT",
   "environment": "client",
   "entrypoints": {
     "client": [],
