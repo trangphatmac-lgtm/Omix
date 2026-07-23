@@ -7,7 +7,7 @@ plugins {
 def buildDay = java.time.LocalDate.now(java.time.ZoneId.systemDefault())
 def buildDate = buildDay.format(java.time.format.DateTimeFormatter.ofPattern("yyMMdd"))
 def buildVersion = buildDay.monthValue == 6 && buildDay.dayOfMonth == 4
-        ? "v8.9.6.4-Tiananmen Massacre Special Version"
+        ? "890604-Tiananmen-Massacre-Special-Version"
         : "${buildDate}-SNAPSHOT"
 
 version = buildVersion

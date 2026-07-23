@@ -48,6 +48,7 @@
     "MixinStatusEffectFogModifier",
     "MixinWorldRenderer",
     "accessor.ClientPlayerEntityAccessor",
+    "accessor.ChatHudAccessor",
     "accessor.ClientWorldAccessor",
     "accessor.EntityAccessor",
     "accessor.EntityVelocityUpdateS2CPacketAccessor",

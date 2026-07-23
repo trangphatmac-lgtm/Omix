@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "id": "remix",
-  "version": "260722-SNAPSHOT",
+  "version": "260723-SNAPSHOT",
   "name": "remix",
   "description": "A Minecraft client project for Fabric 1.21.11.",
   "authors": [],
   "contact": {},
-  "license": "MIT",
+  "license": "GPL 3.0",
   "environment": "client",
   "entrypoints": {
     "client": [],

@@ -1,6 +1,8 @@
 package cn.remix.command;
 
+import cn.remix.command.impl.AiCommand;
 import cn.remix.command.impl.BindCommand;
+import cn.remix.command.impl.ChatCommand;
 import cn.remix.command.impl.ConfigCommand;
 import cn.remix.command.impl.HelpCommand;
 import cn.remix.command.impl.ModuleCommand;
@@ -30,6 +32,8 @@ public final class CommandManager implements IMinecraft {
 
         addCommands(
                 new HelpCommand(),
+                new AiCommand(),
+                new ChatCommand(),
                 new ToggleCommand(),
                 new BindCommand(),
                 new ConfigCommand(),

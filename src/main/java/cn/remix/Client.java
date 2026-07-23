@@ -1,5 +1,6 @@
 package cn.remix;
 
+import ai.backend.AiBackend;
 import cn.remix.command.CommandManager;
 import cn.remix.config.ConfigManager;
 import cn.remix.event.base.EventManager;
@@ -17,15 +18,18 @@ import me.ksyz.accountmanager.AccountManager;
 import lombok.Getter;
 import org.apache.logging.log4j.Logger;
 
+import java.nio.file.Path;
+
 @Getter
 public class Client implements IMinecraft {
     public static Client instance;
     public static Logger logger;
 
     public static String name = "Remix";
-    public static String version = "260722-SNAPSHOT";
+    public static String version = "260723-SNAPSHOT";
 
     private EventManager eventManager;
+    private AiBackend aiBackend;
     private ModuleManager moduleManager;
     private CommandManager commandManager;
     private ConfigManager configManager;
@@ -42,6 +46,7 @@ public class Client implements IMinecraft {
         Render2D.init();
         Render3D.init();
         eventManager = new EventManager();
+        aiBackend = new AiBackend(Path.of(name, "ai.json"));
         moduleManager = new ModuleManager();
         commandManager = new CommandManager();
         configManager = new ConfigManager();
@@ -52,10 +57,14 @@ public class Client implements IMinecraft {
         packetManager = new PacketManager();
         clickGuiScreen = new ClickGuiScreen();
         AccountManager.init();
+        if (aiBackend.hasApiKey()) {
+            aiBackend.refreshModels().exceptionally(error -> java.util.List.of());
+        }
     }
 
     public void shutdown() {
         configManager.saveAll();
+        aiBackend.close();
         AccountManager.save();
     }
 }
