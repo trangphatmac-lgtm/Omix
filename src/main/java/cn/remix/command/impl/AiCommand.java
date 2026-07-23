@@ -13,7 +13,7 @@ import java.util.Locale;
 public final class AiCommand extends Command {
 
     public AiCommand() {
-        super(".ai <baseurl/apikey/model> [value]", "ai");
+        super(".ai <baseurl/apikey/model/think/clear> [value]", "ai");
     }
 
     @Override
@@ -25,6 +25,19 @@ public final class AiCommand extends Command {
         }
 
         String setting = arguments[1].toLowerCase(Locale.ROOT);
+        if (setting.equals("clear")) {
+            if (arguments.length != 2) {
+                Util.logToChat(getUsage());
+                return;
+            }
+            try {
+                int cleared = backend.clearConversation();
+                Util.logToChat("Cleared &b" + cleared + " &fmessage(s) from the AI context.");
+            } catch (IllegalStateException exception) {
+                Util.logToChat("&c" + exception.getMessage());
+            }
+            return;
+        }
         if (arguments.length == 2) {
             showSetting(backend, setting);
             return;
@@ -52,6 +65,14 @@ public final class AiCommand extends Command {
                     backend.setModel(value);
                     Util.logToChat("AI model has been set to &b" + backend.getModel());
                 }
+                case "think" -> {
+                    if (!value.equalsIgnoreCase("true") && !value.equalsIgnoreCase("false")) {
+                        throw new IllegalArgumentException("Think must be True or False.");
+                    }
+                    backend.setThinking(Boolean.parseBoolean(value));
+                    Util.logToChat("AI thinking mode has been set to "
+                            + (backend.isThinkingEnabled() ? "&atrue" : "&cfalse") + ".");
+                }
                 default -> Util.logToChat(getUsage());
             }
         } catch (IllegalArgumentException | IllegalStateException exception) {
@@ -62,12 +83,13 @@ public final class AiCommand extends Command {
     @Override
     public List<String> getCompletions(String[] arguments) {
         if (arguments.length == 2) {
-            return List.of("baseurl", "apikey", "model");
+            return List.of("baseurl", "apikey", "model", "think", "clear");
         }
         if (arguments.length == 3) {
             return switch (arguments[1].toLowerCase(Locale.ROOT)) {
                 case "baseurl" -> List.of("https://api.deepseek.com");
                 case "model" -> Client.instance.getAiBackend().getModelSuggestions();
+                case "think" -> List.of("True", "False");
                 default -> List.of();
             };
         }
@@ -79,6 +101,8 @@ public final class AiCommand extends Command {
         Util.logRaw("&8» &7baseurl: &b" + backend.getBaseUrl());
         Util.logRaw("&8» &7apikey: " + (backend.hasApiKey() ? "&aconfigured" : "&cnot configured"));
         Util.logRaw("&8» &7model: &b" + backend.getModel());
+        Util.logRaw("&8» &7think: " + (backend.isThinkingEnabled() ? "&atrue" : "&cfalse"));
+        Util.logRaw("&8» &7context: &b" + backend.getConversationMessageCount() + " &7message(s)");
     }
 
     private void showSetting(AiBackend backend, String setting) {
@@ -87,6 +111,8 @@ public final class AiCommand extends Command {
             case "apikey" -> Util.logToChat("AI API key: "
                     + (backend.hasApiKey() ? "&aconfigured" : "&cnot configured"));
             case "model" -> Util.logToChat("AI model: &b" + backend.getModel());
+            case "think" -> Util.logToChat("AI thinking mode: "
+                    + (backend.isThinkingEnabled() ? "&atrue" : "&cfalse"));
             default -> Util.logToChat(getUsage());
         }
     }

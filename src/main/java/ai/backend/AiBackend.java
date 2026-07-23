@@ -41,6 +41,10 @@ public final class AiBackend implements AutoCloseable {
         return config.snapshot().model();
     }
 
+    public boolean isThinkingEnabled() {
+        return config.snapshot().thinking();
+    }
+
     public void setBaseUrl(String baseUrl) {
         config.setBaseUrl(baseUrl);
         invalidateModels();
@@ -55,8 +59,23 @@ public final class AiBackend implements AutoCloseable {
         config.setModel(model);
     }
 
+    public void setThinking(boolean thinking) {
+        config.setThinking(thinking);
+    }
+
     public boolean isChatActive() {
         return chatActive.get();
+    }
+
+    public int getConversationMessageCount() {
+        return config.getHistorySize();
+    }
+
+    public int clearConversation() {
+        if (chatActive.get()) {
+            throw new IllegalStateException("Wait for the current AI response before clearing context.");
+        }
+        return config.clearHistory();
     }
 
     public CompletableFuture<String> streamChat(String message, AiStreamListener listener) {
@@ -74,7 +93,12 @@ public final class AiBackend implements AutoCloseable {
             chatActive.set(false);
             return CompletableFuture.failedFuture(exception);
         }
-        return request.whenComplete((ignored, error) -> chatActive.set(false));
+        return request.thenApply(response -> {
+            if (!response.isEmpty()) {
+                config.appendExchange(message, response);
+            }
+            return response;
+        }).whenComplete((ignored, error) -> chatActive.set(false));
     }
 
     public synchronized CompletableFuture<List<String>> refreshModels() {

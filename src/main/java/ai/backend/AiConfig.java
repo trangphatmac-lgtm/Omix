@@ -2,6 +2,8 @@ package ai.backend;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -12,7 +14,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFilePermission;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -30,6 +34,8 @@ final class AiConfig {
     private String baseUrl = DEFAULT_BASE_URL;
     private String apiKey = "";
     private String model = DEFAULT_MODEL;
+    private boolean thinking = true;
+    private final List<AiMessage> history = new ArrayList<>();
 
     AiConfig(Path file) {
         this.file = file;
@@ -37,7 +43,7 @@ final class AiConfig {
     }
 
     synchronized Snapshot snapshot() {
-        return new Snapshot(baseUrl, apiKey, model);
+        return new Snapshot(baseUrl, apiKey, model, thinking, List.copyOf(history));
     }
 
     synchronized void setBaseUrl(String baseUrl) {
@@ -58,6 +64,39 @@ final class AiConfig {
         save();
     }
 
+    synchronized void setThinking(boolean thinking) {
+        this.thinking = thinking;
+        save();
+    }
+
+    synchronized int getHistorySize() {
+        return history.size();
+    }
+
+    synchronized void appendExchange(String userMessage, String assistantMessage) {
+        int previousSize = history.size();
+        history.add(new AiMessage("user", userMessage));
+        history.add(new AiMessage("assistant", assistantMessage));
+        try {
+            save();
+        } catch (RuntimeException exception) {
+            history.subList(previousSize, history.size()).clear();
+            throw exception;
+        }
+    }
+
+    synchronized int clearHistory() {
+        List<AiMessage> previous = List.copyOf(history);
+        history.clear();
+        try {
+            save();
+            return previous.size();
+        } catch (RuntimeException exception) {
+            history.addAll(previous);
+            throw exception;
+        }
+    }
+
     private void load() {
         if (!Files.isRegularFile(file)) {
             return;
@@ -74,10 +113,33 @@ final class AiConfig {
             if (root.has("model") && !root.get("model").getAsString().isBlank()) {
                 model = root.get("model").getAsString().trim();
             }
+            if (root.has("thinking") && root.get("thinking").isJsonPrimitive()) {
+                thinking = root.get("thinking").getAsBoolean();
+            }
+            if (root.has("history") && root.get("history").isJsonArray()) {
+                for (JsonElement element : root.getAsJsonArray("history")) {
+                    if (!element.isJsonObject()) continue;
+                    JsonObject message = element.getAsJsonObject();
+                    if (!message.has("role") || !message.has("content")
+                            || message.get("role").isJsonNull() || message.get("content").isJsonNull()) {
+                        continue;
+                    }
+                    try {
+                        history.add(new AiMessage(
+                                message.get("role").getAsString(),
+                                message.get("content").getAsString()
+                        ));
+                    } catch (IllegalArgumentException ignored) {
+                        // Ignore malformed history entries without discarding valid configuration.
+                    }
+                }
+            }
         } catch (Exception ignored) {
             baseUrl = DEFAULT_BASE_URL;
             apiKey = "";
             model = DEFAULT_MODEL;
+            thinking = true;
+            history.clear();
         }
     }
 
@@ -86,6 +148,15 @@ final class AiConfig {
         root.addProperty("baseUrl", baseUrl);
         root.addProperty("apiKey", apiKey);
         root.addProperty("model", model);
+        root.addProperty("thinking", thinking);
+        JsonArray messages = new JsonArray();
+        for (AiMessage message : history) {
+            JsonObject entry = new JsonObject();
+            entry.addProperty("role", message.role());
+            entry.addProperty("content", message.content());
+            messages.add(entry);
+        }
+        root.add("history", messages);
 
         try {
             Path parent = file.getParent();
@@ -139,6 +210,6 @@ final class AiConfig {
         return value;
     }
 
-    record Snapshot(String baseUrl, String apiKey, String model) {
+    record Snapshot(String baseUrl, String apiKey, String model, boolean thinking, List<AiMessage> history) {
     }
 }

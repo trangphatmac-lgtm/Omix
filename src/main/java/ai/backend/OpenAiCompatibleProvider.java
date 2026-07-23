@@ -80,7 +80,16 @@ final class OpenAiCompatibleProvider implements AiProvider {
         JsonObject body = new JsonObject();
         body.addProperty("model", settings.model());
         body.addProperty("stream", true);
+        JsonObject thinking = new JsonObject();
+        thinking.addProperty("type", settings.thinking() ? "enabled" : "disabled");
+        body.add("thinking", thinking);
         JsonArray messages = new JsonArray();
+        for (AiMessage historyMessage : settings.history()) {
+            JsonObject entry = new JsonObject();
+            entry.addProperty("role", historyMessage.role());
+            entry.addProperty("content", historyMessage.content());
+            messages.add(entry);
+        }
         JsonObject userMessage = new JsonObject();
         userMessage.addProperty("role", "user");
         userMessage.addProperty("content", message);
@@ -177,6 +186,12 @@ final class OpenAiCompatibleProvider implements AiProvider {
         }
 
         JsonObject delta = choice.getAsJsonObject("delta");
+        if (delta.has("reasoning_content") && !delta.get("reasoning_content").isJsonNull()) {
+            String reasoning = delta.get("reasoning_content").getAsString();
+            if (!reasoning.isEmpty()) {
+                listener.onReasoning(reasoning);
+            }
+        }
         if (delta.has("content") && !delta.get("content").isJsonNull()) {
             String content = delta.get("content").getAsString();
             if (!content.isEmpty()) {
