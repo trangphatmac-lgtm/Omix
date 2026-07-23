@@ -6,5 +6,5 @@ import java.util.concurrent.CompletableFuture;
 interface AiProvider {
     CompletableFuture<List<String>> listModels();
 
-    CompletableFuture<String> streamChat(String username, String message, AiStreamListener listener);
+    CompletableFuture<AiTurnResult> streamChat(String username, String message, AiStreamListener listener);
 }

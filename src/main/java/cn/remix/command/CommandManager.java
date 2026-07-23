@@ -20,7 +20,10 @@ import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 @Getter
 public final class CommandManager implements IMinecraft {
@@ -47,6 +50,60 @@ public final class CommandManager implements IMinecraft {
 
     public void addCommands(Command... commandsArray) {
         this.commands.addAll(Arrays.asList(commandsArray));
+    }
+
+    public List<String> getAiToolCommandNames() {
+        Set<String> names = new LinkedHashSet<>();
+        for (Command command : commands) {
+            for (String alias : command.getAliases()) {
+                if (!alias.equalsIgnoreCase("ai") && !alias.equalsIgnoreCase("chat")) {
+                    names.add("." + alias);
+                }
+            }
+        }
+        for (String module : moduleCommand.getModuleCompletions()) {
+            names.add("." + module);
+        }
+        return names.stream()
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .toList();
+    }
+
+    public void executeClientCommand(String message) {
+        if (message == null || !message.startsWith(".")) {
+            throw new IllegalArgumentException("Client commands must start with '.'.");
+        }
+
+        String input = message.substring(".".length()).trim();
+        if (input.isEmpty()) {
+            Util.log("No command entered.");
+            return;
+        }
+
+        String[] arguments = input.split("\\s+");
+        String label = arguments[0];
+
+        for (Command command : commands) {
+            for (String alias : command.getAliases()) {
+                if (alias.equalsIgnoreCase(label)) {
+                    try {
+                        command.execute(arguments);
+                    } catch (Exception exception) {
+                        Util.log("Execution error: " + exception.getMessage());
+                    }
+                    return;
+                }
+            }
+        }
+        try {
+            if (moduleCommand.execute(arguments)) {
+                return;
+            }
+        } catch (Exception exception) {
+            Util.log("Execution error: " + exception.getMessage());
+            return;
+        }
+        Util.log(String.format(Locale.ROOT, "'%s' is not a command.", label));
     }
 
     public List<String> getCompletions(String input) {
@@ -103,37 +160,7 @@ public final class CommandManager implements IMinecraft {
 
             if (message.startsWith(".")) {
                 event.setCancelled(true);
-                String input = message.substring(".".length()).trim();
-
-                if (input.isEmpty()) {
-                    Util.log("No command entered.");
-                    return;
-                }
-
-                String[] arguments = input.split("\\s+");
-                String label = arguments[0];
-
-                for (Command command : commands) {
-                    for (String alias : command.getAliases()) {
-                        if (alias.equalsIgnoreCase(label)) {
-                            try {
-                                command.execute(arguments);
-                            } catch (Exception exception) {
-                                Util.log("Execution error: " + exception.getMessage());
-                            }
-                            return;
-                        }
-                    }
-                }
-                try {
-                    if (moduleCommand.execute(arguments)) {
-                        return;
-                    }
-                } catch (Exception exception) {
-                    Util.log("Execution error: " + exception.getMessage());
-                    return;
-                }
-                Util.log(String.format("'%s' is not a command.", label));
+                executeClientCommand(message);
             }
         }
     }

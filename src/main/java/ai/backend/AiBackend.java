@@ -86,18 +86,18 @@ public final class AiBackend implements AutoCloseable {
             return CompletableFuture.failedFuture(new IllegalStateException("Another AI response is still streaming."));
         }
 
-        final CompletableFuture<String> request;
+        final CompletableFuture<AiTurnResult> request;
         try {
             request = provider.streamChat(username, message, listener);
         } catch (Exception exception) {
             chatActive.set(false);
             return CompletableFuture.failedFuture(exception);
         }
-        return request.thenApply(response -> {
-            if (!response.isEmpty()) {
-                config.appendExchange(message, response);
+        return request.thenApply(result -> {
+            if (!result.messages().isEmpty()) {
+                config.appendTurn(message, result.messages());
             }
-            return response;
+            return result.content();
         }).whenComplete((ignored, error) -> chatActive.set(false));
     }
 

@@ -17,17 +17,23 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 final class OpenAiCompatibleProvider implements AiProvider {
     private static final Duration MODEL_REQUEST_TIMEOUT = Duration.ofSeconds(30);
     private static final Duration CHAT_REQUEST_TIMEOUT = Duration.ofMinutes(5);
+    private static final int MAX_TOOL_ROUNDS = 8;
+    private static final int MAX_TOOL_CALLS_PER_ROUND = 16;
 
     private final AiConfig config;
     private final HttpClient httpClient;
     private final Executor executor;
+    private final AiToolExecutor toolExecutor = new MinecraftCommandToolExecutor();
 
     OpenAiCompatibleProvider(AiConfig config, Executor executor) {
         this.config = config;
@@ -71,34 +77,158 @@ final class OpenAiCompatibleProvider implements AiProvider {
     }
 
     @Override
-    public CompletableFuture<String> streamChat(String username, String message, AiStreamListener listener) {
+    public CompletableFuture<AiTurnResult> streamChat(
+            String username,
+            String message,
+            AiStreamListener listener
+    ) {
         AiConfig.Snapshot settings = config.snapshot();
         if (settings.model().isBlank()) {
             return CompletableFuture.failedFuture(new IllegalStateException("Configure a model with .ai model <model>."));
         }
 
+        AiToolSnapshot toolSnapshot = toolExecutor.snapshot();
+        JsonArray messages = buildMessages(settings, username, message, toolSnapshot);
+        return runChatLoop(
+                settings,
+                messages,
+                toolSnapshot,
+                listener,
+                new ArrayList<>(),
+                new StringBuilder(),
+                0
+        );
+    }
+
+    private JsonArray buildMessages(
+            AiConfig.Snapshot settings,
+            String username,
+            String message,
+            AiToolSnapshot toolSnapshot
+    ) {
+        JsonArray messages = new JsonArray();
+        JsonObject systemMessage = new JsonObject();
+        systemMessage.addProperty("role", "system");
+        systemMessage.addProperty("content", AiSystemPrompt.forUser(username, toolSnapshot.promptContext()));
+        messages.add(systemMessage);
+        for (AiMessage historyMessage : settings.history()) {
+            messages.add(historyMessage.toJson());
+        }
+        messages.add(AiMessage.user(message).toJson());
+        return messages;
+    }
+
+    private CompletableFuture<AiTurnResult> runChatLoop(
+            AiConfig.Snapshot settings,
+            JsonArray messages,
+            AiToolSnapshot toolSnapshot,
+            AiStreamListener listener,
+            List<AiMessage> turnMessages,
+            StringBuilder completeAnswer,
+            int toolRound
+    ) {
+        AiStreamListener roundListener = separatedRoundListener(listener, !completeAnswer.isEmpty());
+        return requestCompletion(settings, messages, toolSnapshot, roundListener).thenCompose(completion -> {
+            AiMessage assistant = AiMessage.assistant(
+                    completion.content(),
+                    completion.reasoningContent(),
+                    completion.toolCalls()
+            );
+            messages.add(assistant.toJson());
+            turnMessages.add(assistant);
+            if (!completeAnswer.isEmpty() && !completion.content().isEmpty()) {
+                completeAnswer.append('\n');
+            }
+            completeAnswer.append(completion.content());
+
+            if (completion.toolCalls().isEmpty()) {
+                return CompletableFuture.completedFuture(
+                        new AiTurnResult(completeAnswer.toString(), turnMessages)
+                );
+            }
+            if (toolRound >= MAX_TOOL_ROUNDS) {
+                return CompletableFuture.failedFuture(
+                        new IllegalStateException("AI exceeded the maximum of " + MAX_TOOL_ROUNDS
+                                + " command-tool rounds.")
+                );
+            }
+            if (completion.toolCalls().size() > MAX_TOOL_CALLS_PER_ROUND) {
+                return CompletableFuture.failedFuture(
+                        new IllegalStateException("AI requested too many command tools in one response.")
+                );
+            }
+
+            return executeTools(completion.toolCalls(), messages, turnMessages)
+                    .thenCompose(ignored -> runChatLoop(
+                            settings,
+                            messages,
+                            toolSnapshot,
+                            listener,
+                            turnMessages,
+                            completeAnswer,
+                            toolRound + 1
+                    ));
+        });
+    }
+
+    private AiStreamListener separatedRoundListener(AiStreamListener listener, boolean needsSeparator) {
+        if (!needsSeparator) {
+            return listener;
+        }
+        AtomicBoolean firstContent = new AtomicBoolean(true);
+        return new AiStreamListener() {
+            @Override
+            public void onDelta(String content) {
+                if (!content.isEmpty() && firstContent.compareAndSet(true, false)) {
+                    listener.onDelta("\n");
+                }
+                listener.onDelta(content);
+            }
+
+            @Override
+            public void onReasoning(String content) {
+                listener.onReasoning(content);
+            }
+        };
+    }
+
+    private CompletableFuture<Void> executeTools(
+            List<AiToolCall> toolCalls,
+            JsonArray messages,
+            List<AiMessage> turnMessages
+    ) {
+        CompletableFuture<Void> sequence = CompletableFuture.completedFuture(null);
+        for (AiToolCall toolCall : toolCalls) {
+            sequence = sequence.thenCompose(ignored -> toolExecutor.execute(toolCall)
+                    .handle((content, error) -> error == null
+                            ? content
+                            : "Tool execution failed: " + throwableMessage(error))
+                    .thenAccept(content -> {
+                        AiMessage toolMessage = AiMessage.tool(toolCall.id(), content);
+                        messages.add(toolMessage.toJson());
+                        turnMessages.add(toolMessage);
+                    }));
+        }
+        return sequence;
+    }
+
+    private CompletableFuture<AiCompletion> requestCompletion(
+            AiConfig.Snapshot settings,
+            JsonArray messages,
+            AiToolSnapshot toolSnapshot,
+            AiStreamListener listener
+    ) {
         JsonObject body = new JsonObject();
         body.addProperty("model", settings.model());
         body.addProperty("stream", true);
         JsonObject thinking = new JsonObject();
         thinking.addProperty("type", settings.thinking() ? "enabled" : "disabled");
         body.add("thinking", thinking);
-        JsonArray messages = new JsonArray();
-        JsonObject systemMessage = new JsonObject();
-        systemMessage.addProperty("role", "system");
-        systemMessage.addProperty("content", AiSystemPrompt.forUser(username));
-        messages.add(systemMessage);
-        for (AiMessage historyMessage : settings.history()) {
-            JsonObject entry = new JsonObject();
-            entry.addProperty("role", historyMessage.role());
-            entry.addProperty("content", historyMessage.content());
-            messages.add(entry);
+        body.add("messages", messages.deepCopy());
+        if (!toolSnapshot.definitions().isEmpty()) {
+            body.add("tools", toolSnapshot.definitions().deepCopy());
+            body.addProperty("tool_choice", "auto");
         }
-        JsonObject userMessage = new JsonObject();
-        userMessage.addProperty("role", "user");
-        userMessage.addProperty("content", message);
-        messages.add(userMessage);
-        body.add("messages", messages);
 
         HttpRequest.Builder request = HttpRequest.newBuilder(endpoint(settings, "chat/completions"))
                 .timeout(CHAT_REQUEST_TIMEOUT)
@@ -121,8 +251,8 @@ final class OpenAiCompatibleProvider implements AiProvider {
                 }, executor));
     }
 
-    private String readResponse(InputStream stream, AiStreamListener listener) throws IOException {
-        StringBuilder complete = new StringBuilder();
+    private AiCompletion readResponse(InputStream stream, AiStreamListener listener) throws IOException {
+        CompletionAccumulator accumulator = new CompletionAccumulator();
         StringBuilder eventData = new StringBuilder();
         StringBuilder rawResponse = new StringBuilder();
         boolean sawServerSentEvent = false;
@@ -132,8 +262,8 @@ final class OpenAiCompatibleProvider implements AiProvider {
             while ((line = reader.readLine()) != null) {
                 if (line.isEmpty()) {
                     if (!eventData.isEmpty()) {
-                        if (consumeEvent(eventData.toString(), complete, listener)) {
-                            return complete.toString();
+                        if (consumeEvent(eventData.toString(), accumulator, listener)) {
+                            return accumulator.toCompletion();
                         }
                         eventData.setLength(0);
                     }
@@ -157,19 +287,19 @@ final class OpenAiCompatibleProvider implements AiProvider {
         }
 
         if (!eventData.isEmpty()) {
-            consumeEvent(eventData.toString(), complete, listener);
+            consumeEvent(eventData.toString(), accumulator, listener);
         }
         if (!sawServerSentEvent && !rawResponse.isEmpty()) {
-            String content = parseNonStreamingContent(rawResponse.toString());
-            if (!content.isEmpty()) {
-                listener.onDelta(content);
-                complete.append(content);
-            }
+            return parseNonStreamingCompletion(rawResponse.toString(), listener);
         }
-        return complete.toString();
+        return accumulator.toCompletion();
     }
 
-    private boolean consumeEvent(String data, StringBuilder complete, AiStreamListener listener) {
+    private boolean consumeEvent(
+            String data,
+            CompletionAccumulator accumulator,
+            AiStreamListener listener
+    ) {
         if ("[DONE]".equals(data.trim())) {
             return true;
         }
@@ -185,6 +315,9 @@ final class OpenAiCompatibleProvider implements AiProvider {
         }
 
         JsonObject choice = choices.get(0).getAsJsonObject();
+        if (choice.has("finish_reason") && !choice.get("finish_reason").isJsonNull()) {
+            accumulator.finishReason = choice.get("finish_reason").getAsString();
+        }
         if (!choice.has("delta") || !choice.get("delta").isJsonObject()) {
             return false;
         }
@@ -194,35 +327,73 @@ final class OpenAiCompatibleProvider implements AiProvider {
             String reasoning = delta.get("reasoning_content").getAsString();
             if (!reasoning.isEmpty()) {
                 listener.onReasoning(reasoning);
+                accumulator.reasoningContent.append(reasoning);
             }
         }
         if (delta.has("content") && !delta.get("content").isJsonNull()) {
             String content = delta.get("content").getAsString();
             if (!content.isEmpty()) {
                 listener.onDelta(content);
-                complete.append(content);
+                accumulator.content.append(content);
+            }
+        }
+        if (delta.has("tool_calls") && delta.get("tool_calls").isJsonArray()) {
+            JsonArray calls = delta.getAsJsonArray("tool_calls");
+            for (int position = 0; position < calls.size(); position++) {
+                JsonElement element = calls.get(position);
+                if (!element.isJsonObject()) {
+                    continue;
+                }
+                JsonObject call = element.getAsJsonObject();
+                int index = call.has("index") && !call.get("index").isJsonNull()
+                        ? call.get("index").getAsInt()
+                        : position;
+                accumulator.toolCalls
+                        .computeIfAbsent(index, ignored -> new MutableToolCall())
+                        .append(call);
             }
         }
         return false;
     }
 
-    private String parseNonStreamingContent(String body) {
+    private AiCompletion parseNonStreamingCompletion(String body, AiStreamListener listener) {
         JsonObject root = JsonParser.parseString(body).getAsJsonObject();
         if (!root.has("choices") || !root.get("choices").isJsonArray()) {
-            return "";
+            return AiCompletion.empty();
         }
         JsonArray choices = root.getAsJsonArray("choices");
         if (choices.isEmpty() || !choices.get(0).isJsonObject()) {
-            return "";
+            return AiCompletion.empty();
         }
         JsonObject choice = choices.get(0).getAsJsonObject();
         if (!choice.has("message") || !choice.get("message").isJsonObject()) {
-            return "";
+            return AiCompletion.empty();
         }
         JsonObject message = choice.getAsJsonObject("message");
-        return message.has("content") && !message.get("content").isJsonNull()
+        String content = message.has("content") && !message.get("content").isJsonNull()
                 ? message.get("content").getAsString()
                 : "";
+        String reasoning = message.has("reasoning_content") && !message.get("reasoning_content").isJsonNull()
+                ? message.get("reasoning_content").getAsString()
+                : "";
+        List<AiToolCall> toolCalls = new ArrayList<>();
+        if (message.has("tool_calls") && message.get("tool_calls").isJsonArray()) {
+            for (JsonElement element : message.getAsJsonArray("tool_calls")) {
+                if (element.isJsonObject()) {
+                    toolCalls.add(AiToolCall.fromJson(element.getAsJsonObject()));
+                }
+            }
+        }
+        if (!reasoning.isEmpty()) {
+            listener.onReasoning(reasoning);
+        }
+        if (!content.isEmpty()) {
+            listener.onDelta(content);
+        }
+        String finishReason = choice.has("finish_reason") && !choice.get("finish_reason").isJsonNull()
+                ? choice.get("finish_reason").getAsString()
+                : "";
+        return new AiCompletion(content, reasoning, toolCalls, finishReason);
     }
 
     private URI endpoint(AiConfig.Snapshot settings, String path) {
@@ -263,5 +434,80 @@ final class OpenAiCompatibleProvider implements AiProvider {
         }
         return new IllegalStateException("AI API returned HTTP " + statusCode
                 + (message.isBlank() ? "." : ": " + message));
+    }
+
+    private static String throwableMessage(Throwable error) {
+        Throwable cause = error;
+        while (cause instanceof CompletionException && cause.getCause() != null) {
+            cause = cause.getCause();
+        }
+        String message = cause.getMessage();
+        return message == null || message.isBlank() ? cause.getClass().getSimpleName() : message;
+    }
+
+    private record AiCompletion(
+            String content,
+            String reasoningContent,
+            List<AiToolCall> toolCalls,
+            String finishReason
+    ) {
+        private AiCompletion {
+            content = content == null ? "" : content;
+            reasoningContent = reasoningContent == null ? "" : reasoningContent;
+            toolCalls = List.copyOf(toolCalls);
+            finishReason = finishReason == null ? "" : finishReason;
+        }
+
+        private static AiCompletion empty() {
+            return new AiCompletion("", "", List.of(), "");
+        }
+    }
+
+    private static final class CompletionAccumulator {
+        private final StringBuilder content = new StringBuilder();
+        private final StringBuilder reasoningContent = new StringBuilder();
+        private final Map<Integer, MutableToolCall> toolCalls = new TreeMap<>();
+        private String finishReason = "";
+
+        private AiCompletion toCompletion() {
+            List<AiToolCall> calls = toolCalls.values().stream()
+                    .map(MutableToolCall::build)
+                    .toList();
+            return new AiCompletion(
+                    content.toString(),
+                    reasoningContent.toString(),
+                    calls,
+                    finishReason
+            );
+        }
+    }
+
+    private static final class MutableToolCall {
+        private String id = "";
+        private final StringBuilder name = new StringBuilder();
+        private final StringBuilder arguments = new StringBuilder();
+
+        private void append(JsonObject chunk) {
+            if (chunk.has("id") && !chunk.get("id").isJsonNull()) {
+                String value = chunk.get("id").getAsString();
+                if (!value.isEmpty()) {
+                    id = value;
+                }
+            }
+            if (!chunk.has("function") || !chunk.get("function").isJsonObject()) {
+                return;
+            }
+            JsonObject function = chunk.getAsJsonObject("function");
+            if (function.has("name") && !function.get("name").isJsonNull()) {
+                name.append(function.get("name").getAsString());
+            }
+            if (function.has("arguments") && !function.get("arguments").isJsonNull()) {
+                arguments.append(function.get("arguments").getAsString());
+            }
+        }
+
+        private AiToolCall build() {
+            return new AiToolCall(id, name.toString(), arguments.toString());
+        }
     }
 }

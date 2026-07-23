@@ -73,10 +73,10 @@ final class AiConfig {
         return history.size();
     }
 
-    synchronized void appendExchange(String userMessage, String assistantMessage) {
+    synchronized void appendTurn(String userMessage, List<AiMessage> turnMessages) {
         int previousSize = history.size();
-        history.add(new AiMessage("user", userMessage));
-        history.add(new AiMessage("assistant", assistantMessage));
+        history.add(AiMessage.user(userMessage));
+        history.addAll(turnMessages);
         try {
             save();
         } catch (RuntimeException exception) {
@@ -120,15 +120,8 @@ final class AiConfig {
                 for (JsonElement element : root.getAsJsonArray("history")) {
                     if (!element.isJsonObject()) continue;
                     JsonObject message = element.getAsJsonObject();
-                    if (!message.has("role") || !message.has("content")
-                            || message.get("role").isJsonNull() || message.get("content").isJsonNull()) {
-                        continue;
-                    }
                     try {
-                        history.add(new AiMessage(
-                                message.get("role").getAsString(),
-                                message.get("content").getAsString()
-                        ));
+                        history.add(AiMessage.fromJson(message));
                     } catch (IllegalArgumentException ignored) {
                         // Ignore malformed history entries without discarding valid configuration.
                     }
@@ -151,10 +144,7 @@ final class AiConfig {
         root.addProperty("thinking", thinking);
         JsonArray messages = new JsonArray();
         for (AiMessage message : history) {
-            JsonObject entry = new JsonObject();
-            entry.addProperty("role", message.role());
-            entry.addProperty("content", message.content());
-            messages.add(entry);
+            messages.add(message.toJson());
         }
         root.add("history", messages);
 
