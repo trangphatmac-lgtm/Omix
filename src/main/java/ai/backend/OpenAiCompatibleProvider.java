@@ -71,7 +71,7 @@ final class OpenAiCompatibleProvider implements AiProvider {
     }
 
     @Override
-    public CompletableFuture<String> streamChat(String message, AiStreamListener listener) {
+    public CompletableFuture<String> streamChat(String username, String message, AiStreamListener listener) {
         AiConfig.Snapshot settings = config.snapshot();
         if (settings.model().isBlank()) {
             return CompletableFuture.failedFuture(new IllegalStateException("Configure a model with .ai model <model>."));
@@ -84,6 +84,10 @@ final class OpenAiCompatibleProvider implements AiProvider {
         thinking.addProperty("type", settings.thinking() ? "enabled" : "disabled");
         body.add("thinking", thinking);
         JsonArray messages = new JsonArray();
+        JsonObject systemMessage = new JsonObject();
+        systemMessage.addProperty("role", "system");
+        systemMessage.addProperty("content", AiSystemPrompt.forUser(username));
+        messages.add(systemMessage);
         for (AiMessage historyMessage : settings.history()) {
             JsonObject entry = new JsonObject();
             entry.addProperty("role", historyMessage.role());

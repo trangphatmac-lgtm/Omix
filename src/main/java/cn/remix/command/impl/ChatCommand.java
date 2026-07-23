@@ -39,13 +39,14 @@ public final class ChatCommand extends Command {
 
         String message = String.join(" ", Arrays.copyOfRange(arguments, 1, arguments.length)).trim();
         MinecraftClient client = MinecraftClient.getInstance();
-        addUserMessage(client, SessionService.current().getUsername(), message);
+        String username = SessionService.current().getUsername();
+        addUserMessage(client, username, message);
         StreamingChatMessage output = new StreamingChatMessage(
                 client,
                 backend.getModel(),
                 backend.isThinkingEnabled()
         );
-        backend.streamChat(message, output::append)
+        backend.streamChat(username, message, output::append)
                 .whenComplete((response, error) -> output.finish(response, error));
     }
 

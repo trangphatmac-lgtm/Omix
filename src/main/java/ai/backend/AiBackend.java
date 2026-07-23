@@ -78,7 +78,7 @@ public final class AiBackend implements AutoCloseable {
         return config.clearHistory();
     }
 
-    public CompletableFuture<String> streamChat(String message, AiStreamListener listener) {
+    public CompletableFuture<String> streamChat(String username, String message, AiStreamListener listener) {
         if (message == null || message.isBlank()) {
             return CompletableFuture.failedFuture(new IllegalArgumentException("Message cannot be empty."));
         }
@@ -88,7 +88,7 @@ public final class AiBackend implements AutoCloseable {
 
         final CompletableFuture<String> request;
         try {
-            request = provider.streamChat(message, listener);
+            request = provider.streamChat(username, message, listener);
         } catch (Exception exception) {
             chatActive.set(false);
             return CompletableFuture.failedFuture(exception);
