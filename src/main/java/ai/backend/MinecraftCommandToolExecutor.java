@@ -2,6 +2,7 @@ package ai.backend;
 
 import cn.remix.Client;
 import cn.remix.command.CommandManager;
+import cn.remix.util.Util;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -98,6 +99,7 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
     ) {
         AiChatCapture.Capture capture = null;
         try {
+            showToolCall(toolName, command);
             capture = AiChatCapture.begin();
             switch (toolName) {
                 case MINECRAFT_TOOL -> runMinecraftCommand(client, command);
@@ -117,6 +119,16 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
         AiChatCapture.Capture completedCapture = capture;
         CompletableFuture.delayedExecutor(CHAT_CAPTURE_MILLISECONDS, TimeUnit.MILLISECONDS)
                 .execute(() -> client.execute(() -> result.complete(AiChatCapture.finish(completedCapture))));
+    }
+
+    private void showToolCall(String toolName, String command) {
+        String type = switch (toolName) {
+            case MINECRAFT_TOOL -> "Minecraft";
+            case CLIENT_TOOL -> "Client";
+            case BARITONE_TOOL -> "Baritone";
+            default -> "Unknown";
+        };
+        Util.log("&bAI Tool &8[&7" + type + "&8] &f" + command);
     }
 
     private void runMinecraftCommand(MinecraftClient client, String command) {
