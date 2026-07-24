@@ -19,3 +19,7 @@ hs_err_pid*
 
 # Common working directory
 run
+
+# WebUI build products
+src-webui/node_modules/
+src-webui/dist/

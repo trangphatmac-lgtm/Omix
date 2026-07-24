@@ -15,6 +15,7 @@ import cn.remix.util.IMinecraft;
 import cn.remix.util.render.Render2D;
 import cn.remix.util.render.Render3D;
 import me.ksyz.accountmanager.AccountManager;
+import im.webui.WebUiRuntime;
 import lombok.Getter;
 import org.apache.logging.log4j.Logger;
 
@@ -26,7 +27,7 @@ public class Client implements IMinecraft {
     public static Logger logger;
 
     public static String name = "Remix";
-    public static String version = "260723-SNAPSHOT";
+    public static String version = "260724-SNAPSHOT";
 
     private EventManager eventManager;
     private AiBackend aiBackend;
@@ -57,12 +58,14 @@ public class Client implements IMinecraft {
         packetManager = new PacketManager();
         clickGuiScreen = new ClickGuiScreen();
         AccountManager.init();
+        WebUiRuntime.getInstance().start();
         if (aiBackend.hasApiKey()) {
             aiBackend.refreshModels().exceptionally(error -> java.util.List.of());
         }
     }
 
     public void shutdown() {
+        WebUiRuntime.getInstance().stop();
         configManager.saveAll();
         aiBackend.close();
         AccountManager.save();

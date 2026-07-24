@@ -6,6 +6,7 @@ import cn.remix.module.impl.render.NoHurtCam;
 import cn.remix.module.impl.render.Zoom;
 import cn.remix.util.IMinecraft;
 import com.llamalad7.mixinextras.sugar.Local;
+import im.webui.WebUiRuntime;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Matrix4f;
@@ -26,6 +27,11 @@ public abstract class MixinGameRenderer implements IMinecraft {
     @Shadow
     @Final
     private BufferBuilderStorage buffers;
+
+    @Inject(method = "render", at = @At("HEAD"))
+    private void remix$driveWebUi(CallbackInfo ci) {
+        WebUiRuntime.getInstance().onFrame();
+    }
 
     @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;render(Lnet/minecraft/client/util/memory/ObjectAllocator;Lnet/minecraft/client/render/RenderTickCounter;ZLnet/minecraft/client/render/Camera;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Vector4f;Z)V", shift = At.Shift.AFTER))
     private void renderWorld(RenderTickCounter renderTickCounter, CallbackInfo ci, @Local(ordinal = 0) Matrix4f projectionMatrix, @Local(ordinal = 1) Matrix4f modelViewMatrix) {

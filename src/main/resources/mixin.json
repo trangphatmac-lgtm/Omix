@@ -48,6 +48,7 @@
     "MixinTitleScreen",
     "MixinStatusEffectFogModifier",
     "MixinWorldRenderer",
+    "MixinWindow",
     "accessor.ClientPlayerEntityAccessor",
     "accessor.ChatHudAccessor",
     "accessor.ClientWorldAccessor",

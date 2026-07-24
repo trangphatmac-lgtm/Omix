@@ -6,6 +6,7 @@ import cn.remix.event.impl.TickEvent;
 import cn.remix.event.impl.WorldEvent;
 import cn.remix.util.IMinecraft;
 import cn.remix.util.Util;
+import im.webui.WebUiRuntime;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.InactivityFpsLimiter;
@@ -40,6 +41,11 @@ public abstract class MixinMinecraftClient implements IMinecraft {
     @Inject(method = "stop", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;close()V", shift = At.Shift.AFTER))
     private void stop(CallbackInfo ci) {
         instance.shutdown();
+    }
+
+    @Inject(method = "stop", at = @At("HEAD"))
+    private void remix$stopWebUiBeforeGraphics(CallbackInfo ci) {
+        WebUiRuntime.getInstance().stop();
     }
 
     @Inject(method = "tick", at = @At("HEAD"))

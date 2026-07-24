@@ -2,6 +2,7 @@ plugins {
     id 'fabric-loom' version '1.17-SNAPSHOT'
     id 'maven-publish'
     id 'io.freefair.lombok' version '8.6'
+    id 'com.github.node-gradle.node' version '7.1.0'
 }
 
 def buildDay = java.time.LocalDate.now(java.time.ZoneId.systemDefault())
@@ -67,11 +68,11 @@ tasks.withType(Jar).configureEach {
 
 
 repositories {
-    // Add repositories to retrieve artifacts from in here.
-    // You should only use this when depending on other mods because
-    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-    // for more information about repositories.
+    maven {
+        name = "CCBlueX Releases"
+        url = uri("https://maven.ccbluex.net/releases")
+    }
+    mavenCentral()
 }
 
 dependencies {
@@ -81,16 +82,47 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+    modImplementation "net.ccbluex:mcef:3.3.0-1.21.11"
+    include "net.ccbluex:mcef:3.3.0-1.21.11"
 
-    implementation "io.netty:netty-handler-proxy:${"4.1.111.Final"}"
-    include "io.netty:netty-handler-proxy:${"4.1.111.Final"}"
-    implementation "io.netty:netty-codec-socks:${"4.1.111.Final"}"
-    include "io.netty:netty-codec-socks:${"4.1.111.Final"}"
+    implementation "io.netty:netty-codec-http:4.2.7.Final"
+    implementation "io.netty:netty-handler-proxy:4.2.7.Final"
+    include "io.netty:netty-handler-proxy:4.2.7.Final"
+    implementation "io.netty:netty-codec-socks:4.2.7.Final"
+    include "io.netty:netty-codec-socks:4.2.7.Final"
 
+}
+
+node {
+    version = "22.14.0"
+    download = true
+    nodeProjectDir = file("src-webui")
+}
+
+def buildWebUi = tasks.register("buildWebUi", com.github.gradle.node.npm.task.NpmTask) {
+    dependsOn tasks.named("npmInstall")
+    args = ["run", "build"]
+    inputs.files(
+            "src-webui/package.json",
+            "src-webui/package-lock.json",
+            "src-webui/index.html",
+            "src-webui/tsconfig.json",
+            "src-webui/vite.config.ts"
+    )
+    inputs.dir("src-webui/src")
+    outputs.dir("src-webui/dist")
+}
+
+def bundleWebUi = tasks.register("bundleWebUi", Zip) {
+    dependsOn buildWebUi
+    from("src-webui/dist")
+    archiveFileName = "webui.zip"
+    destinationDirectory = layout.buildDirectory.dir("generated/webui")
 }
 
 processResources {
     dependsOn syncModVersion
+    dependsOn bundleWebUi
 
     inputs.property "version", project.version
     inputs.property "minecraft_version", project.minecraft_version
@@ -101,6 +133,10 @@ processResources {
         expand "version": project.version,
                 "minecraft_version": project.minecraft_version,
                 "loader_version": project.loader_version
+    }
+
+    from(bundleWebUi.flatMap { it.archiveFile }) {
+        into "assets/remix/webui"
     }
 }
 

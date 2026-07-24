@@ -1,0 +1,112 @@
+:root {
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    color: #f7f8ff;
+    background: transparent;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    background:
+        radial-gradient(circle at 20% 15%, rgba(91, 108, 255, .42), transparent 34%),
+        radial-gradient(circle at 82% 85%, rgba(167, 72, 255, .30), transparent 38%),
+        rgba(8, 10, 18, .92);
+}
+
+.card {
+    width: min(680px, calc(100vw - 56px));
+    padding: 34px;
+    border: 1px solid rgba(255, 255, 255, .13);
+    border-radius: 24px;
+    background: rgba(18, 21, 34, .82);
+    box-shadow: 0 24px 90px rgba(0, 0, 0, .42);
+    backdrop-filter: blur(22px);
+}
+
+.eyebrow {
+    color: #9fa8ff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .18em;
+}
+
+h1 {
+    margin: 10px 0 4px;
+    font-size: 30px;
+}
+
+p {
+    margin: 0 0 22px;
+    color: #b8bdd2;
+}
+
+.checks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 22px;
+}
+
+.check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .055);
+    color: #bfc4d8;
+}
+
+.check span {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #8a8fa4;
+}
+
+.check.ok span {
+    background: #48df9b;
+    box-shadow: 0 0 12px rgba(72, 223, 155, .7);
+}
+
+.check.failed span {
+    background: #ff647c;
+}
+
+label {
+    display: grid;
+    gap: 8px;
+    color: #d9dced;
+}
+
+input {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 12px;
+    padding: 12px 14px;
+    color: white;
+    background: rgba(0, 0, 0, .22);
+    outline: none;
+}
+
+input:focus {
+    border-color: #7f8aff;
+}
+
+pre {
+    max-height: 116px;
+    overflow: auto;
+    margin: 18px 0 0;
+    padding: 12px;
+    border-radius: 10px;
+    color: #8f96ad;
+    background: rgba(0, 0, 0, .2);
+    font-size: 11px;
+    white-space: pre-wrap;
+}
