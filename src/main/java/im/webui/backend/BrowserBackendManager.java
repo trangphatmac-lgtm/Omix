@@ -16,8 +16,12 @@ public final class BrowserBackendManager {
         return backend.getBrowsers();
     }
 
-    public void prepareAsync(Runnable whenAvailable, Consumer<Throwable> onFailure) {
-        backend.prepareAsync(whenAvailable, onFailure);
+    public void prepareAsync(
+            Runnable whenAvailable,
+            Consumer<BrowserPreparationProgress> onProgress,
+            Consumer<Throwable> onFailure
+    ) {
+        backend.prepareAsync(whenAvailable, onProgress, onFailure);
     }
 
     public void update() {

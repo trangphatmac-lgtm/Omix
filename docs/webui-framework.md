@@ -41,6 +41,11 @@ are application features to add later through the route and event registries.
    priority-ordered browser input router.
 10. Client shutdown closes browsers, Netty channels/event loops and MCEF.
 
+The first production launch downloads the platform-specific JCEF runtime rather
+than bundling every operating-system build into the mod. `MCEFProgressListener`
+updates are forwarded through `BrowserPreparationProgress`, so the temporary
+WebUI loading screen shows checksum, download and extraction progress.
+
 ## Browser ownership models
 
 - `WebUiScreen` uses the runtime's shared full-frame browser. This is the normal
@@ -76,14 +81,18 @@ is evaluated in reverse order so the topmost accepting browser wins.
 - `buildWebUi` runs the Vite production build;
 - `bundleWebUi` creates `webui.zip`;
 - `processResources` embeds the ZIP in the mod JAR.
+- MCEF's non-mod runtime libraries (OkHttp, Okio and Kotlin stdlib) are nested
+  explicitly because Loom's `include` configuration is non-transitive.
+- `verifyWebUiRuntimeBundle` fails `check` when a required nested runtime JAR is
+  missing, preventing development-classpath-only successes.
 
 `node_modules` and `dist` are generated and intentionally ignored.
 
 ## Diagnostic page
 
 The only bundled page is `#/test`. It is a framework acceptance test, not a UI
-prototype. With `-Dremix.webui.autoTest=true` (currently the default during this
-migration phase), it validates:
+prototype. Open it through the unbound `WebUiTest` module, or start the client
+with `-Dremix.webui.autoTest=true` for automatic acceptance testing. It validates:
 
 - ZIP-served static assets;
 - authenticated REST client information;
@@ -106,8 +115,8 @@ reports `ok`.
 5. Register push/request events through
    `WebUiRuntime.getInteropServer().getSocketEvents()`.
 6. Keep client-domain serialization outside the transport classes.
-7. Turn `remix.webui.autoTest` off by default when the first real interface
-   replaces the diagnostic page.
+7. Keep `remix.webui.autoTest` opt-in so framework diagnostics never replace a
+   normal client screen during startup.
 
 No module list, settings editor, HUD designer, account view or other production
 screen is included in this migration.

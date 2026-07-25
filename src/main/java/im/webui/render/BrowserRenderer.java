@@ -1,7 +1,7 @@
 package im.webui.render;
 
+import cn.remix.util.render.Render2D;
 import im.webui.backend.Browser;
-import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.MinecraftClient;
 import java.util.List;
@@ -24,24 +24,22 @@ public final class BrowserRenderer {
 
         var viewport = browser.getViewport();
         double scale = MinecraftClient.getInstance().getWindow().getScaleFactor();
-        int x = (int) Math.round(viewport.x() / scale);
-        int y = (int) Math.round(viewport.y() / scale);
-        int width = (int) Math.round(viewport.width() / scale);
-        int height = (int) Math.round(viewport.height() / scale);
-        int textureWidth = Math.max(1, browser.getTextureWidth());
-        int textureHeight = Math.max(1, browser.getTextureHeight());
+        float x = (float) (viewport.x() / scale);
+        float y = (float) (viewport.y() / scale);
+        float width = (float) (viewport.width() / scale);
+        float height = (float) (viewport.height() / scale);
 
-        context.drawTexture(
-                RenderPipelines.GUI_TEXTURED,
+        // DrawContext's integer texture overload uses the destination width/height as
+        // the sampled pixel region as well. With a GUI scale above 1 that cropped the
+        // CEF texture to its upper-left quadrant. Use normalized 0..1 UVs so the whole
+        // framebuffer-sized browser texture is mapped into GUI coordinates.
+        Render2D.drawTexture(
+                context,
                 browser.getTextureIdentifier(),
                 x,
                 y,
-                0.0F,
-                0.0F,
                 width,
-                height,
-                textureWidth,
-                textureHeight
+                height
         );
     }
 }

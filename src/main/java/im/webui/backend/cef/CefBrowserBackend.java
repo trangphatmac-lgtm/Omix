@@ -4,12 +4,14 @@ import cn.remix.Client;
 import im.webui.backend.Browser;
 import im.webui.backend.BrowserBackend;
 import im.webui.backend.BrowserLoadState;
+import im.webui.backend.BrowserPreparationProgress;
 import im.webui.backend.BrowserViewport;
 import im.webui.backend.BrowserSettings;
 import im.webui.backend.BrowserAccelerationFlags;
 import im.webui.backend.input.InputAcceptor;
 import net.ccbluex.liquidbounce.mcef.MCEF;
 import net.ccbluex.liquidbounce.mcef.MCEFAccelerationSupport;
+import net.ccbluex.liquidbounce.mcef.listeners.MCEFProgressListener;
 import net.minecraft.client.MinecraftClient;
 import org.cef.browser.CefFrame;
 import org.cef.handler.CefLifeSpanHandlerAdapter;
@@ -48,9 +50,14 @@ public final class CefBrowserBackend implements BrowserBackend {
     }
 
     @Override
-    public void prepareAsync(Runnable whenAvailable, Consumer<Throwable> onFailure) {
+    public void prepareAsync(
+            Runnable whenAvailable,
+            Consumer<BrowserPreparationProgress> onProgress,
+            Consumer<Throwable> onFailure
+    ) {
         Thread.ofVirtual().name("Remix-MCEF-Prepare").start(() -> {
             try {
+                onProgress.accept(BrowserPreparationProgress.indeterminate("Checking JCEF runtime"));
                 MinecraftClient client = MinecraftClient.getInstance();
                 File root = new File(client.runDirectory, "Remix/mcef");
                 File libraries = new File(root, "libraries");
@@ -65,14 +72,49 @@ public final class CefBrowserBackend implements BrowserBackend {
                 settings.appendCefSwitches("--no-proxy-server");
 
                 var resourceManager = MCEF.INSTANCE.newResourceManager();
+                resourceManager.registerProgressListener(new MCEFProgressListener() {
+                    @Override
+                    public void onProgressUpdate(String task, float progress) {
+                        onProgress.accept(BrowserPreparationProgress.determinate(task, progress));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        onProgress.accept(BrowserPreparationProgress.determinate("JCEF runtime ready", 1.0F));
+                    }
+
+                    @Override
+                    public void onFileStart(String task) {
+                        onProgress.accept(BrowserPreparationProgress.indeterminate(task));
+                    }
+
+                    @Override
+                    public void onFileProgress(
+                            String task,
+                            long bytesRead,
+                            long contentLength,
+                            boolean done
+                    ) {
+                        onProgress.accept(BrowserPreparationProgress.file(task, bytesRead, contentLength));
+                    }
+
+                    @Override
+                    public void onFileEnd(String task) {
+                        onProgress.accept(BrowserPreparationProgress.determinate(task, 1.0F));
+                    }
+                });
                 if (!resourceManager.isSystemCompatible()) {
                     throw new IllegalStateException("MCEF/JCEF is not compatible with this system");
                 }
                 if (resourceManager.requiresDownload()) {
                     Client.logger.info("Downloading MCEF/JCEF runtime...");
+                    onProgress.accept(BrowserPreparationProgress.indeterminate(
+                            "Downloading JCEF (first launch)"
+                    ));
                     resourceManager.downloadJcef();
                 }
 
+                onProgress.accept(BrowserPreparationProgress.indeterminate("Starting Chromium"));
                 client.execute(whenAvailable);
             } catch (Throwable throwable) {
                 onFailure.accept(throwable);

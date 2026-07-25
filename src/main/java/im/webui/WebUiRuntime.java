@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import im.webui.backend.Browser;
 import im.webui.backend.BrowserBackendManager;
 import im.webui.backend.BrowserLoadState;
+import im.webui.backend.BrowserPreparationProgress;
 import im.webui.backend.BrowserViewport;
 import im.webui.backend.BrowserSettings;
 import im.webui.backend.input.BrowserInputRouter;
@@ -15,6 +16,7 @@ import im.webui.interop.PersistentLocalStorage;
 import im.webui.render.BrowserRenderer;
 import im.webui.screen.WebUiScreen;
 import im.webui.screen.WebScreenManager;
+import im.webui.screen.WebScreenOpenResult;
 import im.webui.screen.WebScreenType;
 import im.webui.theme.WebThemeManager;
 import net.minecraft.client.MinecraftClient;
@@ -31,6 +33,7 @@ public final class WebUiRuntime {
     private final WebThemeManager themeManager = new WebThemeManager();
     private volatile WebUiState state = WebUiState.NEW;
     private volatile Throwable failure;
+    private volatile BrowserPreparationProgress preparationProgress = BrowserPreparationProgress.IDLE;
     private final WebScreenManager screenManager = new WebScreenManager();
     private volatile boolean openWhenReady;
     private volatile boolean autoTestEnabled;
@@ -56,6 +59,10 @@ public final class WebUiRuntime {
 
     public Throwable getFailure() {
         return failure;
+    }
+
+    public BrowserPreparationProgress getPreparationProgress() {
+        return preparationProgress;
     }
 
     public InteropServer getInteropServer() {
@@ -91,12 +98,16 @@ public final class WebUiRuntime {
             registerStorageRoutes();
             themeManager.useBundled(interopServer.getAuthenticatedBaseUrl());
             autoTestEnabled = Boolean.parseBoolean(
-                    System.getProperty("remix.webui.autoTest", "true")
+                    System.getProperty("remix.webui.autoTest", "false")
             );
             openWhenReady = autoTestEnabled;
             state = WebUiState.SERVER_READY;
             state = WebUiState.CEF_PREPARING;
-            backendManager.prepareAsync(this::startBrowserBackend, this::fail);
+            backendManager.prepareAsync(
+                    this::startBrowserBackend,
+                    progress -> preparationProgress = progress,
+                    this::fail
+            );
         } catch (Throwable throwable) {
             fail(throwable);
         }
@@ -105,6 +116,7 @@ public final class WebUiRuntime {
     private void startBrowserBackend() {
         try {
             backendManager.getBackend().start();
+            preparationProgress = BrowserPreparationProgress.determinate("Chromium initialized", 1.0F);
             state = WebUiState.CEF_READY;
             mainBrowser = backendManager.getBackend().createBrowser(
                     themeManager.getScreenUrl(WebScreenType.TEST),
@@ -138,7 +150,8 @@ public final class WebUiRuntime {
                     event.addProperty("state", "ready");
                     interopServer.broadcast("browserReady", event);
                     if (openWhenReady) {
-                        openTestScreen();
+                        WebScreenType pendingType = screenManager.current();
+                        activateScreen(pendingType == null ? WebScreenType.TEST : pendingType);
                     }
                 }
                 keepAutoTestScreenSynchronized();
@@ -149,42 +162,76 @@ public final class WebUiRuntime {
         }
     }
 
-    public void openTestScreen() {
-        openScreen(WebScreenType.TEST);
+    public WebScreenOpenResult openTestScreen() {
+        return openScreen(WebScreenType.TEST);
     }
 
-    public void openScreen(String routeName) {
+    public WebScreenOpenResult openScreen(String routeName) {
         WebScreenType type = WebScreenType.byName(routeName);
         if (type == null) {
             Client.logger.warn("Unknown WebUI screen route: {}", routeName);
-            return;
+            return WebScreenOpenResult.FAILED;
         }
-        openScreen(type);
+        return openScreen(type);
     }
 
-    public void openScreen(WebScreenType type) {
+    public WebScreenOpenResult openScreen(WebScreenType type) {
         MinecraftClient client = MinecraftClient.getInstance();
+        if (state == WebUiState.FAILED || state == WebUiState.STOPPED) {
+            Client.logger.error("Cannot open WebUI screen {} while runtime is {}", type.routeName(), state);
+            return WebScreenOpenResult.FAILED;
+        }
         if (state != WebUiState.READY) {
             openWhenReady = true;
-            Client.logger.info("WebUI is {}, test screen will open when ready", state);
-            return;
+            screenManager.open(type);
+            if (!(client.currentScreen instanceof WebUiScreen screen)
+                    || !screen.getType().equals(type)) {
+                client.setScreen(new WebUiScreen(client.currentScreen, type));
+            }
+            Client.logger.info("WebUI is {}, screen {} will open when ready", state, type.routeName());
+            return WebScreenOpenResult.QUEUED;
         }
+
+        activateScreen(type);
+        return WebScreenOpenResult.OPENED;
+    }
+
+    private void activateScreen(WebScreenType type) {
+        MinecraftClient client = MinecraftClient.getInstance();
         openWhenReady = false;
-        screenManager.open(type);
+        if (!type.equals(screenManager.current())) {
+            screenManager.open(type);
+        }
+        boolean needsAcknowledgement = !screenManager.isAcknowledged();
         inputProbeSent = false;
         String screenUrl = themeManager.getScreenUrl(type);
         if (!screenUrl.equals(mainBrowser.getUrl())) {
             mainBrowser.setUrl(screenUrl);
+        } else if (needsAcknowledgement) {
+            // The shared browser may have loaded its route while hidden and exhausted the
+            // front-end acknowledgement retries. Reload when a user opens it later.
+            mainBrowser.forceReload();
         }
         mainBrowser.setVisible(true);
-        client.setScreen(new WebUiScreen(client.currentScreen, type));
+        if (!(client.currentScreen instanceof WebUiScreen screen)
+                || !screen.getType().equals(type)) {
+            client.setScreen(new WebUiScreen(client.currentScreen, type));
+        }
     }
 
     public void closeTestScreen() {
+        openWhenReady = false;
         if (mainBrowser != null) {
             mainBrowser.setVisible(false);
         }
         screenManager.close();
+    }
+
+    public boolean isBrowserTextureReady() {
+        return state == WebUiState.READY
+                && mainBrowser != null
+                && mainBrowser.isVisible()
+                && mainBrowser.isTextureReady();
     }
 
     public void render(DrawContext context) {

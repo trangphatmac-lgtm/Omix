@@ -85,6 +85,20 @@ dependencies {
     modImplementation "net.ccbluex:mcef:3.3.0-1.21.11"
     include "net.ccbluex:mcef:3.3.0-1.21.11"
 
+    // MCEF declares OkHttp as a runtime dependency. Loom's include configuration is
+    // deliberately non-transitive, so these must be nested explicitly for production
+    // launchers (the IntelliJ runtime classpath otherwise hides the missing dependency).
+    implementation "com.squareup.okhttp3:okhttp:4.12.0"
+    include "com.squareup.okhttp3:okhttp:4.12.0"
+    implementation "com.squareup.okio:okio-jvm:3.6.0"
+    include "com.squareup.okio:okio-jvm:3.6.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.10"
+    include "org.jetbrains.kotlin:kotlin-stdlib:1.9.10"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.10"
+    include "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.10"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10"
+    include "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10"
+
     implementation "io.netty:netty-codec-http:4.2.7.Final"
     implementation "io.netty:netty-handler-proxy:4.2.7.Final"
     include "io.netty:netty-handler-proxy:4.2.7.Final"
@@ -169,6 +183,38 @@ jar {
     from("LICENSE") {
         rename { "${it}_${project.archives_base_name}" }
     }
+}
+
+def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
+    dependsOn tasks.named("remapJar")
+    inputs.file(tasks.named("remapJar").flatMap { it.archiveFile })
+
+    doLast {
+        def requiredNestedJars = [
+                "mcef-3.3.0-1.21.11.jar",
+                "okhttp-4.12.0.jar",
+                "okio-jvm-3.6.0.jar",
+                "kotlin-stdlib-1.9.10.jar",
+                "kotlin-stdlib-jdk7-1.9.10.jar",
+                "kotlin-stdlib-jdk8-1.9.10.jar"
+        ]
+        def archive = tasks.named("remapJar").get().archiveFile.get().asFile
+        def zip = new java.util.zip.ZipFile(archive)
+        try {
+            def missing = requiredNestedJars.findAll {
+                zip.getEntry("META-INF/jars/${it}") == null
+            }
+            if (!missing.isEmpty()) {
+                throw new GradleException("WebUI runtime dependencies missing from ${archive.name}: ${missing}")
+            }
+        } finally {
+            zip.close()
+        }
+    }
+}
+
+tasks.named("check") {
+    dependsOn verifyWebUiRuntimeBundle
 }
 
 // configure the maven publication

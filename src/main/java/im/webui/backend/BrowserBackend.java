@@ -11,7 +11,11 @@ public interface BrowserBackend {
 
     BrowserAccelerationFlags getAccelerationFlags();
 
-    void prepareAsync(Runnable whenAvailable, Consumer<Throwable> onFailure);
+    void prepareAsync(
+            Runnable whenAvailable,
+            Consumer<BrowserPreparationProgress> onProgress,
+            Consumer<Throwable> onFailure
+    );
 
     void start();
 
