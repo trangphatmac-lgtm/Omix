@@ -20,6 +20,7 @@ import cn.remix.util.network.PacketUtil;
 import cn.remix.util.player.RayCastUtil;
 import injection.accessor.LivingEntityAccessor;
 import injection.accessor.PlayerMoveC2SPacketAccessor;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.Item;
@@ -49,10 +50,23 @@ public final class NoFall extends Module {
     private static final double GRIM_SETBACK_RANGE_SQUARED = 1.0;
     private static final double GRIM_COLLISION_TEST_DISTANCE = 0.2;
 
-    private final ModeValue mode = new ModeValue("Mode", "Packet", "Packet", "Blink", "NoGround", "Spoof", "MLG", "Grim");
+    private final ModeValue mode = new ModeValue(
+            "Mode",
+            "Packet",
+            "Packet",
+            "Blink",
+            "NoGround",
+            "Spoof",
+            "CubeCraft Reduce",
+            "MLG",
+            "Grim"
+    );
     private final NumberValue distance = new NumberValue("Distance", 3.0, 0.0, 20.0, 0.5);
     private final NumberValue delay = new NumberValue("Delay", 0, 0, 10000, 50,
-            () -> !mode.is("NoGround") && !mode.is("MLG") && !mode.is("Grim"));
+            () -> !mode.is("NoGround")
+                    && !mode.is("CubeCraft Reduce")
+                    && !mode.is("MLG")
+                    && !mode.is("Grim"));
     private final BoolValue rotation = new BoolValue("Rotation", false, () -> mode.is("MLG"));
     private final TimerUtil packetDelayTimer = new TimerUtil();
 
@@ -237,6 +251,12 @@ public final class NoFall extends Module {
         }
 
         if (!event.isPre()) return;
+
+        if (mode.is("CubeCraft Reduce")) {
+            setSuffix(mode.getValue());
+            handleCubeCraftReduce(event);
+            return;
+        }
 
         if (mode.is("Blink") && blinking && event.isOnGround()) {
             finishBlink();
@@ -688,6 +708,99 @@ public final class NoFall extends Module {
         if (mc.player == null || mc.world == null) return false;
         Box box = mc.player.getBoundingBox().offset(0.0, -Math.abs(distance), 0.0);
         return mc.world.getBlockCollisions(mc.player, box).iterator().hasNext();
+    }
+
+    private void handleCubeCraftReduce(MotionEvent event) {
+        if (mc.player.getVelocity().y >= -0.5) return;
+
+        double distanceToGround = getDistanceToGround();
+        if (distanceToGround < 0.0
+                || distanceToGround > 2.0
+                || hasBlockAbove(2.0)
+                || hasPowderSnowNearby(2.0)) {
+            return;
+        }
+
+        event.setY(event.getY() + 2.0);
+        event.setOnGround(false);
+    }
+
+    private double getDistanceToGround() {
+        if (mc.player == null || mc.world == null) return Double.MAX_VALUE;
+
+        Box playerBox = mc.player.getBoundingBox();
+        double playerY = playerBox.minY;
+        double closestDistance = Double.MAX_VALUE;
+
+        int minX = MathHelper.floor(playerBox.minX);
+        int maxX = MathHelper.floor(playerBox.maxX);
+        int minZ = MathHelper.floor(playerBox.minZ);
+        int maxZ = MathHelper.floor(playerBox.maxZ);
+        int minY = MathHelper.floor(playerY - 20.0);
+
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = MathHelper.floor(playerY); y >= minY; y--) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    BlockPos pos = new BlockPos(x, y, z);
+                    var state = mc.world.getBlockState(pos);
+                    if (state.isAir()) continue;
+
+                    for (Box shapeBox : state.getCollisionShape(mc.world, pos).getBoundingBoxes()) {
+                        Box collisionBox = shapeBox.offset(pos);
+                        if (collisionBox.maxY > playerY
+                                || collisionBox.maxX <= playerBox.minX
+                                || collisionBox.minX >= playerBox.maxX
+                                || collisionBox.maxZ <= playerBox.minZ
+                                || collisionBox.minZ >= playerBox.maxZ) {
+                            continue;
+                        }
+
+                        closestDistance = Math.min(closestDistance, playerY - collisionBox.maxY);
+                    }
+                }
+            }
+        }
+
+        return closestDistance;
+    }
+
+    private boolean hasBlockAbove(double distance) {
+        if (mc.player == null || mc.world == null) return true;
+
+        Box playerBox = mc.player.getBoundingBox();
+        Box checkBox = new Box(
+                playerBox.minX,
+                playerBox.maxY,
+                playerBox.minZ,
+                playerBox.maxX,
+                playerBox.maxY + distance,
+                playerBox.maxZ
+        );
+        return mc.world.getBlockCollisions(mc.player, checkBox).iterator().hasNext();
+    }
+
+    private boolean hasPowderSnowNearby(double distance) {
+        if (mc.player == null || mc.world == null) return true;
+
+        Box checkBox = mc.player.getBoundingBox().expand(distance, distance, distance);
+        int minX = MathHelper.floor(checkBox.minX);
+        int maxX = MathHelper.floor(checkBox.maxX);
+        int minY = MathHelper.floor(checkBox.minY);
+        int maxY = MathHelper.floor(checkBox.maxY);
+        int minZ = MathHelper.floor(checkBox.minZ);
+        int maxZ = MathHelper.floor(checkBox.maxZ);
+
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    if (mc.world.getBlockState(new BlockPos(x, y, z)).isOf(Blocks.POWDER_SNOW)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     private boolean canBlinkFall(int checkHeight) {

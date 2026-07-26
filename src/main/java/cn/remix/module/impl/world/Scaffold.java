@@ -2,13 +2,13 @@ package cn.remix.module.impl.world;
 
 import cn.remix.event.base.annotation.EventTarget;
 import cn.remix.event.impl.LivingUpdateEvent;
-import cn.remix.event.impl.MotionEvent;
 import cn.remix.event.impl.MoveInputEvent;
 import cn.remix.event.impl.UpdateEvent;
 import cn.remix.event.impl.WorldEvent;
 import cn.remix.management.RotationManager;
 import cn.remix.module.Category;
 import cn.remix.module.Module;
+import cn.remix.module.impl.move.Speed;
 import cn.remix.module.impl.player.Stuck;
 import cn.remix.module.value.impl.BoolValue;
 import cn.remix.module.value.impl.ModeValue;
@@ -19,6 +19,8 @@ import cn.remix.util.network.PacketUtil;
 import cn.remix.util.player.*;
 import lombok.Getter;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -40,7 +42,14 @@ public class Scaffold extends Module {
     private final ModeValue rotationMode = new ModeValue("Rotation Mode", "Normal", "Normal", "Facing", "Hit Vec", "Nearest", "Hypixel");
     private final NumberValue shrink = new NumberValue("Shrink", .1f, 0, .45f, .01f, () -> rotationMode.is("Nearest") || rotationMode.is("Hypixel"));
     private final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 180, 0, 180, 5);
-    private final ModeValue towerMode = new ModeValue("Tower Mode", "None", "None", "Vanilla");
+    private final ModeValue towerMode = new ModeValue(
+            "Tower Mode",
+            "None",
+            "None",
+            "Vanilla",
+            "NCP",
+            "Hypixel"
+    );
     public static BoolValue downwards = new BoolValue("Downwards", false);
     private final BoolValue autoJump = new BoolValue("Auto Jump", false);
     private final BoolValue sprint = new BoolValue("Sprint", false);
@@ -64,11 +73,14 @@ public class Scaffold extends Module {
     private boolean canPlace;
     private boolean clutchActive;
     private boolean clutchTimedOut;
+    private boolean hypixelTowerActive;
+    private boolean hypixelTowerGrounded;
     private int oldSlot;
     private float savedDelay;
     private float savedTellyTick;
     private String savedRotationMode;
     private long clutchStartedAt;
+    private double ncpTowerGround = Double.NaN;
     private double keepYCoord;
     private float[] rotations;
     private PlaceInfo data;
@@ -86,12 +98,14 @@ public class Scaffold extends Module {
         canPlace = false;
         data = null;
         resetClutchState();
+        resetTowerState();
     }
 
     @Override
     public void onDisable() {
         stopClutch(true);
         clutchTimedOut = false;
+        resetTowerState();
 
         if (mc.player == null || mc.world == null) return;
 
@@ -108,6 +122,7 @@ public class Scaffold extends Module {
     public void onWorld(WorldEvent event) {
         stopClutch(false);
         clutchTimedOut = false;
+        resetTowerState();
     }
 
     @EventTarget
@@ -124,17 +139,6 @@ public class Scaffold extends Module {
     }
 
     @EventTarget
-    public void onMotion(MotionEvent event) {
-        if (mc.player == null || mc.world == null) return;
-
-        if (mc.options.jumpKey.isPressed()) {
-            if (towerMode.is("Vanilla")) {
-                mc.player.setVelocity(mc.player.getVelocity().x, 0.42, mc.player.getVelocity().z);
-            }
-        }
-    }
-
-    @EventTarget
     public void onUpdate(UpdateEvent event) {
         if (mc.player == null || mc.world == null) return;
 
@@ -143,6 +147,8 @@ public class Scaffold extends Module {
             toggle();
             return;
         }
+
+        boolean skipTowerPlacement = updateTower();
 
         if (mc.player.isOnGround()) {
             keepYCoord = Math.floor(mc.player.getY() - 1.0);
@@ -163,7 +169,7 @@ public class Scaffold extends Module {
             case "Telly Bridge" -> canRotation = canPlace = Util.offGroundTicks >= tellyTick.getValue().intValue() || !MovementUtil.isMoving();
         }
 
-        if (canPlace && data != null) {
+        if (!skipTowerPlacement && canPlace && data != null) {
             boolean rayCast = true;
             if (this.rayCast.getValue()) {
                 rayCast = RayCastUtil.overBlock(data.blockPos(), data.facing(), false);
@@ -176,6 +182,121 @@ public class Scaffold extends Module {
                 }
             }
         }
+    }
+
+    private boolean updateTower() {
+        if (!mc.options.jumpKey.isPressed() || towerMode.is("None")) {
+            resetTowerState();
+            return false;
+        }
+
+        return switch (towerMode.getValue()) {
+            case "Vanilla" -> {
+                resetTowerState();
+                setVelocityY(0.42);
+                yield false;
+            }
+            case "NCP" -> {
+                hypixelTowerActive = false;
+                hypixelTowerGrounded = false;
+                if (!hasAroundBlock()) {
+                    yield false;
+                }
+
+                if (mc.player.isOnGround() || Double.isNaN(ncpTowerGround)) {
+                    ncpTowerGround = mc.player.getY();
+                    setVelocityY(0.42);
+                }
+                if (mc.player.getY() > ncpTowerGround + 0.79F) {
+                    mc.player.setPosition(
+                            mc.player.getX(),
+                            MathHelper.floor(mc.player.getY()),
+                            mc.player.getZ()
+                    );
+                    setVelocityY(0.42);
+                    ncpTowerGround = mc.player.getY();
+                }
+                yield false;
+            }
+            case "Hypixel" -> updateHypixelTower();
+            default -> false;
+        };
+    }
+
+    private boolean updateHypixelTower() {
+        ncpTowerGround = Double.NaN;
+        if (!canUseHypixelTower()) {
+            hypixelTowerActive = false;
+            hypixelTowerGrounded = false;
+            return false;
+        }
+
+        if (!hypixelTowerActive && mc.player.isOnGround()) {
+            hypixelTowerActive = true;
+        }
+        if (!hypixelTowerActive || !hasAroundBlock() || !MovementUtil.isMoving()) {
+            return false;
+        }
+
+        if (mc.player.isOnGround()) {
+            hypixelTowerGrounded = true;
+        }
+        if (!hypixelTowerGrounded) {
+            return false;
+        }
+        if (Util.offGroundTicks >= 18) {
+            hypixelTowerActive = false;
+            return true;
+        }
+
+        switch (Util.offGroundTicks % 3) {
+            case 0 -> {
+                StatusEffectInstance speed = mc.player.getStatusEffect(StatusEffects.SPEED);
+                double strafeSpeed = 0.22;
+                if (speed != null) {
+                    int level = speed.getAmplifier() + 1;
+                    strafeSpeed += level * (speed.getAmplifier() == 0 ? 0.036 : 0.042);
+                }
+                MovementUtil.strafe(strafeSpeed);
+                setVelocityY(0.42);
+            }
+            case 1 -> setVelocityY(0.33);
+            case 2 -> setVelocityY(MathHelper.floor(mc.player.getY()) + 1.0 - mc.player.getY());
+        }
+        return false;
+    }
+
+    private boolean canUseHypixelTower() {
+        boolean hasSpeed = mc.player.hasStatusEffect(StatusEffects.SPEED);
+        boolean hasJumpBoost = mc.player.hasStatusEffect(StatusEffects.JUMP_BOOST);
+        Speed speed = getModule(Speed.class);
+        return hasSpeed || !hasJumpBoost && (speed == null || !speed.isEnabled());
+    }
+
+    private boolean hasAroundBlock() {
+        BlockPos base = mc.player.getBlockPos();
+        for (int y = 0; y >= -2; y--) {
+            for (int x = -1; x <= 1; x++) {
+                for (int z = -1; z <= 1; z++) {
+                    BlockState state = mc.world.getBlockState(base.add(x, y, z));
+                    if (!state.isReplaceable() && state.getFluidState().isEmpty()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private void setVelocityY(double velocityY) {
+        Vec3d velocity = mc.player.getVelocity();
+        mc.player.setVelocity(velocity.x, velocityY, velocity.z);
+    }
+
+    private void resetTowerState() {
+        hypixelTowerActive = false;
+        hypixelTowerGrounded = false;
+        ncpTowerGround = Double.NaN;
     }
 
     @EventTarget
