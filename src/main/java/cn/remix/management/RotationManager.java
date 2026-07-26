@@ -5,6 +5,7 @@ import cn.remix.event.base.annotation.EventTarget;
 import cn.remix.event.impl.*;
 import cn.remix.management.movement.MovementCorrection;
 import cn.remix.module.impl.combat.Aura;
+import cn.remix.module.impl.move.Derp;
 import cn.remix.module.impl.move.NoFall;
 import cn.remix.module.impl.move.Speed;
 import cn.remix.module.impl.player.AntiLava;
@@ -45,6 +46,7 @@ public class RotationManager implements IMinecraft {
         if (mc.player == null) return;
 
         Aura aura = instance.getModuleManager().getModule(Aura.class);
+        Derp derp = instance.getModuleManager().getModule(Derp.class);
         Speed speed = instance.getModuleManager().getModule(Speed.class);
         AntiLava antiLava = instance.getModuleManager().getModule(AntiLava.class);
         ScaffoldX scaffoldX = instance.getModuleManager().getModule(ScaffoldX.class);
@@ -65,6 +67,10 @@ public class RotationManager implements IMinecraft {
             // smoothing speed. Prediction requires movement correction and the
             // applied yaw to use the exact same value in the current tick.
             setRotations(new float[]{speed.getPredictionRotationYaw(), mc.player.getPitch()}, 0.0, MovementCorrection.Prediction);
+            instantRotation = true;
+        } else if (derp.isEnabled() && derp.getRotations() != null) {
+            // Derp is deliberately the lowest-priority rotation source.
+            setRotations(derp.getRotations(), 0.0, MovementCorrection.None);
             instantRotation = true;
         } else {
             enabled = false;

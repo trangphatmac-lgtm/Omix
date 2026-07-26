@@ -70,6 +70,7 @@ public class ModuleManager implements IMinecraft {
                 new NoJumpDelay(),
                 new NoSlowDown(),
                 new Parkour(),
+                new Derp(),
                 new ModuleList(),
                 new Speed(),
                 new Spider(),
