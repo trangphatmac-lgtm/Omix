@@ -50,6 +50,53 @@ public final class ConfigManager implements IMinecraft {
         return config;
     }
 
+    public Config createConfig(final String name) {
+        discoverConfigs();
+        Config existing = findConfig(name);
+        if (existing != null && existing.getFile().exists()) {
+            return null;
+        }
+
+        Config config = existing == null ? new ModuleConfig(name) : existing;
+        if (existing == null) {
+            configs.add(config);
+        }
+        config.save();
+        return config;
+    }
+
+    public Config saveConfig(final String name) {
+        discoverConfigs();
+        Config config = findConfig(name);
+        if (config == null) {
+            config = new ModuleConfig(name);
+            configs.add(config);
+        }
+        config.save();
+        return config;
+    }
+
+    public boolean deleteConfig(final String name) {
+        if (name == null || name.equalsIgnoreCase("Default")) {
+            return false;
+        }
+
+        discoverConfigs();
+        Config config = findConfig(name);
+        if (config == null || !config.getFile().exists() || !config.getFile().delete()) {
+            return false;
+        }
+
+        configs.remove(config);
+        if (currentConfig == config) {
+            currentConfig = findConfig("Default");
+            if (currentConfig != null) {
+                currentConfig.load();
+            }
+        }
+        return true;
+    }
+
     private Config findConfig(final String name) {
         return configs.stream()
                 .filter(config -> config.getName().equalsIgnoreCase(name))

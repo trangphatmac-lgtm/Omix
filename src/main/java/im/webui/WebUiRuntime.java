@@ -13,6 +13,7 @@ import im.webui.backend.input.InputAcceptor;
 import im.webui.interop.InteropServer;
 import im.webui.interop.InteropResponse;
 import im.webui.interop.AiInteropBridge;
+import im.webui.interop.ClickGuiInteropBridge;
 import im.webui.interop.PersistentLocalStorage;
 import im.webui.render.BrowserRenderer;
 import im.webui.screen.WebUiScreen;
@@ -40,6 +41,7 @@ public final class WebUiRuntime {
     private InteropServer interopServer;
     private PersistentLocalStorage localStorage;
     private AiInteropBridge aiInteropBridge;
+    private ClickGuiInteropBridge clickGuiInteropBridge;
     private Browser mainBrowser;
 
     private WebUiRuntime() {
@@ -87,6 +89,7 @@ public final class WebUiRuntime {
             );
             interopServer.start();
             aiInteropBridge = new AiInteropBridge(interopServer, Client.instance.getAiBackend());
+            clickGuiInteropBridge = new ClickGuiInteropBridge(interopServer);
             localStorage = new PersistentLocalStorage(
                     Path.of(MinecraftClient.getInstance().runDirectory.getPath(), "Remix", "webui", "local-storage.json")
             );
@@ -365,6 +368,15 @@ public final class WebUiRuntime {
                 if (client.currentScreen instanceof WebUiScreen screen
                         && screen.getType().equals(WebScreenType.AI)) {
                     screen.setBackgroundBlurEnabled(enabled);
+                }
+            });
+            return InteropResponse.noContent();
+        });
+        routes.post("/api/v1/client/closeScreen", ignored -> {
+            MinecraftClient client = MinecraftClient.getInstance();
+            client.execute(() -> {
+                if (client.currentScreen instanceof WebUiScreen screen) {
+                    screen.close();
                 }
             });
             return InteropResponse.noContent();

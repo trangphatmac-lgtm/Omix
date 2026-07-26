@@ -7,6 +7,7 @@ public record WebScreenType(String routeName, boolean inGame) {
     private static final Map<String, WebScreenType> TYPES = new ConcurrentHashMap<>();
 
     public static final WebScreenType AI = register(new WebScreenType("ai", true));
+    public static final WebScreenType CLICK_GUI = register(new WebScreenType("clickgui", true));
 
     public WebScreenType {
         if (routeName == null || routeName.isBlank()) {

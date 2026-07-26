@@ -119,13 +119,15 @@ public final class WebUiScreen extends Screen {
     @Override
     public void close() {
         WebUiRuntime runtime = WebUiRuntime.getInstance();
-        if (type.equals(WebScreenType.AI) && runtime.isBrowserTextureReady()) {
+        if ((type.equals(WebScreenType.AI) || type.equals(WebScreenType.CLICK_GUI))
+                && runtime.isBrowserTextureReady()) {
             if (closing) {
                 return;
             }
             closing = true;
             runtime.beginScreenCloseAnimation();
-            CompletableFuture.delayedExecutor(420, TimeUnit.MILLISECONDS)
+            long closeDelay = type.equals(WebScreenType.CLICK_GUI) ? 300L : 420L;
+            CompletableFuture.delayedExecutor(closeDelay, TimeUnit.MILLISECONDS)
                     .execute(() -> MinecraftClient.getInstance().execute(this::finishClose));
             return;
         }
