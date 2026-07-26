@@ -35,7 +35,8 @@ final class AiConfig {
     private String apiKey = "";
     private String model = DEFAULT_MODEL;
     private boolean thinking = true;
-    private final List<AiMessage> history = new ArrayList<>();
+    private final List<AiMessage> agentHistory = new ArrayList<>();
+    private final List<AiMessage> chatHistory = new ArrayList<>();
 
     AiConfig(Path file) {
         this.file = file;
@@ -43,7 +44,14 @@ final class AiConfig {
     }
 
     synchronized Snapshot snapshot() {
-        return new Snapshot(baseUrl, apiKey, model, thinking, List.copyOf(history));
+        return new Snapshot(
+                baseUrl,
+                apiKey,
+                model,
+                thinking,
+                List.copyOf(agentHistory),
+                List.copyOf(chatHistory)
+        );
     }
 
     synchronized void setBaseUrl(String baseUrl) {
@@ -69,11 +77,20 @@ final class AiConfig {
         save();
     }
 
-    synchronized int getHistorySize() {
-        return history.size();
+    synchronized int getHistorySize(AiChatMode mode) {
+        return history(mode).size();
     }
 
-    synchronized void appendTurn(String userMessage, List<AiMessage> turnMessages) {
+    synchronized JsonArray getSerializedHistory(AiChatMode mode) {
+        return serializeHistory(history(mode));
+    }
+
+    synchronized void appendTurn(
+            AiChatMode mode,
+            String userMessage,
+            List<AiMessage> turnMessages
+    ) {
+        List<AiMessage> history = history(mode);
         int previousSize = history.size();
         history.add(AiMessage.user(userMessage));
         history.addAll(turnMessages);
@@ -85,7 +102,8 @@ final class AiConfig {
         }
     }
 
-    synchronized int clearHistory() {
+    synchronized int clearHistory(AiChatMode mode) {
+        List<AiMessage> history = history(mode);
         List<AiMessage> previous = List.copyOf(history);
         history.clear();
         try {
@@ -117,22 +135,18 @@ final class AiConfig {
                 thinking = root.get("thinking").getAsBoolean();
             }
             if (root.has("history") && root.get("history").isJsonArray()) {
-                for (JsonElement element : root.getAsJsonArray("history")) {
-                    if (!element.isJsonObject()) continue;
-                    JsonObject message = element.getAsJsonObject();
-                    try {
-                        history.add(AiMessage.fromJson(message));
-                    } catch (IllegalArgumentException ignored) {
-                        // Ignore malformed history entries without discarding valid configuration.
-                    }
-                }
+                loadHistory(root.getAsJsonArray("history"), agentHistory);
+            }
+            if (root.has("chatHistory") && root.get("chatHistory").isJsonArray()) {
+                loadHistory(root.getAsJsonArray("chatHistory"), chatHistory);
             }
         } catch (Exception ignored) {
             baseUrl = DEFAULT_BASE_URL;
             apiKey = "";
             model = DEFAULT_MODEL;
             thinking = true;
-            history.clear();
+            agentHistory.clear();
+            chatHistory.clear();
         }
     }
 
@@ -142,11 +156,8 @@ final class AiConfig {
         root.addProperty("apiKey", apiKey);
         root.addProperty("model", model);
         root.addProperty("thinking", thinking);
-        JsonArray messages = new JsonArray();
-        for (AiMessage message : history) {
-            messages.add(message.toJson());
-        }
-        root.add("history", messages);
+        root.add("history", serializeHistory(agentHistory));
+        root.add("chatHistory", serializeHistory(chatHistory));
 
         try {
             Path parent = file.getParent();
@@ -169,6 +180,29 @@ final class AiConfig {
         } catch (IOException exception) {
             throw new IllegalStateException("Failed to save AI configuration.", exception);
         }
+    }
+
+    private List<AiMessage> history(AiChatMode mode) {
+        return mode == AiChatMode.CHAT ? chatHistory : agentHistory;
+    }
+
+    private static void loadHistory(JsonArray source, List<AiMessage> target) {
+        for (JsonElement element : source) {
+            if (!element.isJsonObject()) continue;
+            try {
+                target.add(AiMessage.fromJson(element.getAsJsonObject()));
+            } catch (IllegalArgumentException ignored) {
+                // Ignore malformed history entries without discarding valid configuration.
+            }
+        }
+    }
+
+    private static JsonArray serializeHistory(List<AiMessage> history) {
+        JsonArray messages = new JsonArray();
+        for (AiMessage message : history) {
+            messages.add(message.toJson());
+        }
+        return messages;
     }
 
     private static String normalizeBaseUrl(String input) {
@@ -200,6 +234,16 @@ final class AiConfig {
         return value;
     }
 
-    record Snapshot(String baseUrl, String apiKey, String model, boolean thinking, List<AiMessage> history) {
+    record Snapshot(
+            String baseUrl,
+            String apiKey,
+            String model,
+            boolean thinking,
+            List<AiMessage> agentHistory,
+            List<AiMessage> chatHistory
+    ) {
+        List<AiMessage> history(AiChatMode mode) {
+            return mode == AiChatMode.CHAT ? chatHistory : agentHistory;
+        }
     }
 }

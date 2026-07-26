@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.DeathScreen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import im.webui.screen.WebUiScreen;
 
 @Getter
 public class GuiMove extends Module {
@@ -21,6 +22,9 @@ public class GuiMove extends Module {
     public void onUpdate(UpdateEvent event) {
         if (mc.player == null) return;
 
+        if (mc.currentScreen instanceof WebUiScreen) {
+            return;
+        }
         if (mc.currentScreen != null && !(mc.currentScreen instanceof ChatScreen) && !(mc.currentScreen instanceof DeathScreen)) {
             mc.options.forwardKey.setPressed(isPhysicallyDown(mc.options.forwardKey));
             mc.options.backKey.setPressed(isPhysicallyDown(mc.options.backKey));

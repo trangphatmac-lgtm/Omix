@@ -6,4 +6,10 @@ public interface AiStreamListener {
 
     default void onReasoning(String content) {
     }
+
+    default void onToolCall(String id, String name, String arguments) {
+    }
+
+    default void onToolResult(String id, String content) {
+    }
 }

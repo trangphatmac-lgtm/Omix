@@ -1,5 +1,7 @@
 package ai.backend;
 
+import com.google.gson.JsonArray;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -68,19 +70,43 @@ public final class AiBackend implements AutoCloseable {
     }
 
     public int getConversationMessageCount() {
-        return config.getHistorySize();
+        return getConversationMessageCount(AiChatMode.AGENT);
+    }
+
+    public int getConversationMessageCount(AiChatMode mode) {
+        return config.getHistorySize(mode);
+    }
+
+    public JsonArray getConversationHistory(AiChatMode mode) {
+        return config.getSerializedHistory(mode);
     }
 
     public int clearConversation() {
+        return clearConversation(AiChatMode.AGENT);
+    }
+
+    public int clearConversation(AiChatMode mode) {
         if (chatActive.get()) {
             throw new IllegalStateException("Wait for the current AI response before clearing context.");
         }
-        return config.clearHistory();
+        return config.clearHistory(mode);
     }
 
     public CompletableFuture<String> streamChat(String username, String message, AiStreamListener listener) {
+        return streamChat(username, message, AiChatMode.AGENT, listener);
+    }
+
+    public CompletableFuture<String> streamChat(
+            String username,
+            String message,
+            AiChatMode mode,
+            AiStreamListener listener
+    ) {
         if (message == null || message.isBlank()) {
             return CompletableFuture.failedFuture(new IllegalArgumentException("Message cannot be empty."));
+        }
+        if (mode == null) {
+            return CompletableFuture.failedFuture(new IllegalArgumentException("AI mode cannot be null."));
         }
         if (!chatActive.compareAndSet(false, true)) {
             return CompletableFuture.failedFuture(new IllegalStateException("Another AI response is still streaming."));
@@ -88,14 +114,14 @@ public final class AiBackend implements AutoCloseable {
 
         final CompletableFuture<AiTurnResult> request;
         try {
-            request = provider.streamChat(username, message, listener);
+            request = provider.streamChat(username, message, mode, listener);
         } catch (Exception exception) {
             chatActive.set(false);
             return CompletableFuture.failedFuture(exception);
         }
         return request.thenApply(result -> {
             if (!result.messages().isEmpty()) {
-                config.appendTurn(message, result.messages());
+                config.appendTurn(mode, message, result.messages());
             }
             return result.content();
         }).whenComplete((ignored, error) -> chatActive.set(false));

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "remix",
-  "version": "260725-SNAPSHOT",
+  "version": "260726-SNAPSHOT",
   "name": "remix",
   "description": "A Minecraft client project for Fabric 1.21.11.",
   "authors": [],

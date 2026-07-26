@@ -3,6 +3,7 @@ package injection;
 import cn.remix.event.impl.KeyInputEvent;
 import cn.remix.util.IMinecraft;
 import im.webui.WebUiRuntime;
+import im.webui.screen.WebUiScreen;
 import net.minecraft.client.input.CharInput;
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.input.KeyInput;
@@ -17,6 +18,9 @@ public class MixinKeyboard implements IMinecraft {
     @Inject(method = "onKey", at = @At(value = "HEAD"))
     private void onKey(long window, int action, KeyInput input, CallbackInfo ci) {
         WebUiRuntime.getInstance().key(input.key(), input.scancode(), action, input.modifiers());
+        if (mc.currentScreen instanceof WebUiScreen) {
+            return;
+        }
         if (action == 0 || action == 1) {
             KeyInputEvent event = new KeyInputEvent(input.key(), action);
             instance.getEventManager().call(event);

@@ -80,6 +80,7 @@ final class OpenAiCompatibleProvider implements AiProvider {
     public CompletableFuture<AiTurnResult> streamChat(
             String username,
             String message,
+            AiChatMode mode,
             AiStreamListener listener
     ) {
         AiConfig.Snapshot settings = config.snapshot();
@@ -87,8 +88,10 @@ final class OpenAiCompatibleProvider implements AiProvider {
             return CompletableFuture.failedFuture(new IllegalStateException("Configure a model with .ai model <model>."));
         }
 
-        AiToolSnapshot toolSnapshot = toolExecutor.snapshot();
-        JsonArray messages = buildMessages(settings, username, message, toolSnapshot);
+        AiToolSnapshot toolSnapshot = mode == AiChatMode.AGENT
+                ? toolExecutor.snapshot()
+                : new AiToolSnapshot(new JsonArray(), "");
+        JsonArray messages = buildMessages(settings, username, message, mode, toolSnapshot);
         return runChatLoop(
                 settings,
                 messages,
@@ -104,14 +107,17 @@ final class OpenAiCompatibleProvider implements AiProvider {
             AiConfig.Snapshot settings,
             String username,
             String message,
+            AiChatMode mode,
             AiToolSnapshot toolSnapshot
     ) {
         JsonArray messages = new JsonArray();
-        JsonObject systemMessage = new JsonObject();
-        systemMessage.addProperty("role", "system");
-        systemMessage.addProperty("content", AiSystemPrompt.forUser(username, toolSnapshot.promptContext()));
-        messages.add(systemMessage);
-        for (AiMessage historyMessage : settings.history()) {
+        if (mode == AiChatMode.AGENT) {
+            JsonObject systemMessage = new JsonObject();
+            systemMessage.addProperty("role", "system");
+            systemMessage.addProperty("content", AiSystemPrompt.forUser(username, toolSnapshot.promptContext()));
+            messages.add(systemMessage);
+        }
+        for (AiMessage historyMessage : settings.history(mode)) {
             messages.add(historyMessage.toJson());
         }
         messages.add(AiMessage.user(message).toJson());
@@ -158,7 +164,7 @@ final class OpenAiCompatibleProvider implements AiProvider {
                 );
             }
 
-            return executeTools(completion.toolCalls(), messages, turnMessages)
+            return executeTools(completion.toolCalls(), messages, turnMessages, listener)
                     .thenCompose(ignored -> runChatLoop(
                             settings,
                             messages,
@@ -195,15 +201,22 @@ final class OpenAiCompatibleProvider implements AiProvider {
     private CompletableFuture<Void> executeTools(
             List<AiToolCall> toolCalls,
             JsonArray messages,
-            List<AiMessage> turnMessages
+            List<AiMessage> turnMessages,
+            AiStreamListener listener
     ) {
         CompletableFuture<Void> sequence = CompletableFuture.completedFuture(null);
         for (AiToolCall toolCall : toolCalls) {
+            listener.onToolCall(
+                    toolCall.id(),
+                    toolCall.name(),
+                    toolCall.arguments()
+            );
             sequence = sequence.thenCompose(ignored -> toolExecutor.execute(toolCall)
                     .handle((content, error) -> error == null
                             ? content
                             : "Tool execution failed: " + throwableMessage(error))
                     .thenAccept(content -> {
+                        listener.onToolResult(toolCall.id(), content);
                         AiMessage toolMessage = AiMessage.tool(toolCall.id(), content);
                         messages.add(toolMessage.toJson());
                         turnMessages.add(toolMessage);

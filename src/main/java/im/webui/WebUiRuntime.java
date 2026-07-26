@@ -12,6 +12,7 @@ import im.webui.backend.input.BrowserInputRouter;
 import im.webui.backend.input.InputAcceptor;
 import im.webui.interop.InteropServer;
 import im.webui.interop.InteropResponse;
+import im.webui.interop.AiInteropBridge;
 import im.webui.interop.PersistentLocalStorage;
 import im.webui.render.BrowserRenderer;
 import im.webui.screen.WebUiScreen;
@@ -36,14 +37,9 @@ public final class WebUiRuntime {
     private volatile BrowserPreparationProgress preparationProgress = BrowserPreparationProgress.IDLE;
     private final WebScreenManager screenManager = new WebScreenManager();
     private volatile boolean openWhenReady;
-    private volatile boolean autoTestEnabled;
-    private int screenRetryFrames;
-    private volatile boolean inputProbeSent;
-    private volatile int inputProbeFrames = -1;
-    private volatile double inputProbeX;
-    private volatile double inputProbeY;
     private InteropServer interopServer;
     private PersistentLocalStorage localStorage;
+    private AiInteropBridge aiInteropBridge;
     private Browser mainBrowser;
 
     private WebUiRuntime() {
@@ -87,20 +83,16 @@ public final class WebUiRuntime {
         try {
             interopServer = new InteropServer(
                     this::getCurrentRoute,
-                    this::acknowledgeScreen,
-                    this::acceptTestReport
+                    this::acknowledgeScreen
             );
             interopServer.start();
+            aiInteropBridge = new AiInteropBridge(interopServer, Client.instance.getAiBackend());
             localStorage = new PersistentLocalStorage(
                     Path.of(MinecraftClient.getInstance().runDirectory.getPath(), "Remix", "webui", "local-storage.json")
             );
             localStorage.load();
             registerStorageRoutes();
             themeManager.useBundled(interopServer.getAuthenticatedBaseUrl());
-            autoTestEnabled = Boolean.parseBoolean(
-                    System.getProperty("remix.webui.autoTest", "false")
-            );
-            openWhenReady = autoTestEnabled;
             state = WebUiState.SERVER_READY;
             state = WebUiState.CEF_PREPARING;
             backendManager.prepareAsync(
@@ -119,7 +111,7 @@ public final class WebUiRuntime {
             preparationProgress = BrowserPreparationProgress.determinate("Chromium initialized", 1.0F);
             state = WebUiState.CEF_READY;
             mainBrowser = backendManager.getBackend().createBrowser(
-                    themeManager.getScreenUrl(WebScreenType.TEST),
+                    themeManager.getScreenUrl(WebScreenType.AI),
                     BrowserViewport.fullFrame(),
                     BrowserSettings.DEFAULT,
                     (short) 0,
@@ -151,19 +143,17 @@ public final class WebUiRuntime {
                     interopServer.broadcast("browserReady", event);
                     if (openWhenReady) {
                         WebScreenType pendingType = screenManager.current();
-                        activateScreen(pendingType == null ? WebScreenType.TEST : pendingType);
+                        activateScreen(pendingType == null ? WebScreenType.AI : pendingType);
                     }
                 }
-                keepAutoTestScreenSynchronized();
-                runInputProbe();
             }
         } catch (Throwable throwable) {
             fail(throwable);
         }
     }
 
-    public WebScreenOpenResult openTestScreen() {
-        return openScreen(WebScreenType.TEST);
+    public WebScreenOpenResult openAiScreen() {
+        return openScreen(WebScreenType.AI);
     }
 
     public WebScreenOpenResult openScreen(String routeName) {
@@ -203,7 +193,6 @@ public final class WebUiRuntime {
             screenManager.open(type);
         }
         boolean needsAcknowledgement = !screenManager.isAcknowledged();
-        inputProbeSent = false;
         String screenUrl = themeManager.getScreenUrl(type);
         if (!screenUrl.equals(mainBrowser.getUrl())) {
             mainBrowser.setUrl(screenUrl);
@@ -219,12 +208,21 @@ public final class WebUiRuntime {
         }
     }
 
-    public void closeTestScreen() {
+    public void closeScreen() {
         openWhenReady = false;
         if (mainBrowser != null) {
             mainBrowser.setVisible(false);
         }
         screenManager.close();
+    }
+
+    public void beginScreenCloseAnimation() {
+        if (interopServer == null) {
+            return;
+        }
+        JsonObject event = new JsonObject();
+        event.addProperty("route", getCurrentRoute());
+        interopServer.broadcast("screenClosing", event);
     }
 
     public boolean isBrowserTextureReady() {
@@ -287,16 +285,12 @@ public final class WebUiRuntime {
         if (state == WebUiState.STOPPED) {
             return;
         }
-        closeTestScreen();
+        closeScreen();
         backendManager.stop();
         if (interopServer != null) {
             interopServer.stop();
         }
         state = WebUiState.STOPPED;
-    }
-
-    private boolean acceptsInput() {
-        return mainBrowser != null && mainBrowser.acceptsInput();
     }
 
     private boolean acceptsMainBrowserInput() {
@@ -313,63 +307,6 @@ public final class WebUiRuntime {
         if (screenManager.acknowledge(name)) {
             Client.logger.info("WebUI screen acknowledged by browser");
         }
-    }
-
-    private void keepAutoTestScreenSynchronized() {
-        if (!autoTestEnabled || state != WebUiState.READY || screenManager.isAcknowledged()) {
-            return;
-        }
-        if (MinecraftClient.getInstance().currentScreen instanceof WebUiScreen) {
-            screenRetryFrames = 0;
-            return;
-        }
-        if (screenRetryFrames-- <= 0) {
-            Client.logger.info("[WebUI Test] reopening test screen until browser acknowledgement");
-            openTestScreen();
-            screenRetryFrames = 60;
-        }
-    }
-
-    private void acceptTestReport(JsonObject report) {
-        String step = report.has("step") ? report.get("step").getAsString() : "unknown";
-        String status = report.has("status") ? report.get("status").getAsString() : "unknown";
-        Client.logger.info("[WebUI Test] {} = {} {}", step, status, report);
-
-        if (!"base-complete".equals(step) || inputProbeSent || mainBrowser == null) {
-            return;
-        }
-
-        inputProbeSent = true;
-        inputProbeX = report.has("x") ? report.get("x").getAsDouble() : 0.0;
-        inputProbeY = report.has("y") ? report.get("y").getAsDouble() : 0.0;
-        inputProbeFrames = 20;
-    }
-
-    private void runInputProbe() {
-        int frames = inputProbeFrames;
-        if (frames < 0) {
-            return;
-        }
-        if (!acceptsInput()) {
-            inputProbeFrames = -1;
-            Client.logger.error("[WebUI Test] input-bridge = failed (screen no longer accepts input)");
-            return;
-        }
-        if (frames == 20) {
-            mainBrowser.mouseMoved(inputProbeX, inputProbeY);
-            mainBrowser.mouseClicked(inputProbeX, inputProbeY, 0);
-            mainBrowser.mouseReleased(inputProbeX, inputProbeY, 0);
-            Client.logger.info("[WebUI Test] input-focus = sent ({}, {})", inputProbeX, inputProbeY);
-        } else if (frames == 10) {
-            for (char character : "Remix".toCharArray()) {
-                mainBrowser.charTyped(character, 0);
-            }
-            Client.logger.info("[WebUI Test] input-characters = sent");
-        } else if (frames == 0) {
-            inputProbeFrames = -1;
-            return;
-        }
-        inputProbeFrames = frames - 1;
     }
 
     private void fail(Throwable throwable) {
@@ -416,6 +353,21 @@ public final class WebUiRuntime {
                 Client.logger.error("Failed to write WebUI local storage", exception);
                 return InteropResponse.text(HttpResponseStatus.INTERNAL_SERVER_ERROR, "Storage write failed");
             }
+        });
+        routes.put("/api/v1/client/backgroundBlur", request -> {
+            JsonObject body = request.body();
+            if (!body.has("enabled") || !body.get("enabled").isJsonPrimitive()) {
+                return InteropResponse.text(HttpResponseStatus.BAD_REQUEST, "Missing enabled state");
+            }
+            boolean enabled = body.get("enabled").getAsBoolean();
+            MinecraftClient client = MinecraftClient.getInstance();
+            client.execute(() -> {
+                if (client.currentScreen instanceof WebUiScreen screen
+                        && screen.getType().equals(WebScreenType.AI)) {
+                    screen.setBackgroundBlurEnabled(enabled);
+                }
+            });
+            return InteropResponse.noContent();
         });
         routes.delete("/api/v1/client/localStorage", request -> {
             String key = firstQueryValue(request.query(), "key");

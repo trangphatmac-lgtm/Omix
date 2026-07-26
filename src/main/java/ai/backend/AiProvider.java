@@ -6,5 +6,10 @@ import java.util.concurrent.CompletableFuture;
 interface AiProvider {
     CompletableFuture<List<String>> listModels();
 
-    CompletableFuture<AiTurnResult> streamChat(String username, String message, AiStreamListener listener);
+    CompletableFuture<AiTurnResult> streamChat(
+            String username,
+            String message,
+            AiChatMode mode,
+            AiStreamListener listener
+    );
 }

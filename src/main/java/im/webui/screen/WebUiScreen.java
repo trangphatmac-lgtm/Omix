@@ -5,11 +5,18 @@ import im.webui.backend.BrowserPreparationProgress;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.text.Text;
+import org.lwjgl.glfw.GLFW;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public final class WebUiScreen extends Screen {
     private final Screen parent;
     private final WebScreenType type;
+    private volatile boolean backgroundBlurEnabled = true;
+    private boolean closing;
 
     public WebUiScreen(Screen parent, WebScreenType type) {
         super(Text.literal("Remix WebUI — " + type.routeName()));
@@ -19,6 +26,18 @@ public final class WebUiScreen extends Screen {
 
     public WebScreenType getType() {
         return type;
+    }
+
+    public void setBackgroundBlurEnabled(boolean backgroundBlurEnabled) {
+        this.backgroundBlurEnabled = backgroundBlurEnabled;
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (type.equals(WebScreenType.AI)) {
+            releaseMovementKeys();
+        }
     }
 
     @Override
@@ -81,14 +100,69 @@ public final class WebUiScreen extends Screen {
     }
 
     @Override
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
+        if (!type.equals(WebScreenType.AI) || backgroundBlurEnabled) {
+            super.renderBackground(context, mouseX, mouseY, deltaTicks);
+            return;
+        }
+        if (deferSubtitles()) {
+            renderInGameBackground(context);
+        } else {
+            if (client.world == null) {
+                renderPanoramaBackground(context, deltaTicks);
+            }
+            renderDarkening(context);
+        }
+        client.inGameHud.renderDeferredSubtitles();
+    }
+
+    @Override
     public void close() {
-        WebUiRuntime.getInstance().closeTestScreen();
-        MinecraftClient.getInstance().setScreen(parent);
+        WebUiRuntime runtime = WebUiRuntime.getInstance();
+        if (type.equals(WebScreenType.AI) && runtime.isBrowserTextureReady()) {
+            if (closing) {
+                return;
+            }
+            closing = true;
+            runtime.beginScreenCloseAnimation();
+            CompletableFuture.delayedExecutor(420, TimeUnit.MILLISECONDS)
+                    .execute(() -> MinecraftClient.getInstance().execute(this::finishClose));
+            return;
+        }
+        finishClose();
+    }
+
+    @Override
+    public boolean keyPressed(KeyInput input) {
+        if (input.key() == GLFW.GLFW_KEY_ESCAPE) {
+            close();
+            return true;
+        }
+        return closing || super.keyPressed(input);
     }
 
     @Override
     public boolean shouldPause() {
         return false;
+    }
+
+    private void finishClose() {
+        WebUiRuntime.getInstance().closeScreen();
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.currentScreen == this) {
+            client.setScreen(parent);
+        }
+    }
+
+    private static void releaseMovementKeys() {
+        var options = MinecraftClient.getInstance().options;
+        options.forwardKey.setPressed(false);
+        options.backKey.setPressed(false);
+        options.leftKey.setPressed(false);
+        options.rightKey.setPressed(false);
+        options.jumpKey.setPressed(false);
+        options.sneakKey.setPressed(false);
+        options.sprintKey.setPressed(false);
     }
 
     private static String preparationDetail(

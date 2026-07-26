@@ -10,8 +10,12 @@ import net.ccbluex.liquidbounce.mcef.MCEF;
 import net.ccbluex.liquidbounce.mcef.cef.MCEFBrowser;
 import net.ccbluex.liquidbounce.mcef.cef.MCEFBrowserSettings;
 import net.minecraft.util.Identifier;
+import org.cef.browser.CefFrame;
+import org.lwjgl.glfw.GLFW;
 
 public final class CefBrowser implements Browser {
+    private static final char[] HEX = "0123456789ABCDEF".toCharArray();
+
     private final CefBrowserBackend backend;
     private final MCEFBrowser browserApi;
     private final BrowserSettings settings;
@@ -21,6 +25,7 @@ public final class CefBrowser implements Browser {
     private volatile BrowserLoadState state = BrowserLoadState.idle();
     private BrowserViewport viewport;
     private boolean visible = true;
+    private char pendingHighSurrogate;
     private short priority;
 
     CefBrowser(
@@ -232,6 +237,20 @@ public final class CefBrowser implements Browser {
     @Override
     public void keyPressed(int keyCode, int scanCode, int modifiers) {
         browserApi.setFocus(true);
+        if (isClipboardShortcut(modifiers)) {
+            CefFrame frame = browserApi.getFocusedFrame();
+            if (frame == null) {
+                frame = browserApi.getMainFrame();
+            }
+            if (frame != null && keyCode == GLFW.GLFW_KEY_C) {
+                frame.copy();
+                return;
+            }
+            if (frame != null && keyCode == GLFW.GLFW_KEY_V) {
+                frame.paste();
+                return;
+            }
+        }
         browserApi.sendKeyPress(keyCode, scanCode, modifiers);
     }
 
@@ -242,9 +261,72 @@ public final class CefBrowser implements Browser {
 
     @Override
     public void charTyped(int codePoint, int modifiers) {
+        if (codePoint >= Character.MIN_HIGH_SURROGATE && codePoint <= Character.MAX_HIGH_SURROGATE) {
+            pendingHighSurrogate = (char) codePoint;
+            return;
+        }
+        if (codePoint >= Character.MIN_LOW_SURROGATE && codePoint <= Character.MAX_LOW_SURROGATE) {
+            if (pendingHighSurrogate != 0) {
+                insertCommittedText(new String(new char[]{pendingHighSurrogate, (char) codePoint}));
+                pendingHighSurrogate = 0;
+            } else {
+                insertCommittedText("\uFFFD");
+            }
+            return;
+        }
+        if (pendingHighSurrogate != 0) {
+            insertCommittedText("\uFFFD");
+            pendingHighSurrogate = 0;
+        }
+        if (codePoint > 0x7F) {
+            insertCommittedText(Character.isValidCodePoint(codePoint)
+                    ? new String(Character.toChars(codePoint))
+                    : "\uFFFD");
+            return;
+        }
         for (char character : Character.toChars(codePoint)) {
             browserApi.sendKeyTyped(character, modifiers);
         }
+    }
+
+    private void insertCommittedText(String text) {
+        String encodedText = encodeJavaScriptString(text);
+        String script = """
+                (() => {
+                    const element = document.activeElement;
+                    if (!element) return;
+                    const text = %s;
+                    if (document.execCommand("insertText", false, text)) return;
+                    if (!(element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement)) return;
+                    const start = element.selectionStart ?? element.value.length;
+                    const end = element.selectionEnd ?? start;
+                    element.setRangeText(text, start, end, "end");
+                    element.dispatchEvent(new InputEvent("input", {
+                        bubbles: true,
+                        inputType: "insertText",
+                        data: text
+                    }));
+                })();
+                """.formatted(encodedText);
+        browserApi.executeJavaScript(script, browserApi.getURL(), 0);
+    }
+
+    private static boolean isClipboardShortcut(int modifiers) {
+        return (modifiers & (GLFW.GLFW_MOD_CONTROL | GLFW.GLFW_MOD_SUPER)) != 0;
+    }
+
+    private static String encodeJavaScriptString(String text) {
+        StringBuilder encoded = new StringBuilder(2 + text.length() * 6);
+        encoded.append('"');
+        for (int index = 0; index < text.length(); index++) {
+            char character = text.charAt(index);
+            encoded.append("\\u")
+                    .append(HEX[(character >>> 12) & 0xF])
+                    .append(HEX[(character >>> 8) & 0xF])
+                    .append(HEX[(character >>> 4) & 0xF])
+                    .append(HEX[character & 0xF]);
+        }
+        return encoded.append('"').toString();
     }
 
     @Override

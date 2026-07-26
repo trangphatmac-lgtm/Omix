@@ -120,6 +120,7 @@ def buildWebUi = tasks.register("buildWebUi", com.github.gradle.node.npm.task.Np
             "src-webui/package.json",
             "src-webui/package-lock.json",
             "src-webui/index.html",
+            "src-webui/svelte.config.js",
             "src-webui/tsconfig.json",
             "src-webui/vite.config.ts"
     )

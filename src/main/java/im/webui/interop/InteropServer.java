@@ -57,7 +57,6 @@ public final class InteropServer {
     private final ChannelGroup webSockets = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     private final Supplier<String> screenSupplier;
     private final Consumer<String> screenAcknowledgement;
-    private final Consumer<JsonObject> testReporter;
     private NioEventLoopGroup bossGroup;
     private NioEventLoopGroup workerGroup;
     private Channel serverChannel;
@@ -66,18 +65,11 @@ public final class InteropServer {
 
     public InteropServer(
             Supplier<String> screenSupplier,
-            Consumer<String> screenAcknowledgement,
-            Consumer<JsonObject> testReporter
+            Consumer<String> screenAcknowledgement
     ) {
         this.screenSupplier = screenSupplier;
         this.screenAcknowledgement = screenAcknowledgement;
-        this.testReporter = testReporter;
         registerCoreRoutes();
-        socketEvents.register("testPing", (event, reply) -> {
-            JsonObject pong = new JsonObject();
-            pong.addProperty("value", "ws-pong");
-            reply.accept("testPong", pong);
-        });
     }
 
     public void start() throws Exception {
@@ -105,10 +97,6 @@ public final class InteropServer {
 
     public String getBaseUrl() {
         return "http://127.0.0.1:" + port;
-    }
-
-    public String getAuthenticatedUrl() {
-        return getAuthenticatedBaseUrl() + "#/test";
     }
 
     public String getAuthenticatedBaseUrl() {
@@ -322,19 +310,6 @@ public final class InteropServer {
             screenAcknowledgement.accept(name);
             return InteropResponse.noContent();
         });
-        routes.post("/api/v1/client/test/ping", ignored -> {
-            JsonObject pong = new JsonObject();
-            pong.addProperty("value", "rest-pong");
-            return InteropResponse.json(HttpResponseStatus.OK, pong);
-        });
-        routes.post("/api/v1/client/test/report", request -> {
-            testReporter.accept(request.body());
-            return InteropResponse.noContent();
-        });
-    }
-
-    private FullHttpResponse json(HttpResponseStatus status, JsonObject value) {
-        return response(status, gson.toJson(value), "application/json; charset=UTF-8");
     }
 
     private static FullHttpResponse response(HttpResponseStatus status, String value, String contentType) {

@@ -1,7 +1,6 @@
 package im.webui.screen;
 
 public final class ScreenAcknowledgement {
-    private volatile long resetAtNanos = System.nanoTime();
     private volatile boolean confirmed;
 
     public void confirm() {
@@ -9,7 +8,6 @@ public final class ScreenAcknowledgement {
     }
 
     public void reset() {
-        resetAtNanos = System.nanoTime();
         confirmed = false;
     }
 
@@ -17,7 +15,4 @@ public final class ScreenAcknowledgement {
         return confirmed;
     }
 
-    public boolean isDesynced() {
-        return !confirmed && System.nanoTime() - resetAtNanos >= 1_000_000_000L;
-    }
 }

@@ -5,26 +5,24 @@ import cn.remix.module.Module;
 import cn.remix.util.Util;
 import im.webui.WebUiRuntime;
 import im.webui.screen.WebScreenOpenResult;
+import org.lwjgl.glfw.GLFW;
 
-/**
- * Development-only entry point for the WebUI framework acceptance page.
- * It intentionally has no default key binding and must not replace ClickGui.
- */
-public final class WebUiTest extends Module {
+public final class AIScreen extends Module {
 
-    public WebUiTest() {
-        super("WebUiTest", Category.Render);
+    public AIScreen() {
+        super("AIScreen", Category.Render);
+        setKey(GLFW.GLFW_KEY_PERIOD);
     }
 
     @Override
     public void onEnable() {
         WebUiRuntime runtime = WebUiRuntime.getInstance();
-        WebScreenOpenResult result = runtime.openTestScreen();
+        WebScreenOpenResult result = runtime.openAiScreen();
         if (result == WebScreenOpenResult.QUEUED) {
-            Util.log("&eWebUI is loading: " + runtime.getState());
+            Util.log("&eAI WebUI is loading: " + runtime.getState());
         } else if (result == WebScreenOpenResult.FAILED) {
             Throwable failure = runtime.getFailure();
-            Util.log("&cWebUI failed"
+            Util.log("&cAI WebUI failed"
                     + (failure == null || failure.getMessage() == null ? "" : ": " + failure.getMessage()));
         }
         toggle();

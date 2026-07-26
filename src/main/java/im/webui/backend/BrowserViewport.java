@@ -29,7 +29,7 @@ public record BrowserViewport(int x, int y, int width, int height, boolean fulls
     }
 
     public double zoomLevel(float quality) {
-        return Math.log(quality) / Math.log(1.2D);
+        return Math.log(quality * devicePixelRatio()) / Math.log(1.2D);
     }
 
     public int transformMouseX(double globalX, float quality) {
@@ -38,5 +38,13 @@ public record BrowserViewport(int x, int y, int width, int height, boolean fulls
 
     public int transformMouseY(double globalY, float quality) {
         return (int) ((globalY - y) * quality);
+    }
+
+    private static double devicePixelRatio() {
+        var window = MinecraftClient.getInstance().getWindow();
+        if (window.getWidth() <= 0) {
+            return 1.0D;
+        }
+        return Math.max(1.0D, window.getFramebufferWidth() / (double) window.getWidth());
     }
 }

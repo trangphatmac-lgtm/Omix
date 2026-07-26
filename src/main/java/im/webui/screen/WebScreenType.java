@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public record WebScreenType(String routeName, boolean inGame) {
     private static final Map<String, WebScreenType> TYPES = new ConcurrentHashMap<>();
 
-    public static final WebScreenType TEST = register(new WebScreenType("test", false));
+    public static final WebScreenType AI = register(new WebScreenType("ai", true));
 
     public WebScreenType {
         if (routeName == null || routeName.isBlank()) {

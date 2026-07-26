@@ -32,10 +32,6 @@ public final class WebScreenManager {
         return acknowledgement.isConfirmed();
     }
 
-    public boolean isDesynced() {
-        return acknowledgement.isDesynced();
-    }
-
     public WebScreenType current() {
         return current;
     }

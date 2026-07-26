@@ -42,7 +42,7 @@ public class ModuleManager implements IMinecraft {
         addModules(
                 new HUD(),
                 new ClickGui(),
-                new WebUiTest(),
+                new AIScreen(),
                 new ScaffoldX(),
                 new Scaffold(),
                 new QuickMacro(),
