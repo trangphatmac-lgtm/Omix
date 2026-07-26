@@ -13,18 +13,19 @@ class SafeStorageTest {
     void normalModeUsesSpecifiedTwoBitAlphabet() {
         String encrypted = SafeStorage.encrypt("A", SafeStorage.Mode.NORMAL);
 
-        assertEquals("safe:v1:normal:OllO", encrypted);
+        assertEquals("OllO", encrypted);
+        assertEquals(SafeStorage.Mode.NORMAL, SafeStorage.modeOf(encrypted).orElseThrow());
         assertEquals("A", SafeStorage.decrypt(encrypted));
     }
 
     @Test
     void heavyModeXorsWith8964AndUsesValidPadding() {
         String encrypted = SafeStorage.encrypt("A", SafeStorage.Mode.HEAVY);
-        String payload = encrypted.substring("safe:v1:heavy:".length());
-        String encoded = payload.replaceAll("[1-9A-F]", "");
+        String encoded = encrypted.replaceAll("[1-9A-F]", "");
 
         assertEquals("O0IO", encoded);
-        assertHeavyPaddingIsValid(payload);
+        assertHeavyPaddingIsValid(encrypted);
+        assertEquals(SafeStorage.Mode.HEAVY, SafeStorage.modeOf(encrypted).orElseThrow());
         assertEquals("A", SafeStorage.decrypt(encrypted));
     }
 
@@ -33,7 +34,7 @@ class SafeStorageTest {
         String plaintext = "密钥-Token-🔐";
         String encrypted = SafeStorage.encrypt(plaintext);
 
-        assertTrue(encrypted.startsWith("safe:v1:heavy:"));
+        assertFalse(encrypted.startsWith("safe:"));
         assertEquals(plaintext, SafeStorage.decrypt(encrypted));
     }
 
@@ -53,7 +54,24 @@ class SafeStorageTest {
     }
 
     @Test
-    void malformedOrUnknownSafeStorageValuesAreRejected() {
+    void oldPrefixedFormatsRemainReadable() {
+        assertTrue(SafeStorage.hasLegacyHeader("safe:v1:normal:OllO"));
+        assertTrue(SafeStorage.hasLegacyHeader("safe:v1:heavy:O11111011111I11111O"));
+        assertEquals("A", SafeStorage.decrypt("safe:v1:normal:OllO"));
+        assertEquals(
+                "A",
+                SafeStorage.decrypt("safe:v1:heavy:O11111011111I11111O")
+        );
+    }
+
+    @Test
+    void controlCharacterFalsePositiveRemainsPlaintext() {
+        assertTrue(SafeStorage.modeOf("lOI0").isEmpty());
+        assertEquals("lOI0", SafeStorage.decrypt("lOI0"));
+    }
+
+    @Test
+    void malformedOrUnknownPrefixedValuesAreRejected() {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> SafeStorage.decrypt("safe:v1:normal:l")

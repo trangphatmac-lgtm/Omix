@@ -1,5 +1,8 @@
 package cn.remix.security;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Objects;
@@ -35,8 +38,8 @@ public final class SafeStorage {
 
         byte[] bytes = plaintext.getBytes(StandardCharsets.UTF_8);
         return switch (mode) {
-            case NORMAL -> NORMAL_PREFIX + encodeTwoBit(bytes);
-            case HEAVY -> HEAVY_PREFIX + addHeavyPadding(encodeTwoBit(xorHeavyKey(bytes)));
+            case NORMAL -> encodeTwoBit(bytes);
+            case HEAVY -> addHeavyPadding(encodeTwoBit(xorHeavyKey(bytes)));
         };
     }
 
@@ -46,24 +49,32 @@ public final class SafeStorage {
             return null;
         }
         if (storedValue.startsWith(NORMAL_PREFIX)) {
-            byte[] bytes = decodeTwoBit(storedValue.substring(NORMAL_PREFIX.length()));
-            return new String(bytes, StandardCharsets.UTF_8);
+            return decodeNormalPayload(storedValue.substring(NORMAL_PREFIX.length()));
         }
         if (storedValue.startsWith(HEAVY_PREFIX)) {
-            String encoded = removeAndValidateHeavyPadding(
-                    storedValue.substring(HEAVY_PREFIX.length())
-            );
-            byte[] bytes = xorHeavyKey(decodeTwoBit(encoded));
-            return new String(bytes, StandardCharsets.UTF_8);
+            return decodeHeavyPayload(storedValue.substring(HEAVY_PREFIX.length()));
         }
         if (storedValue.startsWith(ROOT_PREFIX)) {
             throw new IllegalArgumentException("Unsupported Safe Storage format.");
         }
-        return storedValue;
+
+        Optional<Mode> mode = heuristicModeOf(storedValue);
+        if (mode.isEmpty()) {
+            return storedValue;
+        }
+        return mode.get() == Mode.NORMAL
+                ? decodeNormalPayload(storedValue)
+                : decodeHeavyPayload(storedValue);
     }
 
     public static boolean isEncrypted(String storedValue) {
         return modeOf(storedValue).isPresent();
+    }
+
+    public static boolean hasLegacyHeader(String storedValue) {
+        return storedValue != null
+                && (storedValue.startsWith(NORMAL_PREFIX)
+                || storedValue.startsWith(HEAVY_PREFIX));
     }
 
 
@@ -80,7 +91,72 @@ public final class SafeStorage {
         if (storedValue.startsWith(ROOT_PREFIX)) {
             throw new IllegalArgumentException("Unsupported Safe Storage format.");
         }
-        return Optional.empty();
+        return heuristicModeOf(storedValue);
+    }
+
+    private static Optional<Mode> heuristicModeOf(String storedValue) {
+        if (storedValue.isEmpty()) {
+            return Optional.empty();
+        }
+
+        try {
+            String decoded = decodeHeavyPayload(storedValue);
+            if (isPlausiblePlaintext(decoded)) {
+                return Optional.of(Mode.HEAVY);
+            }
+        } catch (IllegalArgumentException ignored) {
+            // Try the normal format next.
+        }
+
+        if (storedValue.length() % 4 != 0) {
+            return Optional.empty();
+        }
+        for (int index = 0; index < storedValue.length(); index++) {
+            if (!isTwoBitCharacter(storedValue.charAt(index))) {
+                return Optional.empty();
+            }
+        }
+        try {
+            String decoded = decodeNormalPayload(storedValue);
+            return isPlausiblePlaintext(decoded)
+                    ? Optional.of(Mode.NORMAL)
+                    : Optional.empty();
+        } catch (IllegalArgumentException ignored) {
+            return Optional.empty();
+        }
+    }
+
+    private static String decodeNormalPayload(String encoded) {
+        return decodeUtf8(decodeTwoBit(encoded));
+    }
+
+    private static String decodeHeavyPayload(String padded) {
+        String encoded = removeAndValidateHeavyPadding(padded);
+        return decodeUtf8(xorHeavyKey(decodeTwoBit(encoded)));
+    }
+
+    private static String decodeUtf8(byte[] bytes) {
+        try {
+            return StandardCharsets.UTF_8.newDecoder()
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT)
+                    .decode(ByteBuffer.wrap(bytes))
+                    .toString();
+        } catch (CharacterCodingException exception) {
+            throw new IllegalArgumentException(
+                    "Safe Storage payload is not valid UTF-8.",
+                    exception
+            );
+        }
+    }
+
+    private static boolean isPlausiblePlaintext(String value) {
+        return value.codePoints().noneMatch(codePoint ->
+                Character.isISOControl(codePoint)
+                        && codePoint != '\n'
+                        && codePoint != '\r'
+                        && codePoint != '\t'
+        );
     }
 
     private static String encodeTwoBit(byte[] bytes) {

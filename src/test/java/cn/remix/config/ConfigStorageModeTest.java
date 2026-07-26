@@ -3,6 +3,7 @@ package cn.remix.config;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -36,7 +37,7 @@ class ConfigStorageModeTest {
     void normalConfigIsDetectedAndRoundTrips() {
         String stored = ConfigStorageMode.NORMAL.encode(CONFIG_JSON);
 
-        assertTrue(stored.startsWith("safe:v1:normal:"));
+        assertTrue(stored.matches("[lOI0]+"));
         assertEquals(ConfigStorageMode.NORMAL, ConfigStorageMode.detect(stored));
         assertEquals(CONFIG_JSON, ConfigStorageMode.NORMAL.decode(stored));
     }
@@ -45,7 +46,8 @@ class ConfigStorageModeTest {
     void heavyConfigIsDetectedAndRoundTrips() {
         String stored = ConfigStorageMode.HEAVY.encode(CONFIG_JSON);
 
-        assertTrue(stored.startsWith("safe:v1:heavy:"));
+        assertFalse(stored.startsWith("safe:"));
+        assertTrue(stored.matches("[lOI01-9A-F]+"));
         assertEquals(ConfigStorageMode.HEAVY, ConfigStorageMode.detect(stored));
         assertEquals(CONFIG_JSON, ConfigStorageMode.HEAVY.decode(stored));
     }

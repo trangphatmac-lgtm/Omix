@@ -118,7 +118,9 @@ public final class AccountManager {
     }
 
     private static boolean needsMigration(String value) {
-        return value != null && !value.isEmpty() && !SafeStorage.isEncrypted(value);
+        return value != null
+                && !value.isEmpty()
+                && (!SafeStorage.isEncrypted(value) || SafeStorage.hasLegacyHeader(value));
     }
 
     private static String readString(JsonObject object, String name) {

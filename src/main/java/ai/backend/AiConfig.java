@@ -130,7 +130,9 @@ final class AiConfig {
             if (root.has("apiKey")) {
                 String storedApiKey = root.get("apiKey").getAsString().trim();
                 apiKey = SafeStorage.decrypt(storedApiKey);
-                migrateApiKey = !storedApiKey.isEmpty() && !SafeStorage.isEncrypted(storedApiKey);
+                migrateApiKey = !storedApiKey.isEmpty()
+                        && (!SafeStorage.isEncrypted(storedApiKey)
+                        || SafeStorage.hasLegacyHeader(storedApiKey));
             }
             if (root.has("model") && !root.get("model").getAsString().isBlank()) {
                 model = root.get("model").getAsString().trim();
