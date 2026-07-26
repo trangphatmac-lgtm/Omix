@@ -21,10 +21,8 @@ import cn.remix.module.impl.exploits.ResourcepackSpoof;
 import cn.remix.module.impl.move.*;
 import cn.remix.module.impl.player.*;
 import cn.remix.module.impl.render.*;
-import cn.remix.module.impl.world.ScaffoldX;
-import cn.remix.module.impl.world.Scaffold;
-import cn.remix.module.impl.world.QuickMacro;
-import cn.remix.module.impl.world.WorldTweaks;
+import cn.remix.module.impl.world.*;
+import cn.remix.module.impl.world.AutoPlay;
 import cn.remix.module.value.Value;
 import cn.remix.util.IMinecraft;
 import lombok.Getter;
@@ -45,6 +43,7 @@ public class ModuleManager implements IMinecraft {
                 new AIScreen(),
                 new ScaffoldX(),
                 new Scaffold(),
+                new AutoPlay(),
                 new QuickMacro(),
                 new WorldTweaks(),
                 new AntiBot(),
