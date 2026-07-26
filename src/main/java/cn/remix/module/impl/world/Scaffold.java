@@ -32,6 +32,7 @@ import net.minecraft.util.math.Vec3d;
 @Getter
 public class Scaffold extends Module {
     private static final double CLUTCH_REACH = 4.5;
+    private static final double ESSENTIAL_CLUTCH_TARGET_RANGE = 5.0;
 
     public static NumberValue delay = new NumberValue("Delay", 0, 0, 200, 10);
     private final ModeValue mode = new ModeValue("Mode", "Normal", "Normal", "Telly Bridge");
@@ -49,6 +50,11 @@ public class Scaffold extends Module {
     private final BoolValue noSwing = new BoolValue("No Swing", false);
     private final BoolValue movementFix = new BoolValue("Movement Fix", false);
     private final BoolValue clutch = new BoolValue("Clutch", false);
+    private final BoolValue onlyStuckInEssential = new BoolValue(
+            "Only stuck in essential",
+            false,
+            clutch::getValue
+    );
     private final NumberValue clutchEyeTick = new NumberValue("Clutch Eye Tick", 2, 1, 20, 1, clutch::getValue);
     private final NumberValue clutchHeightTick = new NumberValue("Clutch Height Tick", 3, 1, 20, 1, clutch::getValue);
     private final NumberValue clutchGroundDistance = new NumberValue("Clutch Ground Distance", 3, 1, 20, 1, clutch::getValue);
@@ -310,7 +316,11 @@ public class Scaffold extends Module {
             rotationMode.setValue("Nearest");
             Stuck stuck = getModule(Stuck.class);
             if (stuck != null) {
-                stuck.beginClutchFreeze();
+                if (shouldUseClutchStuck()) {
+                    stuck.beginClutchFreeze();
+                } else {
+                    stuck.endClutchFreeze(true);
+                }
             }
             return;
         }
@@ -375,9 +385,22 @@ public class Scaffold extends Module {
         clutchActive = true;
 
         Stuck stuck = getModule(Stuck.class);
-        if (stuck != null) {
+        if (stuck != null && shouldUseClutchStuck()) {
             stuck.beginClutchFreeze();
         }
+    }
+
+    private boolean shouldUseClutchStuck() {
+        if (!onlyStuckInEssential.getValue()) {
+            return true;
+        }
+        if (mc.player == null || data == null) {
+            return false;
+        }
+
+        Vec3d hitVec = getVec(data.blockPos(), data.facing());
+        return mc.player.getEyePos().squaredDistanceTo(hitVec)
+                <= ESSENTIAL_CLUTCH_TARGET_RANGE * ESSENTIAL_CLUTCH_TARGET_RANGE;
     }
 
     private void stopClutch(boolean restoreStuckState) {
