@@ -1,5 +1,6 @@
 package ai.backend;
 
+import cn.remix.security.SafeStorage;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -120,13 +121,16 @@ final class AiConfig {
             return;
         }
 
+        boolean migrateApiKey = false;
         try {
             JsonObject root = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
             if (root.has("baseUrl")) {
                 baseUrl = normalizeBaseUrl(root.get("baseUrl").getAsString());
             }
             if (root.has("apiKey")) {
-                apiKey = root.get("apiKey").getAsString().trim();
+                String storedApiKey = root.get("apiKey").getAsString().trim();
+                apiKey = SafeStorage.decrypt(storedApiKey);
+                migrateApiKey = !storedApiKey.isEmpty() && !SafeStorage.isEncrypted(storedApiKey);
             }
             if (root.has("model") && !root.get("model").getAsString().isBlank()) {
                 model = root.get("model").getAsString().trim();
@@ -147,13 +151,23 @@ final class AiConfig {
             thinking = true;
             agentHistory.clear();
             chatHistory.clear();
+            return;
+        }
+
+        if (migrateApiKey) {
+            try {
+                save();
+            } catch (RuntimeException ignored) {
+                // Keep the successfully loaded plaintext key in memory and retry
+                // migration the next time configuration is saved.
+            }
         }
     }
 
     private void save() {
         JsonObject root = new JsonObject();
         root.addProperty("baseUrl", baseUrl);
-        root.addProperty("apiKey", apiKey);
+        root.addProperty("apiKey", SafeStorage.encrypt(apiKey));
         root.addProperty("model", model);
         root.addProperty("thinking", thinking);
         root.add("history", serializeHistory(agentHistory));

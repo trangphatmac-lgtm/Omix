@@ -26,7 +26,8 @@ public final class AutoPlay extends Module {
     private final TextValue password = new TextValue(
             "Password",
             "aaaaaaaa",
-            () -> mode.is("Auth Me")
+            () -> mode.is("Auth Me"),
+            true
     );
 
     private final AtomicReference<PendingCommand> pendingCommand = new AtomicReference<>();

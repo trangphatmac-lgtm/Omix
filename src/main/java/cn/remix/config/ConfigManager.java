@@ -76,6 +76,20 @@ public final class ConfigManager implements IMinecraft {
         return config;
     }
 
+    public Config saveConfig(final String name, final ConfigStorageMode storageMode) {
+        discoverConfigs();
+        Config config = findConfig(name);
+        if (config == null) {
+            config = new ModuleConfig(name);
+            configs.add(config);
+        }
+        if (!(config instanceof ModuleConfig moduleConfig)) {
+            throw new IllegalArgumentException("Config does not support encrypted storage.");
+        }
+        moduleConfig.save(storageMode);
+        return moduleConfig;
+    }
+
     public boolean deleteConfig(final String name) {
         if (name == null || name.equalsIgnoreCase("Default")) {
             return false;

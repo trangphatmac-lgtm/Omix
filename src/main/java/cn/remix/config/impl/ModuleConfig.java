@@ -2,19 +2,23 @@ package cn.remix.config.impl;
 
 import cn.remix.Client;
 import cn.remix.config.Config;
+import cn.remix.config.ConfigStorageMode;
 import cn.remix.module.Module;
 import cn.remix.module.value.DynamicBoolValueProvider;
 import cn.remix.module.value.Value;
 import cn.remix.module.value.impl.*;
+import cn.remix.security.SafeStorage;
 import cn.remix.ui.hud.Drag;
 import com.google.gson.*;
 
-import java.io.FileReader;
-import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Map;
 
 public final class ModuleConfig extends Config {
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private ConfigStorageMode storageMode = ConfigStorageMode.NONE;
+    private boolean storageModeKnown;
 
     public ModuleConfig() {
         this("Default");
@@ -26,6 +30,28 @@ public final class ModuleConfig extends Config {
 
     @Override
     public void save() {
+        if (!storageModeKnown) {
+            storageMode = detectStoredMode();
+            storageModeKnown = true;
+        }
+        saveWithCurrentMode();
+    }
+
+    public void save(ConfigStorageMode mode) {
+        storageMode = mode;
+        storageModeKnown = true;
+        saveWithCurrentMode();
+    }
+
+    public ConfigStorageMode getStorageMode() {
+        if (!storageModeKnown) {
+            storageMode = detectStoredMode();
+            storageModeKnown = true;
+        }
+        return storageMode;
+    }
+
+    private void saveWithCurrentMode() {
         try {
             final JsonObject jsonObject = new JsonObject();
 
@@ -47,9 +73,12 @@ public final class ModuleConfig extends Config {
                 jsonObject.add(module.getName(), moduleObject);
             }
 
-            try (final PrintWriter writer = new PrintWriter(this.getFile())) {
-                writer.println(this.gson.toJson(jsonObject));
-            }
+            String serialized = this.gson.toJson(jsonObject);
+            Files.writeString(
+                    this.getFile().toPath(),
+                    storageMode.encode(serialized),
+                    StandardCharsets.UTF_8
+            );
         } catch (final Exception exception) {
             Client.logger.debug("Failed to save config: {}. Error: {}", this.getName(), exception.getMessage());
         }
@@ -61,8 +90,12 @@ public final class ModuleConfig extends Config {
             return;
         }
 
-        try (final FileReader fileReader = new FileReader(this.getFile())) {
-            final JsonElement jsonElement = JsonParser.parseReader(fileReader);
+        try {
+            String storedValue = Files.readString(this.getFile().toPath(), StandardCharsets.UTF_8);
+            storageMode = ConfigStorageMode.detect(storedValue);
+            storageModeKnown = true;
+
+            final JsonElement jsonElement = JsonParser.parseString(storageMode.decode(storedValue));
             if (jsonElement == null || !jsonElement.isJsonObject()) {
                 return;
             }
@@ -81,6 +114,23 @@ public final class ModuleConfig extends Config {
         }
     }
 
+    private ConfigStorageMode detectStoredMode() {
+        if (!this.getFile().isFile()) {
+            return ConfigStorageMode.NONE;
+        }
+        try {
+            String storedValue = Files.readString(this.getFile().toPath(), StandardCharsets.UTF_8);
+            return ConfigStorageMode.detect(storedValue);
+        } catch (Exception exception) {
+            Client.logger.debug(
+                    "Failed to detect config storage mode: {}. Error: {}",
+                    this.getName(),
+                    exception.getMessage()
+            );
+            return ConfigStorageMode.NONE;
+        }
+    }
+
     private JsonObject serializeValues(final Module module) {
         final JsonObject valuesObject = new JsonObject();
         for (final Value value : module.getValues()) {
@@ -88,7 +138,12 @@ public final class ModuleConfig extends Config {
                 case BoolValue bool -> valuesObject.addProperty(bool.getName(), bool.getValue());
                 case NumberValue num -> valuesObject.addProperty(num.getName(), num.getValue());
                 case ModeValue mode -> valuesObject.addProperty(mode.getName(), mode.getValue());
-                case TextValue text -> valuesObject.addProperty(text.getName(), text.getValue());
+                case TextValue text -> valuesObject.addProperty(
+                        text.getName(),
+                        text.isSensitive()
+                                ? SafeStorage.encrypt(text.getValue())
+                                : text.getValue()
+                );
                 case KeyValue key -> valuesObject.addProperty(key.getName(), key.getValue());
                 case ColorValue color -> valuesObject.addProperty(color.getName(), color.getValue().getRGB());
                 case MultiBoolValue multi -> {
@@ -160,7 +215,11 @@ public final class ModuleConfig extends Config {
             case BoolValue bool -> bool.setValue(element.getAsBoolean());
             case NumberValue num -> num.setValue(element.getAsFloat());
             case ModeValue mode -> mode.setValue(element.getAsString());
-            case TextValue text -> text.setValue(element.getAsString());
+            case TextValue text -> text.setValue(
+                    text.isSensitive()
+                            ? SafeStorage.decrypt(element.getAsString())
+                            : element.getAsString()
+            );
             case KeyValue key -> key.setValue(element.getAsInt());
             case ColorValue color -> color.setValue(new java.awt.Color(element.getAsInt()));
             case MultiBoolValue multi when element.isJsonObject() -> {

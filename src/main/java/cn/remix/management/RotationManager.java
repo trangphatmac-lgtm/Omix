@@ -52,9 +52,13 @@ public class RotationManager implements IMinecraft {
         ScaffoldX scaffoldX = instance.getModuleManager().getModule(ScaffoldX.class);
         Scaffold scaffold = instance.getModuleManager().getModule(Scaffold.class);
         NoFall noFall = instance.getModuleManager().getModule(NoFall.class);
+        boolean derpActive = derp.isEnabled() && derp.getRotations() != null;
         boolean instantRotation = false;
 
-        if (antiLava.isEnabled() && antiLava.getRotations() != null) {
+        if (derpActive) {
+            setRotations(derp.getRotations(), 0.0, MovementCorrection.None);
+            instantRotation = true;
+        } else if (antiLava.isEnabled() && antiLava.getRotations() != null) {
             setRotations(antiLava.getRotations(), 180, antiLava.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
         } else if (scaffoldX.isEnabled() && scaffoldX.isCanRotation() && scaffoldX.getRotations() != null) {
             setRotations(scaffoldX.getRotations(), scaffoldX.getRotationSpeed().getValue(), scaffoldX.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
@@ -68,15 +72,11 @@ public class RotationManager implements IMinecraft {
             // applied yaw to use the exact same value in the current tick.
             setRotations(new float[]{speed.getPredictionRotationYaw(), mc.player.getPitch()}, 0.0, MovementCorrection.Prediction);
             instantRotation = true;
-        } else if (derp.isEnabled() && derp.getRotations() != null) {
-            // Derp is deliberately the lowest-priority rotation source.
-            setRotations(derp.getRotations(), 0.0, MovementCorrection.None);
-            instantRotation = true;
         } else {
             enabled = false;
         }
 
-        if (noFall.isGrimSilentRotationActive()) {
+        if (!derpActive && noFall.isGrimSilentRotationActive()) {
             float yaw = enabled && targetRotations != null ? targetRotations[0] : mc.player.getYaw();
             setRotations(new float[]{yaw, 90.0F}, 0.0, MovementCorrection.None);
             instantRotation = true;

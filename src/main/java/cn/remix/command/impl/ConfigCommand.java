@@ -3,6 +3,7 @@ package cn.remix.command.impl;
 import cn.remix.Client;
 import cn.remix.command.Command;
 import cn.remix.config.Config;
+import cn.remix.config.ConfigStorageMode;
 import cn.remix.config.impl.ModuleConfig;
 import cn.remix.util.Util;
 import net.minecraft.util.Formatting;
@@ -13,7 +14,7 @@ import java.util.List;
 public final class ConfigCommand extends Command {
 
     public ConfigCommand() {
-        super(".config <load/save/list> [name]", "config", "cfg", "c");
+        super(".cfg <load/save/list> [name] [--crypto 0|1|2]", "config", "cfg", "c");
     }
 
     @Override
@@ -49,15 +50,32 @@ public final class ConfigCommand extends Command {
                 }
 
                 final String configName = arguments[2];
-                Config targetConfig = Client.instance.getConfigManager().getConfig(configName);
-
-                if (targetConfig == null) {
-                    targetConfig = new ModuleConfig(configName);
-                    Client.instance.getConfigManager().addConfigs(targetConfig);
+                final ConfigStorageMode requestedMode;
+                try {
+                    requestedMode = parseStorageMode(arguments);
+                } catch (IllegalArgumentException exception) {
+                    Util.log(Formatting.RED + exception.getMessage());
+                    Util.log("Usage: .cfg save <name> [--crypto 0|1|2]");
+                    return;
                 }
 
-                targetConfig.save();
-                Util.log(String.format("Saved configuration to " + Formatting.GREEN + "%s.json", configName));
+                final Config targetConfig;
+                if (requestedMode == null) {
+                    targetConfig = Client.instance.getConfigManager().saveConfig(configName);
+                } else {
+                    targetConfig = Client.instance.getConfigManager().saveConfig(
+                            configName,
+                            requestedMode
+                    );
+                }
+                ConfigStorageMode actualMode = targetConfig instanceof ModuleConfig moduleConfig
+                        ? moduleConfig.getStorageMode()
+                        : ConfigStorageMode.NONE;
+                Util.log(String.format(
+                        "Saved configuration to " + Formatting.GREEN + "%s.json"
+                                + Formatting.RESET + " (" + actualMode.displayName() + ")",
+                        configName
+                ));
             }
 
             case "load" -> {
@@ -93,7 +111,37 @@ public final class ConfigCommand extends Command {
             for (final Config config : Client.instance.getConfigManager().getConfigs()) {
                 completions.add(config.getName());
             }
+        } else if (arguments.length == 4 && isSaveAction(arguments[1])) {
+            completions.add("--crypto");
+        } else if (arguments.length == 5
+                && isSaveAction(arguments[1])
+                && isEncryptionFlag(arguments[3])) {
+            completions.add("0");
+            completions.add("1");
+            completions.add("2");
         }
         return completions;
+    }
+
+    private static ConfigStorageMode parseStorageMode(String[] arguments) {
+        if (arguments.length == 3) {
+            return null;
+        }
+        if (arguments.length != 5 || !isEncryptionFlag(arguments[3])) {
+            throw new IllegalArgumentException("Invalid config encryption option.");
+        }
+        try {
+            return ConfigStorageMode.fromCode(Integer.parseInt(arguments[4]));
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException("Config encryption mode must be 0, 1, or 2.");
+        }
+    }
+
+    private static boolean isSaveAction(String action) {
+        return action.equalsIgnoreCase("save") || action.equalsIgnoreCase("s");
+    }
+
+    private static boolean isEncryptionFlag(String value) {
+        return value.equalsIgnoreCase("--crypto");
     }
 }

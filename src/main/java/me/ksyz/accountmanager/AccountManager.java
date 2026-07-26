@@ -1,5 +1,6 @@
 package me.ksyz.accountmanager;
 
+import cn.remix.security.SafeStorage;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -15,12 +16,20 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 
 public final class AccountManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final File FILE = new File(MinecraftClient.getInstance().runDirectory, "remix.accounts.json");
+    private static final Set<PosixFilePermission> OWNER_ONLY_PERMISSIONS = EnumSet.of(
+            PosixFilePermission.OWNER_READ,
+            PosixFilePermission.OWNER_WRITE
+    );
     private static boolean initialized;
     public static final ArrayList<Account> accounts = new ArrayList<>();
 
@@ -47,30 +56,39 @@ public final class AccountManager {
 
     public static void load() {
         accounts.clear();
-        loadFrom(FILE);
+        if (loadFrom(FILE)) {
+            save();
+        }
     }
 
-    private static void loadFrom(File file) {
+    private static boolean loadFrom(File file) {
+        boolean migrationNeeded = false;
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             JsonElement json = JsonParser.parseReader(reader);
             if (!json.isJsonArray()) {
-                return;
+                return false;
             }
             JsonArray array = json.getAsJsonArray();
             for (JsonElement element : array) {
                 JsonObject object = element.getAsJsonObject();
+                String storedRefreshToken = readString(object, "refreshToken");
+                String storedAccessToken = readString(object, "accessToken");
                 accounts.add(new Account(
-                        readString(object, "refreshToken"),
-                        readString(object, "accessToken"),
+                        SafeStorage.decrypt(storedRefreshToken),
+                        SafeStorage.decrypt(storedAccessToken),
                         readString(object, "username"),
                         Optional.ofNullable(object.get("unban")).map(JsonElement::getAsLong).orElse(0L),
                         readString(object, "clientId"),
                         readString(object, "scope")
                 ));
+                migrationNeeded |= needsMigration(storedRefreshToken)
+                        || needsMigration(storedAccessToken);
             }
         } catch (Exception e) {
             System.err.println("Couldn't load " + file.getName() + ": " + e.getMessage());
+            return false;
         }
+        return migrationNeeded;
     }
 
     public static void save() {
@@ -78,8 +96,8 @@ public final class AccountManager {
             JsonArray array = new JsonArray();
             for (Account account : accounts) {
                 JsonObject object = new JsonObject();
-                object.addProperty("refreshToken", account.getRefreshToken());
-                object.addProperty("accessToken", account.getAccessToken());
+                object.addProperty("refreshToken", SafeStorage.encrypt(account.getRefreshToken()));
+                object.addProperty("accessToken", SafeStorage.encrypt(account.getAccessToken()));
                 object.addProperty("username", account.getUsername());
                 object.addProperty("unban", account.getUnban());
                 object.addProperty("clientId", account.getClientId());
@@ -89,9 +107,18 @@ public final class AccountManager {
             try (PrintWriter writer = new PrintWriter(new FileWriter(FILE))) {
                 writer.println(GSON.toJson(array));
             }
+            try {
+                Files.setPosixFilePermissions(FILE.toPath(), OWNER_ONLY_PERMISSIONS);
+            } catch (UnsupportedOperationException ignored) {
+                // POSIX permissions are not available on every supported platform.
+            }
         } catch (IOException e) {
             System.err.println("Couldn't save remix.accounts.json: " + e.getMessage());
         }
+    }
+
+    private static boolean needsMigration(String value) {
+        return value != null && !value.isEmpty() && !SafeStorage.isEncrypted(value);
     }
 
     private static String readString(JsonObject object, String name) {

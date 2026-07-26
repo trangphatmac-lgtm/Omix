@@ -105,6 +105,9 @@ dependencies {
     implementation "io.netty:netty-codec-socks:4.2.7.Final"
     include "io.netty:netty-codec-socks:4.2.7.Final"
 
+    testImplementation platform("org.junit:junit-bom:5.11.4")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
 node {
@@ -167,6 +170,10 @@ tasks.withType(JavaCompile).configureEach {
     if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
         it.options.release.set(targetJavaVersion)
     }
+}
+
+tasks.named("test") {
+    useJUnitPlatform()
 }
 
 java {
