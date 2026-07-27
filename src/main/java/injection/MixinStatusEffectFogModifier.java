@@ -1,6 +1,6 @@
 package injection;
 
-import cn.remix.module.impl.render.AntiDebuff;
+import cn.omix.module.impl.render.AntiDebuff;
 import net.minecraft.block.enums.CameraSubmersionType;
 import net.minecraft.client.render.fog.StatusEffectFogModifier;
 import net.minecraft.entity.Entity;

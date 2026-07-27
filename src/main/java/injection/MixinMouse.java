@@ -1,7 +1,7 @@
 package injection;
 
-import cn.remix.event.impl.MouseScrollEvent;
-import cn.remix.util.IMinecraft;
+import cn.omix.event.impl.MouseScrollEvent;
+import cn.omix.util.IMinecraft;
 import im.webui.WebUiRuntime;
 import net.minecraft.client.Mouse;
 import net.minecraft.client.input.MouseInput;

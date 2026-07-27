@@ -1,6 +1,6 @@
 package injection;
 
-import cn.remix.module.impl.player.Freecam;
+import cn.omix.module.impl.player.Freecam;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,7 +18,7 @@ public abstract class MixinSodiumRenderSectionManager {
             require = 0,
             remap = false
     )
-    private void remix$disableFreecamOcclusion(CallbackInfoReturnable<Boolean> cir) {
+    private void omix$disableFreecamOcclusion(CallbackInfoReturnable<Boolean> cir) {
         if (Freecam.isActive()) {
             cir.setReturnValue(false);
         }

@@ -1,7 +1,7 @@
 package injection;
 
-import cn.remix.event.impl.PlayerPositionLookEvent;
-import cn.remix.util.IMinecraft;
+import cn.omix.event.impl.PlayerPositionLookEvent;
+import cn.omix.util.IMinecraft;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.util.math.Vec3d;

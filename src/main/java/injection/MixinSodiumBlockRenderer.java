@@ -1,6 +1,6 @@
 package injection;
 
-import cn.remix.module.impl.render.Xray;
+import cn.omix.module.impl.render.Xray;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;

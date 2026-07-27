@@ -1,8 +1,8 @@
 package injection;
 
-import cn.remix.Client;
-import cn.remix.module.impl.exploits.ResourcepackSpoof;
-import cn.remix.util.network.PacketUtil;
+import cn.omix.Client;
+import cn.omix.module.impl.exploits.ResourcepackSpoof;
+import cn.omix.util.network.PacketUtil;
 import net.minecraft.client.network.ClientCommonNetworkHandler;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.ResourcePackStatusC2SPacket;

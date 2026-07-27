@@ -1,9 +1,9 @@
 package injection;
 
-import cn.remix.module.impl.combat.Aura;
-import cn.remix.module.impl.render.Animation;
-import cn.remix.util.IMinecraft;
-import cn.remix.util.player.ItemSpoofUtil;
+import cn.omix.module.impl.combat.Aura;
+import cn.omix.module.impl.render.Animation;
+import cn.omix.util.IMinecraft;
+import cn.omix.util.player.ItemSpoofUtil;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.item.HeldItemRenderer;

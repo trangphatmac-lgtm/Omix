@@ -1,6 +1,6 @@
 package injection;
 
-import cn.remix.module.impl.render.Xray;
+import cn.omix.module.impl.render.Xray;
 import net.fabricmc.fabric.impl.client.indigo.renderer.mesh.MutableQuadViewImpl;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.AbstractTerrainRenderContext;
 import net.minecraft.util.math.ColorHelper;

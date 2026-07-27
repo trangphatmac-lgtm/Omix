@@ -1,6 +1,6 @@
 package injection;
 
-import cn.remix.module.impl.render.Xray;
+import cn.omix.module.impl.render.Xray;
 import net.fabricmc.fabric.api.util.TriState;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.BlockRenderInfo;
 import net.minecraft.client.render.BlockRenderLayer;

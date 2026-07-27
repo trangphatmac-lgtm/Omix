@@ -1,9 +1,9 @@
 package injection;
 
-import cn.remix.Client;
-import cn.remix.event.impl.*;
-import cn.remix.module.impl.player.Freecam;
-import cn.remix.util.IMinecraft;
+import cn.omix.Client;
+import cn.omix.event.impl.*;
+import cn.omix.module.impl.player.Freecam;
+import cn.omix.util.IMinecraft;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -63,10 +63,10 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
     public Input input;
 
     @Unique
-    private Input remix$freecamInput;
+    private Input omix$freecamInput;
 
     @Unique
-    private int remix$freecamInputSwapDepth;
+    private int omix$freecamInputSwapDepth;
 
     @Shadow
     private void sendSprintingPacket() {}
@@ -80,46 +80,46 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo ci) {
         Client.instance.getEventManager().call(new UpdateEvent());
-        remix$swapFreecamInput();
+        omix$swapFreecamInput();
     }
 
     @Inject(method = "tick", at = @At("RETURN"))
-    private void remix$restoreFreecamInput(CallbackInfo ci) {
-        remix$restoreFreecamInput();
+    private void omix$restoreFreecamInput(CallbackInfo ci) {
+        omix$restoreFreecamInput();
     }
 
     @Inject(method = "tickRiding", at = @At("HEAD"))
-    private void remix$swapFreecamRidingInput(CallbackInfo ci) {
-        remix$swapFreecamInput();
+    private void omix$swapFreecamRidingInput(CallbackInfo ci) {
+        omix$swapFreecamInput();
     }
 
     @Inject(method = "tickRiding", at = @At("RETURN"))
-    private void remix$restoreFreecamRidingInput(CallbackInfo ci) {
-        remix$restoreFreecamInput();
+    private void omix$restoreFreecamRidingInput(CallbackInfo ci) {
+        omix$restoreFreecamInput();
     }
 
     @Unique
-    private void remix$swapFreecamInput() {
+    private void omix$swapFreecamInput() {
         if (!Freecam.isActive()) return;
 
-        remix$freecamInputSwapDepth++;
-        if (remix$freecamInputSwapDepth > 1) return;
+        omix$freecamInputSwapDepth++;
+        if (omix$freecamInputSwapDepth > 1) return;
 
-        remix$freecamInput = this.input;
-        remix$freecamInput.tick();
+        omix$freecamInput = this.input;
+        omix$freecamInput.tick();
         this.input = new Input();
     }
 
     @Unique
-    private void remix$restoreFreecamInput() {
-        if (remix$freecamInputSwapDepth > 0) {
-            remix$freecamInputSwapDepth--;
+    private void omix$restoreFreecamInput() {
+        if (omix$freecamInputSwapDepth > 0) {
+            omix$freecamInputSwapDepth--;
         }
 
-        if (remix$freecamInputSwapDepth > 0 || remix$freecamInput == null) return;
+        if (omix$freecamInputSwapDepth > 0 || omix$freecamInput == null) return;
 
-        this.input = remix$freecamInput;
-        remix$freecamInput = null;
+        this.input = omix$freecamInput;
+        omix$freecamInput = null;
     }
 
     @Inject(method = "tickMovement", at = @At("HEAD"))
@@ -141,14 +141,14 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
     }
 
     @Inject(method = "isSneaking", at = @At("HEAD"), cancellable = true)
-    private void remix$freecamSneaking(CallbackInfoReturnable<Boolean> cir) {
+    private void omix$freecamSneaking(CallbackInfoReturnable<Boolean> cir) {
         if (Freecam.isActive()) {
             cir.setReturnValue(false);
         }
     }
 
     @Inject(method = "getCrosshairTarget", at = @At("HEAD"), cancellable = true)
-    private void remix$freecamCrosshair(float tickDelta, net.minecraft.entity.Entity cameraEntity,
+    private void omix$freecamCrosshair(float tickDelta, net.minecraft.entity.Entity cameraEntity,
                                         CallbackInfoReturnable<HitResult> cir) {
         if (!Freecam.isActive()) return;
 

@@ -1,7 +1,7 @@
 package injection;
 
-import cn.remix.module.impl.player.Freecam;
-import cn.remix.module.impl.render.Xray;
+import cn.omix.module.impl.player.Freecam;
+import cn.omix.module.impl.render.Xray;
 import net.minecraft.client.render.chunk.ChunkOcclusionData;
 import net.minecraft.client.render.chunk.ChunkOcclusionDataBuilder;
 import org.spongepowered.asm.mixin.Mixin;

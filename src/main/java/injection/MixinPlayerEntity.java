@@ -1,7 +1,7 @@
 package injection;
 
-import cn.remix.module.impl.move.KeepSprint;
-import cn.remix.util.IMinecraft;
+import cn.omix.module.impl.move.KeepSprint;
+import cn.omix.util.IMinecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;

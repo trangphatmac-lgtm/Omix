@@ -7,5 +7,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(ChatHud.class)
 public interface ChatHudAccessor {
     @Invoker("refresh")
-    void remix$refresh();
+    void omix$refresh();
 }

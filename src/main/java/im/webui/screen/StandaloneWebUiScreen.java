@@ -15,7 +15,7 @@ public final class StandaloneWebUiScreen extends Screen implements AutoCloseable
     private Browser browser;
 
     public StandaloneWebUiScreen(Screen parent, WebScreenType type) {
-        super(Text.literal("Remix WebUI — " + type.routeName()));
+        super(Text.literal("Omix WebUI — " + type.routeName()));
         this.parent = parent;
         this.type = type;
     }

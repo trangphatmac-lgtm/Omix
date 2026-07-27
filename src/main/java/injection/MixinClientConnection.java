@@ -1,10 +1,10 @@
 package injection;
 
-import cn.remix.Client;
-import cn.remix.event.impl.PacketEvent;
-import cn.remix.ui.screen.impl.proxy.ProxyScreen;
-import cn.remix.util.IMinecraft;
-import cn.remix.util.network.PacketUtil;
+import cn.omix.Client;
+import cn.omix.event.impl.PacketEvent;
+import cn.omix.ui.screen.impl.proxy.ProxyScreen;
+import cn.omix.util.IMinecraft;
+import cn.omix.util.network.PacketUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import net.minecraft.network.ClientConnection;

@@ -1,9 +1,9 @@
 package injection;
 
-import cn.remix.event.impl.RenderRotationEvent;
-import cn.remix.module.impl.render.Chams;
-import cn.remix.util.IMinecraft;
-import cn.remix.util.render.LivingEntityRenderStateExtension;
+import cn.omix.event.impl.RenderRotationEvent;
+import cn.omix.module.impl.render.Chams;
+import cn.omix.util.IMinecraft;
+import cn.omix.util.render.LivingEntityRenderStateExtension;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.state.LivingEntityRenderState;
@@ -28,7 +28,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
     @Inject(method = "updateRenderState(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;F)V", at = @At("HEAD"))
     private void entity(T livingEntity, S livingEntityRenderState, float f, CallbackInfo ci) {
         RenderRotationEvent.currentEntity = livingEntity;
-        ((LivingEntityRenderStateExtension) livingEntityRenderState).remix$setEntity(livingEntity);
+        ((LivingEntityRenderStateExtension) livingEntityRenderState).omix$setEntity(livingEntity);
     }
 
     @Inject(method = "getRenderLayer", at = @At("HEAD"), cancellable = true)
@@ -49,7 +49,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
         Chams chams = getChams(state);
         if (chams == null) return;
 
-        LivingEntity entity = ((LivingEntityRenderStateExtension) state).remix$getEntity();
+        LivingEntity entity = ((LivingEntityRenderStateExtension) state).omix$getEntity();
         args.set(6, chams.getEntityColor(entity));
     }
 
@@ -85,7 +85,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
         Chams chams = Chams.getActive();
         if (chams == null) return null;
 
-        LivingEntity entity = ((LivingEntityRenderStateExtension) state).remix$getEntity();
+        LivingEntity entity = ((LivingEntityRenderStateExtension) state).omix$getEntity();
         return chams.shouldRender(entity) ? chams : null;
     }
 }

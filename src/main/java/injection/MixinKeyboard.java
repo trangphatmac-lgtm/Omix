@@ -1,7 +1,7 @@
 package injection;
 
-import cn.remix.event.impl.KeyInputEvent;
-import cn.remix.util.IMinecraft;
+import cn.omix.event.impl.KeyInputEvent;
+import cn.omix.util.IMinecraft;
 import im.webui.WebUiRuntime;
 import im.webui.screen.WebUiScreen;
 import net.minecraft.client.input.CharInput;

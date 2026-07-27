@@ -1,7 +1,7 @@
 package injection;
 
-import cn.remix.event.impl.AttackEvent;
-import cn.remix.util.IMinecraft;
+import cn.omix.event.impl.AttackEvent;
+import cn.omix.util.IMinecraft;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;

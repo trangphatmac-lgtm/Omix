@@ -1,9 +1,9 @@
 package injection;
 
-import cn.remix.event.impl.Render2DEvent;
-import cn.remix.module.impl.render.HUD;
-import cn.remix.util.IMinecraft;
-import cn.remix.util.misc.TimerUtil;
+import cn.omix.event.impl.Render2DEvent;
+import cn.omix.module.impl.render.HUD;
+import cn.omix.util.IMinecraft;
+import cn.omix.util.misc.TimerUtil;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.render.state.GuiRenderState;
@@ -43,7 +43,7 @@ public abstract class MixinInGameHud implements IMinecraft {
     @Inject(method = "renderStatusEffectOverlay", at = @At("HEAD"), cancellable = true)
     private void renderStatusEffectOverlay(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         HUD hud = instance.getModuleManager().getModule(HUD.class);
-        if (hud.isEnabled() && hud.getHudMode().is("Remix") && hud.getNoPotionIcons().getValue()) {
+        if (hud.isEnabled() && hud.getHudMode().is("Omix") && hud.getNoPotionIcons().getValue()) {
             ci.cancel();
         }
     }

@@ -1,5 +1,5 @@
 @font-face {
-    font-family: "Remix PingFang";
+    font-family: "Omix PingFang";
     src: url("./assets/pingfang-sc-regular.woff2") format("woff2");
     font-style: normal;
     font-weight: 100 900;
@@ -7,7 +7,7 @@
 }
 
 @font-face {
-    font-family: "Remix Emoji";
+    font-family: "Omix Emoji";
     src: local("Apple Color Emoji");
     font-style: normal;
     font-weight: 400;
@@ -20,7 +20,7 @@
 }
 
 :root {
-    font-family: "Remix Emoji", "Remix PingFang", "PingFang SC", "Apple Color Emoji", sans-serif;
+    font-family: "Omix Emoji", "Omix PingFang", "PingFang SC", "Apple Color Emoji", sans-serif;
     color: rgba(18, 22, 31, .94);
     background: transparent;
     font-synthesis: weight;
@@ -445,7 +445,7 @@ button:disabled {
 .tool-card code {
     overflow: hidden;
     color: rgba(24, 30, 42, .72);
-    font-family: "Remix Emoji", "Remix PingFang", "PingFang SC", "Apple Color Emoji", sans-serif;
+    font-family: "Omix Emoji", "Omix PingFang", "PingFang SC", "Apple Color Emoji", sans-serif;
     font-size: 12px;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -459,7 +459,7 @@ button:disabled {
     border-top: 1px solid rgba(33, 40, 53, .08);
     color: rgba(24, 30, 42, .68);
     background: rgba(255, 255, 255, .26);
-    font: 11px/1.55 "Remix Emoji", "Remix PingFang", "PingFang SC", "Apple Color Emoji", sans-serif;
+    font: 11px/1.55 "Omix Emoji", "Omix PingFang", "PingFang SC", "Apple Color Emoji", sans-serif;
     white-space: pre-wrap;
 }
 

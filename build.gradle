@@ -23,7 +23,7 @@ def syncModVersion = tasks.register("syncModVersion") {
     outputs.files(
             layout.projectDirectory.file("gradle.properties"),
             layout.projectDirectory.file("src/main/resources/fabric.mod.json"),
-            layout.projectDirectory.file("src/main/java/cn/remix/Client.java")
+            layout.projectDirectory.file("src/main/java/cn/omix/Client.java")
     )
 
     doLast {
@@ -49,7 +49,7 @@ def syncModVersion = tasks.register("syncModVersion") {
             metadataFile.setText(updatedMetadata, "UTF-8")
         }
 
-        def clientFile = layout.projectDirectory.file("src/main/java/cn/remix/Client.java").asFile
+        def clientFile = layout.projectDirectory.file("src/main/java/cn/omix/Client.java").asFile
         def clientContent = clientFile.getText("UTF-8")
         def updatedClient = clientContent.replaceFirst(
                 /(?m)^(\s*public static String version\s*=\s*")[^"]*("\s*;.*)$/,
@@ -154,7 +154,7 @@ processResources {
     }
 
     from(bundleWebUi.flatMap { it.archiveFile }) {
-        into "assets/remix/webui"
+        into "assets/omix/webui"
     }
 }
 

@@ -1,6 +1,6 @@
 package im.webui.interop;
 
-import cn.remix.Client;
+import cn.omix.Client;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.netty.bootstrap.ServerBootstrap;
@@ -47,8 +47,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class InteropServer {
-    public static final String AUTH_COOKIE = "remix_webui_auth";
-    public static final String AUTH_PARAM = "remix_code";
+    public static final String AUTH_COOKIE = "omix_webui_auth";
+    public static final String AUTH_PARAM = "omix_code";
 
     private final Gson gson = new Gson();
     private final InteropRouteRegistry routes = new InteropRouteRegistry();

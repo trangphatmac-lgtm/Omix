@@ -1,8 +1,8 @@
 package ai.backend;
 
-import cn.remix.Client;
-import cn.remix.command.CommandManager;
-import cn.remix.util.Util;
+import cn.omix.Client;
+import cn.omix.command.CommandManager;
+import cn.omix.util.Util;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -36,7 +36,7 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
         ));
         tools.add(commandTool(
                 CLIENT_TOOL,
-                "Run one Remix client command. The command argument must begin with '.'. "
+                "Run one Omix client command. The command argument must begin with '.'. "
                         + "The .ai and .chat commands are forbidden. Available command roots: "
                         + joinedOrUnavailable(clientCommands)
         ));
@@ -50,7 +50,7 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
         String promptContext = """
                 You can operate the game through three command tools:
                 - run_minecraft_command executes a currently available Minecraft '/' command.
-                - run_client_command executes a Remix '.' client command; .ai and .chat are never allowed.
+                - run_client_command executes a Omix '.' client command; .ai and .chat are never allowed.
                 - run_baritone_command executes a Baritone '#' pathfinding command.
 
                 Each tool result contains every new plain-text chat line observed during the 0.5 seconds after \
@@ -62,7 +62,7 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
                 Currently available Minecraft command roots (from Minecraft's command-completion dispatcher):
                 %s
 
-                Currently available Remix client command roots:
+                Currently available Omix client command roots:
                 %s
                 """.formatted(
                 joinedOrUnavailable(minecraftCommands),
@@ -143,10 +143,10 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
     }
 
     private void runClientCommand(String command) {
-        Client remix = Client.instance;
-        CommandManager manager = remix == null ? null : remix.getCommandManager();
+        Client omix = Client.instance;
+        CommandManager manager = omix == null ? null : omix.getCommandManager();
         if (manager == null) {
-            throw new IllegalStateException("The Remix command manager is unavailable.");
+            throw new IllegalStateException("The Omix command manager is unavailable.");
         }
         manager.executeClientCommand(command);
     }
@@ -255,10 +255,10 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
     }
 
     private static List<String> availableClientCommands() {
-        Client remix = Client.instance;
-        return remix == null || remix.getCommandManager() == null
+        Client omix = Client.instance;
+        return omix == null || omix.getCommandManager() == null
                 ? List.of()
-                : remix.getCommandManager().getAiToolCommandNames();
+                : omix.getCommandManager().getAiToolCommandNames();
     }
 
     private static String commandRoot(String commandWithoutPrefix) {

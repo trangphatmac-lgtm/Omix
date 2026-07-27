@@ -8,7 +8,7 @@ public final class WebThemeManager {
     private volatile WebTheme current;
 
     public void useBundled(String authenticatedBaseUrl) {
-        current = new WebTheme("remix-bundled", authenticatedBaseUrl, false);
+        current = new WebTheme("omix-bundled", authenticatedBaseUrl, false);
     }
 
     public void useExternal(String id, String baseUrl) {

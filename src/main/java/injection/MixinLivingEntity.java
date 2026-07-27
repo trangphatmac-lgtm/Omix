@@ -1,11 +1,11 @@
 package injection;
 
-import cn.remix.event.impl.JumpEvent;
-import cn.remix.event.impl.MoveMathEvent;
-import cn.remix.event.impl.RenderRotationEvent;
-import cn.remix.module.impl.render.AntiDebuff;
-import cn.remix.module.impl.render.Animation;
-import cn.remix.util.IMinecraft;
+import cn.omix.event.impl.JumpEvent;
+import cn.omix.event.impl.MoveMathEvent;
+import cn.omix.event.impl.RenderRotationEvent;
+import cn.omix.module.impl.render.AntiDebuff;
+import cn.omix.module.impl.render.Animation;
+import cn.omix.util.IMinecraft;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;

@@ -1,6 +1,6 @@
 package im.webui.backend.cef;
 
-import cn.remix.Client;
+import cn.omix.Client;
 import im.webui.backend.Browser;
 import im.webui.backend.BrowserBackend;
 import im.webui.backend.BrowserLoadState;
@@ -55,18 +55,18 @@ public final class CefBrowserBackend implements BrowserBackend {
             Consumer<BrowserPreparationProgress> onProgress,
             Consumer<Throwable> onFailure
     ) {
-        Thread.ofVirtual().name("Remix-MCEF-Prepare").start(() -> {
+        Thread.ofVirtual().name("Omix-MCEF-Prepare").start(() -> {
             try {
                 onProgress.accept(BrowserPreparationProgress.indeterminate("Checking JCEF runtime"));
                 MinecraftClient client = MinecraftClient.getInstance();
-                File root = new File(client.runDirectory, "Remix/mcef");
+                File root = new File(client.runDirectory, "Omix/mcef");
                 File libraries = new File(root, "libraries");
                 cacheRoot = new File(root, "cache");
                 cleanupOldCacheDirectories();
                 cacheDirectory = new File(cacheRoot, Long.toHexString(System.currentTimeMillis()));
 
                 var settings = MCEF.INSTANCE.getSettings();
-                settings.setUserAgent("Remix/" + Client.version + " MCEF");
+                settings.setUserAgent("Omix/" + Client.version + " MCEF");
                 settings.setLibrariesDirectory(libraries);
                 settings.setCacheDirectory(cacheDirectory);
                 settings.appendCefSwitches("--no-proxy-server");

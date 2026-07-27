@@ -1,6 +1,6 @@
 package ai.backend;
 
-import cn.remix.security.SafeStorage;
+import cn.omix.security.SafeStorage;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;

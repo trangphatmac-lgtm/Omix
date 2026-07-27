@@ -1,6 +1,6 @@
 package im.webui.backend.cef;
 
-import cn.remix.Client;
+import cn.omix.Client;
 import im.webui.backend.Browser;
 import im.webui.backend.BrowserLoadState;
 import im.webui.backend.BrowserViewport;

@@ -1,6 +1,6 @@
 package im.webui;
 
-import cn.remix.Client;
+import cn.omix.Client;
 import com.google.gson.JsonObject;
 import im.webui.backend.Browser;
 import im.webui.backend.BrowserBackendManager;
@@ -91,7 +91,7 @@ public final class WebUiRuntime {
             aiInteropBridge = new AiInteropBridge(interopServer, Client.instance.getAiBackend());
             clickGuiInteropBridge = new ClickGuiInteropBridge(interopServer);
             localStorage = new PersistentLocalStorage(
-                    Path.of(MinecraftClient.getInstance().runDirectory.getPath(), "Remix", "webui", "local-storage.json")
+                    Path.of(MinecraftClient.getInstance().runDirectory.getPath(), "Omix", "webui", "local-storage.json")
             );
             localStorage.load();
             registerStorageRoutes();

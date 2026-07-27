@@ -1,8 +1,8 @@
 package injection;
 
-import cn.remix.Client;
-import cn.remix.module.impl.player.Freecam;
-import cn.remix.module.impl.render.ViewClip;
+import cn.omix.Client;
+import cn.omix.module.impl.player.Freecam;
+import cn.omix.module.impl.render.ViewClip;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -35,7 +35,7 @@ public abstract class MixinCamera {
     protected abstract void moveBy(float x, float y, float z);
 
     @Inject(method = "clipToSpace", at = @At("HEAD"), cancellable = true)
-    private void remix$clipToSpace(float desiredCameraDistance, CallbackInfoReturnable<Float> cir) {
+    private void omix$clipToSpace(float desiredCameraDistance, CallbackInfoReturnable<Float> cir) {
         Client client = Client.instance;
         if (client == null || client.getModuleManager() == null) {
             return;
@@ -48,7 +48,7 @@ public abstract class MixinCamera {
     }
 
     @Inject(method = "update", at = @At("TAIL"))
-    private void remix$freecamCamera(World world, Entity entity, boolean thirdPersonView, boolean inverseView,
+    private void omix$freecamCamera(World world, Entity entity, boolean thirdPersonView, boolean inverseView,
                                      float tickDelta, CallbackInfo ci) {
         if (!Freecam.isActive()) return;
 

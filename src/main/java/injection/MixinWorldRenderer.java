@@ -1,6 +1,6 @@
 package injection;
 
-import cn.remix.module.impl.render.AntiDebuff;
+import cn.omix.module.impl.render.AntiDebuff;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.WorldRenderer;
 import org.spongepowered.asm.mixin.Mixin;

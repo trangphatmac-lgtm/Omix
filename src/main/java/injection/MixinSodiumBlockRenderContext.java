@@ -1,6 +1,6 @@
 package injection;
 
-import cn.remix.module.impl.render.Xray;
+import cn.omix.module.impl.render.Xray;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;

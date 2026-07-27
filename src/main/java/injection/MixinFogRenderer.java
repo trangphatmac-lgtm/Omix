@@ -1,6 +1,6 @@
 package injection;
 
-import cn.remix.module.impl.render.NoFog;
+import cn.omix.module.impl.render.NoFog;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;

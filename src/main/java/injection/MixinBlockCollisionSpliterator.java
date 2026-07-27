@@ -1,8 +1,8 @@
 package injection;
 
-import cn.remix.Client;
-import cn.remix.event.BlockCollisionEventGuard;
-import cn.remix.event.impl.BlockCollisionEvent;
+import cn.omix.Client;
+import cn.omix.event.BlockCollisionEventGuard;
+import cn.omix.event.impl.BlockCollisionEvent;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.block.BlockState;
@@ -29,11 +29,11 @@ public abstract class MixinBlockCollisionSpliterator {
     private CollisionView world;
 
     @Unique
-    private BlockState remix$cachedState;
+    private BlockState omix$cachedState;
     @Unique
-    private BlockPos remix$cachedPos;
+    private BlockPos omix$cachedPos;
     @Unique
-    private boolean remix$cachedHasShape;
+    private boolean omix$cachedHasShape;
 
     @ModifyExpressionValue(
             method = "computeNext",
@@ -67,20 +67,20 @@ public abstract class MixinBlockCollisionSpliterator {
             return false;
         }
 
-        if (state == remix$cachedState && remix$cachedPos != null && remix$cachedPos.equals(pos)) {
-            return remix$cachedHasShape;
+        if (state == omix$cachedState && omix$cachedPos != null && omix$cachedPos.equals(pos)) {
+            return omix$cachedHasShape;
         }
 
         VoxelShape originalShape = BlockCollisionEventGuard.getOriginalShape(context, state, world, pos);
         BlockCollisionEvent event = new BlockCollisionEvent(state, pos.toImmutable(), originalShape);
         Client.instance.getEventManager().call(event);
 
-        remix$cachedState = state;
-        remix$cachedPos = pos.toImmutable();
-        remix$cachedHasShape = !event.isCancelled()
+        omix$cachedState = state;
+        omix$cachedPos = pos.toImmutable();
+        omix$cachedHasShape = !event.isCancelled()
                 && event.getShape() != null
                 && event.getShape() != originalShape
                 && !event.getShape().isEmpty();
-        return remix$cachedHasShape;
+        return omix$cachedHasShape;
     }
 }

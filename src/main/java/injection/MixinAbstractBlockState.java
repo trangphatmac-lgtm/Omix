@@ -1,8 +1,8 @@
 package injection;
 
-import cn.remix.Client;
-import cn.remix.event.BlockCollisionEventGuard;
-import cn.remix.event.impl.BlockCollisionEvent;
+import cn.omix.Client;
+import cn.omix.event.BlockCollisionEventGuard;
+import cn.omix.event.impl.BlockCollisionEvent;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;

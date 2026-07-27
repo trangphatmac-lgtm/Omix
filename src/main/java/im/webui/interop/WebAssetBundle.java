@@ -9,7 +9,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 final class WebAssetBundle {
-    private static final String RESOURCE = "/assets/remix/webui/webui.zip";
+    private static final String RESOURCE = "/assets/omix/webui/webui.zip";
     private final Map<String, byte[]> entries = new HashMap<>();
 
     WebAssetBundle() throws IOException {

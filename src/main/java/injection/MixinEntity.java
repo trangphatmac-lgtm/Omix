@@ -1,10 +1,10 @@
 package injection;
 
-import cn.remix.event.impl.LookEvent;
-import cn.remix.event.impl.StrafeEvent;
-import cn.remix.module.impl.player.Freecam;
-import cn.remix.util.IMinecraft;
-import cn.remix.util.player.MovementUtil;
+import cn.omix.event.impl.LookEvent;
+import cn.omix.event.impl.StrafeEvent;
+import cn.omix.module.impl.player.Freecam;
+import cn.omix.util.IMinecraft;
+import cn.omix.util.player.MovementUtil;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
@@ -54,7 +54,7 @@ public abstract class MixinEntity implements IMinecraft {
     }
 
     @Inject(method = "changeLookDirection", at = @At("HEAD"), cancellable = true)
-    private void remix$freecamTurn(double deltaYaw, double deltaPitch, CallbackInfo ci) {
+    private void omix$freecamTurn(double deltaYaw, double deltaPitch, CallbackInfo ci) {
         if ((Object) this != mc.player || !Freecam.isActive()) return;
 
         Freecam.turn(deltaYaw, deltaPitch);

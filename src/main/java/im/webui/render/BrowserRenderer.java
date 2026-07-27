@@ -1,6 +1,6 @@
 package im.webui.render;
 
-import cn.remix.util.render.Render2D;
+import cn.omix.util.render.Render2D;
 import im.webui.backend.Browser;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.MinecraftClient;

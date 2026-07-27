@@ -1,7 +1,7 @@
 package injection;
 
-import cn.remix.event.impl.ChatScreenEvent;
-import cn.remix.util.IMinecraft;
+import cn.omix.event.impl.ChatScreenEvent;
+import cn.omix.util.IMinecraft;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ChatScreen;
 import org.spongepowered.asm.mixin.Mixin;

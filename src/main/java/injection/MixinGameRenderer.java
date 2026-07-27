@@ -1,10 +1,10 @@
 package injection;
 
-import cn.remix.event.impl.Render3DEvent;
-import cn.remix.module.impl.player.Freecam;
-import cn.remix.module.impl.render.NoHurtCam;
-import cn.remix.module.impl.render.Zoom;
-import cn.remix.util.IMinecraft;
+import cn.omix.event.impl.Render3DEvent;
+import cn.omix.module.impl.player.Freecam;
+import cn.omix.module.impl.render.NoHurtCam;
+import cn.omix.module.impl.render.Zoom;
+import cn.omix.util.IMinecraft;
 import com.llamalad7.mixinextras.sugar.Local;
 import im.webui.WebUiRuntime;
 import net.minecraft.client.render.*;
@@ -29,7 +29,7 @@ public abstract class MixinGameRenderer implements IMinecraft {
     private BufferBuilderStorage buffers;
 
     @Inject(method = "render", at = @At("HEAD"))
-    private void remix$driveWebUi(CallbackInfo ci) {
+    private void omix$driveWebUi(CallbackInfo ci) {
         WebUiRuntime.getInstance().onFrame();
     }
 
@@ -68,7 +68,7 @@ public abstract class MixinGameRenderer implements IMinecraft {
     }
 
     @Inject(at = @At("HEAD"), method = "bobView(Lnet/minecraft/client/util/math/MatrixStack;F)V", cancellable = true)
-    private void remix$disableFreecamBobbing(MatrixStack matrices, float tickProgress, CallbackInfo ci) {
+    private void omix$disableFreecamBobbing(MatrixStack matrices, float tickProgress, CallbackInfo ci) {
         if (Freecam.isActive()) {
             ci.cancel();
         }

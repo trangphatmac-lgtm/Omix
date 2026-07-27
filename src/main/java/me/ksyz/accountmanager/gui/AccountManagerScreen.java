@@ -4,7 +4,7 @@ import me.ksyz.accountmanager.AccountManager;
 import me.ksyz.accountmanager.auth.Account;
 import me.ksyz.accountmanager.auth.MicrosoftAuth;
 import me.ksyz.accountmanager.auth.SessionService;
-import cn.remix.Client;
+import cn.omix.Client;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
@@ -476,7 +476,7 @@ public class AccountManagerScreen extends Screen {
     private ExecutorService worker() {
         if (executor == null || executor.isShutdown()) {
             executor = Executors.newSingleThreadExecutor(runnable -> {
-                Thread thread = new Thread(runnable, "Remix Account Manager");
+                Thread thread = new Thread(runnable, "Omix Account Manager");
                 thread.setDaemon(true);
                 return thread;
             });

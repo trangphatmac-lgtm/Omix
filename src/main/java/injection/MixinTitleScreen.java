@@ -1,7 +1,7 @@
 package injection;
 
-import cn.remix.ui.screen.impl.MainMenu;
-import cn.remix.util.IMinecraft;
+import cn.omix.ui.screen.impl.MainMenu;
+import cn.omix.util.IMinecraft;
 import net.minecraft.client.gui.screen.TitleScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

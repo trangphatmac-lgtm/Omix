@@ -1,7 +1,7 @@
 package injection;
 
-import cn.remix.module.impl.world.WorldTweaks;
-import cn.remix.util.IMinecraft;
+import cn.omix.module.impl.world.WorldTweaks;
+import cn.omix.util.IMinecraft;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import org.spongepowered.asm.mixin.Mixin;

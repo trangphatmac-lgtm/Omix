@@ -1,6 +1,6 @@
 package injection;
 
-import cn.remix.util.misc.TimerSpeedUtil;
+import cn.omix.util.misc.TimerSpeedUtil;
 import it.unimi.dsi.fastutil.floats.FloatUnaryOperator;
 import net.minecraft.client.render.RenderTickCounter;
 import org.spongepowered.asm.mixin.Mixin;

@@ -1,6 +1,6 @@
 package injection;
 
-import cn.remix.module.impl.render.Xray;
+import cn.omix.module.impl.render.Xray;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.systems.VertexSorter;
 import net.minecraft.block.BlockState;

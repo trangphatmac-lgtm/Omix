@@ -1,6 +1,6 @@
 package me.ksyz.accountmanager;
 
-import cn.remix.security.SafeStorage;
+import cn.omix.security.SafeStorage;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -25,7 +25,7 @@ import java.util.Set;
 
 public final class AccountManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File FILE = new File(MinecraftClient.getInstance().runDirectory, "remix.accounts.json");
+    private static final File FILE = new File(MinecraftClient.getInstance().runDirectory, "omix.accounts.json");
     private static final Set<PosixFilePermission> OWNER_ONLY_PERMISSIONS = EnumSet.of(
             PosixFilePermission.OWNER_READ,
             PosixFilePermission.OWNER_WRITE
@@ -48,7 +48,7 @@ public final class AccountManager {
                     save();
                 }
             } catch (IOException e) {
-                System.err.println("Couldn't create remix.accounts.json: " + e.getMessage());
+                System.err.println("Couldn't create omix.accounts.json: " + e.getMessage());
             }
         }
         load();
@@ -113,7 +113,7 @@ public final class AccountManager {
                 // POSIX permissions are not available on every supported platform.
             }
         } catch (IOException e) {
-            System.err.println("Couldn't save remix.accounts.json: " + e.getMessage());
+            System.err.println("Couldn't save omix.accounts.json: " + e.getMessage());
         }
     }
 

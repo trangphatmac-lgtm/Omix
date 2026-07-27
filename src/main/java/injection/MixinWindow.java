@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Window.class)
 public abstract class MixinWindow {
     @Inject(method = "onFramebufferSizeChanged", at = @At("RETURN"))
-    private void remix$resizeWebUi(long window, int width, int height, CallbackInfo ci) {
+    private void omix$resizeWebUi(long window, int width, int height, CallbackInfo ci) {
         WebUiRuntime.getInstance().resize(width, height);
     }
 }

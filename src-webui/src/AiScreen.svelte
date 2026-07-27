@@ -2,7 +2,7 @@
     import {onMount, tick} from "svelte";
     import {fly} from "svelte/transition";
     import {quintIn, quintOut} from "svelte/easing";
-    import remixLogo from "./assets/remix.png";
+    import omixLogo from "./assets/omix.png";
 
     type Mode = "chat" | "agent";
     type Role = "user" | "assistant";
@@ -508,7 +508,7 @@
 
     function toolLabel(name: string) {
         if (name === "run_minecraft_command") return "Minecraft";
-        if (name === "run_client_command") return "Remix";
+        if (name === "run_client_command") return "Omix";
         if (name === "run_baritone_command") return "Baritone";
         return name;
     }
@@ -618,7 +618,7 @@
                     {#if conversations[mode].length === 0}
                         <div class="empty-state">
                             <div class="mode-mark" aria-hidden="true">
-                                <img src={remixLogo} alt="" />
+                                <img src={omixLogo} alt="" />
                             </div>
                             <h1>{mode === "chat" ? "开始一段对话" : "让 Agent 执行任务"}</h1>
                         </div>

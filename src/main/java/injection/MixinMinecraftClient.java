@@ -1,11 +1,11 @@
 package injection;
 
-import cn.remix.Client;
-import cn.remix.event.impl.RotationAppliedEvent;
-import cn.remix.event.impl.TickEvent;
-import cn.remix.event.impl.WorldEvent;
-import cn.remix.util.IMinecraft;
-import cn.remix.util.Util;
+import cn.omix.Client;
+import cn.omix.event.impl.RotationAppliedEvent;
+import cn.omix.event.impl.TickEvent;
+import cn.omix.event.impl.WorldEvent;
+import cn.omix.util.IMinecraft;
+import cn.omix.util.Util;
 import im.webui.WebUiRuntime;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.GameOptions;
@@ -44,7 +44,7 @@ public abstract class MixinMinecraftClient implements IMinecraft {
     }
 
     @Inject(method = "stop", at = @At("HEAD"))
-    private void remix$stopWebUiBeforeGraphics(CallbackInfo ci) {
+    private void omix$stopWebUiBeforeGraphics(CallbackInfo ci) {
         WebUiRuntime.getInstance().stop();
     }
 

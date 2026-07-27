@@ -19,7 +19,7 @@ public final class WebUiScreen extends Screen {
     private boolean closing;
 
     public WebUiScreen(Screen parent, WebScreenType type) {
-        super(Text.literal("Remix WebUI — " + type.routeName()));
+        super(Text.literal("Omix WebUI — " + type.routeName()));
         this.parent = parent;
         this.type = type;
     }

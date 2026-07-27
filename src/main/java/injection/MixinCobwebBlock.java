@@ -1,7 +1,7 @@
 package injection;
 
-import cn.remix.event.impl.CobwebEvent;
-import cn.remix.util.IMinecraft;
+import cn.omix.event.impl.CobwebEvent;
+import cn.omix.util.IMinecraft;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CobwebBlock;
 import net.minecraft.entity.Entity;
