@@ -5,6 +5,7 @@ import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.KeyInputEvent;
 import cn.omix.module.impl.combat.Aura;
 import cn.omix.module.impl.combat.AutoTotem;
+import cn.omix.module.impl.combat.Backtrack;
 import cn.omix.module.impl.combat.Criticals;
 import cn.omix.module.impl.combat.CrossbowExploit;
 import cn.omix.module.impl.combat.FastBow;
@@ -50,6 +51,7 @@ public class ModuleManager implements IMinecraft {
                 new AntiBot(),
                 new Aura(),
                 new AutoTotem(),
+                new Backtrack(),
                 new CrossbowExploit(),
                 new FastBow(),
                 new FastEat(),
