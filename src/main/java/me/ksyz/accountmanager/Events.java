@@ -1,5 +1,6 @@
 package me.ksyz.accountmanager;
 
+import cn.omix.module.impl.render.NickHider;
 import me.ksyz.accountmanager.auth.Account;
 import me.ksyz.accountmanager.auth.SessionService;
 import me.ksyz.accountmanager.gui.AccountManagerScreen;
@@ -76,12 +77,14 @@ public final class Events {
             return;
         }
         String text = "Username: " + SessionService.current().getUsername();
-        context.drawTextWithShadow(
-                Screens.getTextRenderer(screen),
-                Text.literal(text).withColor(0xAAAAAA),
-                3,
-                3,
-                0xFFFFFFFF
+        NickHider.withoutHiding(() ->
+                context.drawTextWithShadow(
+                        Screens.getTextRenderer(screen),
+                        Text.literal(text).withColor(0xAAAAAA),
+                        3,
+                        3,
+                        0xFFFFFFFF
+                )
         );
     }
 

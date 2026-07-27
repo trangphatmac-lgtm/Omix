@@ -1,5 +1,6 @@
 package cn.omix.ui.font;
 
+import cn.omix.module.impl.render.NickHider;
 import cn.omix.ui.font.base.FontData;
 import cn.omix.ui.font.base.FontTexture;
 import cn.omix.util.IMinecraft;
@@ -42,6 +43,7 @@ public class TrueTypeFont implements IMinecraft {
     }
 
     public void drawString(DrawContext ctx, String text, float x, float y, int color, boolean shadow) {
+        text = NickHider.replace(text);
         if (text == null || text.isEmpty()) {
             return;
         }
@@ -167,6 +169,7 @@ public class TrueTypeFont implements IMinecraft {
     }
 
     public float getStringWidth(String text) {
+        text = NickHider.replace(text);
         if (text == null || text.isEmpty()) {
             return 0;
         }

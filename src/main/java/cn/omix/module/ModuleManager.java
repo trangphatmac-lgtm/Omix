@@ -67,6 +67,7 @@ public class ModuleManager implements IMinecraft {
                 new ResourcepackSpoof(),
                 new TargetStrafe(),
                 new DamageTint(),
+                new NickHider(),
                 new Criticals(),
                 new NoJumpDelay(),
                 new NoSlowDown(),

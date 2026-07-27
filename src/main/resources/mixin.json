@@ -47,6 +47,7 @@
     "MixinSodiumRenderSectionManager",
     "MixinTitleScreen",
     "MixinStatusEffectFogModifier",
+    "MixinTextRenderer",
     "MixinWorldRenderer",
     "MixinWindow",
     "accessor.ClientPlayerEntityAccessor",
