@@ -46,6 +46,7 @@ public class ModuleManager implements IMinecraft {
                 new AutoPlay(),
                 new QuickMacro(),
                 new WorldTweaks(),
+                new GhostHand(),
                 new AntiBot(),
                 new Aura(),
                 new AutoTotem(),

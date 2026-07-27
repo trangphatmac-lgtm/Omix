@@ -1,6 +1,7 @@
 package injection;
 
 import cn.omix.module.impl.move.KeepSprint;
+import cn.omix.module.impl.world.GhostHand;
 import cn.omix.util.IMinecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -9,9 +10,20 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerEntity.class)
 public class MixinPlayerEntity implements IMinecraft {
+
+    @Inject(method = "getBlockInteractionRange", at = @At("RETURN"), cancellable = true)
+    private void omix$ghostHandDistance(CallbackInfoReturnable<Double> cir) {
+        if (mc.player == null || (Object) this != mc.player || instance.getModuleManager() == null) return;
+
+        GhostHand ghostHand = instance.getModuleManager().getModule(GhostHand.class);
+        if (ghostHand != null && ghostHand.isEnabled()) {
+            cir.setReturnValue(ghostHand.getInteractionDistance(cir.getReturnValue()));
+        }
+    }
 
     @Inject(method = "knockbackTarget", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;setSprinting(Z)V", shift = At.Shift.AFTER))
     public void onKnockbackTarget(Entity target, float strength, Vec3d playerTargetVelocity, CallbackInfo callbackInfo) {

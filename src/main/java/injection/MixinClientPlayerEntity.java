@@ -3,6 +3,7 @@ package injection;
 import cn.omix.Client;
 import cn.omix.event.impl.*;
 import cn.omix.module.impl.player.Freecam;
+import cn.omix.module.impl.world.GhostHand;
 import cn.omix.util.IMinecraft;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.MinecraftClient;
@@ -17,6 +18,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.world.RaycastContext;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -161,6 +163,26 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
                 RaycastContext.FluidHandling.NONE,
                 this
         )));
+    }
+
+    @Inject(method = "getCrosshairTarget", at = @At("RETURN"), cancellable = true)
+    private void omix$ghostHandCrosshair(float tickProgress, net.minecraft.entity.Entity cameraEntity,
+                                         CallbackInfoReturnable<HitResult> cir) {
+        if (instance.getModuleManager() == null) return;
+
+        GhostHand ghostHand = instance.getModuleManager().getModule(GhostHand.class);
+        if (ghostHand == null || !ghostHand.canReachThroughWalls()) return;
+
+        HitResult vanillaTarget = cir.getReturnValue();
+        if (vanillaTarget instanceof BlockHitResult blockTarget
+                && ghostHand.isInteractable(this.getEntityWorld().getBlockState(blockTarget.getBlockPos()), blockTarget.getBlockPos())) {
+            return;
+        }
+
+        BlockHitResult throughWallTarget = ghostHand.findThroughWallTarget(cameraEntity, tickProgress);
+        if (throughWallTarget != null) {
+            cir.setReturnValue(throughWallTarget);
+        }
     }
 
     @Redirect(method = "applyMovementSpeedFactors", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
