@@ -29,12 +29,12 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 
 public class Speed extends Module {
-    private final ModeValue mode = new ModeValue("Mode", "Ground", "Ground", "Vulcan", "Prediction", "Normal");
+    private final ModeValue mode = new ModeValue("Mode", "Ground", "Ground", "Vulcan", "Prediction", "Prediction2", "Normal");
     private final BoolValue damageBoost = new BoolValue("Damage Boost", false,  () -> mode.is("Vulcan"));
     private final NumberValue vanillaSpeed = new NumberValue("Speed", 1, 1, 5, 0.1f, () -> mode.is("Ground"));
-    private final NumberValue timerBoostMultiplier = new NumberValue("Timer Boost Multiplier", 0.75F, 0.1F, 1.0F, 0.05F, () -> mode.is("Prediction"));
-    private final NumberValue lowTimerTicks = new NumberValue("Low Timer Ticks", 6, 1, 10, 1, () -> mode.is("Prediction"));
-    private final BoolValue rotation = new BoolValue("Rotation", false, () -> mode.is("Prediction"));
+    private final NumberValue timerBoostMultiplier = new NumberValue("Timer Boost Multiplier", 0.75F, 0.1F, 1.0F, 0.05F, this::isPredictionMode);
+    private final NumberValue lowTimerTicks = new NumberValue("Low Timer Ticks", 6, 1, 10, 1, this::isPredictionMode);
+    private final BoolValue rotation = new BoolValue("Rotation", false, this::isPredictionMode);
     private final NumberValue multiplier = new NumberValue("Multiplier", 1.0F, 0.0F, 10.0F, 0.1F, () -> mode.is("Normal"));
     private final NumberValue friction = new NumberValue("Friction", 1.0F, 0.0F, 10.0F, 0.1F, () -> mode.is("Normal"));
     private final NumberValue strafe = new NumberValue("Strafe", 0, 0, 100, 1, () -> mode.is("Normal"));
@@ -46,6 +46,8 @@ public class Speed extends Module {
     private boolean rotated;
     private float rotationYaw;
     private YawOffsetMode yawOffsetMode = YawOffsetMode.AIR;
+    private final PredictionTimerBalance prediction2Timer = new PredictionTimerBalance();
+    private String lastPredictionMode;
 
     public Speed() {
         super("Speed", Category.Move);
@@ -62,22 +64,39 @@ public class Speed extends Module {
         ticks = 0;
         finished = false;
         rotated = false;
+        prediction2Timer.reset();
+        lastPredictionMode = null;
     }
 
     @Override
     public void onDisable() {
         resetPredictionTimer();
         rotated = false;
+        lastPredictionMode = null;
     }
 
     @EventTarget
     public void onTick(TickEvent event) {
-        if (mc.player == null || !mode.is("Prediction")) {
+        String predictionMode = isPredictionMode() ? mode.getValue() : null;
+        if (mc.player == null || predictionMode == null) {
+            if (lastPredictionMode != null) {
+                resetPredictionTimer();
+                lastPredictionMode = null;
+            }
             rotated = false;
             return;
         }
 
-        handlePredictionTimer();
+        if (!predictionMode.equals(lastPredictionMode)) {
+            resetPredictionTimer();
+            lastPredictionMode = predictionMode;
+        }
+
+        if (mode.is("Prediction2")) {
+            handlePrediction2Timer();
+        } else {
+            handlePredictionTimer();
+        }
         handlePredictionRotation();
     }
 
@@ -110,6 +129,32 @@ public class Speed extends Module {
         }
     }
 
+    private void handlePrediction2Timer() {
+        if (!canBoost() || mc.player.isOnGround()) {
+            resetPredictionTimer();
+            return;
+        }
+
+        float timerSpeed;
+        if (mc.player.getVelocity().y > 0.0) {
+            timerSpeed = prediction2Timer.boost(
+                    timerBoostMultiplier.getValue(),
+                    lowTimerTicks.getValue().intValue()
+            );
+        } else {
+            timerSpeed = prediction2Timer.slow(
+                    timerBoostMultiplier.getValue(),
+                    lowTimerTicks.getValue().intValue()
+            );
+        }
+
+        if (PredictionTimerBalance.isNormalSpeed(timerSpeed)) {
+            TimerSpeedUtil.reset();
+        } else {
+            TimerSpeedUtil.setTimerSpeed(timerSpeed);
+        }
+    }
+
     private void handlePredictionRotation() {
         rotated = false;
         if (!rotation.getValue() || !canBoost() || isKillAuraEnabled() || isDiggingTargetBlock()) {
@@ -131,7 +176,7 @@ public class Speed extends Module {
 
     @EventTarget
     public void onMoveInput(MoveInputEvent event) {
-        if (mode.is("Prediction")
+        if (isPredictionMode()
                 && rotation.getValue()
                 && rotated
                 && canBoost()
@@ -220,7 +265,7 @@ public class Speed extends Module {
     }
 
     public boolean isPredictionRotationActive() {
-        return isEnabled() && mode.is("Prediction") && rotated;
+        return isEnabled() && isPredictionMode() && rotated;
     }
 
     public float getPredictionRotationYaw() {
@@ -251,6 +296,10 @@ public class Speed extends Module {
                 && !mc.player.isTouchingWater()
                 && !mc.player.isInLava()
                 && !isInCobweb();
+    }
+
+    private boolean isPredictionMode() {
+        return mode.is("Prediction") || mode.is("Prediction2");
     }
 
     private boolean isKillAuraEnabled() {
@@ -290,5 +339,6 @@ public class Speed extends Module {
         finished = false;
         TimerSpeedUtil.reset();
         ticks = 0;
+        prediction2Timer.reset();
     }
 }
