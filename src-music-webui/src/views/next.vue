@@ -65,9 +65,9 @@ export default {
       return this.player.playNextList;
     },
     playNextTracks() {
-      return this.playNextList.map(tid => {
-        return this.tracks.find(t => t.id === tid);
-      });
+      return this.playNextList
+        .map(tid => this.tracks.find(t => t.id === tid))
+        .filter(Boolean);
     },
   },
   watch: {
@@ -102,7 +102,7 @@ export default {
 
       if (trackIDs.length > 0) {
         getTrackDetail(trackIDs.join(',')).then(data => {
-          let newTracks = data.songs.filter(
+          let newTracks = (data.songs ?? []).filter(
             t => !loadedTrackIDs.includes(t.id)
           );
           this.tracks.push(...newTracks);

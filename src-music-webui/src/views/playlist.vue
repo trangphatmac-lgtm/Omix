@@ -380,15 +380,22 @@ export default {
       getPlaylistDetail(this.id, true)
         .then(data => {
           this.playlist = data.playlist;
-          this.tracks = data.playlist.tracks;
+          this.playlist.trackIds = Array.isArray(data.playlist.trackIds)
+            ? data.playlist.trackIds
+            : [];
+          this.tracks = Array.isArray(data.playlist.tracks)
+            ? data.playlist.tracks
+            : [];
           NProgress.done();
           if (next !== undefined) next();
           this.show = true;
-          this.lastLoadedTrackIndex = data.playlist.tracks.length - 1;
+          this.lastLoadedTrackIndex = this.tracks.length - 1;
           return data;
         })
         .then(() => {
-          if (this.playlist.trackCount > this.tracks.length) {
+          const trackCount =
+            this.playlist.trackCount ?? this.playlist.trackIds.length;
+          if (trackCount > this.tracks.length) {
             this.loadingMore = true;
             this.loadMore();
           }
@@ -404,8 +411,13 @@ export default {
         }
       });
       trackIDs = trackIDs.map(t => t.id);
+      if (trackIDs.length === 0) {
+        this.loadingMore = false;
+        this.hasMore = false;
+        return;
+      }
       getTrackDetail(trackIDs.join(',')).then(data => {
-        this.tracks.push(...data.songs);
+        this.tracks.push(...(data.songs ?? []));
         this.lastLoadedTrackIndex += trackIDs.length;
         this.loadingMore = false;
         if (this.lastLoadedTrackIndex + 1 === this.playlist.trackIds.length) {

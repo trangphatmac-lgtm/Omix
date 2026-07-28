@@ -110,11 +110,12 @@ export default {
   },
 
   computed: {
-    ...mapState(['settings']),
+    ...mapState(['settings', 'liked']),
     track() {
-      return this.type === 'cloudDisk'
-        ? this.trackProp.simpleSong
+      const track = this.type === 'cloudDisk'
+        ? this.trackProp?.simpleSong
         : this.trackProp;
+      return track || {};
     },
     playable() {
       return this.track?.privilege?.pl > 0 || this.track?.playable;
@@ -133,7 +134,7 @@ export default {
       return [];
     },
     album() {
-      return this.track.album || this.track.al || this.track?.simpleSong?.al;
+      return this.track?.album || this.track?.al || this.track?.simpleSong?.al;
     },
     subTitle() {
       let tn = undefined;
@@ -168,7 +169,7 @@ export default {
       return this.type === 'playlist';
     },
     isLiked() {
-      return this.$parent.liked.songs.includes(this.track?.id);
+      return this.liked?.songs?.includes(this.track?.id) ?? false;
     },
     isPlaying() {
       return this.$store.state.player.currentTrack.id === this.track?.id;
@@ -195,7 +196,8 @@ export default {
       return true;
     },
     showLikeButton() {
-      return this.type !== 'tracklist' && this.type !== 'cloudDisk';
+      // 收藏写操作不在 Omix Music 首版范围内。
+      return false;
     },
     showOrderNumber() {
       return this.type === 'album';
@@ -210,8 +212,9 @@ export default {
 
   methods: {
     goToAlbum() {
-      if (this.track.al.id === 0) return;
-      this.$router.push({ path: '/album/' + this.track.al.id });
+      const albumID = this.track?.al?.id ?? this.track?.album?.id;
+      if (!albumID) return;
+      this.$router.push({ path: '/album/' + albumID });
     },
     playTrack() {
       this.$parent.playThisList(this.track.id);
