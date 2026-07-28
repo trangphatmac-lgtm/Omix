@@ -39,7 +39,7 @@ final class PredictionTimerBalance {
         if (balance <= EPSILON) {
             balance = 0.0;
         }
-        return (float) (1.0 + spend);
+        return (float) (1.0 + 1.0);
     }
 
     float slow(float lowSpeed, int maxSlowTicks) {
