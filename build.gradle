@@ -1,3 +1,12 @@
+import com.github.gradle.node.npm.task.NpmTask
+
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
+
 plugins {
     id 'fabric-loom' version '1.17-SNAPSHOT'
     id 'maven-publish'
@@ -5,8 +14,8 @@ plugins {
     id 'com.github.node-gradle.node' version '7.1.0'
 }
 
-def buildDay = java.time.LocalDate.now(java.time.ZoneId.systemDefault())
-def buildDate = buildDay.format(java.time.format.DateTimeFormatter.ofPattern("yyMMdd"))
+def buildDay = LocalDate.now(ZoneId.systemDefault())
+def buildDate = buildDay.format(DateTimeFormatter.ofPattern("yyMMdd"))
 def buildVersion = buildDay.monthValue == 6 && buildDay.dayOfMonth == 4
         ? "890604-Tiananmen-Massacre-Special-Version"
         : "${buildDate}-SNAPSHOT"
@@ -116,7 +125,7 @@ node {
     nodeProjectDir = file("src-webui")
 }
 
-def buildWebUi = tasks.register("buildWebUi", com.github.gradle.node.npm.task.NpmTask) {
+def buildWebUi = tasks.register("buildWebUi", NpmTask) {
     dependsOn tasks.named("npmInstall")
     args = ["run", "build"]
     inputs.files(
@@ -131,7 +140,7 @@ def buildWebUi = tasks.register("buildWebUi", com.github.gradle.node.npm.task.Np
     outputs.dir("src-webui/dist")
 }
 
-def installMusicWebUi = tasks.register("installMusicWebUi", com.github.gradle.node.npm.task.NpmTask) {
+def installMusicWebUi = tasks.register("installMusicWebUi", NpmTask) {
     args = [
             "--prefix",
             file("src-music-webui").absolutePath,
@@ -145,7 +154,7 @@ def installMusicWebUi = tasks.register("installMusicWebUi", com.github.gradle.no
     outputs.dir("src-music-webui/node_modules")
 }
 
-def buildMusicWebUi = tasks.register("buildMusicWebUi", com.github.gradle.node.npm.task.NpmTask) {
+def buildMusicWebUi = tasks.register("buildMusicWebUi", NpmTask) {
     dependsOn installMusicWebUi
     args = [
             "--prefix",
@@ -165,7 +174,7 @@ def buildMusicWebUi = tasks.register("buildMusicWebUi", com.github.gradle.node.n
     outputs.dir("src-music-webui/dist")
 }
 
-def installMusicSidecar = tasks.register("installMusicSidecar", com.github.gradle.node.npm.task.NpmTask) {
+def installMusicSidecar = tasks.register("installMusicSidecar", NpmTask) {
     args = [
             "--prefix",
             file("src-music-sidecar").absolutePath,
@@ -191,7 +200,7 @@ def bundleMusicSidecar = tasks.register("bundleMusicSidecar", Zip) {
     destinationDirectory = layout.buildDirectory.dir("generated/music")
 }
 
-def testMusicSidecar = tasks.register("testMusicSidecar", com.github.gradle.node.npm.task.NpmTask) {
+def testMusicSidecar = tasks.register("testMusicSidecar", NpmTask) {
     dependsOn installMusicSidecar
     args = [
             "--prefix",
@@ -290,7 +299,7 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
                 "kotlin-stdlib-jdk8-1.9.10.jar"
         ]
         def archive = tasks.named("remapJar").get().archiveFile.get().asFile
-        def zip = new java.util.zip.ZipFile(archive)
+        def zip = new ZipFile(archive)
         try {
             def missing = requiredNestedJars.findAll {
                 zip.getEntry("META-INF/jars/${it}") == null
@@ -316,9 +325,9 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
             }
 
             def inspectNestedZip = { String entryName, Closure visitor ->
-                def nested = new java.util.zip.ZipInputStream(zip.getInputStream(zip.getEntry(entryName)))
+                def nested = new ZipInputStream(zip.getInputStream(zip.getEntry(entryName)))
                 try {
-                    java.util.zip.ZipEntry entry
+                    ZipEntry entry
                     while ((entry = nested.nextEntry) != null) {
                         visitor(entry)
                     }
