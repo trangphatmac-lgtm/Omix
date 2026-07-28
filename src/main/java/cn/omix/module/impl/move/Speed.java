@@ -130,17 +130,20 @@ public class Speed extends Module {
     }
 
     private void handlePrediction2Timer() {
-        if (!canBoost() || mc.player.isOnGround()) {
-            resetPredictionTimer();
+        if (mc.player.isOnGround()) {
+            TimerSpeedUtil.reset();
+            prediction2Timer.prepareNextJump();
+            return;
+        }
+
+        if (!canBoost()) {
+            TimerSpeedUtil.reset();
             return;
         }
 
         float timerSpeed;
         if (mc.player.getVelocity().y > 0.0) {
-            timerSpeed = prediction2Timer.boost(
-                    timerBoostMultiplier.getValue(),
-                    lowTimerTicks.getValue().intValue()
-            );
+            timerSpeed = prediction2Timer.boost();
         } else {
             timerSpeed = prediction2Timer.slow(
                     timerBoostMultiplier.getValue(),

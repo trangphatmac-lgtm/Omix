@@ -1,57 +1,81 @@
 package cn.omix.module.impl.move;
 
 /**
- * Banks the real-time saved by a fast timer and spends exactly that amount on
- * a slow timer later in the same jump.
- *
- * <p>For one game tick at timer speed {@code s}, the elapsed real time in
- * normal-tick units is {@code 1 / s}. The balance delta is consequently
- * {@code 1 - 1 / s}. A positive value was saved by accelerating; a negative
- * value was spent by slowing down.</p>
+ * Records all TB earned during the configured falling phase, then distributes
+ * that balance evenly over the observed number of ascent ticks on the next
+ * jump.
  */
 final class PredictionTimerBalance {
-    static final float BOOST_SPEED = 2.0F;
     private static final double EPSILON = 1.0E-7;
 
     private double balance;
+    private int ascentTicks;
+    private int expectedAscentTicks;
     private int slowTicks;
+    private boolean falling;
+    private boolean ascentPlanPrepared;
+    private double spendPerAscentTick;
 
-    float boost(float lowSpeed, int maxSlowTicks) {
-        double targetBalance = maxSlowTicks * debitFor(lowSpeed);
-        double remaining = Math.max(0.0, targetBalance - balance);
-        double credit = Math.min(creditFor(BOOST_SPEED), remaining);
-
-        if (credit <= EPSILON) {
-            return 1.0F;
+    float boost() {
+        if (falling) {
+            prepareNextJump();
         }
 
-        balance += credit;
-        return speedForCredit(credit);
-    }
+        if (!ascentPlanPrepared) {
+            spendPerAscentTick = expectedAscentTicks > 0
+                    ? balance / expectedAscentTicks
+                    : 0.0;
+            ascentPlanPrepared = true;
+        }
+        ascentTicks++;
 
-    float slow(float lowSpeed, int maxSlowTicks) {
-        if (balance <= EPSILON || slowTicks >= maxSlowTicks) {
+        double spend = Math.min(spendPerAscentTick, balance);
+        if (spend <= EPSILON) {
             balance = 0.0;
             return 1.0F;
         }
 
-        double debit = Math.min(debitFor(lowSpeed), balance);
-        if (debit <= EPSILON) {
-            balance = 0.0;
-            return 1.0F;
-        }
-
-        balance -= debit;
-        slowTicks++;
+        balance -= spend;
         if (balance <= EPSILON) {
             balance = 0.0;
         }
-        return speedForDebit(debit);
+        return (float) (1.0 + spend);
+    }
+
+    float slow(float lowSpeed, int maxSlowTicks) {
+        if (!falling) {
+            if (ascentTicks > 0) {
+                expectedAscentTicks = ascentTicks;
+            }
+            falling = true;
+        }
+
+        if (slowTicks >= maxSlowTicks) {
+            return 1.0F;
+        }
+
+        double earned = debitFor(lowSpeed);
+        if (earned <= EPSILON) {
+            return 1.0F;
+        }
+
+        balance += earned;
+        slowTicks++;
+        return lowSpeed;
+    }
+
+    void prepareNextJump() {
+        ascentTicks = 0;
+        slowTicks = 0;
+        falling = false;
+        ascentPlanPrepared = false;
+        spendPerAscentTick = 0.0;
     }
 
     void reset() {
         balance = 0.0;
-        slowTicks = 0;
+        expectedAscentTicks = 0;
+        prepareNextJump();
     }
 
     double getBalance() {
@@ -62,27 +86,11 @@ final class PredictionTimerBalance {
         return slowTicks;
     }
 
-    static double balanceDelta(float speed) {
-        return 1.0 - 1.0 / speed;
-    }
-
     static boolean isNormalSpeed(float speed) {
         return Math.abs(speed - 1.0F) <= EPSILON;
     }
 
-    private static double creditFor(float speed) {
-        return Math.max(0.0, balanceDelta(speed));
-    }
-
     private static double debitFor(float speed) {
-        return Math.max(0.0, -balanceDelta(speed));
-    }
-
-    private static float speedForCredit(double credit) {
-        return (float) (1.0 / (1.0 - credit));
-    }
-
-    private static float speedForDebit(double debit) {
-        return (float) (1.0 / (1.0 + debit));
+        return Math.max(0.0, 1.0 / speed - 1.0);
     }
 }
