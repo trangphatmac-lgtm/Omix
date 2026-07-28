@@ -41,6 +41,7 @@ public class Aura extends Module {
     private final NumberValue maxCps = new NumberValue("Max CPS", 10, 1, 20, 1, () -> attackMode.is("1.8"));
     private final NumberValue minCps = new NumberValue("Min CPS", 7, 1, 20, 1, () -> attackMode.is("1.8"));
     private final BoolValue keepSwing = new BoolValue("Keep Swing", false, () -> attackMode.is("1.9+"));
+    private final BoolValue cooldownBypass = new BoolValue("Cooldown Bypass", false, () -> attackMode.is("1.9+"));
     private final NumberValue attackRange = new NumberValue("Range", 3, 3, 8, .1);
     private final NumberValue blockRange = new NumberValue("Block Range", 4, 3, 8, .1);
     private final NumberValue wallRange = new NumberValue("Wall Range", 0, 0, 8, .1);
@@ -100,7 +101,11 @@ public class Aura extends Module {
                     mc.player.handSwinging = true;
                 }
 
-                if (mc.player.getAttackCooldownProgress(.5f) < 1 && attackMode.is("1.9+")) return;
+                if (attackMode.is("1.9+")
+                        && mc.player.getAttackCooldownProgress(.5f) < 1
+                        && (!cooldownBypass.getValue() || !MeleeDamagePredictor.canKill(mc.player, target))) {
+                    return;
+                }
 
                 if (attackTimer.hasTimeElapsed(700L / getCps())) {
                     doAttack(target);
