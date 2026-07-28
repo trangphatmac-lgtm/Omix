@@ -42,6 +42,7 @@ public class ModuleManager implements IMinecraft {
                 new HUD(),
                 new ClickGui(),
                 new AIScreen(),
+                new MusicPlayer(),
                 new ScaffoldX(),
                 new Scaffold(),
                 new AutoPlay(),

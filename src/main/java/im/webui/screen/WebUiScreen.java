@@ -49,8 +49,14 @@ public final class WebUiScreen extends Screen {
         }
 
         context.fill(0, 0, width, height, 0xFF101218);
-        boolean failed = runtime.getState() == im.webui.WebUiState.FAILED;
-        String status = failed ? "WebUI failed — press Esc" : "Loading WebUI…";
+        boolean music = type.equals(WebScreenType.MUSIC);
+        boolean failed = runtime.getState() == im.webui.WebUiState.FAILED
+                || (music && runtime.getMusicRuntime().getState() == im.music.MusicServiceState.FAILED);
+        String status = failed
+                ? (music
+                    ? "Music service failed — R retry, Shift+R re-download"
+                    : "WebUI failed — press Esc")
+                : (music ? "Loading Omix Music…" : "Loading WebUI…");
         context.drawCenteredTextWithShadow(
                 textRenderer,
                 Text.literal(status),
@@ -60,7 +66,9 @@ public final class WebUiScreen extends Screen {
         );
 
         if (failed) {
-            Throwable failure = runtime.getFailure();
+            Throwable failure = music
+                    ? runtime.getMusicRuntime().getFailure()
+                    : runtime.getFailure();
             String detail = failure == null || failure.getMessage() == null
                     ? runtime.getState().name()
                     : failure.getMessage();
@@ -74,8 +82,10 @@ public final class WebUiScreen extends Screen {
             return;
         }
 
-        BrowserPreparationProgress progress = runtime.getPreparationProgress();
-        String detail = preparationDetail(runtime, progress);
+        BrowserPreparationProgress progress = music
+                ? runtime.getMusicRuntime().getProgress()
+                : runtime.getPreparationProgress();
+        String detail = music ? progressDetail(progress) : preparationDetail(runtime, progress);
         context.drawCenteredTextWithShadow(
                 textRenderer,
                 Text.literal(detail),
@@ -136,6 +146,22 @@ public final class WebUiScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyInput input) {
+        if (type.equals(WebScreenType.MUSIC)
+                && input.key() == GLFW.GLFW_KEY_R
+                && WebUiRuntime.getInstance().getMusicRuntime().getState()
+                    == im.music.MusicServiceState.FAILED) {
+            WebUiRuntime runtime = WebUiRuntime.getInstance();
+            boolean clearRuntime = (input.modifiers() & GLFW.GLFW_MOD_SHIFT) != 0;
+            var retry = clearRuntime
+                    ? runtime.getMusicRuntime().clearRuntimeAndRetryAsync()
+                    : runtime.getMusicRuntime().retryAsync();
+            retry.whenComplete((ignored, failure) -> {
+                if (failure == null) {
+                    MinecraftClient.getInstance().execute(runtime::openMusicScreen);
+                }
+            });
+            return true;
+        }
         if (input.key() == GLFW.GLFW_KEY_ESCAPE) {
             close();
             return true;
@@ -174,6 +200,18 @@ public final class WebUiScreen extends Screen {
         if (runtime.getState() != im.webui.WebUiState.CEF_PREPARING) {
             return runtime.getState().name();
         }
+        if (progress.totalBytes() > 0L) {
+            double downloaded = progress.bytesRead() / 1024.0D / 1024.0D;
+            double total = progress.totalBytes() / 1024.0D / 1024.0D;
+            return "%s — %.1f / %.1f MB".formatted(progress.task(), downloaded, total);
+        }
+        if (progress.progress() >= 0.0F) {
+            return "%s — %d%%".formatted(progress.task(), Math.round(progress.progress() * 100.0F));
+        }
+        return progress.task();
+    }
+
+    private static String progressDetail(BrowserPreparationProgress progress) {
         if (progress.totalBytes() > 0L) {
             double downloaded = progress.bytesRead() / 1024.0D / 1024.0D;
             double total = progress.totalBytes() / 1024.0D / 1024.0D;

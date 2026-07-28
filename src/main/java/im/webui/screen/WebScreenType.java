@@ -8,6 +8,7 @@ public record WebScreenType(String routeName, boolean inGame) {
 
     public static final WebScreenType AI = register(new WebScreenType("ai", true));
     public static final WebScreenType CLICK_GUI = register(new WebScreenType("clickgui", true));
+    public static final WebScreenType MUSIC = register(new WebScreenType("music", true));
 
     public WebScreenType {
         if (routeName == null || routeName.isBlank()) {

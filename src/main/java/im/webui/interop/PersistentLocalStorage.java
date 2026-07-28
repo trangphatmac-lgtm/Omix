@@ -9,7 +9,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.Map;
+import java.util.Set;
 
 public final class PersistentLocalStorage {
     private final Gson gson = new Gson();
@@ -25,6 +27,7 @@ public final class PersistentLocalStorage {
         if (!Files.isRegularFile(file)) {
             return;
         }
+        setOwnerOnlyPermissions(file);
         JsonObject loaded = gson.fromJson(Files.readString(file, StandardCharsets.UTF_8), JsonObject.class);
         if (loaded != null) {
             for (Map.Entry<String, JsonElement> entry : loaded.entrySet()) {
@@ -67,6 +70,7 @@ public final class PersistentLocalStorage {
         Files.createDirectories(file.getParent());
         Path temporary = file.resolveSibling(file.getFileName() + ".tmp");
         Files.writeString(temporary, gson.toJson(values), StandardCharsets.UTF_8);
+        setOwnerOnlyPermissions(temporary);
         try {
             Files.move(
                     temporary,
@@ -76,6 +80,18 @@ public final class PersistentLocalStorage {
             );
         } catch (java.nio.file.AtomicMoveNotSupportedException ignored) {
             Files.move(temporary, file, StandardCopyOption.REPLACE_EXISTING);
+        }
+        setOwnerOnlyPermissions(file);
+    }
+
+    private static void setOwnerOnlyPermissions(Path target) throws IOException {
+        try {
+            Files.setPosixFilePermissions(target, Set.of(
+                    PosixFilePermission.OWNER_READ,
+                    PosixFilePermission.OWNER_WRITE
+            ));
+        } catch (UnsupportedOperationException ignored) {
+            // Windows ACL inheritance is used when POSIX permissions are unavailable.
         }
     }
 }

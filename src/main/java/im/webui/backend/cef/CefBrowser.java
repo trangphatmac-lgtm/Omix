@@ -107,6 +107,15 @@ public final class CefBrowser implements Browser {
     @Override
     public void setVisible(boolean visible) {
         this.visible = visible;
+        if (initialized) {
+            String script = """
+                    document.documentElement.classList.toggle(
+                        "omix-browser-hidden",
+                        %s
+                    );
+                    """.formatted(!visible);
+            browserApi.executeJavaScript(script, browserApi.getURL(), 0);
+        }
     }
 
     @Override

@@ -36,13 +36,20 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import im.music.MusicRuntimeManager;
 
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.net.SocketException;
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -57,6 +64,12 @@ public final class InteropServer {
     private final ChannelGroup webSockets = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     private final Supplier<String> screenSupplier;
     private final Consumer<String> screenAcknowledgement;
+    private final MusicRuntimeManager musicRuntime;
+    private final PersistentLocalStorage musicStorage;
+    private final HttpClient musicHttpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(5))
+            .followRedirects(HttpClient.Redirect.NORMAL)
+            .build();
     private NioEventLoopGroup bossGroup;
     private NioEventLoopGroup workerGroup;
     private Channel serverChannel;
@@ -65,10 +78,14 @@ public final class InteropServer {
 
     public InteropServer(
             Supplier<String> screenSupplier,
-            Consumer<String> screenAcknowledgement
+            Consumer<String> screenAcknowledgement,
+            MusicRuntimeManager musicRuntime,
+            PersistentLocalStorage musicStorage
     ) {
         this.screenSupplier = screenSupplier;
         this.screenAcknowledgement = screenAcknowledgement;
+        this.musicRuntime = musicRuntime;
+        this.musicStorage = musicStorage;
         registerCoreRoutes();
     }
 
@@ -178,7 +195,10 @@ public final class InteropServer {
 
             FullHttpResponse response;
             String path = decoder.path();
-            if (path.startsWith("/api/")) {
+            if (path.startsWith("/music-api/") || path.equals("/music-api")) {
+                handleMusicProxy(context, request, decoder);
+                return;
+            } else if (path.startsWith("/api/")) {
                 response = handleApi(request, decoder);
             } else if (request.method().equals(HttpMethod.GET)) {
                 response = handleAsset(path);
@@ -211,12 +231,96 @@ public final class InteropServer {
             String name = path.equals("/") ? "index.html" : path.substring(1);
             byte[] data = assets.get(name);
             if (data == null && !name.contains(".")) {
-                data = assets.get("index.html");
+                data = assets.get(name.startsWith("music/") ? "music/index.html" : "index.html");
             }
             if (data == null) {
                 return response(HttpResponseStatus.NOT_FOUND, "Not found", "text/plain");
             }
             return response(HttpResponseStatus.OK, data, contentType(name));
+        }
+
+        private void handleMusicProxy(
+                ChannelHandlerContext context,
+                FullHttpRequest request,
+                QueryStringDecoder decoder
+        ) {
+            String targetPath = decoder.path().substring("/music-api".length());
+            if (targetPath.isEmpty()) targetPath = "/";
+            if (!isMusicApiAllowed(request.method().name(), targetPath)) {
+                send(context, request, response(
+                        HttpResponseStatus.NOT_FOUND,
+                        "Music API route is not enabled",
+                        "text/plain"
+                ));
+                return;
+            }
+            if (musicRuntime.getState() != im.music.MusicServiceState.READY) {
+                send(context, request, response(
+                        HttpResponseStatus.SERVICE_UNAVAILABLE,
+                        gson.toJson(musicRuntime.statusJson()),
+                        "application/json; charset=UTF-8"
+                ));
+                return;
+            }
+
+            try {
+                String rawQuery = "";
+                int queryStart = request.uri().indexOf('?');
+                if (queryStart >= 0) rawQuery = request.uri().substring(queryStart);
+                URI target = musicRuntime.getEndpoint().resolve(targetPath + rawQuery);
+                byte[] body = new byte[request.content().readableBytes()];
+                request.content().getBytes(request.content().readerIndex(), body);
+                HttpRequest.BodyPublisher publisher = body.length == 0
+                        ? HttpRequest.BodyPublishers.noBody()
+                        : HttpRequest.BodyPublishers.ofByteArray(body);
+                HttpRequest.Builder builder = HttpRequest.newBuilder(target)
+                        .timeout(Duration.ofSeconds(25))
+                        .header(im.music.MusicSidecarManager.TOKEN_HEADER, musicRuntime.getToken())
+                        .method(request.method().name(), publisher);
+                String contentType = request.headers().get(HttpHeaderNames.CONTENT_TYPE);
+                if (contentType != null) builder.header("Content-Type", contentType);
+                String cookie = filteredMusicCookie(request.headers().get(HttpHeaderNames.COOKIE));
+                String persistedCookie = storedNeteaseCookie();
+                if (!persistedCookie.isBlank()) {
+                    cookie = cookie.isBlank() ? persistedCookie : cookie + "; " + persistedCookie;
+                }
+                if (!cookie.isBlank()) builder.header("Cookie", cookie);
+
+                request.retain();
+                musicHttpClient.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofByteArray())
+                        .whenComplete((proxied, throwable) -> context.executor().execute(() -> {
+                            try {
+                                if (throwable != null) {
+                                    send(context, request, response(
+                                            HttpResponseStatus.BAD_GATEWAY,
+                                            "Music service request failed",
+                                            "text/plain"
+                                    ));
+                                    return;
+                                }
+                                HttpResponseStatus status = HttpResponseStatus.valueOf(proxied.statusCode());
+                                String responseType = proxied.headers()
+                                        .firstValue("content-type")
+                                        .orElse("application/json; charset=UTF-8");
+                                FullHttpResponse result = response(status, proxied.body(), responseType);
+                                for (String value : proxied.headers().allValues("set-cookie")) {
+                                    if (!isProtectedAuthCookie(value)) {
+                                        result.headers().add(HttpHeaderNames.SET_COOKIE, value);
+                                        persistNeteaseSetCookie(value);
+                                    }
+                                }
+                                send(context, request, result);
+                            } finally {
+                                request.release();
+                            }
+                        }));
+            } catch (Exception exception) {
+                send(context, request, response(
+                        HttpResponseStatus.BAD_GATEWAY,
+                        "Music service request failed",
+                        "text/plain"
+                ));
+            }
         }
 
         private void handleWebSocket(ChannelHandlerContext context, WebSocketFrame frame) {
@@ -253,6 +357,94 @@ public final class InteropServer {
                 Client.logger.error("WebUI interop connection failed", cause);
             }
             context.close();
+        }
+    }
+
+    private static final Set<String> MUSIC_API_PATHS = Set.of(
+            "/login/qr/key",
+            "/login/qr/create",
+            "/login/qr/check",
+            "/login/refresh",
+            "/logout",
+            "/personalized",
+            "/recommend/resource",
+            "/recommend/songs",
+            "/toplist",
+            "/toplist/artist",
+            "/top/playlist",
+            "/top/playlist/highquality",
+            "/album/new",
+            "/search",
+            "/playlist/detail",
+            "/album",
+            "/artists",
+            "/artist/album",
+            "/user/account",
+            "/user/playlist",
+            "/song/detail",
+            "/song/url",
+            "/lyric"
+    );
+
+    static boolean isMusicApiAllowed(String method, String path) {
+        return ("GET".equals(method) || "POST".equals(method))
+                && MUSIC_API_PATHS.contains(path);
+    }
+
+    static boolean isProtectedAuthCookie(String setCookie) {
+        if (setCookie == null) return false;
+        String value = setCookie.stripLeading();
+        return value.regionMatches(
+                true,
+                0,
+                AUTH_COOKIE + "=",
+                0,
+                AUTH_COOKIE.length() + 1
+        );
+    }
+
+    static String filteredMusicCookie(String cookieHeader) {
+        if (cookieHeader == null || cookieHeader.isBlank()) return "";
+        return java.util.Arrays.stream(cookieHeader.split(";"))
+                .map(String::trim)
+                .filter(value -> !value.regionMatches(
+                        true,
+                        0,
+                        AUTH_COOKIE + "=",
+                        0,
+                        AUTH_COOKIE.length() + 1
+                ))
+                .collect(java.util.stream.Collectors.joining("; "));
+    }
+
+    private String storedNeteaseCookie() {
+        java.util.ArrayList<String> values = new java.util.ArrayList<>();
+        for (String name : List.of("MUSIC_U", "__csrf")) {
+            var value = musicStorage.get("cookie-" + name);
+            if (value != null && value.isJsonPrimitive()
+                    && value.getAsJsonPrimitive().isString()
+                    && !value.getAsString().isBlank()) {
+                values.add(name + "=" + value.getAsString());
+            }
+        }
+        return String.join("; ", values);
+    }
+
+    private void persistNeteaseSetCookie(String header) {
+        String first = header == null ? "" : header.split(";", 2)[0].trim();
+        int split = first.indexOf('=');
+        if (split < 1) return;
+        String name = first.substring(0, split);
+        if (!"MUSIC_U".equals(name) && !"__csrf".equals(name)) return;
+        String value = first.substring(split + 1);
+        try {
+            if (value.isBlank() || header.toLowerCase(java.util.Locale.ROOT).contains("max-age=0")) {
+                musicStorage.delete("cookie-" + name);
+            } else {
+                musicStorage.put("cookie-" + name, new com.google.gson.JsonPrimitive(value));
+            }
+        } catch (Exception exception) {
+            Client.logger.error("Failed to persist refreshed music login state", exception);
         }
     }
 
@@ -359,6 +551,11 @@ public final class InteropServer {
         if (name.endsWith(".json")) return "application/json; charset=UTF-8";
         if (name.endsWith(".svg")) return "image/svg+xml";
         if (name.endsWith(".png")) return "image/png";
+        if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "image/jpeg";
+        if (name.endsWith(".gif")) return "image/gif";
+        if (name.endsWith(".woff2")) return "font/woff2";
+        if (name.endsWith(".ttf")) return "font/ttf";
+        if (name.endsWith(".ico")) return "image/x-icon";
         return "application/octet-stream";
     }
 

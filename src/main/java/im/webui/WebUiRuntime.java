@@ -21,11 +21,13 @@ import im.webui.screen.WebScreenManager;
 import im.webui.screen.WebScreenOpenResult;
 import im.webui.screen.WebScreenType;
 import im.webui.theme.WebThemeManager;
+import im.music.MusicRuntimeManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
 import java.nio.file.Path;
+import java.util.Set;
 
 public final class WebUiRuntime {
     private static final WebUiRuntime INSTANCE = new WebUiRuntime();
@@ -42,7 +44,10 @@ public final class WebUiRuntime {
     private PersistentLocalStorage localStorage;
     private AiInteropBridge aiInteropBridge;
     private ClickGuiInteropBridge clickGuiInteropBridge;
+    private MusicRuntimeManager musicRuntime;
+    private PersistentLocalStorage musicStorage;
     private Browser mainBrowser;
+    private Browser musicBrowser;
 
     private WebUiRuntime() {
     }
@@ -78,23 +83,45 @@ public final class WebUiRuntime {
         return backendManager;
     }
 
+    public MusicRuntimeManager getMusicRuntime() {
+        if (musicRuntime == null) {
+            throw new IllegalStateException("Music runtime has not started");
+        }
+        return musicRuntime;
+    }
+
     public void start() {
         if (state != WebUiState.NEW && state != WebUiState.STOPPED) {
             return;
         }
         try {
+            Path webUiDirectory = Path.of(
+                    MinecraftClient.getInstance().runDirectory.getPath(),
+                    "Omix",
+                    "webui"
+            );
+            musicRuntime = new MusicRuntimeManager(Path.of(
+                    MinecraftClient.getInstance().runDirectory.getPath(),
+                    "Omix",
+                    "music"
+            ));
+            localStorage = new PersistentLocalStorage(
+                    webUiDirectory.resolve("local-storage.json")
+            );
+            localStorage.load();
+            musicStorage = new PersistentLocalStorage(webUiDirectory.resolve("music-storage.json"));
+            musicStorage.load();
             interopServer = new InteropServer(
                     this::getCurrentRoute,
-                    this::acknowledgeScreen
+                    this::acknowledgeScreen,
+                    musicRuntime,
+                    musicStorage
             );
             interopServer.start();
             aiInteropBridge = new AiInteropBridge(interopServer, Client.instance.getAiBackend());
             clickGuiInteropBridge = new ClickGuiInteropBridge(interopServer);
-            localStorage = new PersistentLocalStorage(
-                    Path.of(MinecraftClient.getInstance().runDirectory.getPath(), "Omix", "webui", "local-storage.json")
-            );
-            localStorage.load();
             registerStorageRoutes();
+            registerMusicRoutes();
             themeManager.useBundled(interopServer.getAuthenticatedBaseUrl());
             state = WebUiState.SERVER_READY;
             state = WebUiState.CEF_PREPARING;
@@ -159,6 +186,10 @@ public final class WebUiRuntime {
         return openScreen(WebScreenType.AI);
     }
 
+    public WebScreenOpenResult openMusicScreen() {
+        return openScreen(WebScreenType.MUSIC);
+    }
+
     public WebScreenOpenResult openScreen(String routeName) {
         WebScreenType type = WebScreenType.byName(routeName);
         if (type == null) {
@@ -177,6 +208,9 @@ public final class WebUiRuntime {
         if (state != WebUiState.READY) {
             openWhenReady = true;
             screenManager.open(type);
+            if (type.equals(WebScreenType.MUSIC)) {
+                musicRuntime.startAsync();
+            }
             if (!(client.currentScreen instanceof WebUiScreen screen)
                     || !screen.getType().equals(type)) {
                 client.setScreen(new WebUiScreen(client.currentScreen, type));
@@ -185,26 +219,48 @@ public final class WebUiRuntime {
             return WebScreenOpenResult.QUEUED;
         }
 
+        if (type.equals(WebScreenType.MUSIC)
+                && musicRuntime.getState() != im.music.MusicServiceState.READY) {
+            screenManager.open(type);
+            if (!(client.currentScreen instanceof WebUiScreen screen)
+                    || !screen.getType().equals(type)) {
+                client.setScreen(new WebUiScreen(client.currentScreen, type));
+            }
+            prepareMusicAndActivate();
+            return WebScreenOpenResult.QUEUED;
+        }
+
         activateScreen(type);
         return WebScreenOpenResult.OPENED;
     }
 
     private void activateScreen(WebScreenType type) {
+        if (type.equals(WebScreenType.MUSIC)
+                && musicRuntime.getState() != im.music.MusicServiceState.READY) {
+            prepareMusicAndActivate();
+            return;
+        }
         MinecraftClient client = MinecraftClient.getInstance();
         openWhenReady = false;
         if (!type.equals(screenManager.current())) {
             screenManager.open(type);
         }
         boolean needsAcknowledgement = !screenManager.isAcknowledged();
+        Browser browser = browserFor(type);
         String screenUrl = themeManager.getScreenUrl(type);
-        if (!screenUrl.equals(mainBrowser.getUrl())) {
-            mainBrowser.setUrl(screenUrl);
-        } else if (needsAcknowledgement) {
+        if (!screenUrl.equals(browser.getUrl())) {
+            browser.setUrl(screenUrl);
+        } else if (needsAcknowledgement && !type.equals(WebScreenType.MUSIC)) {
             // The shared browser may have loaded its route while hidden and exhausted the
             // front-end acknowledgement retries. Reload when a user opens it later.
-            mainBrowser.forceReload();
+            browser.forceReload();
         }
-        mainBrowser.setVisible(true);
+        if (type.equals(WebScreenType.MUSIC)) {
+            mainBrowser.setVisible(false);
+        } else if (musicBrowser != null) {
+            musicBrowser.setVisible(false);
+        }
+        browser.setVisible(true);
         if (!(client.currentScreen instanceof WebUiScreen screen)
                 || !screen.getType().equals(type)) {
             client.setScreen(new WebUiScreen(client.currentScreen, type));
@@ -213,8 +269,10 @@ public final class WebUiRuntime {
 
     public void closeScreen() {
         openWhenReady = false;
-        if (mainBrowser != null) {
-            mainBrowser.setVisible(false);
+        WebScreenType current = screenManager.current();
+        Browser browser = current == null ? null : existingBrowserFor(current);
+        if (browser != null) {
+            browser.setVisible(false);
         }
         screenManager.close();
     }
@@ -229,10 +287,12 @@ public final class WebUiRuntime {
     }
 
     public boolean isBrowserTextureReady() {
+        WebScreenType current = screenManager.current();
+        Browser browser = current == null ? null : existingBrowserFor(current);
         return state == WebUiState.READY
-                && mainBrowser != null
-                && mainBrowser.isVisible()
-                && mainBrowser.isTextureReady();
+                && browser != null
+                && browser.isVisible()
+                && browser.isTextureReady();
     }
 
     public void render(DrawContext context) {
@@ -293,11 +353,52 @@ public final class WebUiRuntime {
         if (interopServer != null) {
             interopServer.stop();
         }
+        if (musicRuntime != null) {
+            musicRuntime.stop();
+        }
         state = WebUiState.STOPPED;
     }
 
     private boolean acceptsMainBrowserInput() {
-        return MinecraftClient.getInstance().currentScreen instanceof WebUiScreen;
+        return MinecraftClient.getInstance().currentScreen instanceof WebUiScreen screen
+                && !screen.getType().equals(WebScreenType.MUSIC);
+    }
+
+    private boolean acceptsMusicBrowserInput() {
+        return MinecraftClient.getInstance().currentScreen instanceof WebUiScreen screen
+                && screen.getType().equals(WebScreenType.MUSIC);
+    }
+
+    private Browser browserFor(WebScreenType type) {
+        if (!type.equals(WebScreenType.MUSIC)) return mainBrowser;
+        if (musicBrowser == null) {
+            musicBrowser = backendManager.getBackend().createBrowser(
+                    themeManager.getScreenUrl(WebScreenType.MUSIC),
+                    BrowserViewport.fullFrame(),
+                    BrowserSettings.DEFAULT,
+                    (short) 10,
+                    this::acceptsMusicBrowserInput
+            );
+            musicBrowser.setVisible(false);
+        }
+        return musicBrowser;
+    }
+
+    private Browser existingBrowserFor(WebScreenType type) {
+        return type.equals(WebScreenType.MUSIC) ? musicBrowser : mainBrowser;
+    }
+
+    private void prepareMusicAndActivate() {
+        musicRuntime.startAsync().whenComplete((endpoint, throwable) ->
+                MinecraftClient.getInstance().execute(() -> {
+                    if (throwable != null
+                            || !(MinecraftClient.getInstance().currentScreen instanceof WebUiScreen screen)
+                            || !screen.getType().equals(WebScreenType.MUSIC)) {
+                        return;
+                    }
+                    activateScreen(WebScreenType.MUSIC);
+                })
+        );
     }
 
     private String getCurrentRoute() {
@@ -396,6 +497,82 @@ public final class WebUiRuntime {
             }
         });
     }
+
+    private void registerMusicRoutes() {
+        var routes = interopServer.getRoutes();
+        routes.get("/api/v1/music/status", ignored ->
+                InteropResponse.json(HttpResponseStatus.OK, musicRuntime.statusJson()));
+        routes.post("/api/v1/music/retry", ignored -> {
+            musicRuntime.retryAsync();
+            return InteropResponse.json(HttpResponseStatus.ACCEPTED, musicRuntime.statusJson());
+        });
+        routes.delete("/api/v1/music/runtime", ignored -> {
+            musicRuntime.clearRuntimeAndRetryAsync();
+            return InteropResponse.json(HttpResponseStatus.ACCEPTED, musicRuntime.statusJson());
+        });
+        routes.get("/api/v1/music/storage", ignored ->
+                InteropResponse.json(HttpResponseStatus.OK, musicStorage.all()));
+        routes.put("/api/v1/music/storage", request -> {
+            JsonObject filtered = new JsonObject();
+            for (String key : MUSIC_STORAGE_KEYS) {
+                if (request.body().has(key)
+                        && request.body().get(key).isJsonPrimitive()
+                        && request.body().get(key).getAsJsonPrimitive().isString()) {
+                    filtered.addProperty(key, request.body().get(key).getAsString());
+                }
+            }
+            // A refresh response may rotate a NetEase cookie in Java while the hidden
+            // page still has the previous value in localStorage. Preserve the newer
+            // server-side value until the next page hydration. Omitting the key still
+            // clears it immediately during logout.
+            for (String cookieKey : MUSIC_COOKIE_STORAGE_KEYS) {
+                if (!filtered.has(cookieKey)) continue;
+                var current = musicStorage.get(cookieKey);
+                if (current != null
+                        && current.isJsonPrimitive()
+                        && current.getAsJsonPrimitive().isString()
+                        && !current.getAsString().equals(filtered.get(cookieKey).getAsString())) {
+                    filtered.add(cookieKey, current);
+                }
+            }
+            try {
+                musicStorage.replace(filtered);
+                return InteropResponse.noContent();
+            } catch (Exception exception) {
+                Client.logger.error("Failed to persist music storage", exception);
+                return InteropResponse.text(
+                        HttpResponseStatus.INTERNAL_SERVER_ERROR,
+                        "Music storage write failed"
+                );
+            }
+        });
+        routes.delete("/api/v1/music/storage", ignored -> {
+            try {
+                musicStorage.replace(new JsonObject());
+                return InteropResponse.noContent();
+            } catch (Exception exception) {
+                Client.logger.error("Failed to clear music storage", exception);
+                return InteropResponse.text(
+                        HttpResponseStatus.INTERNAL_SERVER_ERROR,
+                        "Music storage clear failed"
+                );
+            }
+        });
+    }
+
+    private static final Set<String> MUSIC_STORAGE_KEYS = Set.of(
+            "appVersion",
+            "settings",
+            "data",
+            "player",
+            "playerCurrentTrackTime",
+            "cookie-MUSIC_U",
+            "cookie-__csrf"
+    );
+    private static final Set<String> MUSIC_COOKIE_STORAGE_KEYS = Set.of(
+            "cookie-MUSIC_U",
+            "cookie-__csrf"
+    );
 
     private static String firstQueryValue(java.util.Map<String, java.util.List<String>> query, String key) {
         java.util.List<String> values = query.get(key);

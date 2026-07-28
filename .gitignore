@@ -23,3 +23,6 @@ run
 # WebUI build products
 src-webui/node_modules/
 src-webui/dist/
+src-music-webui/node_modules/
+src-music-webui/dist/
+src-music-sidecar/node_modules/

@@ -111,7 +111,7 @@ dependencies {
 }
 
 node {
-    version = "22.14.0"
+    version = "24.18.0"
     download = true
     nodeProjectDir = file("src-webui")
 }
@@ -131,9 +131,88 @@ def buildWebUi = tasks.register("buildWebUi", com.github.gradle.node.npm.task.Np
     outputs.dir("src-webui/dist")
 }
 
+def installMusicWebUi = tasks.register("installMusicWebUi", com.github.gradle.node.npm.task.NpmTask) {
+    args = [
+            "--prefix",
+            file("src-music-webui").absolutePath,
+            "ci",
+            "--legacy-peer-deps"
+    ]
+    inputs.files(
+            "src-music-webui/package.json",
+            "src-music-webui/package-lock.json"
+    )
+    outputs.dir("src-music-webui/node_modules")
+}
+
+def buildMusicWebUi = tasks.register("buildMusicWebUi", com.github.gradle.node.npm.task.NpmTask) {
+    dependsOn installMusicWebUi
+    args = [
+            "--prefix",
+            file("src-music-webui").absolutePath,
+            "run",
+            "build"
+    ]
+    inputs.files(
+            "src-music-webui/package.json",
+            "src-music-webui/package-lock.json",
+            "src-music-webui/public/index.html",
+            "src-music-webui/vue.config.js",
+            "src-music-webui/babel.config.js"
+    )
+    inputs.dir("src-music-webui/src")
+    inputs.dir("src-music-webui/public")
+    outputs.dir("src-music-webui/dist")
+}
+
+def installMusicSidecar = tasks.register("installMusicSidecar", com.github.gradle.node.npm.task.NpmTask) {
+    args = [
+            "--prefix",
+            file("src-music-sidecar").absolutePath,
+            "ci",
+            "--omit=dev"
+    ]
+    inputs.files(
+            "src-music-sidecar/package.json",
+            "src-music-sidecar/package-lock.json"
+    )
+    outputs.dir("src-music-sidecar/node_modules")
+}
+
+def bundleMusicSidecar = tasks.register("bundleMusicSidecar", Zip) {
+    dependsOn installMusicSidecar
+    from("src-music-sidecar") {
+        include "index.js"
+        include "package.json"
+        include "package-lock.json"
+        include "node_modules/**"
+    }
+    archiveFileName = "sidecar.zip"
+    destinationDirectory = layout.buildDirectory.dir("generated/music")
+}
+
+def testMusicSidecar = tasks.register("testMusicSidecar", com.github.gradle.node.npm.task.NpmTask) {
+    dependsOn installMusicSidecar
+    args = [
+            "--prefix",
+            file("src-music-sidecar").absolutePath,
+            "test"
+    ]
+    inputs.files(
+            "src-music-sidecar/index.js",
+            "src-music-sidecar/test.js",
+            "src-music-sidecar/package.json",
+            "src-music-sidecar/package-lock.json"
+    )
+}
+
 def bundleWebUi = tasks.register("bundleWebUi", Zip) {
     dependsOn buildWebUi
+    dependsOn buildMusicWebUi
     from("src-webui/dist")
+    from("src-music-webui/dist") {
+        into "music"
+    }
     archiveFileName = "webui.zip"
     destinationDirectory = layout.buildDirectory.dir("generated/webui")
 }
@@ -141,6 +220,7 @@ def bundleWebUi = tasks.register("bundleWebUi", Zip) {
 processResources {
     dependsOn syncModVersion
     dependsOn bundleWebUi
+    dependsOn bundleMusicSidecar
 
     inputs.property "version", project.version
     inputs.property "minecraft_version", project.minecraft_version
@@ -155,6 +235,9 @@ processResources {
 
     from(bundleWebUi.flatMap { it.archiveFile }) {
         into "assets/omix/webui"
+    }
+    from(bundleMusicSidecar.flatMap { it.archiveFile }) {
+        into "assets/omix/music"
     }
 }
 
@@ -215,6 +298,49 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
             if (!missing.isEmpty()) {
                 throw new GradleException("WebUI runtime dependencies missing from ${archive.name}: ${missing}")
             }
+            if (zip.getEntry("assets/omix/webui/webui.zip") == null) {
+                throw new GradleException("Combined WebUI bundle missing from ${archive.name}")
+            }
+            if (zip.getEntry("assets/omix/music/sidecar.zip") == null) {
+                throw new GradleException("Music sidecar bundle missing from ${archive.name}")
+            }
+            def forbiddenName = { String name ->
+                def normalized = name.replace('\\', '/')
+                def leaf = normalized.tokenize('/').last()
+                leaf ==~ /(?i)node(\.exe)?/ ||
+                        leaf ==~ /(?i)node-v24\.18\.0-(win|darwin|linux)-.*\.(zip|tar\.gz)/
+            }
+            def forbiddenRuntime = zip.entries().find { !it.directory && forbiddenName(it.name) }
+            if (forbiddenRuntime != null) {
+                throw new GradleException("Platform Node runtime must not be embedded: ${forbiddenRuntime.name}")
+            }
+
+            def inspectNestedZip = { String entryName, Closure visitor ->
+                def nested = new java.util.zip.ZipInputStream(zip.getInputStream(zip.getEntry(entryName)))
+                try {
+                    java.util.zip.ZipEntry entry
+                    while ((entry = nested.nextEntry) != null) {
+                        visitor(entry)
+                    }
+                } finally {
+                    nested.close()
+                }
+            }
+            def hasMusicIndex = false
+            inspectNestedZip("assets/omix/webui/webui.zip") { entry ->
+                if (entry.name == "music/index.html") hasMusicIndex = true
+                if (!entry.directory && forbiddenName(entry.name)) {
+                    throw new GradleException("Node runtime leaked into WebUI bundle: ${entry.name}")
+                }
+            }
+            if (!hasMusicIndex) {
+                throw new GradleException("Music WebUI index missing from combined WebUI bundle")
+            }
+            inspectNestedZip("assets/omix/music/sidecar.zip") { entry ->
+                if (!entry.directory && forbiddenName(entry.name)) {
+                    throw new GradleException("Node runtime leaked into sidecar bundle: ${entry.name}")
+                }
+            }
         } finally {
             zip.close()
         }
@@ -223,6 +349,7 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
 
 tasks.named("check") {
     dependsOn verifyWebUiRuntimeBundle
+    dependsOn testMusicSidecar
 }
 
 // configure the maven publication
