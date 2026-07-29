@@ -46,14 +46,11 @@ public final class WebUiScreen extends Screen {
         boolean music = type.equals(WebScreenType.MUSIC);
         MusicPanelLayout musicLayout = music ? MusicPanelLayout.current() : null;
         if (music) {
-            renderMusicBackdrop(context, mouseX, mouseY, deltaTicks);
+            renderMusicBackdrop(context);
             renderMusicPanelBase(context, musicLayout);
         }
         if (runtime.isBrowserTextureReady()) {
             runtime.render(context);
-            if (music) {
-                renderMusicPanelChrome(context, musicLayout);
-            }
             return;
         }
 
@@ -89,9 +86,6 @@ public final class WebUiScreen extends Screen {
                     (music ? panelCenterY(musicLayout) : height / 2) + 2,
                     0xFFFFAAAA
             );
-            if (music) {
-                renderMusicPanelChrome(context, musicLayout);
-            }
             return;
         }
 
@@ -120,9 +114,6 @@ public final class WebUiScreen extends Screen {
                     barY + 4,
                     0xFF55A8FF
             );
-        }
-        if (music) {
-            renderMusicPanelChrome(context, musicLayout);
         }
     }
 
@@ -210,13 +201,9 @@ public final class WebUiScreen extends Screen {
         options.sprintKey.setPressed(false);
     }
 
-    private void renderMusicBackdrop(
-            DrawContext context,
-            int mouseX,
-            int mouseY,
-            float deltaTicks
-    ) {
-        renderBackground(context, mouseX, mouseY, deltaTicks);
+    private void renderMusicBackdrop(DrawContext context) {
+        // Minecraft invokes renderBackground before Screen.render. Calling it here
+        // again crashes 1.21.11 with "Can only blur once per frame".
         context.fill(0, 0, width, height, 0x52000000);
     }
 
@@ -226,89 +213,13 @@ public final class WebUiScreen extends Screen {
         int panelY = (int) Math.round(layout.y() / scale);
         int panelWidth = panelGuiWidth(layout);
         int panelHeight = (int) Math.round(layout.height() / scale);
-        int shadow = Math.max(2, (int) Math.round(4.0D));
-
-        fillSoftRectangle(
-                context,
-                panelX - shadow,
-                panelY - shadow,
-                panelWidth + shadow * 2,
-                panelHeight + shadow * 2,
-                0x66000000
-        );
-        fillSoftRectangle(
-                context,
+        context.fill(
                 panelX,
                 panelY,
-                panelWidth,
-                panelHeight,
+                panelX + panelWidth,
+                panelY + panelHeight,
                 0xFF202124
         );
-    }
-
-    private void renderMusicPanelChrome(DrawContext context, MusicPanelLayout layout) {
-        double scale = client.getWindow().getScaleFactor();
-        int panelX = (int) Math.round(layout.x() / scale);
-        int panelY = (int) Math.round(layout.y() / scale);
-        int panelWidth = panelGuiWidth(layout);
-        int panelHeight = (int) Math.round(layout.height() / scale);
-        int chromeHeight = Math.max(5, (int) Math.round(layout.chromeHeight() / scale));
-
-        context.fill(
-                panelX + 2,
-                panelY + chromeHeight - 1,
-                panelX + panelWidth - 2,
-                panelY + chromeHeight,
-                0xFF303238
-        );
-        drawTrafficLight(context, panelX + 12, panelY + chromeHeight / 2, 0xFFE06C5F);
-        drawTrafficLight(context, panelX + 22, panelY + chromeHeight / 2, 0xFFE8BE55);
-        drawTrafficLight(context, panelX + 32, panelY + chromeHeight / 2, 0xFF70BC62);
-
-        int outline = 0xFF4A4D55;
-        context.fill(panelX + 3, panelY, panelX + panelWidth - 3, panelY + 1, outline);
-        context.fill(
-                panelX + 3,
-                panelY + panelHeight - 1,
-                panelX + panelWidth - 3,
-                panelY + panelHeight,
-                outline
-        );
-        context.fill(panelX, panelY + 3, panelX + 1, panelY + panelHeight - 3, outline);
-        context.fill(
-                panelX + panelWidth - 1,
-                panelY + 3,
-                panelX + panelWidth,
-                panelY + panelHeight - 3,
-                outline
-        );
-    }
-
-    private static void fillSoftRectangle(
-            DrawContext context,
-            int x,
-            int y,
-            int width,
-            int height,
-            int color
-    ) {
-        if (width <= 4 || height <= 4) {
-            context.fill(x, y, x + width, y + height, color);
-            return;
-        }
-        context.fill(x + 2, y, x + width - 2, y + height, color);
-        context.fill(x, y + 2, x + width, y + height - 2, color);
-        context.fill(x + 1, y + 1, x + width - 1, y + height - 1, color);
-    }
-
-    private static void drawTrafficLight(
-            DrawContext context,
-            int centerX,
-            int centerY,
-            int color
-    ) {
-        context.fill(centerX - 2, centerY - 3, centerX + 2, centerY + 4, color);
-        context.fill(centerX - 3, centerY - 2, centerX + 3, centerY + 3, color);
     }
 
     private int panelCenterX(MusicPanelLayout layout) {

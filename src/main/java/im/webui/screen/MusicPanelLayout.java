@@ -7,9 +7,7 @@ public record MusicPanelLayout(
         int x,
         int y,
         int width,
-        int height,
-        int chromeHeight,
-        int border
+        int height
 ) {
     private static final double LARGE_WIDTH_RATIO = 0.80D;
     private static final double LARGE_HEIGHT_RATIO = 0.82D;
@@ -33,8 +31,10 @@ public record MusicPanelLayout(
         int safeWidth = Math.max(1, framebufferWidth);
         int safeHeight = Math.max(1, framebufferHeight);
         double safeScale = Math.max(1.0D, guiScale);
-        boolean compact = safeWidth / safeScale < 1_000.0D
-                || safeHeight / safeScale < 620.0D;
+        // Minecraft's GUI scale can be 4 on a Retina display even when the window
+        // itself is large. Use framebuffer size for the breakpoint so high GUI
+        // scales do not incorrectly turn a desktop window into the compact layout.
+        boolean compact = safeWidth < 1_280 || safeHeight < 720;
         double widthRatio = compact ? COMPACT_WIDTH_RATIO : LARGE_WIDTH_RATIO;
         double heightRatio = compact ? COMPACT_HEIGHT_RATIO : LARGE_HEIGHT_RATIO;
 
@@ -51,35 +51,20 @@ public record MusicPanelLayout(
         );
         int x = Math.max(0, (safeWidth - panelWidth) / 2);
         int y = Math.max(0, (safeHeight - panelHeight) / 2);
-        int border = Math.max(1, (int) Math.round(safeScale));
-        int desiredChromeHeight = Math.max(
-                border + 1,
-                (int) Math.round(22.0D * safeScale)
-        );
-        int chromeHeight = Math.min(
-                desiredChromeHeight,
-                Math.max(border + 1, panelHeight / 5)
-        );
         return new MusicPanelLayout(
                 x,
                 y,
                 panelWidth,
-                panelHeight,
-                chromeHeight,
-                border
+                panelHeight
         );
     }
 
     public BrowserViewport browserViewport() {
-        int browserX = x + border;
-        int browserY = y + chromeHeight;
-        int browserWidth = Math.max(1, width - border * 2);
-        int browserHeight = Math.max(1, height - chromeHeight - border);
         return new BrowserViewport(
-                browserX,
-                browserY,
-                browserWidth,
-                browserHeight,
+                x,
+                y,
+                width,
+                height,
                 false
         );
     }

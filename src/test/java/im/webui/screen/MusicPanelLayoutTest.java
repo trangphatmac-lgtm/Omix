@@ -17,10 +17,10 @@ class MusicPanelLayoutTest {
         assertEquals((1920 - layout.width()) / 2, layout.x());
         assertEquals((1080 - layout.height()) / 2, layout.y());
         assertFalse(browser.fullscreen());
-        assertTrue(browser.x() > layout.x());
-        assertTrue(browser.y() > layout.y());
-        assertTrue(browser.width() < layout.width());
-        assertTrue(browser.height() < layout.height());
+        assertEquals(layout.x(), browser.x());
+        assertEquals(layout.y(), browser.y());
+        assertEquals(layout.width(), browser.width());
+        assertEquals(layout.height(), browser.height());
     }
 
     @Test
@@ -36,13 +36,25 @@ class MusicPanelLayoutTest {
     }
 
     @Test
-    void browserViewportExcludesPanelChrome() {
+    void browserViewportFillsTheWholePanel() {
         MusicPanelLayout layout = MusicPanelLayout.calculate(2560, 1440, 2.0D);
         var browser = layout.browserViewport();
 
-        assertEquals(layout.y() + layout.chromeHeight(), browser.y());
-        assertEquals(layout.height() - layout.chromeHeight() - layout.border(), browser.height());
+        assertEquals(layout.x(), browser.x());
+        assertEquals(layout.y(), browser.y());
+        assertEquals(layout.width(), browser.width());
+        assertEquals(layout.height(), browser.height());
         assertTrue(browser.contains(browser.x(), browser.y()));
-        assertFalse(browser.contains(layout.x(), layout.y()));
+        assertFalse(browser.contains(layout.x() - 1, layout.y()));
+    }
+
+    @Test
+    void retinaWindowDoesNotUseCompactLayoutBecauseOfMinecraftGuiScale() {
+        MusicPanelLayout layout = MusicPanelLayout.calculate(3840, 2054, 4.0D);
+
+        assertEquals(3072, layout.width());
+        assertEquals(1684, layout.height());
+        assertEquals(384, layout.x());
+        assertEquals(185, layout.y());
     }
 }
