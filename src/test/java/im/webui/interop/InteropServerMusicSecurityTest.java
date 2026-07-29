@@ -11,6 +11,13 @@ class InteropServerMusicSecurityTest {
     void onlyAllowsDeclaredReadSidecarRoutes() {
         assertTrue(InteropServer.isMusicApiAllowed("GET", "/search"));
         assertTrue(InteropServer.isMusicApiAllowed("POST", "/login/qr/check"));
+        assertTrue(InteropServer.isMusicApiAllowed("GET", "/likelist"));
+        assertTrue(InteropServer.isMusicApiAllowed("GET", "/album/sublist"));
+        assertTrue(InteropServer.isMusicApiAllowed("GET", "/artist/sublist"));
+        assertTrue(InteropServer.isMusicApiAllowed("GET", "/mv/sublist"));
+        assertTrue(InteropServer.isMusicApiAllowed("GET", "/user/cloud"));
+        assertTrue(InteropServer.isMusicApiAllowed("GET", "/user/record"));
+        assertTrue(InteropServer.isMusicApiAllowed("GET", "/audio/transcode"));
         assertFalse(InteropServer.isMusicApiAllowed("DELETE", "/search"));
         assertFalse(InteropServer.isMusicApiAllowed("GET", "/playlist/delete"));
         assertFalse(InteropServer.isMusicApiAllowed("GET", "/../healthz"));

@@ -14,6 +14,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.HexFormat;
@@ -107,10 +108,13 @@ public final class MusicSidecarManager {
         }
     }
 
-    private Path ensureExtracted() throws IOException {
+    Path ensureExtracted() throws IOException {
         Path directory = root.resolve("sidecar").resolve(VERSION).normalize();
         Path marker = directory.resolve(".complete");
-        if (Files.isRegularFile(marker) && Files.isRegularFile(directory.resolve("index.js"))) {
+        String bundledIdentity = VERSION + "\n" + bundledSha256();
+        if (Files.isRegularFile(marker)
+                && Files.isRegularFile(directory.resolve("index.js"))
+                && bundledIdentity.equals(Files.readString(marker, StandardCharsets.UTF_8).strip())) {
             return directory;
         }
         if (Files.exists(directory)) deleteRecursively(directory);
@@ -136,8 +140,23 @@ public final class MusicSidecarManager {
             deleteRecursively(directory);
             throw exception;
         }
-        Files.writeString(marker, VERSION, StandardCharsets.UTF_8);
+        Files.writeString(marker, bundledIdentity, StandardCharsets.UTF_8);
         return directory;
+    }
+
+    private static String bundledSha256() throws IOException {
+        try (InputStream resource = MusicSidecarManager.class.getResourceAsStream(RESOURCE)) {
+            if (resource == null) throw new IOException("Missing bundled music sidecar");
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] buffer = new byte[64 * 1024];
+            int length;
+            while ((length = resource.read(buffer)) >= 0) {
+                if (length > 0) digest.update(buffer, 0, length);
+            }
+            return HexFormat.of().formatHex(digest.digest());
+        } catch (java.security.GeneralSecurityException exception) {
+            throw new IOException("Unable to identify bundled music sidecar", exception);
+        }
     }
 
     private void waitUntilHealthy(Process started) throws Exception {

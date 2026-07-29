@@ -26,7 +26,7 @@
           <div class="titles">
             <div class="title">{{ $t('library.likedSongs') }}</div>
             <div class="sub-title">
-              {{ liked.songs.length }} {{ $t('common.songs') }}
+              {{ likedSongCount }} {{ $t('common.songs') }}
             </div>
           </div>
           <button aria-label="播放我喜欢的音乐" @click.stop="openPlayModeTabMenu">
@@ -216,6 +216,7 @@ export default {
       currentTab: 'playlists',
       playHistoryMode: 'week',
       loading: false,
+      loadError: false,
     };
   },
   computed: {
@@ -274,8 +275,15 @@ export default {
         this.playHistoryMode === 'week' ? 'weekData' : 'allData'
       ] || [];
     },
+    likedSongCount() {
+      return Math.max(
+        this.liked.songs.length,
+        Number(this.liked.playlists[0]?.trackCount) || 0
+      );
+    },
     emptyTabText() {
-      return this.loading ? '正在加载…' : '这里暂时没有内容';
+      if (this.loading) return '正在加载…';
+      return this.loadError ? '加载失败，请重试' : '这里暂时没有内容';
     },
   },
   created() {
@@ -291,19 +299,26 @@ export default {
     async loadData() {
       if (this.loading) return;
       this.loading = true;
+      this.loadError = false;
       if (!this.show) NProgress.start();
       try {
         await this.$store.dispatch('fetchLikedPlaylist');
-        await Promise.allSettled([
-          this.$store.dispatch('fetchLikedSongs'),
-          this.$store.dispatch('fetchLikedSongsWithDetails'),
+        await this.$store.dispatch('fetchLikedSongsWithDetails');
+        const results = await Promise.allSettled([
           this.$store.dispatch('fetchLikedAlbums'),
           this.$store.dispatch('fetchLikedArtists'),
           this.$store.dispatch('fetchLikedMVs'),
           this.$store.dispatch('fetchCloudDisk'),
           this.$store.dispatch('fetchPlayHistory'),
         ]);
+        this.loadError = results.some(result => result.status === 'rejected');
+        if (this.loadError) {
+          this.showToast('部分音乐库内容加载失败，请重试');
+        }
         this.getRandomLyric();
+      } catch {
+        this.loadError = true;
+        this.showToast('音乐库加载失败，请重试');
       } finally {
         this.loading = false;
         this.show = true;

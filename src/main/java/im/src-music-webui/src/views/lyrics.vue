@@ -278,9 +278,54 @@ import { formatTrackTime } from '@/utils/common';
 import { getLyric } from '@/api/track';
 import { lyricParser, copyLyric } from '@/utils/lyrics';
 import ButtonIcon from '@/components/ButtonIcon.vue';
-import * as Vibrant from 'node-vibrant/dist/vibrant.worker.min.js';
 import Color from 'color';
 import { hasListSource, getListSourcePath } from '@/utils/playList';
+
+function sampleCoverColor(url) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = 'anonymous';
+    image.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+        const context = canvas.getContext('2d', { willReadFrequently: true });
+        if (!context) throw new Error('Canvas is unavailable');
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        const pixels = context.getImageData(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        ).data;
+        let red = 0;
+        let green = 0;
+        let blue = 0;
+        let weight = 0;
+        for (let index = 0; index < pixels.length; index += 4) {
+          const alpha = pixels[index + 3] / 255;
+          if (alpha < 0.05) continue;
+          const nearWhite =
+            pixels[index] > 245 &&
+            pixels[index + 1] > 245 &&
+            pixels[index + 2] > 245;
+          const pixelWeight = alpha * (nearWhite ? 0.2 : 1);
+          red += pixels[index] * pixelWeight;
+          green += pixels[index + 1] * pixelWeight;
+          blue += pixels[index + 2] * pixelWeight;
+          weight += pixelWeight;
+        }
+        if (!weight) throw new Error('Cover has no visible pixels');
+        resolve([red / weight, green / weight, blue / weight]);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    image.onerror = () => reject(new Error('Unable to load cover'));
+    image.src = url;
+  });
+}
 
 export default {
   name: 'Lyrics',
@@ -299,6 +344,8 @@ export default {
       highlightLyricIndex: -1,
       minimize: true,
       background: '',
+      lyricRequest: 0,
+      coverColorRequest: 0,
       date: this.formatTime(new Date()),
       isFullscreen: !!document.fullscreenElement,
       rightClickLyric: null,
@@ -414,9 +461,21 @@ export default {
     },
   },
   watch: {
-    currentTrack() {
-      this.getLyric();
-      this.getCoverColor();
+    'currentTrack.id': {
+      immediate: true,
+      handler(trackID) {
+        if (!trackID) return;
+        this.getLyric(trackID);
+        this.getCoverColor(trackID);
+      },
+    },
+    'settings.lyricsBackground'(enabled) {
+      if (enabled === true && this.currentTrack.id) {
+        this.getCoverColor(this.currentTrack.id);
+      } else {
+        this.coverColorRequest += 1;
+        this.background = '';
+      }
     },
     showLyrics(show) {
       if (show) {
@@ -429,8 +488,6 @@ export default {
     },
   },
   created() {
-    this.getLyric();
-    this.getCoverColor();
     this.initDate();
     document.addEventListener('keydown', e => {
       if (e.key === 'F11') {
@@ -487,9 +544,17 @@ export default {
     playNextTrack() {
       this.player.playNextTrack();
     },
-    getLyric() {
-      if (!this.currentTrack.id) return;
-      return getLyric(this.currentTrack.id).then(data => {
+    getLyric(trackID = this.currentTrack.id) {
+      if (!trackID) return;
+      const request = ++this.lyricRequest;
+      const artistName = this.currentTrack?.ar?.[0]?.name;
+      return getLyric(trackID).then(data => {
+        if (
+          request !== this.lyricRequest ||
+          this.currentTrack.id !== trackID
+        ) {
+          return false;
+        }
         if (!data?.lrc?.lyric) {
           this.lyric = [];
           this.tlyric = [];
@@ -505,7 +570,7 @@ export default {
             lyric.map(l => l.content).includes('纯音乐，请欣赏');
           if (includeAM) {
             let reg = /^作(词|曲)\s*(:|：)\s*/;
-            let author = this.currentTrack?.ar[0]?.name;
+            let author = artistName;
             lyric = lyric.filter(l => {
               let regExpArr = l.content.match(reg);
               return (
@@ -596,17 +661,47 @@ export default {
     switchShuffle() {
       this.player.switchShuffle();
     },
-    getCoverColor() {
-      if (this.settings.lyricsBackground !== true) return;
-      const cover = this.currentTrack.al?.picUrl + '?param=256y256';
-      Vibrant.from(cover, { colorCount: 1 })
-        .getPalette()
-        .then(palette => {
-          const originColor = Color.rgb(palette.DarkMuted._rgb);
-          const color = originColor.darken(0.1).rgb().string();
-          const color2 = originColor.lighten(0.28).rotate(-30).rgb().string();
-          this.background = `linear-gradient(to top left, ${color}, ${color2})`;
-        });
+    async getCoverColor(trackID = this.currentTrack.id) {
+      const request = ++this.coverColorRequest;
+      const picUrl = this.currentTrack.al?.picUrl;
+      this.background = '';
+      if (
+        this.settings.lyricsBackground !== true ||
+        !trackID ||
+        !picUrl
+      ) {
+        return;
+      }
+      try {
+        const rgb = await sampleCoverColor(
+          `${picUrl}?param=64y64&omixTrack=${encodeURIComponent(trackID)}`
+        );
+        if (
+          request !== this.coverColorRequest ||
+          this.currentTrack.id !== trackID ||
+          this.currentTrack.al?.picUrl !== picUrl
+        ) {
+          return;
+        }
+        const originColor = Color.rgb(rgb);
+        const color = originColor
+          .mix(Color.rgb(12, 14, 18), 0.38)
+          .rgb()
+          .string();
+        const color2 = originColor
+          .mix(Color.rgb(255, 255, 255), 0.22)
+          .rgb()
+          .string();
+        this.background = `linear-gradient(to top left, ${color}, ${color2})`;
+      } catch {
+        if (
+          request === this.coverColorRequest &&
+          this.currentTrack.id === trackID
+        ) {
+          this.background =
+            'linear-gradient(to top left, rgb(24, 26, 31), rgb(62, 66, 76))';
+        }
+      }
     },
     hasList() {
       return hasListSource();

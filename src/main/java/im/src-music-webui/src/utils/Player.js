@@ -250,17 +250,18 @@ export default class {
     this._shuffledList = shuffle(list);
     if (firstTrackID !== 'first') this._shuffledList.unshift(firstTrackID);
   }
-  _playAudioSource(source, autoplay = true) {
+  _playAudioSource(source, autoplay = true, format = null) {
     Howler.unload();
-    this._howler = new Howl({
+    const options = {
       src: [source],
       html5: true,
       preload: true,
-      format: ['mp3'],
       onend: () => {
         this._nextTrackCallback();
       },
-    });
+    };
+    if (format) options.format = [format];
+    this._howler = new Howl(options);
     this._howler.on('loaderror', (_, errCode) => {
       // https://developer.mozilla.org/en-US/docs/Web/API/MediaError/code
       // code 3: MEDIA_ERR_DECODE
@@ -310,30 +311,95 @@ export default class {
   }
   _getAudioSourceFromNetease(track) {
     return getMP3(track.id).then(result => {
-      if (!result.data[0] || !result.data[0].url) return null;
-      if (result.data[0].freeTrialInfo !== null) return null;
-      return result.data[0].url.replace(/^http:/, 'https:');
+      const audio = result.data[0];
+      if (!audio || !audio.url) return null;
+      if (audio.freeTrialInfo !== null) return null;
+      const detectedFormat = String(
+        audio.encodeType || audio.type || ''
+      ).toLowerCase();
+      const isCloudAac =
+        this._isCloudTrack(track.id) &&
+        ['aac', 'm4a', 'mp4'].includes(detectedFormat);
+      return {
+        source: isCloudAac
+          ? `/music-api/audio/transcode?id=${encodeURIComponent(track.id)}`
+          : audio.url.replace(/^http:/, 'https:'),
+        format: isCloudAac ? 'mp3' : detectedFormat || null,
+        transcoded: isCloudAac,
+      };
     });
+  }
+  _getTrackAudioFormat(track, source) {
+    const candidates = [
+      track?._cloudFileName,
+      track?.fileName,
+      source,
+    ].filter(Boolean);
+    const supportedFormats = new Set([
+      'aac',
+      'flac',
+      'm4a',
+      'mp3',
+      'ogg',
+      'opus',
+      'wav',
+      'webm',
+    ]);
+
+    for (const candidate of candidates) {
+      const cleanValue = String(candidate).split(/[?#]/)[0];
+      const extension = cleanValue.match(/\.([a-z0-9]+)$/i)?.[1]?.toLowerCase();
+      const format = extension === 'mp4' ? 'm4a' : extension;
+      if (supportedFormats.has(format)) return format;
+    }
+
+    // 云盘返回的播放地址可能没有扩展名，Howler 无法从 blob URL 推断格式。
+    return this._isCloudTrack(track?.id) ? 'm4a' : null;
+  }
+  _isCloudTrack(trackID) {
+    return (
+      this.playlistSource.type === 'cloudDisk' ||
+      store.state.liked.cloudDisk.some(
+        item => item.songId === trackID || item.simpleSong?.id === trackID
+      )
+    );
+  }
+  _getCloudTrack(track) {
+    if (!this._isCloudTrack(track.id)) return track;
+    const cloudTrack = store.state.liked.cloudDisk.find(
+      item => item.songId === track.id || item.simpleSong?.id === track.id
+    );
+    if (!cloudTrack) return track;
+    return {
+      ...track,
+      _cloudFileName: cloudTrack.fileName,
+    };
   }
   async _getAudioSource(track) {
     const quality = store.state.settings?.musicQuality ?? 320000;
-    const cachedSource = await getCachedAudioSource(track.id, quality);
-    if (cachedSource) {
-      for (const url of this.createdBlobRecords) URL.revokeObjectURL(url);
-      this.createdBlobRecords = [cachedSource];
-      return cachedSource;
+    if (!this._isCloudTrack(track.id)) {
+      const cachedSource = await getCachedAudioSource(track.id, quality);
+      if (cachedSource) {
+        for (const url of this.createdBlobRecords) URL.revokeObjectURL(url);
+        this.createdBlobRecords = [cachedSource];
+        return { source: cachedSource, format: null, transcoded: false };
+      }
     }
 
-    const source = await this._getAudioSourceFromNetease(track);
-    if (source && store.state.settings?.automaticallyCacheSongs) {
+    const audioSource = await this._getAudioSourceFromNetease(track);
+    if (
+      audioSource?.source &&
+      !audioSource.transcoded &&
+      store.state.settings?.automaticallyCacheSongs
+    ) {
       void cacheAudioSource(
-        source,
+        audioSource.source,
         track.id,
         quality,
         store.state.settings.cacheLimit
       ).catch(() => {});
     }
-    return source;
+    return audioSource;
   }
   _replaceCurrentTrack(
     id,
@@ -341,7 +407,7 @@ export default class {
     ifUnplayableThen = UNPLAYABLE_CONDITION.PLAY_NEXT_TRACK
   ) {
     return getTrackDetail(id).then(data => {
-      const track = data.songs[0];
+      const track = this._getCloudTrack(data.songs[0]);
       this._currentTrack = track;
       return this._replaceCurrentTrackAudio(
         track,
@@ -360,11 +426,16 @@ export default class {
     isCacheNextTrack,
     ifUnplayableThen = UNPLAYABLE_CONDITION.PLAY_NEXT_TRACK
   ) {
-    return this._getAudioSource(track).then(source => {
-      if (source) {
+    return this._getAudioSource(track).then(audioSource => {
+      if (audioSource?.source) {
         let replaced = false;
         if (track.id === this.currentTrackID) {
-          this._playAudioSource(source, autoplay);
+          this._playAudioSource(
+            audioSource.source,
+            autoplay,
+            audioSource.format ||
+              this._getTrackAudioFormat(track, audioSource.source)
+          );
           replaced = true;
         }
         if (isCacheNextTrack) {

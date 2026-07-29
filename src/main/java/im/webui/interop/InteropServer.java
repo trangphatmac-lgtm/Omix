@@ -274,7 +274,9 @@ public final class InteropServer {
                         ? HttpRequest.BodyPublishers.noBody()
                         : HttpRequest.BodyPublishers.ofByteArray(body);
                 HttpRequest.Builder builder = HttpRequest.newBuilder(target)
-                        .timeout(Duration.ofSeconds(25))
+                        .timeout("/audio/transcode".equals(targetPath)
+                                ? Duration.ofMinutes(2)
+                                : Duration.ofSeconds(25))
                         .header(im.music.MusicSidecarManager.TOKEN_HEADER, musicRuntime.getToken())
                         .method(request.method().name(), publisher);
                 String contentType = request.headers().get(HttpHeaderNames.CONTENT_TYPE);
@@ -381,6 +383,18 @@ public final class InteropServer {
             "/artist/album",
             "/user/account",
             "/user/playlist",
+            "/user/record",
+            "/likelist",
+            "/album/sublist",
+            "/artist/sublist",
+            "/mv/sublist",
+            "/user/cloud",
+            "/user/cloud/del",
+            "/like",
+            "/playlist/create",
+            "/playlist/tracks",
+            "/playmode/intelligence/list",
+            "/audio/transcode",
             "/song/detail",
             "/song/url",
             "/lyric"

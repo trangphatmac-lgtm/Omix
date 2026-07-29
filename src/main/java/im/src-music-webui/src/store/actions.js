@@ -61,6 +61,8 @@ export default {
     if (!playlistID) return Promise.resolve();
     return getPlaylistDetail(playlistID, true).then(result => {
       const ids = result.playlist?.trackIds?.slice(0, 12).map(t => t.id) || [];
+      const allIDs = result.playlist?.trackIds?.map(track => track.id) || [];
+      commit('updateLikedXXX', { name: 'songs', data: allIDs });
       if (!ids.length) {
         commit('updateLikedXXX', { name: 'songsWithDetails', data: [] });
         return;

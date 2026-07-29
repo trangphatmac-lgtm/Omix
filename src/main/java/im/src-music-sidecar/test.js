@@ -68,6 +68,10 @@ async function main() {
     assert.equal(JSON.parse(health.body).apiVersion, '4.29.7');
     assert.equal((await request(port, '/healthz')).status, 401);
     assert.equal((await request(port, '/not-enabled', token)).status, 404);
+    assert.equal(
+      (await request(port, '/audio/transcode?id=not-a-number', token)).status,
+      400,
+    );
   } finally {
     child.kill('SIGTERM');
     await new Promise(resolve => {

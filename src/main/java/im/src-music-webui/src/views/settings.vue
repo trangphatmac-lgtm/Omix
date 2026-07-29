@@ -38,12 +38,11 @@
           <div class="title">{{ $t('settings.language') }}</div>
         </div>
         <div class="right">
-          <select v-model="lang">
-            <option value="en">🇬🇧 English</option>
-            <option value="tr">🇹🇷 Türkçe</option>
-            <option value="zh-CN">🇨🇳 简体中文</option>
-            <option value="zh-TW">繁體中文</option>
-          </select>
+          <CustomSelect
+            v-model="lang"
+            :options="languageOptions"
+            :aria-label="$t('settings.language')"
+          />
         </div>
       </div>
 
@@ -52,15 +51,11 @@
           <div class="title">{{ $t('settings.appearance.text') }}</div>
         </div>
         <div class="right">
-          <select v-model="appearance">
-            <option value="auto">{{ $t('settings.appearance.auto') }}</option>
-            <option value="light">
-              🌞 {{ $t('settings.appearance.light') }}
-            </option>
-            <option value="dark">
-              🌚 {{ $t('settings.appearance.dark') }}
-            </option>
-          </select>
+          <CustomSelect
+            v-model="appearance"
+            :options="appearanceOptions"
+            :aria-label="$t('settings.appearance.text')"
+          />
         </div>
       </div>
 
@@ -69,12 +64,11 @@
           <div class="title">{{ $t('settings.themeColor.text') }}</div>
         </div>
         <div class="right">
-          <select v-model="themeColor">
-            <option value="default">{{ $t('settings.themeColor.default') }}</option>
-            <option value="sunset">{{ $t('settings.themeColor.sunset') }}</option>
-            <option value="ocean">{{ $t('settings.themeColor.ocean') }}</option>
-            <option value="forest">{{ $t('settings.themeColor.forest') }}</option>
-          </select>
+          <CustomSelect
+            v-model="themeColor"
+            :options="themeColorOptions"
+            :aria-label="$t('settings.themeColor.text')"
+          />
         </div>
       </div>
 
@@ -85,23 +79,11 @@
           </div>
         </div>
         <div class="right">
-          <select v-model="musicLanguage">
-            <option value="all">
-              {{ $t('settings.MusicGenrePreference.none') }}
-            </option>
-            <option value="zh">
-              {{ $t('settings.MusicGenrePreference.mandarin') }}
-            </option>
-            <option value="ea">
-              {{ $t('settings.MusicGenrePreference.western') }}
-            </option>
-            <option value="jp">
-              {{ $t('settings.MusicGenrePreference.japanese') }}
-            </option>
-            <option value="kr">
-              {{ $t('settings.MusicGenrePreference.korean') }}
-            </option>
-          </select>
+          <CustomSelect
+            v-model="musicLanguage"
+            :options="musicLanguageOptions"
+            :aria-label="$t('settings.MusicGenrePreference.text')"
+          />
         </div>
       </div>
 
@@ -110,21 +92,11 @@
           <div class="title">{{ $t('settings.musicQuality.text') }}</div>
         </div>
         <div class="right">
-          <select v-model="musicQuality">
-            <option :value="128000">
-              {{ $t('settings.musicQuality.low') }} - 128Kbps
-            </option>
-            <option :value="192000">
-              {{ $t('settings.musicQuality.medium') }} - 192Kbps
-            </option>
-            <option :value="320000">
-              {{ $t('settings.musicQuality.high') }} - 320Kbps
-            </option>
-            <option value="flac">
-              {{ $t('settings.musicQuality.lossless') }} - FLAC
-            </option>
-            <option :value="999000">Hi-Res</option>
-          </select>
+          <CustomSelect
+            v-model="musicQuality"
+            :options="musicQualityOptions"
+            :aria-label="$t('settings.musicQuality.text')"
+          />
         </div>
       </div>
 
@@ -147,14 +119,12 @@
           <div class="title">{{ $t('settings.cacheLimit.text') }}</div>
         </div>
         <div class="right">
-          <select v-model="cacheLimit" :disabled="!automaticallyCacheSongs">
-            <option :value="false">{{ $t('settings.cacheLimit.none') }}</option>
-            <option :value="512">500MB</option>
-            <option :value="1024">1GB</option>
-            <option :value="2048">2GB</option>
-            <option :value="4096">4GB</option>
-            <option :value="8192">8GB</option>
-          </select>
+          <CustomSelect
+            v-model="cacheLimit"
+            :options="cacheLimitOptions"
+            :disabled="!automaticallyCacheSongs"
+            :aria-label="$t('settings.cacheLimit.text')"
+          />
         </div>
       </div>
 
@@ -194,18 +164,11 @@
           <div class="title">{{ $t('settings.lyricsBackground.text') }}</div>
         </div>
         <div class="right">
-          <select v-model="lyricsBackground">
-            <option :value="false">
-              {{ $t('settings.lyricsBackground.off') }}
-            </option>
-            <option :value="true">
-              {{ $t('settings.lyricsBackground.on') }}
-            </option>
-            <option value="blur">模糊封面</option>
-            <option value="dynamic">
-              {{ $t('settings.lyricsBackground.dynamic') }}
-            </option>
-          </select>
+          <CustomSelect
+            v-model="lyricsBackground"
+            :options="lyricsBackgroundOptions"
+            :aria-label="$t('settings.lyricsBackground.text')"
+          />
         </div>
       </div>
 
@@ -223,20 +186,11 @@
           <div class="title">{{ $t('settings.lyricFontSize.text') }}</div>
         </div>
         <div class="right">
-          <select v-model="lyricFontSize">
-            <option :value="16">
-              {{ $t('settings.lyricFontSize.small') }} - 16px
-            </option>
-            <option :value="22">
-              {{ $t('settings.lyricFontSize.medium') }} - 22px
-            </option>
-            <option :value="28">
-              {{ $t('settings.lyricFontSize.large') }} - 28px
-            </option>
-            <option :value="36">
-              {{ $t('settings.lyricFontSize.xlarge') }} - 36px
-            </option>
-          </select>
+          <CustomSelect
+            v-model="lyricFontSize"
+            :options="lyricFontSizeOptions"
+            :aria-label="$t('settings.lyricFontSize.text')"
+          />
         </div>
       </div>
 
@@ -256,13 +210,14 @@ import {
   clearAudioCache,
   getAudioCacheStats,
 } from '@/utils/audioCache';
+import CustomSelect from '@/components/CustomSelect.vue';
 import SvgIcon from '@/components/SvgIcon.vue';
 import ToggleSwitch from '@/components/ToggleSwitch.vue';
 import pkg from '../../package.json';
 
 export default {
   name: 'Settings',
-  components: { SvgIcon, ToggleSwitch },
+  components: { CustomSelect, SvgIcon, ToggleSwitch },
   data() {
     return {
       tracksCache: { length: 0, bytes: 0 },
@@ -275,6 +230,106 @@ export default {
     },
     showUserInfo() {
       return isLooseLoggedIn() && this.data.user.nickname;
+    },
+    languageOptions() {
+      return [
+        { value: 'en', label: '🇬🇧 English' },
+        { value: 'tr', label: '🇹🇷 Türkçe' },
+        { value: 'zh-CN', label: '🇨🇳 简体中文' },
+        { value: 'zh-TW', label: '繁體中文' },
+      ];
+    },
+    appearanceOptions() {
+      return [
+        { value: 'auto', label: this.$t('settings.appearance.auto') },
+        {
+          value: 'light',
+          label: `🌞 ${this.$t('settings.appearance.light')}`,
+        },
+        {
+          value: 'dark',
+          label: `🌚 ${this.$t('settings.appearance.dark')}`,
+        },
+      ];
+    },
+    themeColorOptions() {
+      return ['default', 'sunset', 'ocean', 'forest'].map(value => ({
+        value,
+        label: this.$t(`settings.themeColor.${value}`),
+      }));
+    },
+    musicLanguageOptions() {
+      return [
+        { value: 'all', key: 'none' },
+        { value: 'zh', key: 'mandarin' },
+        { value: 'ea', key: 'western' },
+        { value: 'jp', key: 'japanese' },
+        { value: 'kr', key: 'korean' },
+      ].map(option => ({
+        value: option.value,
+        label: this.$t(`settings.MusicGenrePreference.${option.key}`),
+      }));
+    },
+    musicQualityOptions() {
+      return [
+        {
+          value: 128000,
+          label: `${this.$t('settings.musicQuality.low')} - 128Kbps`,
+        },
+        {
+          value: 192000,
+          label: `${this.$t('settings.musicQuality.medium')} - 192Kbps`,
+        },
+        {
+          value: 320000,
+          label: `${this.$t('settings.musicQuality.high')} - 320Kbps`,
+        },
+        {
+          value: 'flac',
+          label: `${this.$t('settings.musicQuality.lossless')} - FLAC`,
+        },
+        { value: 999000, label: 'Hi-Res' },
+      ];
+    },
+    cacheLimitOptions() {
+      return [
+        { value: false, label: this.$t('settings.cacheLimit.none') },
+        { value: 512, label: '500MB' },
+        { value: 1024, label: '1GB' },
+        { value: 2048, label: '2GB' },
+        { value: 4096, label: '4GB' },
+        { value: 8192, label: '8GB' },
+      ];
+    },
+    lyricsBackgroundOptions() {
+      return [
+        {
+          value: false,
+          label: this.$t('settings.lyricsBackground.off'),
+        },
+        {
+          value: true,
+          label: this.$t('settings.lyricsBackground.on'),
+        },
+        { value: 'blur', label: '模糊封面' },
+        {
+          value: 'dynamic',
+          label: this.$t('settings.lyricsBackground.dynamic'),
+        },
+      ];
+    },
+    lyricFontSizeOptions() {
+      return [
+        { value: 16, key: 'small' },
+        { value: 22, key: 'medium' },
+        { value: 28, key: 'large' },
+        { value: 36, key: 'xlarge' },
+      ].map(option => ({
+        value: option.value,
+        label: `${this.$t(`settings.lyricFontSize.${option.key}`)} - ${
+          option.value
+        }px`,
+      }));
     },
     formattedCacheSize() {
       const bytes = this.tracksCache.bytes;
@@ -528,18 +583,14 @@ h3 {
   }
 }
 
-select,
 .secondary-button {
-  min-width: 192px;
-  max-width: 320px;
-  padding: 9px 36px 9px 12px;
+  padding: 9px 12px;
   color: var(--color-text);
   font-size: 14px;
   font-weight: 600;
   background: var(--color-secondary-bg);
   border: 0;
   border-radius: 8px;
-  appearance: none;
   transition: 0.2s;
 
   &:focus {
@@ -548,14 +599,9 @@ select,
     outline: none;
   }
 
-  &:disabled {
-    opacity: 0.4;
-  }
 }
 
 .secondary-button {
-  min-width: auto;
-  padding-right: 12px;
   cursor: pointer;
 
   &:hover {
@@ -587,14 +633,8 @@ select,
     flex-direction: column;
     margin: 24px 0;
 
-    .right,
-    select {
+    .right {
       width: 100%;
-    }
-
-    select {
-      max-width: none;
-      box-sizing: border-box;
     }
   }
 }
