@@ -335,9 +335,10 @@ export default {
       if (id) this.$store.state.player.playPlaylistByID(id, 'first', true);
     },
     playIntelligenceList() {
-      // The embedded MusicPlayer has no native intelligence-list transport.
-      // Keep the original entry useful by starting the liked playlist.
-      this.playLikedSongs();
+      const id = this.liked.playlists[0]?.id;
+      if (id) {
+        this.$store.state.player.playIntelligenceListById(id, 'first', true);
+      }
     },
     openAddPlaylistModal() {
       if (!isAccountLoggedIn()) {

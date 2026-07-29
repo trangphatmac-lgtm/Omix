@@ -1,6 +1,9 @@
 import { getAlbum } from '@/api/album';
 import { getArtist } from '@/api/artist';
-import { getPlaylistDetail } from '@/api/playlist';
+import {
+  getPlaylistDetail,
+  intelligencePlaylist,
+} from '@/api/playlist';
 import { getMP3, getTrackDetail } from '@/api/track';
 import store from '@/store';
 import { Howl, Howler } from 'howler';
@@ -538,6 +541,19 @@ export default class {
     getPlaylistDetail(id, noCache).then(data => {
       let trackIDs = data.playlist.trackIds.map(t => t.id);
       this.replacePlaylist(trackIDs, id, 'playlist', trackID);
+    });
+  }
+  playIntelligenceListById(id, trackID = 'first', noCache = false) {
+    getPlaylistDetail(id, noCache).then(data => {
+      const tracks = data.playlist?.trackIds || [];
+      if (!tracks.length) return;
+      const seed = tracks[Math.floor(Math.random() * tracks.length)].id;
+      intelligencePlaylist({ id: seed, pid: id }).then(result => {
+        const trackIDs = (result.data || []).map(track => track.id);
+        if (trackIDs.length) {
+          this.replacePlaylist(trackIDs, id, 'playlist', trackID);
+        }
+      });
     });
   }
   playArtistByID(id, trackID = 'first') {
