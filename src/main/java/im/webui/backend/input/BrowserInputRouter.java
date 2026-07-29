@@ -17,7 +17,9 @@ public final class BrowserInputRouter {
         double[] position = mousePositionInFramebuffer();
         for (Browser browser : acceptingBrowsers()) {
             if (action == 1) {
-                browser.mouseClicked(position[0], position[1], button);
+                if (browser.getViewport().contains(position[0], position[1])) {
+                    browser.mouseClicked(position[0], position[1], button);
+                }
             } else if (action == 0) {
                 browser.mouseReleased(position[0], position[1], button);
             }
@@ -36,7 +38,9 @@ public final class BrowserInputRouter {
     public void mouseScrolled(double vertical) {
         double[] position = mousePositionInFramebuffer();
         for (Browser browser : acceptingBrowsers()) {
-            browser.mouseScrolled(position[0], position[1], vertical);
+            if (browser.getViewport().contains(position[0], position[1])) {
+                browser.mouseScrolled(position[0], position[1], vertical);
+            }
         }
     }
 

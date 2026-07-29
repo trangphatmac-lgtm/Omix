@@ -79,7 +79,8 @@ public final class AccountManager {
                         readString(object, "username"),
                         Optional.ofNullable(object.get("unban")).map(JsonElement::getAsLong).orElse(0L),
                         readString(object, "clientId"),
-                        readString(object, "scope")
+                        readString(object, "scope"),
+                        Optional.ofNullable(object.get("offline")).map(JsonElement::getAsBoolean).orElse(false)
                 ));
                 migrationNeeded |= needsMigration(storedRefreshToken)
                         || needsMigration(storedAccessToken);
@@ -102,6 +103,7 @@ public final class AccountManager {
                 object.addProperty("unban", account.getUnban());
                 object.addProperty("clientId", account.getClientId());
                 object.addProperty("scope", account.getScope());
+                object.addProperty("offline", account.isOffline());
                 array.add(object);
             }
             try (PrintWriter writer = new PrintWriter(new FileWriter(FILE))) {

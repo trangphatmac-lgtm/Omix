@@ -17,6 +17,7 @@ import im.webui.interop.ClickGuiInteropBridge;
 import im.webui.interop.PersistentLocalStorage;
 import im.webui.render.BrowserRenderer;
 import im.webui.screen.WebUiScreen;
+import im.webui.screen.MusicPanelLayout;
 import im.webui.screen.WebScreenManager;
 import im.webui.screen.WebScreenOpenResult;
 import im.webui.screen.WebScreenType;
@@ -301,7 +302,11 @@ public final class WebUiRuntime {
 
     public void resize(int width, int height) {
         for (Browser browser : backendManager.getBrowsers()) {
-            browser.setViewport(browser.getViewport().resized(width, height));
+            if (browser == musicBrowser) {
+                browser.setViewport(MusicPanelLayout.current().browserViewport());
+            } else {
+                browser.setViewport(browser.getViewport().resized(width, height));
+            }
         }
     }
 
@@ -374,7 +379,7 @@ public final class WebUiRuntime {
         if (musicBrowser == null) {
             musicBrowser = backendManager.getBackend().createBrowser(
                     themeManager.getScreenUrl(WebScreenType.MUSIC),
-                    BrowserViewport.fullFrame(),
+                    MusicPanelLayout.current().browserViewport(),
                     BrowserSettings.DEFAULT,
                     (short) 10,
                     this::acceptsMusicBrowserInput

@@ -7,14 +7,16 @@ public class Account {
     private long unban;
     private String clientId;
     private String scope;
+    private boolean offline;
 
-    public Account(String refreshToken, String accessToken, String username, long unban, String clientId, String scope) {
+    public Account(String refreshToken, String accessToken, String username, long unban, String clientId, String scope, boolean offline) {
         this.refreshToken = refreshToken;
         this.accessToken = accessToken;
         this.username = username;
         this.unban = unban;
         this.clientId = clientId;
         this.scope = scope;
+        this.offline = offline;
     }
 
     public String getRefreshToken() {
@@ -41,6 +43,10 @@ public class Account {
         return scope;
     }
 
+    public boolean isOffline() {
+        return offline;
+    }
+
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
@@ -63,5 +69,9 @@ public class Account {
 
     public void setScope(String scope) {
         this.scope = scope;
+    }
+
+    public void setOffline(boolean offline) {
+        this.offline = offline;
     }
 }

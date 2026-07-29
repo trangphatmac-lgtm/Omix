@@ -43,13 +43,23 @@ public final class WebUiScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
         WebUiRuntime runtime = WebUiRuntime.getInstance();
+        boolean music = type.equals(WebScreenType.MUSIC);
+        MusicPanelLayout musicLayout = music ? MusicPanelLayout.current() : null;
+        if (music) {
+            renderMusicBackdrop(context, mouseX, mouseY, deltaTicks);
+            renderMusicPanelBase(context, musicLayout);
+        }
         if (runtime.isBrowserTextureReady()) {
             runtime.render(context);
+            if (music) {
+                renderMusicPanelChrome(context, musicLayout);
+            }
             return;
         }
 
-        context.fill(0, 0, width, height, 0xFF101218);
-        boolean music = type.equals(WebScreenType.MUSIC);
+        if (!music) {
+            context.fill(0, 0, width, height, 0xFF101218);
+        }
         boolean failed = runtime.getState() == im.webui.WebUiState.FAILED
                 || (music && runtime.getMusicRuntime().getState() == im.music.MusicServiceState.FAILED);
         String status = failed
@@ -60,8 +70,8 @@ public final class WebUiScreen extends Screen {
         context.drawCenteredTextWithShadow(
                 textRenderer,
                 Text.literal(status),
-                width / 2,
-                height / 2 - 16,
+                music ? panelCenterX(musicLayout) : width / 2,
+                (music ? panelCenterY(musicLayout) : height / 2) - 16,
                 failed ? 0xFFFF7777 : 0xFFFFFFFF
         );
 
@@ -75,10 +85,13 @@ public final class WebUiScreen extends Screen {
             context.drawCenteredTextWithShadow(
                     textRenderer,
                     Text.literal(detail),
-                    width / 2,
-                    height / 2 + 2,
+                    music ? panelCenterX(musicLayout) : width / 2,
+                    (music ? panelCenterY(musicLayout) : height / 2) + 2,
                     0xFFFFAAAA
             );
+            if (music) {
+                renderMusicPanelChrome(context, musicLayout);
+            }
             return;
         }
 
@@ -89,15 +102,16 @@ public final class WebUiScreen extends Screen {
         context.drawCenteredTextWithShadow(
                 textRenderer,
                 Text.literal(detail),
-                width / 2,
-                height / 2 + 2,
+                music ? panelCenterX(musicLayout) : width / 2,
+                (music ? panelCenterY(musicLayout) : height / 2) + 2,
                 0xFFB8C0D9
         );
 
         if (progress.progress() >= 0.0F) {
-            int barWidth = Math.min(240, Math.max(120, width / 3));
-            int barX = (width - barWidth) / 2;
-            int barY = height / 2 + 20;
+            int availableWidth = music ? panelGuiWidth(musicLayout) : width;
+            int barWidth = Math.min(240, Math.max(120, availableWidth / 3));
+            int barX = (music ? panelCenterX(musicLayout) : width / 2) - barWidth / 2;
+            int barY = (music ? panelCenterY(musicLayout) : height / 2) + 20;
             context.fill(barX, barY, barX + barWidth, barY + 4, 0xFF303541);
             context.fill(
                     barX,
@@ -106,6 +120,9 @@ public final class WebUiScreen extends Screen {
                     barY + 4,
                     0xFF55A8FF
             );
+        }
+        if (music) {
+            renderMusicPanelChrome(context, musicLayout);
         }
     }
 
@@ -191,6 +208,121 @@ public final class WebUiScreen extends Screen {
         options.jumpKey.setPressed(false);
         options.sneakKey.setPressed(false);
         options.sprintKey.setPressed(false);
+    }
+
+    private void renderMusicBackdrop(
+            DrawContext context,
+            int mouseX,
+            int mouseY,
+            float deltaTicks
+    ) {
+        renderBackground(context, mouseX, mouseY, deltaTicks);
+        context.fill(0, 0, width, height, 0x52000000);
+    }
+
+    private void renderMusicPanelBase(DrawContext context, MusicPanelLayout layout) {
+        double scale = client.getWindow().getScaleFactor();
+        int panelX = (int) Math.round(layout.x() / scale);
+        int panelY = (int) Math.round(layout.y() / scale);
+        int panelWidth = panelGuiWidth(layout);
+        int panelHeight = (int) Math.round(layout.height() / scale);
+        int shadow = Math.max(2, (int) Math.round(4.0D));
+
+        fillSoftRectangle(
+                context,
+                panelX - shadow,
+                panelY - shadow,
+                panelWidth + shadow * 2,
+                panelHeight + shadow * 2,
+                0x66000000
+        );
+        fillSoftRectangle(
+                context,
+                panelX,
+                panelY,
+                panelWidth,
+                panelHeight,
+                0xFF202124
+        );
+    }
+
+    private void renderMusicPanelChrome(DrawContext context, MusicPanelLayout layout) {
+        double scale = client.getWindow().getScaleFactor();
+        int panelX = (int) Math.round(layout.x() / scale);
+        int panelY = (int) Math.round(layout.y() / scale);
+        int panelWidth = panelGuiWidth(layout);
+        int panelHeight = (int) Math.round(layout.height() / scale);
+        int chromeHeight = Math.max(5, (int) Math.round(layout.chromeHeight() / scale));
+
+        context.fill(
+                panelX + 2,
+                panelY + chromeHeight - 1,
+                panelX + panelWidth - 2,
+                panelY + chromeHeight,
+                0xFF303238
+        );
+        drawTrafficLight(context, panelX + 12, panelY + chromeHeight / 2, 0xFFE06C5F);
+        drawTrafficLight(context, panelX + 22, panelY + chromeHeight / 2, 0xFFE8BE55);
+        drawTrafficLight(context, panelX + 32, panelY + chromeHeight / 2, 0xFF70BC62);
+
+        int outline = 0xFF4A4D55;
+        context.fill(panelX + 3, panelY, panelX + panelWidth - 3, panelY + 1, outline);
+        context.fill(
+                panelX + 3,
+                panelY + panelHeight - 1,
+                panelX + panelWidth - 3,
+                panelY + panelHeight,
+                outline
+        );
+        context.fill(panelX, panelY + 3, panelX + 1, panelY + panelHeight - 3, outline);
+        context.fill(
+                panelX + panelWidth - 1,
+                panelY + 3,
+                panelX + panelWidth,
+                panelY + panelHeight - 3,
+                outline
+        );
+    }
+
+    private static void fillSoftRectangle(
+            DrawContext context,
+            int x,
+            int y,
+            int width,
+            int height,
+            int color
+    ) {
+        if (width <= 4 || height <= 4) {
+            context.fill(x, y, x + width, y + height, color);
+            return;
+        }
+        context.fill(x + 2, y, x + width - 2, y + height, color);
+        context.fill(x, y + 2, x + width, y + height - 2, color);
+        context.fill(x + 1, y + 1, x + width - 1, y + height - 1, color);
+    }
+
+    private static void drawTrafficLight(
+            DrawContext context,
+            int centerX,
+            int centerY,
+            int color
+    ) {
+        context.fill(centerX - 2, centerY - 3, centerX + 2, centerY + 4, color);
+        context.fill(centerX - 3, centerY - 2, centerX + 3, centerY + 3, color);
+    }
+
+    private int panelCenterX(MusicPanelLayout layout) {
+        double scale = client.getWindow().getScaleFactor();
+        return (int) Math.round((layout.x() + layout.width() / 2.0D) / scale);
+    }
+
+    private int panelCenterY(MusicPanelLayout layout) {
+        double scale = client.getWindow().getScaleFactor();
+        return (int) Math.round((layout.y() + layout.height() / 2.0D) / scale);
+    }
+
+    private int panelGuiWidth(MusicPanelLayout layout) {
+        return (int) Math.round(layout.width() / client.getWindow().getScaleFactor());
     }
 
     private static String preparationDetail(

@@ -21,8 +21,8 @@ hs_err_pid*
 run
 
 # WebUI build products
-src-webui/node_modules/
-src-webui/dist/
-src-music-webui/node_modules/
-src-music-webui/dist/
-src-music-sidecar/node_modules/
+src/main/java/im/src-webui/node_modules/
+src/main/java/im/src-webui/dist/
+src/main/java/im/src-music-webui/node_modules/
+src/main/java/im/src-music-webui/dist/
+src/main/java/im/src-music-sidecar/node_modules/

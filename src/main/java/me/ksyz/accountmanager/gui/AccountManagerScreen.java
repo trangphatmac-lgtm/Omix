@@ -25,11 +25,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 public class AccountManagerScreen extends Screen {
     private static final int ROW_HEIGHT = 20;
     private static final int ROW_GAP = 4;
     private static final int LIST_TOP = 100;
+    private static final Pattern OFFLINE_USERNAME_PATTERN = Pattern.compile("[A-Za-z0-9_]{3,16}");
 
     private final Screen previous;
     private volatile String status = "";
@@ -53,7 +55,8 @@ public class AccountManagerScreen extends Screen {
         renderButton(context, 20, 38, 130, 58, "Microsoft Login", !isBusy());
         renderButton(context, 138, 38, 230, 58, "Email Login", !isBusy());
         renderButton(context, 238, 38, 334, 58, "Access Token", !isBusy());
-        renderButton(context, 342, 38, 444, 58, "Use Selected", canUseSelection());
+        renderButton(context, 342, 38, 422, 58, "Offline", !isBusy());
+        renderButton(context, 430, 38, 536, 58, "Use Selected", canUseSelection());
         renderButton(context, 20, 62, 84, 82, "Delete", canUseSelection());
         renderButton(context, 92, 62, 148, 82, "Up", canMoveUp());
         renderButton(context, 156, 62, 222, 82, "Down", canMoveDown());
@@ -68,7 +71,7 @@ public class AccountManagerScreen extends Screen {
             int color = selected == i ? 0xCC315A7A : i % 2 == 0 ? 0xBB111820 : 0xBB172230;
             context.fill(20, y, width - 20, y + ROW_HEIGHT, color);
             String username = displayUsername(account);
-            int usernameColor = account.getAccessToken().equals(SessionService.current().getAccessToken()) ? 0xFF71E58B : 0xFFFFFFFF;
+            int usernameColor = isCurrentAccount(account) ? 0xFF71E58B : 0xFFFFFFFF;
             drawString(context, username, 26, y + 6, usernameColor, true);
             drawString(context, banText(account), width - 160, y + 6, banColor(account), true);
             y += ROW_HEIGHT + ROW_GAP;
@@ -106,7 +109,11 @@ public class AccountManagerScreen extends Screen {
             MinecraftClient.getInstance().setScreen(new TokenInputScreen(this));
             return true;
         }
-        if (inside(x, y, 342, 38, 444, 58) && canUseSelection()) {
+        if (inside(x, y, 342, 38, 422, 58) && !isBusy()) {
+            MinecraftClient.getInstance().setScreen(new OfflineAccountScreen(this));
+            return true;
+        }
+        if (inside(x, y, 430, 38, 536, 58) && canUseSelection()) {
             useSelected();
             return true;
         }
@@ -374,11 +381,40 @@ public class AccountManagerScreen extends Screen {
                 });
     }
 
+    void addOfflineAccount(String rawUsername) {
+        String username = rawUsername == null ? "" : rawUsername.trim();
+        if (!OFFLINE_USERNAME_PATTERN.matcher(username).matches()) {
+            setStatus("Error: Offline username must be 3-16 letters, numbers, or underscores.");
+            return;
+        }
+
+        Account account = new Account(
+                "",
+                "",
+                username,
+                preservedUnban(username),
+                "",
+                "",
+                true
+        );
+        AccountManager.accounts.add(account);
+        selected = AccountManager.accounts.size() - 1;
+        keepSelectionVisible();
+        AccountManager.save();
+        SessionService.SwitchResult result = SessionService.switchToOffline(username);
+        setStatus(result.message());
+    }
+
     private void useSelected() {
         if (!canUseSelection() || isBusy()) {
             return;
         }
         Account account = AccountManager.accounts.get(selected);
+        if (account.isOffline()) {
+            SessionService.SwitchResult result = SessionService.switchToOffline(account.getUsername());
+            setStatus(result.message());
+            return;
+        }
         ExecutorService worker = worker();
         MicrosoftAuth.CLIENT_ID = blankToDefault(account.getClientId(), MicrosoftAuth.DEFAULT_CLIENT_ID);
         MicrosoftAuth.SCOPE = blankToDefault(account.getScope(), MicrosoftAuth.DEFAULT_SCOPE);
@@ -432,7 +468,7 @@ public class AccountManagerScreen extends Screen {
     }
 
     private void addAccountAndSwitch(String refreshToken, String accessToken, Session session, String clientId, String scope) {
-        Account account = new Account(refreshToken, accessToken, session.getUsername(), preservedUnban(session.getUsername()), clientId, scope);
+        Account account = new Account(refreshToken, accessToken, session.getUsername(), preservedUnban(session.getUsername()), clientId, scope, false);
         AccountManager.accounts.add(account);
         selected = AccountManager.accounts.size() - 1;
         keepSelectionVisible();
@@ -541,7 +577,18 @@ public class AccountManagerScreen extends Screen {
 
     private String displayUsername(Account account) {
         String username = account.getUsername();
-        return username == null || username.isBlank() ? "(unnamed account)" : username;
+        String display = username == null || username.isBlank() ? "(unnamed account)" : username;
+        return account.isOffline() ? "[Offline] " + display : display;
+    }
+
+    private boolean isCurrentAccount(Account account) {
+        Session current = SessionService.current();
+        if (account.isOffline()) {
+            return current.getAccessToken().isEmpty()
+                    && account.getUsername().equals(current.getUsername());
+        }
+        return !account.getAccessToken().isEmpty()
+                && account.getAccessToken().equals(current.getAccessToken());
     }
 
     private String banText(Account account) {
@@ -667,6 +714,74 @@ public class AccountManagerScreen extends Screen {
             String token = tokenField.getText();
             MinecraftClient.getInstance().setScreen(parent);
             parent.addAccessToken(token);
+        }
+    }
+
+    private static class OfflineAccountScreen extends Screen {
+        private final AccountManagerScreen parent;
+        private TextFieldWidget usernameField;
+
+        OfflineAccountScreen(AccountManagerScreen parent) {
+            super(Text.literal("Offline Account"));
+            this.parent = parent;
+        }
+
+        @Override
+        protected void init() {
+            usernameField = new TextFieldWidget(
+                    textRenderer,
+                    width / 2 - 100,
+                    height / 2 - 10,
+                    200,
+                    20,
+                    Text.literal("Username")
+            );
+            usernameField.setMaxLength(16);
+            usernameField.setPlaceholder(Text.literal("Offline username"));
+            usernameField.setFocused(true);
+            addDrawableChild(usernameField);
+            addDrawableChild(ButtonWidget.builder(Text.literal("Add"), button -> submit())
+                    .dimensions(width / 2 - 102, height / 2 + 22, 100, 20)
+                    .build());
+            addDrawableChild(ButtonWidget.builder(Text.literal("Cancel"), button -> close())
+                    .dimensions(width / 2 + 2, height / 2 + 22, 100, 20)
+                    .build());
+        }
+
+        @Override
+        public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+            super.render(context, mouseX, mouseY, delta);
+            drawString(context, "Add Offline Account", width / 2 - 72, height / 2 - 40, 0xFFFFFFFF, true);
+        }
+
+        @Override
+        public boolean keyPressed(KeyInput input) {
+            int keyCode = input.key();
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+                close();
+                return true;
+            }
+            if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+                submit();
+                return true;
+            }
+            return super.keyPressed(input);
+        }
+
+        @Override
+        public void close() {
+            MinecraftClient.getInstance().setScreen(parent);
+        }
+
+        @Override
+        public boolean shouldPause() {
+            return false;
+        }
+
+        private void submit() {
+            String username = usernameField.getText();
+            MinecraftClient.getInstance().setScreen(parent);
+            parent.addOfflineAccount(username);
         }
     }
 

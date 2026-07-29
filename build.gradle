@@ -119,78 +119,88 @@ dependencies {
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
+sourceSets {
+    main {
+        java {
+            exclude "im/src-webui/**"
+            exclude "im/src-music-webui/**"
+            exclude "im/src-music-sidecar/**"
+        }
+    }
+}
+
 node {
     version = "24.18.0"
     download = true
-    nodeProjectDir = file("src-webui")
+    nodeProjectDir = file("src/main/java/im/src-webui")
 }
 
 def buildWebUi = tasks.register("buildWebUi", NpmTask) {
     dependsOn tasks.named("npmInstall")
     args = ["run", "build"]
     inputs.files(
-            "src-webui/package.json",
-            "src-webui/package-lock.json",
-            "src-webui/index.html",
-            "src-webui/svelte.config.js",
-            "src-webui/tsconfig.json",
-            "src-webui/vite.config.ts"
+            "src/main/java/im/src-webui/package.json",
+            "src/main/java/im/src-webui/package-lock.json",
+            "src/main/java/im/src-webui/index.html",
+            "src/main/java/im/src-webui/svelte.config.js",
+            "src/main/java/im/src-webui/tsconfig.json",
+            "src/main/java/im/src-webui/vite.config.ts"
     )
-    inputs.dir("src-webui/src")
-    outputs.dir("src-webui/dist")
+    inputs.dir("src/main/java/im/src-webui/src")
+    outputs.dir("src/main/java/im/src-webui/dist")
 }
 
 def installMusicWebUi = tasks.register("installMusicWebUi", NpmTask) {
     args = [
             "--prefix",
-            file("src-music-webui").absolutePath,
+            file("src/main/java/im/src-music-webui").absolutePath,
             "ci",
             "--legacy-peer-deps"
     ]
     inputs.files(
-            "src-music-webui/package.json",
-            "src-music-webui/package-lock.json"
+            "src/main/java/im/src-music-webui/package.json",
+            "src/main/java/im/src-music-webui/package-lock.json"
     )
-    outputs.dir("src-music-webui/node_modules")
+    outputs.dir("src/main/java/im/src-music-webui/node_modules")
 }
 
 def buildMusicWebUi = tasks.register("buildMusicWebUi", NpmTask) {
     dependsOn installMusicWebUi
     args = [
             "--prefix",
-            file("src-music-webui").absolutePath,
+            file("src/main/java/im/src-music-webui").absolutePath,
             "run",
             "build"
     ]
     inputs.files(
-            "src-music-webui/package.json",
-            "src-music-webui/package-lock.json",
-            "src-music-webui/public/index.html",
-            "src-music-webui/vue.config.js",
-            "src-music-webui/babel.config.js"
+            "src/main/java/im/src-music-webui/package.json",
+            "src/main/java/im/src-music-webui/package-lock.json",
+            "src/main/java/im/src-music-webui/public/index.html",
+            "src/main/java/im/src-music-webui/vue.config.js",
+            "src/main/java/im/src-music-webui/babel.config.js"
     )
-    inputs.dir("src-music-webui/src")
-    inputs.dir("src-music-webui/public")
-    outputs.dir("src-music-webui/dist")
+    inputs.dir("src/main/java/im/src-music-webui/src")
+    inputs.dir("src/main/java/im/src-music-webui/public")
+    outputs.dir("src/main/java/im/src-music-webui/dist")
 }
 
 def installMusicSidecar = tasks.register("installMusicSidecar", NpmTask) {
     args = [
             "--prefix",
-            file("src-music-sidecar").absolutePath,
+            file("src/main/java/im/src-music-sidecar").absolutePath,
             "ci",
             "--omit=dev"
     ]
     inputs.files(
-            "src-music-sidecar/package.json",
-            "src-music-sidecar/package-lock.json"
+            "src/main/java/im/src-music-sidecar/package.json",
+            "src/main/java/im/src-music-sidecar/package-lock.json"
     )
-    outputs.dir("src-music-sidecar/node_modules")
+    outputs.dir("src/main/java/im/src-music-sidecar/node_modules")
 }
 
 def bundleMusicSidecar = tasks.register("bundleMusicSidecar", Zip) {
     dependsOn installMusicSidecar
-    from("src-music-sidecar") {
+    from("src/main/java/im/src-music-sidecar") {
         include "index.js"
         include "package.json"
         include "package-lock.json"
@@ -204,22 +214,22 @@ def testMusicSidecar = tasks.register("testMusicSidecar", NpmTask) {
     dependsOn installMusicSidecar
     args = [
             "--prefix",
-            file("src-music-sidecar").absolutePath,
+            file("src/main/java/im/src-music-sidecar").absolutePath,
             "test"
     ]
     inputs.files(
-            "src-music-sidecar/index.js",
-            "src-music-sidecar/test.js",
-            "src-music-sidecar/package.json",
-            "src-music-sidecar/package-lock.json"
+            "src/main/java/im/src-music-sidecar/index.js",
+            "src/main/java/im/src-music-sidecar/test.js",
+            "src/main/java/im/src-music-sidecar/package.json",
+            "src/main/java/im/src-music-sidecar/package-lock.json"
     )
 }
 
 def bundleWebUi = tasks.register("bundleWebUi", Zip) {
     dependsOn buildWebUi
     dependsOn buildMusicWebUi
-    from("src-webui/dist")
-    from("src-music-webui/dist") {
+    from("src/main/java/im/src-webui/dist")
+    from("src/main/java/im/src-music-webui/dist") {
         into "music"
     }
     archiveFileName = "webui.zip"

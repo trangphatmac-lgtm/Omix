@@ -16,6 +16,13 @@ public record BrowserViewport(int x, int y, int width, int height, boolean fulls
         return (int) Math.round(globalY - y);
     }
 
+    public boolean contains(double globalX, double globalY) {
+        return globalX >= x
+                && globalY >= y
+                && globalX < (double) x + width
+                && globalY < (double) y + height;
+    }
+
     public BrowserViewport resized(int width, int height) {
         return fullscreen ? new BrowserViewport(x, y, width, height, true) : this;
     }
