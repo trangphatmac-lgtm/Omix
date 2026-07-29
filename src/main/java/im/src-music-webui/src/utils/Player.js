@@ -5,6 +5,10 @@ import { getMP3, getTrackDetail } from '@/api/track';
 import store from '@/store';
 import { Howl, Howler } from 'howler';
 import shuffle from 'lodash/shuffle';
+import {
+  cacheAudioSource,
+  getCachedAudioSource,
+} from '@/utils/audioCache';
 
 const PLAY_PAUSE_FADE_DURATION = 200;
 
@@ -291,7 +295,7 @@ export default class {
     // Clean up the previous object URLs since we've created a new one.
     // Revoke object URLs can release the memory taken by a Blob,
     // which occupied a large proportion of memory.
-    for (const url in this.createdBlobRecords) {
+    for (const url of this.createdBlobRecords) {
       URL.revokeObjectURL(url);
     }
 
@@ -308,8 +312,25 @@ export default class {
       return result.data[0].url.replace(/^http:/, 'https:');
     });
   }
-  _getAudioSource(track) {
-    return this._getAudioSourceFromNetease(track);
+  async _getAudioSource(track) {
+    const quality = store.state.settings?.musicQuality ?? 320000;
+    const cachedSource = await getCachedAudioSource(track.id, quality);
+    if (cachedSource) {
+      for (const url of this.createdBlobRecords) URL.revokeObjectURL(url);
+      this.createdBlobRecords = [cachedSource];
+      return cachedSource;
+    }
+
+    const source = await this._getAudioSourceFromNetease(track);
+    if (source && store.state.settings?.automaticallyCacheSongs) {
+      void cacheAudioSource(
+        source,
+        track.id,
+        quality,
+        store.state.settings.cacheLimit
+      ).catch(() => {});
+    }
+    return source;
   }
   _replaceCurrentTrack(
     id,

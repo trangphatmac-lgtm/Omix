@@ -196,8 +196,7 @@ export default {
       return true;
     },
     showLikeButton() {
-      // 收藏写操作不在 Omix Music 首版范围内。
-      return false;
+      return this.type !== 'tracklist' && this.type !== 'cloudDisk';
     },
     showOrderNumber() {
       return this.type === 'album';

@@ -23,9 +23,30 @@
         >从队列删除</div
       >
       <hr v-show="type !== 'cloudDisk'" />
+      <div
+        v-show="!isRightClickedTrackLiked && type !== 'cloudDisk'"
+        class="item"
+        @click="like"
+      >
+        {{ $t('contextMenu.saveToMyLikedSongs') }}
+      </div>
+      <div
+        v-show="isRightClickedTrackLiked && type !== 'cloudDisk'"
+        class="item"
+        @click="like"
+      >
+        {{ $t('contextMenu.removeFromMyLikedSongs') }}
+      </div>
       <div v-show="type !== 'cloudDisk'" class="item" @click="copyLink">{{
         $t('contextMenu.copyUrl')
       }}</div>
+      <div
+        v-if="extraContextMenuItem.includes('removeTrackFromCloudDisk')"
+        class="item"
+        @click="removeTrackFromCloudDisk"
+      >
+        从云盘中删除
+      </div>
     </ContextMenu>
 
     <div :style="listStyles">
@@ -44,6 +65,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
+import { cloudDiskTrackDelete } from '@/api/user';
 
 import TrackListItem from '@/components/TrackListItem.vue';
 import ContextMenu from '@/components/ContextMenu.vue';
@@ -120,7 +142,10 @@ export default {
     };
   },
   computed: {
-    ...mapState(['player']),
+    ...mapState(['liked', 'player']),
+    isRightClickedTrackLiked() {
+      return this.liked.songs.includes(this.rightClickedTrack?.id);
+    },
     rightClickedTrackComputed() {
       return this.type === 'cloudDisk'
         ? {
@@ -142,7 +167,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['nextTrack', 'showToast']),
+    ...mapActions(['nextTrack', 'showToast', 'likeATrack']),
     openMenu(e, track, index = -1) {
       this.rightClickedTrack = track;
       this.rightClickedTrackIndex = index;
@@ -191,7 +216,12 @@ export default {
       this.player.addTrackToPlayNext(this.rightClickedTrack.id, true);
     },
     addToQueue() {
-      this.player.addTrackToPlayNext(this.rightClickedTrack.id);
+      this.player.addTrackToPlayNext(
+        this.rightClickedTrack.id || this.rightClickedTrack.songId
+      );
+    },
+    like() {
+      this.likeATrack(this.rightClickedTrack.id);
     },
     copyLink() {
       this.$copyText(
@@ -208,6 +238,31 @@ export default {
       this.$store.state.player.removeTrackFromQueue(
         this.rightClickedTrackIndex
       );
+    },
+    async removeTrackFromCloudDisk() {
+      const trackID =
+        this.rightClickedTrack.songId || this.rightClickedTrack.simpleSong?.id;
+      const trackName =
+        this.rightClickedTrack.songName ||
+        this.rightClickedTrack.simpleSong?.name ||
+        '这首歌曲';
+      if (!trackID || !window.confirm(`确定要从云盘删除 ${trackName}？`)) return;
+      try {
+        const result = await cloudDiskTrackDelete(trackID);
+        if (result.code !== 200) {
+          throw new Error(result.message || '删除失败');
+        }
+        this.$store.commit('updateLikedXXX', {
+          name: 'cloudDisk',
+          data: this.liked.cloudDisk.filter(
+            track =>
+              (track.songId || track.simpleSong?.id) !== trackID
+          ),
+        });
+        this.showToast('已将歌曲从云盘删除');
+      } catch (error) {
+        this.showToast(error.message || '删除失败');
+      }
     },
   },
 };

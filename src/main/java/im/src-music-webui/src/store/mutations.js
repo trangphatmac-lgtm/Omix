@@ -11,6 +11,9 @@ export default {
   changeLyricFontSize(state, value) {
     state.settings.lyricFontSize = value;
   },
+  changeMusicQuality(state, value) {
+    state.settings.musicQuality = value;
+  },
   updateSettings(state, { key, value }) {
     state.settings[key] = value;
   },

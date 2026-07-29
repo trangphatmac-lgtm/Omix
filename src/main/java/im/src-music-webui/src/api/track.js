@@ -1,11 +1,13 @@
 import request from '@/utils/request';
 import { mapTrackPlayableStatus } from '@/utils/common';
+import store from '@/store';
 
 export function getMP3(id) {
+  const quality = store.state.settings?.musicQuality ?? 320000;
   return request({
     url: '/song/url',
     method: 'get',
-    params: { id, br: 320000 },
+    params: { id, br: quality === 'flac' ? 350000 : quality },
   });
 }
 
@@ -25,5 +27,13 @@ export function getLyric(id) {
     url: '/lyric',
     method: 'get',
     params: { id },
+  });
+}
+
+export function likeATrack(params) {
+  return request({
+    url: '/like',
+    method: 'get',
+    params: { ...params, timestamp: Date.now() },
   });
 }

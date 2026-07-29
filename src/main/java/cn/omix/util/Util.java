@@ -11,8 +11,12 @@ public class Util implements IMinecraft{
     public int offGroundTicks, onGroundTicks;
 
     private void addChatMessage(String message) {
+        addChatMessage(Text.literal(message));
+    }
+
+    private void addChatMessage(Text message) {
         if (mc.player == null) return;
-        mc.player.sendMessage(Text.literal(message), false);
+        mc.player.sendMessage(message, false);
     }
 
     public void log(String message) {
@@ -32,6 +36,14 @@ public class Util implements IMinecraft{
                 + Formatting.DARK_GRAY + "] " + Formatting.RESET + formatCodes(message));
     }
 
+    public void logToChat(Text message) {
+        addChatMessage(Text.empty()
+                .append(Text.literal("[").formatted(Formatting.DARK_GRAY))
+                .append(Text.literal(Client.name).formatted(Formatting.AQUA))
+                .append(Text.literal("] ").formatted(Formatting.DARK_GRAY))
+                .append(message));
+    }
+
     public void logRaw(String message) {
         addChatMessage(formatCodes(message));
     }
@@ -41,6 +53,7 @@ public class Util implements IMinecraft{
     }
 
     public void debug(String message) {
-        addChatMessage(Formatting.DARK_GRAY + "[" + Formatting.RED + "Debug" + Formatting.DARK_GRAY + "] " + Formatting.RESET + message);
+        addChatMessage(Formatting.DARK_GRAY + "[" + Formatting.RED + "Debug"
+                + Formatting.DARK_GRAY + "] " + Formatting.RESET + message);
     }
 }

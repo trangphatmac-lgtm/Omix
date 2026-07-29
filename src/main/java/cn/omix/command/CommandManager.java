@@ -11,6 +11,7 @@ import cn.omix.command.impl.ToggleCommand;
 import cn.omix.command.impl.UsernameCommand;
 import cn.omix.command.impl.VClipCommand;
 import cn.omix.command.impl.VisibilityCommand;
+import cn.omix.command.impl.WebPanelCommand;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.PacketEvent;
 import cn.omix.util.IMinecraft;
@@ -44,7 +45,8 @@ public final class CommandManager implements IMinecraft {
                 new VisibilityCommand(false, ".show <module>", "show", "s", "unhide"),
                 new VisibilityCommand(true, ".hide <module>", "hide", "h"),
                 new UsernameCommand(),
-                new VClipCommand()
+                new VClipCommand(),
+                new WebPanelCommand()
         );
     }
 

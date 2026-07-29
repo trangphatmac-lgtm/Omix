@@ -91,6 +91,11 @@ public final class WebUiRuntime {
         return musicRuntime;
     }
 
+    public String getWebPanelUrl() {
+        return getInteropServer().getAuthenticatedBaseUrl()
+                + "#/" + WebScreenType.CLICK_GUI.routeName();
+    }
+
     public void start() {
         if (state != WebUiState.NEW && state != WebUiState.STOPPED) {
             return;

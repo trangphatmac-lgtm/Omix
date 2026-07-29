@@ -46,3 +46,27 @@ export function topPlaylist(params) {
 export function toplists() {
   return request({ url: '/toplist', method: 'get' });
 }
+
+export function createPlaylist(params) {
+  return request({
+    url: '/playlist/create',
+    method: 'post',
+    params: { ...params, timestamp: Date.now() },
+  });
+}
+
+export function addOrRemoveTrackFromPlaylist(params) {
+  return request({
+    url: '/playlist/tracks',
+    method: 'post',
+    params: { ...params, timestamp: Date.now() },
+  });
+}
+
+export function intelligencePlaylist(params) {
+  return request({
+    url: '/playmode/intelligence/list',
+    method: 'get',
+    params,
+  });
+}
