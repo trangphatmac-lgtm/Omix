@@ -213,13 +213,51 @@ public final class WebUiScreen extends Screen {
         int panelY = (int) Math.round(layout.y() / scale);
         int panelWidth = panelGuiWidth(layout);
         int panelHeight = (int) Math.round(layout.height() / scale);
-        context.fill(
+        int panelRadius = (int) Math.round(layout.cornerRadius() / scale);
+        fillRoundedRect(
+                context,
                 panelX,
                 panelY,
-                panelX + panelWidth,
-                panelY + panelHeight,
+                panelWidth,
+                panelHeight,
+                panelRadius,
                 0xFF202124
         );
+    }
+
+    private static void fillRoundedRect(
+            DrawContext context,
+            int x,
+            int y,
+            int width,
+            int height,
+            int radius,
+            int color
+    ) {
+        int safeRadius = Math.max(0, Math.min(radius, Math.min(width, height) / 2));
+        if (safeRadius == 0) {
+            context.fill(x, y, x + width, y + height, color);
+            return;
+        }
+
+        context.fill(x, y + safeRadius, x + width, y + height - safeRadius, color);
+        for (int row = 0; row < safeRadius; row++) {
+            double distanceFromCenter = safeRadius - row - 0.5D;
+            int inset = (int) Math.ceil(
+                    safeRadius - Math.sqrt(
+                            safeRadius * (double) safeRadius
+                                    - distanceFromCenter * distanceFromCenter
+                    )
+            );
+            context.fill(x + inset, y + row, x + width - inset, y + row + 1, color);
+            context.fill(
+                    x + inset,
+                    y + height - row - 1,
+                    x + width - inset,
+                    y + height - row,
+                    color
+            );
+        }
     }
 
     private int panelCenterX(MusicPanelLayout layout) {

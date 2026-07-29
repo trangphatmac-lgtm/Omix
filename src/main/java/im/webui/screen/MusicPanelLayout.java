@@ -7,8 +7,10 @@ public record MusicPanelLayout(
         int x,
         int y,
         int width,
-        int height
+        int height,
+        int cornerRadius
 ) {
+    private static final double CORNER_RADIUS = 18.0D;
     private static final double LARGE_WIDTH_RATIO = 0.80D;
     private static final double LARGE_HEIGHT_RATIO = 0.82D;
     private static final double COMPACT_WIDTH_RATIO = 0.92D;
@@ -55,7 +57,8 @@ public record MusicPanelLayout(
                 x,
                 y,
                 panelWidth,
-                panelHeight
+                panelHeight,
+                Math.max(1, (int) Math.round(CORNER_RADIUS * safeScale))
         );
     }
 
@@ -65,7 +68,8 @@ public record MusicPanelLayout(
                 y,
                 width,
                 height,
-                false
+                false,
+                cornerRadius
         );
     }
 }

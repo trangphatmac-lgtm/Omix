@@ -33,13 +33,26 @@ public final class BrowserRenderer {
         // the sampled pixel region as well. With a GUI scale above 1 that cropped the
         // CEF texture to its upper-left quadrant. Use normalized 0..1 UVs so the whole
         // framebuffer-sized browser texture is mapped into GUI coordinates.
-        Render2D.drawTexture(
-                context,
-                browser.getTextureIdentifier(),
-                x,
-                y,
-                width,
-                height
-        );
+        float cornerRadius = (float) (viewport.cornerRadius() / scale);
+        if (cornerRadius > 0.0F) {
+            Render2D.drawRoundedTexture(
+                    context,
+                    browser.getTextureIdentifier(),
+                    x,
+                    y,
+                    width,
+                    height,
+                    cornerRadius
+            );
+        } else {
+            Render2D.drawTexture(
+                    context,
+                    browser.getTextureIdentifier(),
+                    x,
+                    y,
+                    width,
+                    height
+            );
+        }
     }
 }

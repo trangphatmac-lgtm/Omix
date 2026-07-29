@@ -2,10 +2,28 @@ package im.webui.backend;
 
 import net.minecraft.client.MinecraftClient;
 
-public record BrowserViewport(int x, int y, int width, int height, boolean fullscreen) {
+public record BrowserViewport(
+        int x,
+        int y,
+        int width,
+        int height,
+        boolean fullscreen,
+        int cornerRadius
+) {
+    public BrowserViewport(int x, int y, int width, int height, boolean fullscreen) {
+        this(x, y, width, height, fullscreen, 0);
+    }
+
     public static BrowserViewport fullFrame() {
         var window = MinecraftClient.getInstance().getWindow();
-        return new BrowserViewport(0, 0, window.getFramebufferWidth(), window.getFramebufferHeight(), true);
+        return new BrowserViewport(
+                0,
+                0,
+                window.getFramebufferWidth(),
+                window.getFramebufferHeight(),
+                true,
+                0
+        );
     }
 
     public int relativeX(double globalX) {
@@ -17,14 +35,38 @@ public record BrowserViewport(int x, int y, int width, int height, boolean fulls
     }
 
     public boolean contains(double globalX, double globalY) {
-        return globalX >= x
-                && globalY >= y
-                && globalX < (double) x + width
-                && globalY < (double) y + height;
+        if (globalX < x
+                || globalY < y
+                || globalX >= (double) x + width
+                || globalY >= (double) y + height) {
+            return false;
+        }
+
+        int radius = Math.max(0, Math.min(cornerRadius, Math.min(width, height) / 2));
+        if (radius == 0) {
+            return true;
+        }
+
+        double localX = globalX - x;
+        double localY = globalY - y;
+        if (localX >= radius
+                && localX < width - radius
+                || localY >= radius
+                && localY < height - radius) {
+            return true;
+        }
+
+        double centerX = localX < radius ? radius : width - radius;
+        double centerY = localY < radius ? radius : height - radius;
+        double deltaX = localX - centerX;
+        double deltaY = localY - centerY;
+        return deltaX * deltaX + deltaY * deltaY <= radius * (double) radius;
     }
 
     public BrowserViewport resized(int width, int height) {
-        return fullscreen ? new BrowserViewport(x, y, width, height, true) : this;
+        return fullscreen
+                ? new BrowserViewport(x, y, width, height, true, cornerRadius)
+                : this;
     }
 
     public int scaledWidth(float quality) {

@@ -70,7 +70,10 @@ input {
     microsoft uighur;
 }
 body {
-  background-color: var(--color-body-bg);
+  min-height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background-color: transparent;
 }
 
 .omix-music-hidden *,
@@ -105,8 +108,11 @@ body {
 }
 
 html {
+  height: 100%;
+  overflow-x: hidden;
   overflow-y: var(--html-overflow-y);
   min-width: 768px;
+  background-color: transparent;
   overscroll-behavior: none;
 }
 

@@ -121,6 +121,128 @@ public final class Render2D implements IMinecraft {
         ));
     }
 
+    public void drawRoundedTexture(
+            DrawContext context,
+            Identifier texture,
+            float x,
+            float y,
+            float width,
+            float height,
+            float radius
+    ) {
+        if (width <= 0 || height <= 0) return;
+
+        float safeRadius = Math.max(0.0F, Math.min(radius, Math.min(width, height) / 2.0F));
+        if (safeRadius <= 0.0F) {
+            drawTexture(context, texture, x, y, width, height);
+            return;
+        }
+
+        var tex = mc.getTextureManager().getTexture(texture);
+        var textureSetup = TextureSetup.of(tex.getGlTextureView(), tex.getSampler());
+        var pose = new Matrix3x2f(context.getMatrices());
+        var scissorArea = context.scissorStack.peekLast();
+
+        float centerV0 = safeRadius / height;
+        float centerV1 = 1.0F - centerV0;
+        context.state.addSimpleElement(new FloatQuadTexturedGuiElementRenderState(
+                RenderPipelines.GUI_TEXTURED,
+                textureSetup,
+                pose,
+                x,
+                y + safeRadius,
+                x + width,
+                y + height - safeRadius,
+                0.0F,
+                centerV0,
+                1.0F,
+                centerV1,
+                -1,
+                scissorArea
+        ));
+
+        int segments = Math.max(8, (int) Math.ceil(safeRadius * 2.0F));
+        float radiusSquared = safeRadius * safeRadius;
+        for (int segment = 0; segment < segments; segment++) {
+            float localY0 = safeRadius * segment / segments;
+            float localY1 = safeRadius * (segment + 1) / segments;
+            float inset0 = roundedCornerInset(safeRadius, radiusSquared, localY0);
+            float inset1 = roundedCornerInset(safeRadius, radiusSquared, localY1);
+
+            addRoundedTextureSegment(
+                    context,
+                    textureSetup,
+                    pose,
+                    scissorArea,
+                    x,
+                    y,
+                    width,
+                    height,
+                    localY0,
+                    localY1,
+                    inset0,
+                    inset1
+            );
+            addRoundedTextureSegment(
+                    context,
+                    textureSetup,
+                    pose,
+                    scissorArea,
+                    x,
+                    y,
+                    width,
+                    height,
+                    height - localY1,
+                    height - localY0,
+                    inset1,
+                    inset0
+            );
+        }
+    }
+
+    private static float roundedCornerInset(float radius, float radiusSquared, float localY) {
+        float distanceFromCenter = radius - localY;
+        return radius - (float) Math.sqrt(Math.max(
+                0.0F,
+                radiusSquared - distanceFromCenter * distanceFromCenter
+        ));
+    }
+
+    private static void addRoundedTextureSegment(
+            DrawContext context,
+            TextureSetup textureSetup,
+            Matrix3x2fc pose,
+            @Nullable ScreenRect scissorArea,
+            float x,
+            float y,
+            float width,
+            float height,
+            float localY0,
+            float localY1,
+            float inset0,
+            float inset1
+    ) {
+        context.state.addSimpleElement(new FloatTrapezoidTexturedGuiElementRenderState(
+                RenderPipelines.GUI_TEXTURED,
+                textureSetup,
+                pose,
+                x + inset0,
+                x + inset1,
+                x + width - inset0,
+                x + width - inset1,
+                y + localY0,
+                y + localY1,
+                inset0 / width,
+                inset1 / width,
+                1.0F - inset0 / width,
+                1.0F - inset1 / width,
+                localY0 / height,
+                localY1 / height,
+                -1,
+                scissorArea
+        ));
+    }
+
     public void drawModel(DrawContext context, LivingEntity entity, float x, float y) {
         if (entity == null) return;
 
@@ -151,6 +273,86 @@ public final class Render2D implements IMinecraft {
 
         private static @Nullable ScreenRect createBounds(float x0, float y0, float x1, float y1, Matrix3x2fc pose, @Nullable ScreenRect scissorArea) {
             ScreenRect rect = new ScreenRect(Math.round(x0), Math.round(y0), Math.round(x1 - x0), Math.round(y1 - y0)).transformEachVertex(pose);
+            return scissorArea != null ? scissorArea.intersection(rect) : rect;
+        }
+    }
+
+    private record FloatTrapezoidTexturedGuiElementRenderState(
+            RenderPipeline pipeline, TextureSetup textureSetup, Matrix3x2fc pose,
+            float leftTop, float leftBottom, float rightTop, float rightBottom,
+            float top, float bottom,
+            float uLeftTop, float uLeftBottom, float uRightTop, float uRightBottom,
+            float vTop, float vBottom, int color,
+            @Nullable ScreenRect scissorArea, @Nullable ScreenRect bounds
+    ) implements SimpleGuiElementRenderState {
+
+        private FloatTrapezoidTexturedGuiElementRenderState(
+                RenderPipeline pipeline,
+                TextureSetup textureSetup,
+                Matrix3x2fc pose,
+                float leftTop,
+                float leftBottom,
+                float rightTop,
+                float rightBottom,
+                float top,
+                float bottom,
+                float uLeftTop,
+                float uLeftBottom,
+                float uRightTop,
+                float uRightBottom,
+                float vTop,
+                float vBottom,
+                int color,
+                @Nullable ScreenRect scissorArea
+        ) {
+            this(
+                    pipeline,
+                    textureSetup,
+                    pose,
+                    leftTop,
+                    leftBottom,
+                    rightTop,
+                    rightBottom,
+                    top,
+                    bottom,
+                    uLeftTop,
+                    uLeftBottom,
+                    uRightTop,
+                    uRightBottom,
+                    vTop,
+                    vBottom,
+                    color,
+                    scissorArea,
+                    createBounds(leftTop, rightTop, leftBottom, rightBottom, top, bottom, pose, scissorArea)
+            );
+        }
+
+        @Override
+        public void setupVertices(VertexConsumer v) {
+            v.vertex(pose, leftTop, top).texture(uLeftTop, vTop).color(color);
+            v.vertex(pose, leftBottom, bottom).texture(uLeftBottom, vBottom).color(color);
+            v.vertex(pose, rightBottom, bottom).texture(uRightBottom, vBottom).color(color);
+            v.vertex(pose, rightTop, top).texture(uRightTop, vTop).color(color);
+        }
+
+        private static @Nullable ScreenRect createBounds(
+                float leftTop,
+                float rightTop,
+                float leftBottom,
+                float rightBottom,
+                float top,
+                float bottom,
+                Matrix3x2fc pose,
+                @Nullable ScreenRect scissorArea
+        ) {
+            float minX = Math.min(leftTop, leftBottom);
+            float maxX = Math.max(rightTop, rightBottom);
+            ScreenRect rect = new ScreenRect(
+                    Math.round(minX),
+                    Math.round(top),
+                    Math.max(1, Math.round(maxX - minX)),
+                    Math.max(1, Math.round(bottom - top))
+            ).transformEachVertex(pose);
             return scissorArea != null ? scissorArea.intersection(rect) : rect;
         }
     }

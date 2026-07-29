@@ -21,6 +21,8 @@ class MusicPanelLayoutTest {
         assertEquals(layout.y(), browser.y());
         assertEquals(layout.width(), browser.width());
         assertEquals(layout.height(), browser.height());
+        assertEquals(18, layout.cornerRadius());
+        assertEquals(layout.cornerRadius(), browser.cornerRadius());
     }
 
     @Test
@@ -44,7 +46,10 @@ class MusicPanelLayoutTest {
         assertEquals(layout.y(), browser.y());
         assertEquals(layout.width(), browser.width());
         assertEquals(layout.height(), browser.height());
-        assertTrue(browser.contains(browser.x(), browser.y()));
+        assertTrue(browser.contains(
+                browser.x() + browser.cornerRadius(),
+                browser.y() + browser.cornerRadius()
+        ));
         assertFalse(browser.contains(layout.x() - 1, layout.y()));
     }
 
@@ -56,5 +61,18 @@ class MusicPanelLayoutTest {
         assertEquals(1684, layout.height());
         assertEquals(384, layout.x());
         assertEquals(185, layout.y());
+        assertEquals(72, layout.cornerRadius());
+    }
+
+    @Test
+    void roundedViewportDoesNotAcceptInputInClippedCorners() {
+        MusicPanelLayout layout = MusicPanelLayout.calculate(1920, 1080, 1.0D);
+        var browser = layout.browserViewport();
+
+        assertFalse(browser.contains(browser.x(), browser.y()));
+        assertTrue(browser.contains(
+                browser.x() + browser.cornerRadius(),
+                browser.y() + browser.cornerRadius()
+        ));
     }
 }
