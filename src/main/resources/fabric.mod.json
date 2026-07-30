@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "omix",
+  "version": "260730-SNAPSHOT",
+  "name": "omix",
+  "description": "the All in one AI featured Minecraft Client for Fabric 1.21.11.",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [],
+    "main": []
+  },
+  "mixins": [
+    "mixin.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

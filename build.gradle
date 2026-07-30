@@ -1,0 +1,390 @@
+import com.github.gradle.node.npm.task.NpmTask
+
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
+
+plugins {
+    id 'fabric-loom' version '1.17-SNAPSHOT'
+    id 'maven-publish'
+    id 'io.freefair.lombok' version '8.6'
+    id 'com.github.node-gradle.node' version '7.1.0'
+}
+
+def buildDay = LocalDate.now(ZoneId.systemDefault())
+def buildDate = buildDay.format(DateTimeFormatter.ofPattern("yyMMdd"))
+def buildVersion = buildDay.monthValue == 6 && buildDay.dayOfMonth == 4
+        ? "890604-Tiananmen-Massacre-Special-Version"
+        : "${buildDate}-SNAPSHOT"
+
+version = buildVersion
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+def syncModVersion = tasks.register("syncModVersion") {
+    inputs.property("buildVersion", buildVersion)
+    outputs.files(
+            layout.projectDirectory.file("gradle.properties"),
+            layout.projectDirectory.file("src/main/resources/fabric.mod.json"),
+            layout.projectDirectory.file("src/main/java/cn/omix/Client.java")
+    )
+
+    doLast {
+        def propertiesFile = layout.projectDirectory.file("gradle.properties").asFile
+        def propertiesContent = propertiesFile.getText("UTF-8")
+        def updatedProperties = propertiesContent.replaceFirst(
+                /(?m)^mod_version=.*$/,
+                "mod_version=${buildVersion}"
+        )
+
+        if (updatedProperties != propertiesContent) {
+            propertiesFile.setText(updatedProperties, "UTF-8")
+        }
+
+        def metadataFile = layout.projectDirectory.file("src/main/resources/fabric.mod.json").asFile
+        def metadataContent = metadataFile.getText("UTF-8")
+        def updatedMetadata = metadataContent.replaceFirst(
+                /(?m)^(\s*"version"\s*:\s*")[^"]*(".*)$/,
+                '$1' + buildVersion + '$2'
+        )
+
+        if (updatedMetadata != metadataContent) {
+            metadataFile.setText(updatedMetadata, "UTF-8")
+        }
+
+        def clientFile = layout.projectDirectory.file("src/main/java/cn/omix/Client.java").asFile
+        def clientContent = clientFile.getText("UTF-8")
+        def updatedClient = clientContent.replaceFirst(
+                /(?m)^(\s*public static String version\s*=\s*")[^"]*("\s*;.*)$/,
+                '$1' + buildVersion + '$2'
+        )
+
+        if (updatedClient != clientContent) {
+            clientFile.setText(updatedClient, "UTF-8")
+        }
+    }
+}
+
+tasks.withType(Jar).configureEach {
+    dependsOn syncModVersion
+}
+
+
+repositories {
+    maven {
+        name = "CCBlueX Releases"
+        url = uri("https://maven.ccbluex.net/releases")
+    }
+    mavenCentral()
+}
+
+dependencies {
+    // To change the versions see the gradle.properties file
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    modImplementation "net.ccbluex:mcef:3.3.0-1.21.11"
+    include "net.ccbluex:mcef:3.3.0-1.21.11"
+
+    // MCEF declares OkHttp as a runtime dependency. Loom's include configuration is
+    // deliberately non-transitive, so these must be nested explicitly for production
+    // launchers (the IntelliJ runtime classpath otherwise hides the missing dependency).
+    implementation "com.squareup.okhttp3:okhttp:4.12.0"
+    include "com.squareup.okhttp3:okhttp:4.12.0"
+    implementation "com.squareup.okio:okio-jvm:3.6.0"
+    include "com.squareup.okio:okio-jvm:3.6.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.10"
+    include "org.jetbrains.kotlin:kotlin-stdlib:1.9.10"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.10"
+    include "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.10"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10"
+    include "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10"
+
+    implementation "io.netty:netty-codec-http:4.2.7.Final"
+    implementation "io.netty:netty-handler-proxy:4.2.7.Final"
+    include "io.netty:netty-handler-proxy:4.2.7.Final"
+    implementation "io.netty:netty-codec-socks:4.2.7.Final"
+    include "io.netty:netty-codec-socks:4.2.7.Final"
+
+    testImplementation platform("org.junit:junit-bom:5.11.4")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
+sourceSets {
+    main {
+        java {
+            exclude "im/src-webui/**"
+            exclude "im/src-music-webui/**"
+            exclude "im/src-music-sidecar/**"
+        }
+    }
+}
+
+node {
+    version = "24.18.0"
+    download = true
+    nodeProjectDir = file("src/main/java/im/src-webui")
+}
+
+def buildWebUi = tasks.register("buildWebUi", NpmTask) {
+    dependsOn tasks.named("npmInstall")
+    args = ["run", "build"]
+    inputs.files(
+            "src/main/java/im/src-webui/package.json",
+            "src/main/java/im/src-webui/package-lock.json",
+            "src/main/java/im/src-webui/index.html",
+            "src/main/java/im/src-webui/svelte.config.js",
+            "src/main/java/im/src-webui/tsconfig.json",
+            "src/main/java/im/src-webui/vite.config.ts"
+    )
+    inputs.dir("src/main/java/im/src-webui/src")
+    outputs.dir("src/main/java/im/src-webui/dist")
+}
+
+def installMusicWebUi = tasks.register("installMusicWebUi", NpmTask) {
+    args = [
+            "--prefix",
+            file("src/main/java/im/src-music-webui").absolutePath,
+            "ci",
+            "--legacy-peer-deps"
+    ]
+    inputs.files(
+            "src/main/java/im/src-music-webui/package.json",
+            "src/main/java/im/src-music-webui/package-lock.json"
+    )
+    outputs.dir("src/main/java/im/src-music-webui/node_modules")
+}
+
+def buildMusicWebUi = tasks.register("buildMusicWebUi", NpmTask) {
+    dependsOn installMusicWebUi
+    args = [
+            "--prefix",
+            file("src/main/java/im/src-music-webui").absolutePath,
+            "run",
+            "build"
+    ]
+    inputs.files(
+            "src/main/java/im/src-music-webui/package.json",
+            "src/main/java/im/src-music-webui/package-lock.json",
+            "src/main/java/im/src-music-webui/public/index.html",
+            "src/main/java/im/src-music-webui/vue.config.js",
+            "src/main/java/im/src-music-webui/babel.config.js"
+    )
+    inputs.dir("src/main/java/im/src-music-webui/src")
+    inputs.dir("src/main/java/im/src-music-webui/public")
+    outputs.dir("src/main/java/im/src-music-webui/dist")
+}
+
+def installMusicSidecar = tasks.register("installMusicSidecar", NpmTask) {
+    args = [
+            "--prefix",
+            file("src/main/java/im/src-music-sidecar").absolutePath,
+            "ci",
+            "--omit=dev"
+    ]
+    inputs.files(
+            "src/main/java/im/src-music-sidecar/package.json",
+            "src/main/java/im/src-music-sidecar/package-lock.json"
+    )
+    outputs.dir("src/main/java/im/src-music-sidecar/node_modules")
+}
+
+def bundleMusicSidecar = tasks.register("bundleMusicSidecar", Zip) {
+    dependsOn installMusicSidecar
+    from("src/main/java/im/src-music-sidecar") {
+        include "index.js"
+        include "package.json"
+        include "package-lock.json"
+        include "node_modules/**"
+    }
+    archiveFileName = "sidecar.zip"
+    destinationDirectory = layout.buildDirectory.dir("generated/music")
+}
+
+def testMusicSidecar = tasks.register("testMusicSidecar", NpmTask) {
+    dependsOn installMusicSidecar
+    args = [
+            "--prefix",
+            file("src/main/java/im/src-music-sidecar").absolutePath,
+            "test"
+    ]
+    inputs.files(
+            "src/main/java/im/src-music-sidecar/index.js",
+            "src/main/java/im/src-music-sidecar/test.js",
+            "src/main/java/im/src-music-sidecar/package.json",
+            "src/main/java/im/src-music-sidecar/package-lock.json"
+    )
+}
+
+def bundleWebUi = tasks.register("bundleWebUi", Zip) {
+    dependsOn buildWebUi
+    dependsOn buildMusicWebUi
+    from("src/main/java/im/src-webui/dist")
+    from("src/main/java/im/src-music-webui/dist") {
+        into "music"
+    }
+    archiveFileName = "webui.zip"
+    destinationDirectory = layout.buildDirectory.dir("generated/webui")
+}
+
+processResources {
+    dependsOn syncModVersion
+    dependsOn bundleWebUi
+    dependsOn bundleMusicSidecar
+
+    inputs.property "version", project.version
+    inputs.property "minecraft_version", project.minecraft_version
+    inputs.property "loader_version", project.loader_version
+    filteringCharset "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version,
+                "minecraft_version": project.minecraft_version,
+                "loader_version": project.loader_version
+    }
+
+    from(bundleWebUi.flatMap { it.archiveFile }) {
+        into "assets/omix/webui"
+    }
+    from(bundleMusicSidecar.flatMap { it.archiveFile }) {
+        into "assets/omix/music"
+    }
+}
+
+def targetJavaVersion = 21
+tasks.withType(JavaCompile).configureEach {
+    dependsOn syncModVersion
+
+    // ensure that the encoding is set to UTF-8, no matter what the system default is
+    // this fixes some edge cases with special characters not displaying correctly
+    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+    // If Javadoc is generated, this must be specified in that task too.
+    it.options.encoding = "UTF-8"
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        it.options.release.set(targetJavaVersion)
+    }
+}
+
+tasks.named("test") {
+    useJUnitPlatform()
+}
+
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+    // if it is present.
+    // If you remove this line, sources will not be generated.
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archives_base_name}" }
+    }
+}
+
+def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
+    dependsOn tasks.named("remapJar")
+    inputs.file(tasks.named("remapJar").flatMap { it.archiveFile })
+
+    doLast {
+        def requiredNestedJars = [
+                "mcef-3.3.0-1.21.11.jar",
+                "okhttp-4.12.0.jar",
+                "okio-jvm-3.6.0.jar",
+                "kotlin-stdlib-1.9.10.jar",
+                "kotlin-stdlib-jdk7-1.9.10.jar",
+                "kotlin-stdlib-jdk8-1.9.10.jar"
+        ]
+        def archive = tasks.named("remapJar").get().archiveFile.get().asFile
+        def zip = new ZipFile(archive)
+        try {
+            def missing = requiredNestedJars.findAll {
+                zip.getEntry("META-INF/jars/${it}") == null
+            }
+            if (!missing.isEmpty()) {
+                throw new GradleException("WebUI runtime dependencies missing from ${archive.name}: ${missing}")
+            }
+            if (zip.getEntry("assets/omix/webui/webui.zip") == null) {
+                throw new GradleException("Combined WebUI bundle missing from ${archive.name}")
+            }
+            if (zip.getEntry("assets/omix/music/sidecar.zip") == null) {
+                throw new GradleException("Music sidecar bundle missing from ${archive.name}")
+            }
+            def forbiddenName = { String name ->
+                def normalized = name.replace('\\', '/')
+                def leaf = normalized.tokenize('/').last()
+                leaf ==~ /(?i)node(\.exe)?/ ||
+                        leaf ==~ /(?i)node-v24\.18\.0-(win|darwin|linux)-.*\.(zip|tar\.gz)/
+            }
+            def forbiddenRuntime = zip.entries().find { !it.directory && forbiddenName(it.name) }
+            if (forbiddenRuntime != null) {
+                throw new GradleException("Platform Node runtime must not be embedded: ${forbiddenRuntime.name}")
+            }
+
+            def inspectNestedZip = { String entryName, Closure visitor ->
+                def nested = new ZipInputStream(zip.getInputStream(zip.getEntry(entryName)))
+                try {
+                    ZipEntry entry
+                    while ((entry = nested.nextEntry) != null) {
+                        visitor(entry)
+                    }
+                } finally {
+                    nested.close()
+                }
+            }
+            def hasMusicIndex = false
+            inspectNestedZip("assets/omix/webui/webui.zip") { entry ->
+                if (entry.name == "music/index.html") hasMusicIndex = true
+                if (!entry.directory && forbiddenName(entry.name)) {
+                    throw new GradleException("Node runtime leaked into WebUI bundle: ${entry.name}")
+                }
+            }
+            if (!hasMusicIndex) {
+                throw new GradleException("Music WebUI index missing from combined WebUI bundle")
+            }
+            inspectNestedZip("assets/omix/music/sidecar.zip") { entry ->
+                if (!entry.directory && forbiddenName(entry.name)) {
+                    throw new GradleException("Node runtime leaked into sidecar bundle: ${entry.name}")
+                }
+            }
+        } finally {
+            zip.close()
+        }
+    }
+}
+
+tasks.named("check") {
+    dependsOn verifyWebUiRuntimeBundle
+    dependsOn testMusicSidecar
+}
+
+// configure the maven publication
+publishing {
+    publications {
+        create("mavenJava", MavenPublication) {
+            artifactId = project.archives_base_name
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+        // Notice: This block does NOT have the same function as the block in the top level.
+        // The repositories here will be used for publishing your artifact, not for
+        // retrieving dependencies.
+    }
+}

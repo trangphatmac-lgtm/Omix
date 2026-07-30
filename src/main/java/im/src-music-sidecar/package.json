@@ -1,0 +1,16 @@
+{
+  "name": "omix-music-sidecar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Authenticated loopback Netease API sidecar for Omix",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@neteaseapireborn/api": "4.29.7",
+    "express": "4.21.2",
+    "safe-decode-uri-component": "1.2.1"
+  }
+}
