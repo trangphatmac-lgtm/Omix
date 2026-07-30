@@ -78,7 +78,7 @@ final class OpenAiCompatibleProvider implements AiProvider {
 
     @Override
     public CompletableFuture<AiTurnResult> streamChat(
-            String username,
+            AiGameContext gameContext,
             String message,
             AiChatMode mode,
             AiStreamListener listener
@@ -91,7 +91,7 @@ final class OpenAiCompatibleProvider implements AiProvider {
         AiToolSnapshot toolSnapshot = mode == AiChatMode.AGENT
                 ? toolExecutor.snapshot()
                 : new AiToolSnapshot(new JsonArray(), "");
-        JsonArray messages = buildMessages(settings, username, message, mode, toolSnapshot);
+        JsonArray messages = buildMessages(settings, gameContext, message, mode, toolSnapshot);
         return runChatLoop(
                 settings,
                 messages,
@@ -105,7 +105,7 @@ final class OpenAiCompatibleProvider implements AiProvider {
 
     private JsonArray buildMessages(
             AiConfig.Snapshot settings,
-            String username,
+            AiGameContext gameContext,
             String message,
             AiChatMode mode,
             AiToolSnapshot toolSnapshot
@@ -114,7 +114,7 @@ final class OpenAiCompatibleProvider implements AiProvider {
         if (mode == AiChatMode.AGENT) {
             JsonObject systemMessage = new JsonObject();
             systemMessage.addProperty("role", "system");
-            systemMessage.addProperty("content", AiSystemPrompt.forUser(username, toolSnapshot.promptContext()));
+            systemMessage.addProperty("content", AiSystemPrompt.forContext(gameContext, toolSnapshot.promptContext()));
             messages.add(systemMessage);
         }
         for (AiMessage historyMessage : settings.history(mode)) {

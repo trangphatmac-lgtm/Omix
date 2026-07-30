@@ -7,7 +7,7 @@ interface AiProvider {
     CompletableFuture<List<String>> listModels();
 
     CompletableFuture<AiTurnResult> streamChat(
-            String username,
+            AiGameContext gameContext,
             String message,
             AiChatMode mode,
             AiStreamListener listener

@@ -114,7 +114,8 @@ public final class AiBackend implements AutoCloseable {
 
         final CompletableFuture<AiTurnResult> request;
         try {
-            request = provider.streamChat(username, message, mode, listener);
+            request = AiGameContext.capture(username)
+                    .thenCompose(gameContext -> provider.streamChat(gameContext, message, mode, listener));
         } catch (Exception exception) {
             chatActive.set(false);
             return CompletableFuture.failedFuture(exception);
