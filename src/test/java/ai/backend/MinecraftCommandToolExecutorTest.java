@@ -34,7 +34,11 @@ class MinecraftCommandToolExecutorTest {
                 "getnearbyblock",
                 "getlookingblock",
                 "getspecificblock",
-                "getallconfig"
+                "getallconfig",
+                "getscoreboard",
+                "getchatmessage",
+                "sendchatmessage",
+                "getcommandsuggestion"
         ), names);
 
         JsonObject nearby = findTool(snapshot.definitions(), "getnearbyblock");
@@ -43,7 +47,15 @@ class MinecraftCommandToolExecutorTest {
                 .getAsJsonObject("properties")
                 .getAsJsonObject("range");
         assertEquals(3, range.get("minimum").getAsInt());
-        assertEquals(10, range.get("maximum").getAsInt());
+        assertEquals(20, range.get("maximum").getAsInt());
+
+        JsonObject chat = findTool(snapshot.definitions(), "getchatmessage");
+        JsonObject messageNumber = chat.getAsJsonObject("function")
+                .getAsJsonObject("parameters")
+                .getAsJsonObject("properties")
+                .getAsJsonObject("messagenumber");
+        assertEquals(1, messageNumber.get("minimum").getAsInt());
+        assertEquals(100, messageNumber.get("maximum").getAsInt());
     }
 
     @Test
@@ -75,22 +87,39 @@ class MinecraftCommandToolExecutorTest {
     }
 
     @Test
-    void rejectsNearbyBlockRangesOutsideThreeThroughTen() {
+    void rejectsNearbyBlockRangesOutsideThreeThroughTwenty() {
         MinecraftCommandToolExecutor executor = new MinecraftCommandToolExecutor();
 
         String tooSmall = executor.execute(
                 new AiToolCall("range-small", "getnearbyblock", "{\"range\":2}")
         ).join();
         String tooLarge = executor.execute(
-                new AiToolCall("range-large", "getnearbyblock", "{\"range\":11}")
+                new AiToolCall("range-large", "getnearbyblock", "{\"range\":21}")
         ).join();
         String fractional = executor.execute(
                 new AiToolCall("range-fractional", "getnearbyblock", "{\"range\":3.5}")
         ).join();
 
-        assertTrue(tooSmall.contains("range must be an integer from 3 through 10"));
-        assertTrue(tooLarge.contains("range must be an integer from 3 through 10"));
-        assertTrue(fractional.contains("range must be an integer from 3 through 10"));
+        assertTrue(tooSmall.contains("range must be an integer from 3 through 20"));
+        assertTrue(tooLarge.contains("range must be an integer from 3 through 20"));
+        assertTrue(fractional.contains("range must be an integer from 3 through 20"));
+    }
+
+    @Test
+    void validatesChatMessageCountAndCurrentWordBoundaries() {
+        MinecraftCommandToolExecutor executor = new MinecraftCommandToolExecutor();
+
+        String zero = executor.execute(
+                new AiToolCall("chat-zero", "getchatmessage", "{\"messagenumber\":0}")
+        ).join();
+        String tooMany = executor.execute(
+                new AiToolCall("chat-many", "getchatmessage", "{\"messagenumber\":101}")
+        ).join();
+
+        assertTrue(zero.contains("messagenumber must be an integer from 1 through 100"));
+        assertTrue(tooMany.contains("messagenumber must be an integer from 1 through 100"));
+        assertEquals(6, MinecraftCommandToolExecutor.startOfCurrentWord("/give @"));
+        assertEquals(0, MinecraftCommandToolExecutor.startOfCurrentWord("/give"));
     }
 
     private static JsonObject findTool(JsonArray tools, String name) {

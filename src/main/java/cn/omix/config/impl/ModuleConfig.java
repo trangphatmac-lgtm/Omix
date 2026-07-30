@@ -3,12 +3,14 @@ package cn.omix.config.impl;
 import cn.omix.Client;
 import cn.omix.config.Config;
 import cn.omix.config.ConfigStorageMode;
+import cn.omix.module.Category;
 import cn.omix.module.Module;
 import cn.omix.module.value.DynamicBoolValueProvider;
 import cn.omix.module.value.Value;
 import cn.omix.module.value.impl.*;
 import cn.omix.security.SafeStorage;
 import cn.omix.ui.hud.Drag;
+import cn.omix.util.misc.KeyUtil;
 import com.google.gson.*;
 
 import java.nio.charset.StandardCharsets;
@@ -112,7 +114,23 @@ public final class ModuleConfig extends Config {
     }
 
     public JsonObject snapshotForAi() {
-        return serializeCurrentState(true);
+        JsonObject categories = new JsonObject();
+        for (Category category : Category.values()) {
+            categories.add(category.getName(), new JsonObject());
+        }
+
+        for (Module module : instance.getModuleManager().getModuleMap().values()) {
+            JsonObject moduleObject = new JsonObject();
+            moduleObject.addProperty("enabled", module.isEnabled());
+            moduleObject.addProperty("key", KeyUtil.getKeyName(module.getKey()));
+
+            JsonObject settings = serializeValues(module, true, true);
+            if (!settings.isEmpty()) {
+                moduleObject.add("settings", settings);
+            }
+            categories.getAsJsonObject(module.getCategory().getName()).add(module.getName(), moduleObject);
+        }
+        return categories;
     }
 
     private JsonObject serializeCurrentState(boolean redactSensitive) {
@@ -128,7 +146,7 @@ public final class ModuleConfig extends Config {
                 moduleObject.addProperty("percentY", drag.percentY);
             }
 
-            JsonObject valuesObject = serializeValues(module, redactSensitive);
+            JsonObject valuesObject = serializeValues(module, redactSensitive, false);
             if (!valuesObject.isEmpty()) {
                 moduleObject.add("values", valuesObject);
             }
@@ -137,9 +155,16 @@ public final class ModuleConfig extends Config {
         return jsonObject;
     }
 
-    private JsonObject serializeValues(final Module module, boolean redactSensitive) {
+    private JsonObject serializeValues(
+            final Module module,
+            boolean redactSensitive,
+            boolean onlyClickGuiVisible
+    ) {
         final JsonObject valuesObject = new JsonObject();
         for (final Value value : module.getValues()) {
+            if (onlyClickGuiVisible && !value.isVisible()) {
+                continue;
+            }
             switch (value) {
                 case BoolValue bool -> valuesObject.addProperty(bool.getName(), bool.getValue());
                 case NumberValue num -> valuesObject.addProperty(num.getName(), num.getValue());
@@ -150,8 +175,27 @@ public final class ModuleConfig extends Config {
                             : text.getValue();
                     valuesObject.addProperty(text.getName(), serializedText);
                 }
-                case KeyValue key -> valuesObject.addProperty(key.getName(), key.getValue());
-                case ColorValue color -> valuesObject.addProperty(color.getName(), color.getValue().getRGB());
+                case KeyValue key -> {
+                    if (onlyClickGuiVisible) {
+                        valuesObject.addProperty(key.getName(), KeyUtil.getKeyName(key.getValue()));
+                    } else {
+                        valuesObject.addProperty(key.getName(), key.getValue());
+                    }
+                }
+                case ColorValue color -> {
+                    if (onlyClickGuiVisible) {
+                        valuesObject.addProperty(
+                                color.getName(),
+                                "#%02x%02x%02x".formatted(
+                                        color.getValue().getRed(),
+                                        color.getValue().getGreen(),
+                                        color.getValue().getBlue()
+                                )
+                        );
+                    } else {
+                        valuesObject.addProperty(color.getName(), color.getValue().getRGB());
+                    }
+                }
                 case MultiBoolValue multi -> {
                     final JsonObject multiObject = new JsonObject();
                     for (final BoolValue child : multi.getValues()) {
