@@ -1,5 +1,6 @@
 <script lang="ts">
     import {onMount} from "svelte";
+    import omixLogo from "./assets/omix.png";
 
     type Theme = "light" | "dark";
     type View = "modules" | "configs";
@@ -707,10 +708,7 @@
     <section class="window-shell">
         <aside class="sidebar" aria-label="Categories">
             <button class="brand-button" title="Omix" on:click={() => view = "modules"}>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12 2.5 20 5.7v5.8c0 4.9-3.1 8.4-8 10-4.9-1.6-8-5.1-8-10V5.7L12 2.5Z"/>
-                    <path d="m8.2 8.2 3.9-1.4c2.2-.8 4.2.2 4.2 2.3 0 1.3-.8 2.3-2.1 2.9l2.4 4h-3.2l-2-3.4-.7.2V16H8.2V8.2Zm2.5 1.6v1.1l2.1-.7c.6-.2.9-.5.9-.9 0-.4-.4-.6-.9-.4l-2.1.9Z"/>
-                </svg>
+                <img src={omixLogo} alt="" aria-hidden="true"/>
             </button>
 
             <nav class="category-nav">
@@ -1357,13 +1355,11 @@
             0 8px 20px rgba(var(--accent-rgb), .15);
     }
 
-    .brand-button svg {
-        width: 28px;
-        height: 28px;
-    }
-
-    .brand-button svg path:first-child {
-        fill: rgba(var(--accent-rgb), .13);
+    .brand-button img {
+        display: block;
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
     }
 
     .category-nav {
