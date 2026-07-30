@@ -53,27 +53,7 @@ public final class ModuleConfig extends Config {
 
     private void saveWithCurrentMode() {
         try {
-            final JsonObject jsonObject = new JsonObject();
-
-            for (Module module : instance.getModuleManager().getModuleMap().values()) {
-                final JsonObject moduleObject = new JsonObject();
-                moduleObject.addProperty("enabled", !module.isHoldToUse() && module.isEnabled());
-                moduleObject.addProperty("key", module.getKey());
-                moduleObject.addProperty("hidden", module.isHidden());
-
-                if (module instanceof Drag drag) {
-                    moduleObject.addProperty("percentX", drag.percentX);
-                    moduleObject.addProperty("percentY", drag.percentY);
-                }
-
-                JsonObject valuesObject = this.serializeValues(module);
-                if (!valuesObject.isEmpty()) {
-                    moduleObject.add("values", valuesObject);
-                }
-                jsonObject.add(module.getName(), moduleObject);
-            }
-
-            String serialized = this.gson.toJson(jsonObject);
+            String serialized = this.gson.toJson(serializeCurrentState(false));
             Files.writeString(
                     this.getFile().toPath(),
                     storageMode.encode(serialized),
@@ -131,19 +111,45 @@ public final class ModuleConfig extends Config {
         }
     }
 
-    private JsonObject serializeValues(final Module module) {
+    public JsonObject snapshotForAi() {
+        return serializeCurrentState(true);
+    }
+
+    private JsonObject serializeCurrentState(boolean redactSensitive) {
+        final JsonObject jsonObject = new JsonObject();
+        for (Module module : instance.getModuleManager().getModuleMap().values()) {
+            final JsonObject moduleObject = new JsonObject();
+            moduleObject.addProperty("enabled", !module.isHoldToUse() && module.isEnabled());
+            moduleObject.addProperty("key", module.getKey());
+            moduleObject.addProperty("hidden", module.isHidden());
+
+            if (module instanceof Drag drag) {
+                moduleObject.addProperty("percentX", drag.percentX);
+                moduleObject.addProperty("percentY", drag.percentY);
+            }
+
+            JsonObject valuesObject = serializeValues(module, redactSensitive);
+            if (!valuesObject.isEmpty()) {
+                moduleObject.add("values", valuesObject);
+            }
+            jsonObject.add(module.getName(), moduleObject);
+        }
+        return jsonObject;
+    }
+
+    private JsonObject serializeValues(final Module module, boolean redactSensitive) {
         final JsonObject valuesObject = new JsonObject();
         for (final Value value : module.getValues()) {
             switch (value) {
                 case BoolValue bool -> valuesObject.addProperty(bool.getName(), bool.getValue());
                 case NumberValue num -> valuesObject.addProperty(num.getName(), num.getValue());
                 case ModeValue mode -> valuesObject.addProperty(mode.getName(), mode.getValue());
-                case TextValue text -> valuesObject.addProperty(
-                        text.getName(),
-                        text.isSensitive()
-                                ? SafeStorage.encrypt(text.getValue())
-                                : text.getValue()
-                );
+                case TextValue text -> {
+                    String serializedText = text.isSensitive()
+                            ? (redactSensitive ? "<redacted>" : SafeStorage.encrypt(text.getValue()))
+                            : text.getValue();
+                    valuesObject.addProperty(text.getName(), serializedText);
+                }
                 case KeyValue key -> valuesObject.addProperty(key.getName(), key.getValue());
                 case ColorValue color -> valuesObject.addProperty(color.getName(), color.getValue().getRGB());
                 case MultiBoolValue multi -> {
