@@ -6,7 +6,7 @@
   "description": "A Minecraft client project for Fabric 1.21.11.",
   "authors": [],
   "contact": {},
-  "license": "GPL 3.0",
+  "license": "MIT",
   "environment": "client",
   "entrypoints": {
     "client": [],

@@ -8,6 +8,6 @@
 <div align="center">
 
 ## Licence
-    GPLv3
+    MIT
 
 </div>
