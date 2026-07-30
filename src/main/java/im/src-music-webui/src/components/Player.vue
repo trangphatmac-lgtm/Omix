@@ -48,6 +48,25 @@
               </span>
             </div>
           </div>
+          <div class="like-button">
+            <button-icon
+              :title="
+                player.isCurrentTrackLiked
+                  ? $t('player.unlike')
+                  : $t('player.like')
+              "
+              @click.native="likeATrack(player.currentTrack.id)"
+            >
+              <svg-icon
+                v-show="!player.isCurrentTrackLiked"
+                icon-class="heart"
+              />
+              <svg-icon
+                v-show="player.isCurrentTrackLiked"
+                icon-class="heart-solid"
+              />
+            </button-icon>
+          </div>
         </div>
         <div class="blank"></div>
       </div>
@@ -203,7 +222,7 @@ export default {
   },
   methods: {
     ...mapMutations(['toggleLyrics']),
-    ...mapActions(['showToast']),
+    ...mapActions(['showToast', 'likeATrack']),
     handleClick(event) {
       if (event.target == this.mouseDownTarget) {
         this.toggleLyrics();

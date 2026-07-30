@@ -9,6 +9,7 @@ import cn.omix.management.PacketManager;
 import cn.omix.management.RotationManager;
 import cn.omix.management.TargetManager;
 import cn.omix.module.ModuleManager;
+import cn.omix.module.impl.exploits.disabler.MinibloxDisabler;
 import cn.omix.ui.clickgui.ClickGuiScreen;
 import cn.omix.ui.font.FontManager;
 import cn.omix.util.IMinecraft;
@@ -17,6 +18,7 @@ import cn.omix.util.render.Render3D;
 import me.ksyz.accountmanager.AccountManager;
 import im.webui.WebUiRuntime;
 import lombok.Getter;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import org.apache.logging.log4j.Logger;
 
 import java.nio.file.Path;
@@ -44,6 +46,10 @@ public class Client implements IMinecraft {
     public void init() {
 
         // Why did you do that?
+        PayloadTypeRegistry.playC2S().register(
+                MinibloxDisabler.MovePayload.ID,
+                MinibloxDisabler.MovePayload.CODEC
+        );
         Render2D.init();
         Render3D.init();
         eventManager = new EventManager();

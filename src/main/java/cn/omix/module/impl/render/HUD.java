@@ -124,14 +124,13 @@ public class HUD extends Module {
 
         if (hudOptionsProperty.isEnabled("Display")) {
             Disabler disabler = getModule(Disabler.class);
-            if (disabler.isEnabled()) {
+            if (disabler.isEnabled() && disabler.isCubeCraftMode()) {
                 String text;
 
                 if (disabler.isWaiting()) {
                     text = Formatting.RED + "You are playing Cubecraft with disabler disabled!";
-                    disabler.refresh();
                 } else {
-                    text = String.valueOf(disabler.getPacketQueue().size());
+                    text = String.valueOf(disabler.getQueuedPacketCount());
                 }
 
                 float textWidth = font18b.getStringWidth(text);
@@ -363,10 +362,11 @@ public class HUD extends Module {
         }
 
         Disabler disabler = getModule(Disabler.class);
-        if (classicDisablerQueue.getValue() && disabler.isEnabled()) {
-            String text = String.valueOf(disabler.getPacketQueue().size());
+        if (classicDisablerQueue.getValue()
+                && disabler.isEnabled()
+                && disabler.isCubeCraftMode()) {
+            String text = String.valueOf(disabler.getQueuedPacketCount());
             if (disabler.isWaiting()) {
-                disabler.refresh();
                 text = "You are playing Cubecraft with disabler disabled!";
             }
             drawClassicOverlay(context, text, time, row++, overlayRow++);
