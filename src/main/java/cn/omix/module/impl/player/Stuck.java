@@ -38,20 +38,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class Stuck extends Module {
-    private final ModeValue implementation = new ModeValue("Implementation", "Classic", "Classic", "Omix");
-
-    private final ModeValue classicMode = new ModeValue(
-            "Classic Mode",
+    private final ModeValue mode = new ModeValue(
+            "Mode",
             "Delay",
-            () -> implementation.is("Classic"),
             "Delay",
-            "Packet"
-    );
-
-    private final ModeValue omixMode = new ModeValue(
-            "Omix Mode",
-            "Freeze",
-            () -> implementation.is("Omix"),
+            "Packet",
             "Freeze",
             "Cancel"
     );
@@ -61,9 +52,13 @@ public final class Stuck extends Module {
             1,
             20,
             1,
-            () -> implementation.is("Omix") && omixMode.is("Freeze")
+            () -> mode.is("Freeze")
     );
-    private final BoolValue noMove = new BoolValue("No Move", true, () -> implementation.is("Omix"));
+    private final BoolValue noMove = new BoolValue(
+            "No Move",
+            true,
+            () -> mode.is("Freeze") || mode.is("Cancel")
+    );
 
     private final Queue<CommonPongC2SPacket> pongQueue = new ConcurrentLinkedQueue<>();
     private int stuckState;
@@ -72,13 +67,12 @@ public final class Stuck extends Module {
     private float savedPitch;
     private boolean pendingDisable;
 
-    private int omixStuckTick;
-    private String activeImplementation = "Classic";
+    private int stuckTick;
+    private String activeMode = "Delay";
     private boolean clutchFreezeOverride;
     private boolean clutchWasEnabled;
-    private String clutchPreviousImplementation;
-    private String clutchPreviousOmixMode;
-    private int clutchPreviousOmixStuckTick;
+    private String clutchPreviousMode;
+    private int clutchPreviousStuckTick;
 
     public Stuck() {
         super("Stuck", Category.Player);
@@ -86,11 +80,11 @@ public final class Stuck extends Module {
 
     @Override
     public void onEnable() {
-        activeImplementation = implementation.getValue();
-        resetClassicState();
-        omixStuckTick = 0;
+        activeMode = mode.getValue();
+        resetState();
+        stuckTick = 0;
 
-        if (implementation.is("Classic") && mc.player != null) {
+        if (usesPacketStuck() && mc.player != null) {
             savedYaw = RotationManager.getAppliedYaw(mc.player.getYaw());
             savedPitch = RotationManager.isRotating()
                     ? RotationManager.currentRotations[1]
@@ -109,9 +103,8 @@ public final class Stuck extends Module {
 
         if (!isEnabled()) return;
 
-        if (implementation.is("Omix")
+        if (!mode.is("Delay")
                 || mc.player == null
-                || !classicMode.is("Delay")
                 || stuckState == 3) {
             super.setEnabled(false);
         } else {
@@ -122,18 +115,16 @@ public final class Stuck extends Module {
     @Override
     public void onDisable() {
         flushPongs();
-        resetClassicState();
-        omixStuckTick = 0;
+        resetState();
+        stuckTick = 0;
     }
 
     @EventTarget
     public void onTick(TickEvent event) {
-        syncImplementation();
-        setSuffix(implementation.is("Classic")
-                ? "Classic " + classicMode.getValue()
-                : "Omix " + omixMode.getValue());
+        syncMode();
+        setSuffix(mode.getValue());
 
-        if (!implementation.is("Classic") || !classicMode.is("Packet") || mc.player == null) return;
+        if (!mode.is("Packet") || mc.player == null) return;
         if (disableScaffold()) return;
 
         if (!isAntiVoidActive()) {
@@ -146,7 +137,7 @@ public final class Stuck extends Module {
 
     @EventTarget
     public void onMotion(MotionEvent event) {
-        if (!implementation.is("Classic") || mc.player == null || !event.isPost()) return;
+        if (!usesPacketStuck() || mc.player == null || !event.isPost()) return;
 
         if (!isAntiVoidActive() && disableScaffold()) return;
         mc.player.setVelocity(Vec3d.ZERO);
@@ -174,12 +165,12 @@ public final class Stuck extends Module {
                 sendWithoutEvent(capturedPacket);
                 capturedPacket = null;
             }
-        } else if (!isAntiVoidActive() && classicMode.is("Packet") && mc.player.age % 10 == 0) {
+        } else if (!isAntiVoidActive() && mode.is("Packet") && mc.player.age % 10 == 0) {
             flushPongs();
         }
 
         if (pendingDisable) {
-            if (classicMode.is("Delay")) {
+            if (mode.is("Delay")) {
                 sendWithoutEvent(new PlayerMoveC2SPacket.PositionAndOnGround(
                         mc.player.getX() + 1337.0,
                         mc.player.getY(),
@@ -202,7 +193,7 @@ public final class Stuck extends Module {
 
     @EventTarget
     public void onStrafe(StrafeEvent event) {
-        if (!implementation.is("Classic")) return;
+        if (!usesPacketStuck()) return;
 
         if (mc.player != null) {
             mc.player.setSprinting(false);
@@ -212,12 +203,12 @@ public final class Stuck extends Module {
 
     @EventTarget
     private void onMoveMath(MoveMathEvent event) {
-        if (!implementation.is("Omix") || mc.player == null || mc.world == null) return;
+        if ((!mode.is("Freeze") && !mode.is("Cancel")) || mc.player == null || mc.world == null) return;
 
-        switch (omixMode.getValue()) {
+        switch (mode.getValue()) {
             case "Freeze" -> {
-                if (omixStuckTick >= freezeTick.getValue().intValue()) {
-                    omixStuckTick = 0;
+                if (stuckTick >= freezeTick.getValue().intValue()) {
+                    stuckTick = 0;
                     event.setCancelled(false);
                 } else {
                     event.setCancelled(true);
@@ -229,7 +220,7 @@ public final class Stuck extends Module {
 
     @EventTarget
     public void onMoveInput(MoveInputEvent event) {
-        if (implementation.is("Omix") && noMove.getValue()) {
+        if ((mode.is("Freeze") || mode.is("Cancel")) && noMove.getValue()) {
             event.setForward(0);
             event.setStrafe(0);
         }
@@ -237,9 +228,9 @@ public final class Stuck extends Module {
 
     @EventTarget
     public void onLivingUpdate(LivingUpdateEvent event) {
-        syncImplementation();
-        if (implementation.is("Omix")) {
-            omixStuckTick++;
+        syncMode();
+        if (mode.is("Freeze") || mode.is("Cancel")) {
+            stuckTick++;
         }
     }
 
@@ -248,7 +239,7 @@ public final class Stuck extends Module {
         stuckState = 3;
         capturedPacket = null;
         pongQueue.clear();
-        omixStuckTick = 0;
+        stuckTick = 0;
         if (clutchFreezeOverride) {
             endClutchFreeze(false);
         } else {
@@ -259,10 +250,10 @@ public final class Stuck extends Module {
     @EventTarget
     @EventPriority(1)
     public void onPacket(PacketEvent event) {
-        if (!implementation.is("Classic") || mc.player == null) return;
+        if (!usesPacketStuck() || mc.player == null) return;
 
         if (event.getType() == PacketEvent.Type.Received) {
-            if (event.getPacket() instanceof PlayerPositionLookS2CPacket && classicMode.is("Delay")) {
+            if (event.getPacket() instanceof PlayerPositionLookS2CPacket && mode.is("Delay")) {
                 flushPongs();
                 stuckState = 3;
                 setEnabled(false);
@@ -274,7 +265,7 @@ public final class Stuck extends Module {
 
         Packet<?> packet = event.getPacket();
         if (packet instanceof PlayerMoveC2SPacket movePacket) {
-            if (stuckState != 1 && classicMode.is("Packet")) {
+            if (stuckState != 1 && mode.is("Packet")) {
                 PlayerMoveC2SPacketAccessor accessor = (PlayerMoveC2SPacketAccessor) movePacket;
                 accessor.setYaw(mc.player.getYaw() + ThreadLocalRandom.current().nextFloat() - 0.5F);
                 accessor.setPitch(mc.player.getPitch());
@@ -291,15 +282,18 @@ public final class Stuck extends Module {
         }
     }
 
-    private void syncImplementation() {
-        if (activeImplementation.equalsIgnoreCase(implementation.getValue())) return;
+    private void syncMode() {
+        if (activeMode.equalsIgnoreCase(mode.getValue())) return;
+
+        boolean switchedBehavior = usesPacketStuck(activeMode) != usesPacketStuck(mode.getValue());
+        activeMode = mode.getValue();
+        if (!switchedBehavior) return;
 
         flushPongs();
-        resetClassicState();
-        omixStuckTick = 0;
-        activeImplementation = implementation.getValue();
+        resetState();
+        stuckTick = 0;
 
-        if (implementation.is("Classic") && mc.player != null) {
+        if (usesPacketStuck() && mc.player != null) {
             savedYaw = RotationManager.getAppliedYaw(mc.player.getYaw());
             savedPitch = RotationManager.isRotating()
                     ? RotationManager.currentRotations[1]
@@ -311,16 +305,14 @@ public final class Stuck extends Module {
         if (!clutchFreezeOverride) {
             clutchFreezeOverride = true;
             clutchWasEnabled = isEnabled();
-            clutchPreviousImplementation = implementation.getValue();
-            clutchPreviousOmixMode = omixMode.getValue();
-            clutchPreviousOmixStuckTick = omixStuckTick;
-            omixStuckTick = 0;
+            clutchPreviousMode = mode.getValue();
+            clutchPreviousStuckTick = stuckTick;
+            stuckTick = 0;
         }
 
-        implementation.setValue("Omix");
-        omixMode.setValue("Freeze");
+        mode.setValue("Freeze");
         if (isEnabled()) {
-            syncImplementation();
+            syncMode();
         } else {
             setEnabled(true);
         }
@@ -334,32 +326,38 @@ public final class Stuck extends Module {
             setEnabled(false);
         }
 
-        implementation.setValue(clutchPreviousImplementation);
-        omixMode.setValue(clutchPreviousOmixMode);
-        if (shouldRemainEnabled && implementation.is("Omix")) {
-            omixStuckTick = clutchPreviousOmixStuckTick;
+        mode.setValue(clutchPreviousMode);
+        if (shouldRemainEnabled && (mode.is("Freeze") || mode.is("Cancel"))) {
+            stuckTick = clutchPreviousStuckTick;
         }
         clutchFreezeOverride = false;
 
         if (shouldRemainEnabled) {
             if (isEnabled()) {
-                syncImplementation();
+                syncMode();
             } else {
                 setEnabled(true);
             }
         }
 
         clutchWasEnabled = false;
-        clutchPreviousImplementation = null;
-        clutchPreviousOmixMode = null;
-        clutchPreviousOmixStuckTick = 0;
+        clutchPreviousMode = null;
+        clutchPreviousStuckTick = 0;
     }
 
-    private void resetClassicState() {
+    private void resetState() {
         stuckState = 0;
         capturedPacket = null;
         pendingDisable = false;
         pongQueue.clear();
+    }
+
+    private boolean usesPacketStuck() {
+        return usesPacketStuck(mode.getValue());
+    }
+
+    private boolean usesPacketStuck(String selectedMode) {
+        return selectedMode.equalsIgnoreCase("Delay") || selectedMode.equalsIgnoreCase("Packet");
     }
 
     private boolean shouldSendRotationBefore(Packet<?> packet) {

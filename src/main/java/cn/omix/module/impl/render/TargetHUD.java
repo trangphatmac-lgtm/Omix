@@ -29,11 +29,10 @@ public final class TargetHUD extends Drag {
     private static final DecimalFormat DIFF_FORMAT = new DecimalFormat("+0.0;-0.0", new DecimalFormatSymbols(Locale.US));
     private static final long TARGET_MEMORY = 1500L;
 
-    private final ModeValue implementation = new ModeValue("Implementation", "Classic", "Classic", "Omix");
-    private final ModeValue omixStyle = new ModeValue(
-            "Omix Style",
-            "Novoline",
-            () -> implementation.is("Omix"),
+    private final ModeValue mode = new ModeValue(
+            "Mode",
+            "Classic",
+            "Classic",
             "Novoline",
             "Omix",
             "Exhibition"
@@ -42,14 +41,14 @@ public final class TargetHUD extends Drag {
     private final ModeValue colorMode = new ModeValue(
             "Color",
             "Default",
-            () -> implementation.is("Classic"),
+            () -> mode.is("Classic"),
             "Default",
             "HUD"
     );
     private final ModeValue positionX = new ModeValue(
             "Position X",
             "Middle",
-            () -> implementation.is("Classic"),
+            () -> mode.is("Classic"),
             "Left",
             "Middle",
             "Right"
@@ -57,22 +56,22 @@ public final class TargetHUD extends Drag {
     private final ModeValue positionY = new ModeValue(
             "Position Y",
             "Middle",
-            () -> implementation.is("Classic"),
+            () -> mode.is("Classic"),
             "Top",
             "Middle",
             "Bottom"
     );
-    private final NumberValue scale = new NumberValue("Scale", 1, .5F, 1.5F, .05F, () -> implementation.is("Classic"));
-    private final NumberValue offsetX = new NumberValue("Offset X", 0, -255, 255, 1, () -> implementation.is("Classic"));
-    private final NumberValue offsetY = new NumberValue("Offset Y", 40, -255, 255, 1, () -> implementation.is("Classic"));
-    private final NumberValue background = new NumberValue("Background", 25, 0, 100, 1, () -> implementation.is("Classic"));
-    private final BoolValue head = new BoolValue("Head", true, () -> implementation.is("Classic"));
-    private final BoolValue indicator = new BoolValue("Indicator", true, () -> implementation.is("Classic"));
-    private final BoolValue outline = new BoolValue("Outline", false, () -> implementation.is("Classic"));
-    private final BoolValue animations = new BoolValue("Animations", true, () -> implementation.is("Classic"));
-    private final BoolValue shadow = new BoolValue("Shadow", true, () -> implementation.is("Classic"));
-    private final BoolValue auraOnly = new BoolValue("Aura Only", true, () -> implementation.is("Classic"));
-    private final BoolValue chatPreview = new BoolValue("Chat Preview", false, () -> implementation.is("Classic"));
+    private final NumberValue scale = new NumberValue("Scale", 1, .5F, 1.5F, .05F, () -> mode.is("Classic"));
+    private final NumberValue offsetX = new NumberValue("Offset X", 0, -255, 255, 1, () -> mode.is("Classic"));
+    private final NumberValue offsetY = new NumberValue("Offset Y", 40, -255, 255, 1, () -> mode.is("Classic"));
+    private final NumberValue background = new NumberValue("Background", 25, 0, 100, 1, () -> mode.is("Classic"));
+    private final BoolValue head = new BoolValue("Head", true, () -> mode.is("Classic"));
+    private final BoolValue indicator = new BoolValue("Indicator", true, () -> mode.is("Classic"));
+    private final BoolValue outline = new BoolValue("Outline", false, () -> mode.is("Classic"));
+    private final BoolValue animations = new BoolValue("Animations", true, () -> mode.is("Classic"));
+    private final BoolValue shadow = new BoolValue("Shadow", true, () -> mode.is("Classic"));
+    private final BoolValue auraOnly = new BoolValue("Aura Only", true, () -> mode.is("Classic"));
+    private final BoolValue chatPreview = new BoolValue("Chat Preview", false, () -> mode.is("Classic"));
 
     private LivingEntity lastTarget;
     private LivingEntity renderedTarget;
@@ -87,7 +86,7 @@ public final class TargetHUD extends Drag {
 
     @EventTarget
     public void onAttack(AttackEvent event) {
-        if (!implementation.is("Classic")) return;
+        if (!mode.is("Classic")) return;
 
         if (event.getEntity() instanceof LivingEntity living && !(living instanceof ArmorStandEntity)) {
             lastTarget = living;
@@ -99,7 +98,7 @@ public final class TargetHUD extends Drag {
     public void onRender2D(Render2DEvent event) {
         if (mc.player == null || mc.options.hudHidden) return;
 
-        if (implementation.is("Classic")) {
+        if (mode.is("Classic")) {
             setSuffix("Classic");
             renderClassic(event.getContext());
         } else if (getModule(HUD.class).getHudMode().is("Classic")) {
@@ -110,25 +109,25 @@ public final class TargetHUD extends Drag {
 
     @Override
     public void render(DrawContext context) {
-        if (!implementation.is("Omix") || mc.player == null || mc.world == null) return;
+        if (mode.is("Classic") || mc.player == null || mc.world == null) return;
 
-        setSuffix("Omix " + omixStyle.getValue());
-        LivingEntity target = getOmixTarget();
+        setSuffix(mode.getValue());
+        LivingEntity target = getStyleTarget();
         if (target == null) return;
 
-        width = switch (omixStyle.getValue()) {
+        width = switch (mode.getValue()) {
             case "Exhibition" -> Exhibition.getWidth(target);
             case "Omix" -> Omix.getWidth(target);
             default -> Novoline.getWidth(target);
         };
 
-        height = switch (omixStyle.getValue()) {
+        height = switch (mode.getValue()) {
             case "Exhibition" -> Exhibition.getHeight();
             case "Omix" -> Omix.getHeight();
             default -> Novoline.getHeight();
         };
 
-        switch (omixStyle.getValue()) {
+        switch (mode.getValue()) {
             case "Exhibition" -> Exhibition.render(context, target, renderX, renderY);
             case "Omix" -> Omix.render(context, target, renderX, renderY);
             default -> Novoline.render(context, target, renderX, renderY);
@@ -232,7 +231,7 @@ public final class TargetHUD extends Drag {
         return isValid(mc.targetedEntity) ? (LivingEntity) mc.targetedEntity : null;
     }
 
-    private LivingEntity getOmixTarget() {
+    private LivingEntity getStyleTarget() {
         if (mc.currentScreen instanceof ChatScreen) return mc.player;
 
         Aura aura = getModule(Aura.class);
