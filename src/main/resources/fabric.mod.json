@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "omix",
-  "version": "260729-SNAPSHOT",
+  "version": "260730-SNAPSHOT",
   "name": "omix",
   "description": "A Minecraft client project for Fabric 1.21.11.",
   "authors": [],
