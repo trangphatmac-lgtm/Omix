@@ -33,6 +33,7 @@ import net.minecraft.util.math.Vec3d;
 
 @Getter
 public class Scaffold extends Module {
+    private static final double PLACEMENT_REACH = 4.5;
     private static final double CLUTCH_REACH = 4.5;
     private static final double ESSENTIAL_CLUTCH_TARGET_RANGE = 5.0;
 
@@ -335,46 +336,71 @@ public class Scaffold extends Module {
         if (mc.player == null || mc.world == null) return null;
         if (!mc.world.getBlockState(belowBlockPos).isAir()) return null;
 
-        final double reachSq = 4.5 * 4.5;
+        final double reachSq = PLACEMENT_REACH * PLACEMENT_REACH;
         final Vec3d eye = mc.player.getEyePos();
 
-        PlaceInfo best = null;
-        double bestDistSq = Double.MAX_VALUE;
+        SupportCandidate best = null;
 
         for (int x = 0; x <= 5; x++) {
             for (int z = 0; z <= 5; z++) {
                 for (int sx = (x == 0 ? 1 : -1); sx <= 1; sx += 2) {
                     for (int sz = (z == 0 ? 1 : -1); sz <= 1; sz += 2) {
                         BlockPos blockPos = belowBlockPos.add(x * sx, 0, z * sz);
-                        if (!mc.world.getBlockState(blockPos).isAir()) continue;
-
-                        for (Direction direction : Direction.values()) {
-                            if (!isDownwards() && direction == Direction.UP) continue;
-
-                            BlockPos neighborPos = blockPos.offset(direction);
-                            BlockState neighborState = mc.world.getBlockState(neighborPos);
-                            if (neighborState.isReplaceable() || !neighborState.getFluidState().isEmpty()) continue;
-
-                            Direction facing = direction.getOpposite();
-                            Vec3d hitVec = new Vec3d(
-                                    neighborPos.getX() + 0.5 + facing.getOffsetX() * 0.5,
-                                    neighborPos.getY() + 0.5 + facing.getOffsetY() * 0.5,
-                                    neighborPos.getZ() + 0.5 + facing.getOffsetZ() * 0.5
-                            );
-
-                            double distSq = eye.squaredDistanceTo(hitVec);
-                            if (distSq > reachSq) continue;
-
-                            if (distSq < bestDistSq) {
-                                bestDistSq = distSq;
-                                best = new PlaceInfo(neighborPos, facing);
-                            }
+                        SupportCandidate candidate = findSupport(blockPos, eye, reachSq);
+                        if (candidate != null && (best == null || candidate.distanceSq() < best.distanceSq())) {
+                            best = candidate;
                         }
                     }
                 }
             }
         }
 
+        if (best != null) return best.placeInfo();
+
+        // During a fast ascent playerY - 1 can skip above the topmost support,
+        // leaving an air layer between the requested placement and every block.
+        // Fall back to the highest reachable placement in the player's column so
+        // the scaffold can catch up one block at a time instead of giving up.
+        int minimumY = Math.max(
+                mc.world.getBottomY(),
+                belowBlockPos.getY() - MathHelper.ceil(PLACEMENT_REACH)
+        );
+        for (int y = belowBlockPos.getY() - 1; y >= minimumY; y--) {
+            SupportCandidate candidate = findSupport(
+                    new BlockPos(belowBlockPos.getX(), y, belowBlockPos.getZ()),
+                    eye,
+                    reachSq
+            );
+            if (candidate != null) return candidate.placeInfo();
+        }
+
+        return null;
+    }
+
+    private SupportCandidate findSupport(BlockPos placePos, Vec3d eye, double reachSq) {
+        if (!mc.world.getBlockState(placePos).isAir()) return null;
+
+        SupportCandidate best = null;
+        for (Direction direction : Direction.values()) {
+            if (!isDownwards() && direction == Direction.UP) continue;
+
+            BlockPos neighborPos = placePos.offset(direction);
+            BlockState neighborState = mc.world.getBlockState(neighborPos);
+            if (neighborState.isReplaceable() || !neighborState.getFluidState().isEmpty()) continue;
+
+            Direction facing = direction.getOpposite();
+            Vec3d hitVec = new Vec3d(
+                    neighborPos.getX() + 0.5 + facing.getOffsetX() * 0.5,
+                    neighborPos.getY() + 0.5 + facing.getOffsetY() * 0.5,
+                    neighborPos.getZ() + 0.5 + facing.getOffsetZ() * 0.5
+            );
+            double distanceSq = eye.squaredDistanceTo(hitVec);
+            if (distanceSq > reachSq) continue;
+
+            if (best == null || distanceSq < best.distanceSq()) {
+                best = new SupportCandidate(new PlaceInfo(neighborPos, facing), distanceSq);
+            }
+        }
         return best;
     }
 
@@ -548,6 +574,8 @@ public class Scaffold extends Module {
     public static boolean isDownwards() {
         return downwards.getValue() && mc.options.sneakKey.isPressed();
     }
+
+    private record SupportCandidate(PlaceInfo placeInfo, double distanceSq) {}
 
     public record PlaceInfo(BlockPos blockPos, Direction facing) {}
 }
