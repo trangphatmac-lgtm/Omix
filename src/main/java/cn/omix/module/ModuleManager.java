@@ -3,6 +3,7 @@ package cn.omix.module;
 import cn.omix.Client;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.KeyInputEvent;
+import cn.omix.module.impl.combat.AntiAim;
 import cn.omix.module.impl.combat.Aura;
 import cn.omix.module.impl.combat.AutoTotem;
 import cn.omix.module.impl.combat.Backtrack;
@@ -13,6 +14,7 @@ import cn.omix.module.impl.combat.FastEat;
 import cn.omix.module.impl.combat.MaceDamageBooster;
 import cn.omix.module.impl.combat.TargetStrafe;
 import cn.omix.module.impl.combat.Velocity;
+import cn.omix.module.impl.exploits.Blink;
 import cn.omix.module.impl.exploits.BrandSpoofer;
 import cn.omix.module.impl.exploits.ChannelHider;
 import cn.omix.module.impl.exploits.Disabler;
@@ -50,6 +52,7 @@ public class ModuleManager implements IMinecraft {
                 new WorldTweaks(),
                 new GhostHand(),
                 new AntiBot(),
+                new AntiAim(),
                 new Aura(),
                 new AutoTotem(),
                 new Backtrack(),
@@ -98,6 +101,7 @@ public class ModuleManager implements IMinecraft {
                 new Regen(),
                 new AntiDebuff(),
                 new Brightness(),
+                new Blink(),
                 new Chams(),
                 new NoFog(),
                 new NoHurtCam(),

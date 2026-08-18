@@ -238,6 +238,13 @@ public final class TargetHUD extends Drag {
         return aura.isEnabled() ? aura.getTarget() : null;
     }
 
+    public LivingEntity getDisplayedTarget() {
+        if (!isEnabled() || mc.player == null || mc.world == null) return null;
+
+        LivingEntity target = mode.is("Classic") ? resolveClassicTarget() : getStyleTarget();
+        return isValid(target) ? target : null;
+    }
+
     private boolean isValid(Object entity) {
         return entity instanceof LivingEntity living
                 && !(living instanceof ArmorStandEntity)
