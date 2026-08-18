@@ -5,6 +5,7 @@ import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.*;
 import cn.omix.management.movement.MovementCorrection;
 import cn.omix.module.impl.combat.Aura;
+import cn.omix.module.impl.combat.TargetStrafe;
 import cn.omix.module.impl.move.Derp;
 import cn.omix.module.impl.move.NoFall;
 import cn.omix.module.impl.move.Speed;
@@ -46,6 +47,7 @@ public class RotationManager implements IMinecraft {
         if (mc.player == null) return;
 
         Aura aura = instance.getModuleManager().getModule(Aura.class);
+        TargetStrafe targetStrafe = instance.getModuleManager().getModule(TargetStrafe.class);
         Derp derp = instance.getModuleManager().getModule(Derp.class);
         Speed speed = instance.getModuleManager().getModule(Speed.class);
         AntiLava antiLava = instance.getModuleManager().getModule(AntiLava.class);
@@ -54,6 +56,8 @@ public class RotationManager implements IMinecraft {
         NoFall noFall = instance.getModuleManager().getModule(NoFall.class);
         boolean derpActive = derp.isEnabled() && derp.getRotations() != null;
         boolean instantRotation = false;
+        boolean visibleRotation = false;
+        boolean yawOnlyRotation = false;
 
         if (derpActive) {
             setRotations(derp.getRotations(), 0.0, MovementCorrection.None);
@@ -66,6 +70,10 @@ public class RotationManager implements IMinecraft {
             setRotations(scaffold.getRotations(), scaffold.getRotationSpeed(), scaffold.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
         } else if (aura.isEnabled() && aura.getTarget() != null && aura.getRotations() != null) {
             setRotations(aura.getRotations(), aura.getRotationSpeed().getValue(), aura.getMovementFixMode().is("None") ? MovementCorrection.None : (aura.getMovementFixMode().is("Silent") ? MovementCorrection.Silent : MovementCorrection.Strict));
+        } else if (targetStrafe.isLegitRotationActive()) {
+            setRotations(targetStrafe.getRotations(), 180, MovementCorrection.Strict);
+            visibleRotation = !targetStrafe.getSilentAim().getValue();
+            yawOnlyRotation = true;
         } else if (speed.isPredictionRotationActive()) {
             // Myau's `2` is a rotation priority, not a two-degrees-per-tick
             // smoothing speed. Prediction requires movement correction and the
@@ -80,6 +88,8 @@ public class RotationManager implements IMinecraft {
             float yaw = enabled && targetRotations != null ? targetRotations[0] : mc.player.getYaw();
             setRotations(new float[]{yaw, 90.0F}, 0.0, MovementCorrection.None);
             instantRotation = true;
+            visibleRotation = false;
+            yawOnlyRotation = false;
         }
 
         if (currentRotations == null) {
@@ -90,6 +100,14 @@ public class RotationManager implements IMinecraft {
             currentRotations = targetRotations.clone();
         } else if (enabled && targetRotations != null) {
             currentRotations = RotationUtil.getSmoothRotation(lastRotations, targetRotations, rotationSpeed + Math.random());
+        }
+        if (yawOnlyRotation) {
+            currentRotations[1] = mc.player.getPitch();
+            lastRotations[1] = mc.player.lastPitch;
+            targetRotations[1] = mc.player.getPitch();
+        }
+        if (visibleRotation) {
+            mc.player.setYaw(currentRotations[0]);
         }
         mc.gameRenderer.updateCrosshairTarget(1.0f);
     }

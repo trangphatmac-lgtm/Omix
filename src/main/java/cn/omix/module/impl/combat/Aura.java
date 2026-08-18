@@ -20,6 +20,7 @@ import cn.omix.util.player.RayCastUtil;
 import cn.omix.util.player.RotationUtil;
 import lombok.Getter;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
 import net.minecraft.registry.tag.ItemTags;
@@ -42,6 +43,12 @@ public class Aura extends Module {
     private final NumberValue minCps = new NumberValue("Min CPS", 7, 1, 20, 1, () -> attackMode.is("1.8"));
     private final BoolValue keepSwing = new BoolValue("Keep Swing", false, () -> attackMode.is("1.9+"));
     private final BoolValue cooldownBypass = new BoolValue("Cooldown Bypass", false, () -> attackMode.is("1.9+"));
+    private final BoolValue onlyRotInEssential = new BoolValue("Only Rot In Essential", false, () -> attackMode.is("1.9+"));
+    private final NumberValue aimBeforeAttackTicks = new NumberValue("Aim Before Attack Ticks", 2, 0, 20, 1,
+            () -> attackMode.is("1.9+") && onlyRotInEssential.getValue());
+    private final NumberValue aimAfterAttackTicks = new NumberValue("Aim After Attack Ticks", 2, 0, 20, 1,
+            () -> attackMode.is("1.9+") && onlyRotInEssential.getValue());
+    private final BoolValue weaponOnly = new BoolValue("Weapon Only", false);
     private final NumberValue attackRange = new NumberValue("Range", 3, 3, 8, .1);
     private final NumberValue blockRange = new NumberValue("Block Range", 4, 3, 8, .1);
     private final NumberValue wallRange = new NumberValue("Wall Range", 0, 0, 8, .1);
@@ -55,6 +62,7 @@ public class Aura extends Module {
     private final TimerUtil attackTimer = new TimerUtil();
     private LivingEntity target = null;
     private float[] rotations = null;
+    private int lastAuraAttackTick = -1;
 
     private boolean renderBlock = false;
     private boolean blocking = false;
@@ -77,6 +85,7 @@ public class Aura extends Module {
         switchTimer.reset();
         attackTimer.reset();
         rotations = null;
+        lastAuraAttackTick = -1;
         targets.clear();
         target = null;
 
@@ -132,12 +141,17 @@ public class Aura extends Module {
 
     @EventTarget
     public void onLivingUpdate(LivingUpdateEvent event) {
-        if (mc.player == null || check()) return;
+        if (mc.player == null || check()) {
+            rotations = null;
+            return;
+        }
 
-        if (target != null) {
-            if (RotationUtil.getDistanceToEntity(target) <= rotationRange.getValue()) {
-                rotations = RotationUtil.nearestRotation(target.getBoundingBox());
-            }
+        if (target != null
+                && RotationUtil.getDistanceToEntity(target) <= rotationRange.getValue()
+                && shouldRotate()) {
+            rotations = RotationUtil.nearestRotation(target.getBoundingBox());
+        } else {
+            rotations = null;
         }
     }
 
@@ -163,15 +177,57 @@ public class Aura extends Module {
     }
 
     private boolean canAttack(LivingEntity target) {
-        Vec3d bestPoint = RotationUtil.getNearestPointBB(target.getBoundingBox());
-        boolean canSee = RotationUtil.isVisible(bestPoint);
-        float range = canSee ? attackRange.getValue() : wallRange.getValue();
+        if (!canUseAuraAttack()) {
+            return false;
+        }
+
+        if (!isInAttackRange(target)) {
+            return false;
+        }
 
         if (rayCast.getValue() && !RayCastUtil.overEntity(target)) {
             return false;
         }
 
-        return !(RotationUtil.getDistanceToEntity(target) > range);
+        return true;
+    }
+
+    private boolean isInAttackRange(LivingEntity target) {
+        Vec3d bestPoint = RotationUtil.getNearestPointBB(target.getBoundingBox());
+        boolean canSee = RotationUtil.isVisible(bestPoint);
+        float range = canSee ? attackRange.getValue() : wallRange.getValue();
+
+        return RotationUtil.getDistanceToEntity(target) <= range;
+    }
+
+    private boolean shouldRotate() {
+        if (!canUseAuraAttack()) {
+            return false;
+        }
+
+        if (!attackMode.is("1.9+") || !onlyRotInEssential.getValue()) {
+            return true;
+        }
+
+        if (target == null || !isInAttackRange(target)) {
+            return false;
+        }
+
+        int ticksSinceAttack = lastAuraAttackTick < 0
+                ? Integer.MAX_VALUE
+                : mc.player.age - lastAuraAttackTick;
+        if (ticksSinceAttack >= 0 && ticksSinceAttack <= aimAfterAttackTicks.getValue().intValue()) {
+            return true;
+        }
+
+        if (cooldownBypass.getValue() && MeleeDamagePredictor.canKill(mc.player, target)) {
+            return true;
+        }
+
+        float cooldownTicks = mc.player.getAttackCooldownProgressPerTick();
+        float cooldownProgress = mc.player.getAttackCooldownProgress(.5f);
+        float ticksUntilAttack = (1.0f - cooldownProgress) * cooldownTicks;
+        return ticksUntilAttack <= aimBeforeAttackTicks.getValue() + 1.0e-3f;
     }
 
     public boolean canBlock(LivingEntity target) {
@@ -187,6 +243,7 @@ public class Aura extends Module {
 
         mc.interactionManager.attackEntity(mc.player, entity);
         mc.player.swingHand(Hand.MAIN_HAND);
+        lastAuraAttackTick = mc.player.age;
     }
 
     private void doBlock() {
@@ -295,5 +352,17 @@ public class Aura extends Module {
         if (mc.player == null) return false;
 
         return mc.player.getMainHandStack().isIn(ItemTags.SWORDS);
+    }
+
+    private boolean canUseAuraAttack() {
+        if (mc.player == null || isEatingGoldenApple()) return false;
+        return !weaponOnly.getValue() || mc.player.getMainHandStack().isIn(ItemTags.WEAPON_ENCHANTABLE);
+    }
+
+    private boolean isEatingGoldenApple() {
+        if (mc.player == null || !mc.player.isUsingItem()) return false;
+
+        return mc.player.getActiveItem().isOf(Items.GOLDEN_APPLE)
+                || mc.player.getActiveItem().isOf(Items.ENCHANTED_GOLDEN_APPLE);
     }
 }

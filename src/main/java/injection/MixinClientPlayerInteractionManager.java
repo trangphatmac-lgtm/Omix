@@ -1,6 +1,7 @@
 package injection;
 
 import cn.omix.event.impl.AttackEvent;
+import cn.omix.module.impl.move.KeepSprint;
 import cn.omix.util.IMinecraft;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.entity.Entity;
@@ -16,6 +17,12 @@ public class MixinClientPlayerInteractionManager implements IMinecraft {
     @Inject(method = "attackEntity", at = @At("HEAD"), cancellable = true)
     private void attackEntity(PlayerEntity player, Entity target, CallbackInfo ci) {
         if (mc.player == null || mc.world == null) return;
+
+        KeepSprint keepSprint = instance.getModuleManager().getModule(KeepSprint.class);
+        if (keepSprint != null && keepSprint.tryBufferAttack(target)) {
+            ci.cancel();
+            return;
+        }
 
         AttackEvent event = new AttackEvent(target);
         instance.getEventManager().call(event);

@@ -27,11 +27,11 @@ public class MixinPlayerEntity implements IMinecraft {
 
     @Inject(method = "knockbackTarget", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;setSprinting(Z)V", shift = At.Shift.AFTER))
     public void onKnockbackTarget(Entity target, float strength, Vec3d playerTargetVelocity, CallbackInfo callbackInfo) {
-        if (mc.player == null || mc.world == null || instance.getModuleManager() == null) return;
+        if (mc.player == null || mc.world == null || (Object) this != mc.player || instance.getModuleManager() == null) return;
 
         KeepSprint ks = instance.getModuleManager().getModule(KeepSprint.class);
-        if (ks.isEnabled()) {
-            final float multiplier = 0.6f + 0.4f * ks.motion.getValue();
+        if (ks != null && ks.shouldOverrideHitSlowdown()) {
+            final double multiplier = ks.getSlowFactor();
             mc.player.setVelocity(mc.player.getVelocity().x / 0.6 * multiplier, mc.player.getVelocity().y, mc.player.getVelocity().z / 0.6 * multiplier);
             mc.player.setSprinting(true);
         }

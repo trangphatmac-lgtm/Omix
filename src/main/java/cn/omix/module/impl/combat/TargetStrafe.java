@@ -1,7 +1,9 @@
 package cn.omix.module.impl.combat;
 
 import cn.omix.event.base.annotation.EventTarget;
+import cn.omix.event.impl.LivingUpdateEvent;
 import cn.omix.event.impl.MoveEvent;
+import cn.omix.event.impl.MoveInputEvent;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
 import cn.omix.module.impl.world.Scaffold;
@@ -11,6 +13,7 @@ import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
 import cn.omix.util.player.EntityUtil;
 import cn.omix.util.player.MovementUtil;
+import cn.omix.util.player.RotationUtil;
 import lombok.Getter;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.entity.Entity;
@@ -23,9 +26,12 @@ public final class TargetStrafe extends Module {
     private final NumberValue points = new NumberValue("Points", 12, 3, 16, 1);
     private final BoolValue space = new BoolValue("Require space key", false);
     private final BoolValue auto3rdPerson = new BoolValue("Auto 3rd Person", false);
+    private final BoolValue legit = new BoolValue("Legit", false);
+    private final BoolValue silentAim = new BoolValue("Silent Aim", false, legit::getValue);
     private Perspective perspective = Perspective.FIRST_PERSON;
     private boolean f5 = false;
     private int direction = 1;
+    private float[] rotations = null;
 
     public TargetStrafe() {
         super("TargetStrafe", Category.Combat);
@@ -33,7 +39,37 @@ public final class TargetStrafe extends Module {
 
     @Override
     public void onDisable() {
+        rotations = null;
         resetPerspective();
+    }
+
+    @EventTarget
+    public void onLivingUpdate(LivingUpdateEvent event) {
+        rotations = null;
+        if (mc.player == null || mc.options == null || check()) return;
+
+        Entity target = getTarget();
+        if (target == null) return;
+
+        updateDirection();
+        if (!legit.getValue()) return;
+
+        Vec3d goal = getGoal(target);
+        if (goal != null) {
+            float[] goalRotations = RotationUtil.getRotations(goal);
+            rotations = new float[]{goalRotations[0], mc.player.getPitch()};
+        }
+    }
+
+    @EventTarget
+    public void onMoveInput(MoveInputEvent event) {
+        if (!isLegitRotationActive()) return;
+        if (event.getForward() == 0.0F && event.getStrafe() == 0.0F) return;
+
+        // Keep the movement server-valid: vanilla forward input follows the
+        // Goal rotation selected by RotationManager instead of rewriting X/Z.
+        event.setForward(1.0F);
+        event.setStrafe(0.0F);
     }
 
     @EventTarget
@@ -54,15 +90,7 @@ public final class TargetStrafe extends Module {
             return;
         }
 
-        if (mc.options.leftKey.isPressed()) {
-            direction = 1;
-        } else if (mc.options.rightKey.isPressed()) {
-            direction = -1;
-        }
-
-        if (mc.player.horizontalCollision) {
-            direction = -direction;
-        }
+        if (legit.getValue()) return;
 
         Vec3d goal = getGoal(target);
         if (goal == null) return;
@@ -84,6 +112,18 @@ public final class TargetStrafe extends Module {
         event.setZ(motionZ);
     }
 
+    private void updateDirection() {
+        if (mc.options.leftKey.isPressed()) {
+            direction = 1;
+        } else if (mc.options.rightKey.isPressed()) {
+            direction = -1;
+        }
+
+        if (mc.player.horizontalCollision) {
+            direction = -direction;
+        }
+    }
+
     private Vec3d getGoal(Entity target) {
         if (mc.player == null || target == null) return null;
         double dist = Math.max(.1, distance.getValue().doubleValue());
@@ -102,6 +142,10 @@ public final class TargetStrafe extends Module {
     public Entity getTarget() {
         Aura aura = getModule(Aura.class);
         return aura.isEnabled() ? aura.getTarget() : null;
+    }
+
+    public boolean isLegitRotationActive() {
+        return isEnabled() && legit.getValue() && rotations != null && getTarget() != null;
     }
 
     private boolean check() {
