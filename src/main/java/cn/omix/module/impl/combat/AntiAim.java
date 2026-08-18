@@ -1,6 +1,7 @@
 package cn.omix.module.impl.combat;
 
 import cn.omix.event.base.annotation.EventTarget;
+import cn.omix.event.impl.AttackEvent;
 import cn.omix.event.impl.PacketEvent;
 import cn.omix.event.impl.TickEvent;
 import cn.omix.event.impl.WorldEvent;
@@ -57,6 +58,12 @@ public final class AntiAim extends Module {
     @EventTarget
     public void onWorld(WorldEvent event) {
         resetState(true);
+    }
+
+    @EventTarget
+    public void onAttack(AttackEvent event) {
+        releaseBlink();
+        trackingCooldown = false;
     }
 
     @EventTarget
