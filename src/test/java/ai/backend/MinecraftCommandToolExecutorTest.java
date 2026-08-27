@@ -33,6 +33,8 @@ class MinecraftCommandToolExecutorTest {
                 "getinventory",
                 "getnearbyblock",
                 "getlookingblock",
+                "getnearbyentity",
+                "getlookingentity",
                 "getspecificblock",
                 "getallconfig",
                 "getscoreboard",
@@ -48,6 +50,14 @@ class MinecraftCommandToolExecutorTest {
                 .getAsJsonObject("range");
         assertEquals(3, range.get("minimum").getAsInt());
         assertEquals(20, range.get("maximum").getAsInt());
+
+        JsonObject nearbyEntity = findTool(snapshot.definitions(), "getnearbyentity");
+        JsonObject entityRange = nearbyEntity.getAsJsonObject("function")
+                .getAsJsonObject("parameters")
+                .getAsJsonObject("properties")
+                .getAsJsonObject("range");
+        assertEquals(3, entityRange.get("minimum").getAsInt());
+        assertEquals(20, entityRange.get("maximum").getAsInt());
 
         JsonObject chat = findTool(snapshot.definitions(), "getchatmessage");
         JsonObject messageNumber = chat.getAsJsonObject("function")
@@ -98,6 +108,25 @@ class MinecraftCommandToolExecutorTest {
         ).join();
         String fractional = executor.execute(
                 new AiToolCall("range-fractional", "getnearbyblock", "{\"range\":3.5}")
+        ).join();
+
+        assertTrue(tooSmall.contains("range must be an integer from 3 through 20"));
+        assertTrue(tooLarge.contains("range must be an integer from 3 through 20"));
+        assertTrue(fractional.contains("range must be an integer from 3 through 20"));
+    }
+
+    @Test
+    void rejectsNearbyEntityRangesOutsideThreeThroughTwenty() {
+        MinecraftCommandToolExecutor executor = new MinecraftCommandToolExecutor();
+
+        String tooSmall = executor.execute(
+                new AiToolCall("entity-range-small", "getnearbyentity", "{\"range\":2}")
+        ).join();
+        String tooLarge = executor.execute(
+                new AiToolCall("entity-range-large", "getnearbyentity", "{\"range\":21}")
+        ).join();
+        String fractional = executor.execute(
+                new AiToolCall("entity-range-fractional", "getnearbyentity", "{\"range\":3.5}")
         ).join();
 
         assertTrue(tooSmall.contains("range must be an integer from 3 through 20"));

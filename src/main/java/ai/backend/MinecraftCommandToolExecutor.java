@@ -26,7 +26,9 @@ import net.minecraft.client.gui.hud.MessageIndicator;
 import net.minecraft.client.network.ClientCommandSource;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.command.CommandSource;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
@@ -42,9 +44,11 @@ import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.StringHelper;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -62,6 +66,8 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
     private static final String GET_INVENTORY_TOOL = "getinventory";
     private static final String GET_NEARBY_BLOCK_TOOL = "getnearbyblock";
     private static final String GET_LOOKING_BLOCK_TOOL = "getlookingblock";
+    private static final String GET_NEARBY_ENTITY_TOOL = "getnearbyentity";
+    private static final String GET_LOOKING_ENTITY_TOOL = "getlookingentity";
     private static final String GET_SPECIFIC_BLOCK_TOOL = "getspecificblock";
     private static final String GET_ALL_CONFIG_TOOL = "getallconfig";
     private static final String GET_SCOREBOARD_TOOL = "getscoreboard";
@@ -113,6 +119,12 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
                 "Get the block currently under the player's crosshair as JSON, including its coordinates, "
                         + "block identifier, state, exposed status, and the hit face."
         ));
+        tools.add(nearbyEntityTool());
+        tools.add(noArgumentTool(
+                GET_LOOKING_ENTITY_TOOL,
+                "Get the entity currently under the player's crosshair as JSON, including its identifier, type, "
+                        + "name, position, distance, movement, state, and living-entity attributes when applicable."
+        ));
         tools.add(specificBlockTool());
         tools.add(noArgumentTool(
                 GET_ALL_CONFIG_TOOL,
@@ -137,6 +149,8 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
                 - getinventory reads the complete inventory, hotbar, armor, and offhand state.
                 - getnearbyblock reads exposed blocks within a radius of 3 to 20 blocks around the player.
                 - getlookingblock reads the block currently under the crosshair.
+                - getnearbyentity reads loaded entities within 3 to 20 blocks of the player, excluding the player.
+                - getlookingentity reads the entity currently under the crosshair.
                 - getspecificblock reads one block at an absolute or '~'-relative position.
                 - getallconfig reads only live module state, key bindings, and settings visible in ClickGUI; sensitive values are redacted.
                 - getscoreboard reads the currently visible vanilla scoreboard sidebar.
@@ -220,6 +234,11 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
                         arguments.get("range").getAsInt()
                 ).toString();
                 case GET_LOOKING_BLOCK_TOOL -> getLookingBlock(client).toString();
+                case GET_NEARBY_ENTITY_TOOL -> getNearbyEntities(
+                        client,
+                        arguments.get("range").getAsInt()
+                ).toString();
+                case GET_LOOKING_ENTITY_TOOL -> getLookingEntity(client).toString();
                 case GET_SPECIFIC_BLOCK_TOOL -> getSpecificBlock(
                         client,
                         arguments.get("pos").getAsString()
@@ -361,6 +380,47 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
         hitPosition.addProperty("y", hit.getPos().y);
         hitPosition.addProperty("z", hit.getPos().z);
         result.add("hitPosition", hitPosition);
+        return result;
+    }
+
+    private JsonObject getNearbyEntities(MinecraftClient client, int range) {
+        requireWorld(client);
+        Vec3d center = client.player.getEntityPos();
+        double rangeSquared = (double) range * range;
+        List<Entity> nearby = new ArrayList<>();
+
+        for (Entity entity : client.world.getEntities()) {
+            if (entity != client.player
+                    && center.squaredDistanceTo(entity.getEntityPos()) <= rangeSquared) {
+                nearby.add(entity);
+            }
+        }
+        nearby.sort(Comparator.comparingDouble(entity -> center.squaredDistanceTo(entity.getEntityPos())));
+
+        JsonArray entities = new JsonArray();
+        for (Entity entity : nearby) {
+            entities.add(entityDetails(client, entity));
+        }
+
+        JsonObject result = new JsonObject();
+        result.add("center", position(center));
+        result.addProperty("range", range);
+        result.addProperty("distanceRule", "Euclidean distance from the player's exact position.");
+        result.addProperty("playerExcluded", true);
+        result.addProperty("count", entities.size());
+        result.add("entities", entities);
+        return result;
+    }
+
+    private JsonObject getLookingEntity(MinecraftClient client) {
+        requireWorld(client);
+        if (!(client.crosshairTarget instanceof EntityHitResult hit)
+                || hit.getType() != HitResult.Type.ENTITY) {
+            throw new IllegalStateException("The player is not looking at an entity.");
+        }
+
+        JsonObject result = entityDetails(client, hit.getEntity());
+        result.add("hitPosition", position(hit.getPos()));
         return result;
     }
 
@@ -655,11 +715,52 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
         return result;
     }
 
+    private static JsonObject entityDetails(MinecraftClient client, Entity entity) {
+        JsonObject result = new JsonObject();
+        result.addProperty("id", entity.getId());
+        result.addProperty("uuid", entity.getUuidAsString());
+        result.addProperty("type", Registries.ENTITY_TYPE.getId(entity.getType()).toString());
+        result.addProperty("name", entity.getName().getString());
+        result.add("position", position(entity.getEntityPos()));
+        result.addProperty("distance", Math.sqrt(
+                client.player.getEntityPos().squaredDistanceTo(entity.getEntityPos())
+        ));
+        result.add("velocity", position(entity.getMovement()));
+        result.addProperty("yaw", entity.getYaw());
+        result.addProperty("pitch", entity.getPitch());
+        result.addProperty("alive", entity.isAlive());
+        result.addProperty("removed", entity.isRemoved());
+        result.addProperty("onGround", entity.isOnGround());
+        result.addProperty("invisible", entity.isInvisible());
+        result.addProperty("glowing", entity.isGlowing());
+        result.addProperty("sneaking", entity.isSneaking());
+        result.addProperty("sprinting", entity.isSprinting());
+
+        if (entity instanceof LivingEntity living) {
+            JsonObject livingState = new JsonObject();
+            livingState.addProperty("health", living.getHealth());
+            livingState.addProperty("maxHealth", living.getMaxHealth());
+            livingState.addProperty("absorption", living.getAbsorptionAmount());
+            livingState.addProperty("armor", living.getArmor());
+            livingState.addProperty("hurtTime", living.hurtTime);
+            result.add("living", livingState);
+        }
+        return result;
+    }
+
     private static JsonObject position(BlockPos position) {
         JsonObject result = new JsonObject();
         result.addProperty("x", position.getX());
         result.addProperty("y", position.getY());
         result.addProperty("z", position.getZ());
+        return result;
+    }
+
+    private static JsonObject position(Vec3d position) {
+        JsonObject result = new JsonObject();
+        result.addProperty("x", position.x);
+        result.addProperty("y", position.y);
+        result.addProperty("z", position.z);
         return result;
     }
 
@@ -779,16 +880,17 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
 
     private static void validateReadOnlyArguments(String toolName, JsonObject arguments) {
         switch (toolName) {
-            case GET_INVENTORY_TOOL, GET_LOOKING_BLOCK_TOOL, GET_ALL_CONFIG_TOOL, GET_SCOREBOARD_TOOL -> {
+            case GET_INVENTORY_TOOL, GET_LOOKING_BLOCK_TOOL, GET_LOOKING_ENTITY_TOOL,
+                    GET_ALL_CONFIG_TOOL, GET_SCOREBOARD_TOOL -> {
                 if (!arguments.isEmpty()) {
                     throw new IllegalArgumentException(toolName + " does not accept arguments.");
                 }
             }
-            case GET_NEARBY_BLOCK_TOOL -> {
+            case GET_NEARBY_BLOCK_TOOL, GET_NEARBY_ENTITY_TOOL -> {
                 if (arguments.size() != 1 || !arguments.has("range")
                         || !arguments.get("range").isJsonPrimitive()
                         || !arguments.getAsJsonPrimitive("range").isNumber()) {
-                    throw new IllegalArgumentException("getnearbyblock requires one integer 'range' argument.");
+                    throw new IllegalArgumentException(toolName + " requires one integer 'range' argument.");
                 }
                 double range = arguments.get("range").getAsDouble();
                 if (!Double.isFinite(range) || range != Math.rint(range)
@@ -955,6 +1057,27 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
                 "Return every exposed non-air block in a cube centered on the player as JSON. A block is exposed "
                         + "when at least one of its six neighboring blocks is air. Results include each block's "
                         + "coordinates and identifier.",
+                parameters
+        );
+    }
+
+    private static JsonObject nearbyEntityTool() {
+        JsonObject parameters = objectParameters();
+        JsonObject range = new JsonObject();
+        range.addProperty("type", "integer");
+        range.addProperty(
+                "description",
+                "Euclidean scan radius from the player's exact position. The current player is excluded."
+        );
+        range.addProperty("minimum", MIN_BLOCK_RANGE);
+        range.addProperty("maximum", MAX_BLOCK_RANGE);
+        parameters.getAsJsonObject("properties").add("range", range);
+        addRequired(parameters, "range");
+        return functionTool(
+                GET_NEARBY_ENTITY_TOOL,
+                "Return every loaded entity within range of the player as JSON, excluding the current player and "
+                        + "sorting nearest first. Results include type, name, position, distance, movement, state, "
+                        + "and living-entity attributes when applicable.",
                 parameters
         );
     }
