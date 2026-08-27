@@ -4,6 +4,7 @@ import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.AttackEvent;
 import cn.omix.event.impl.Render2DEvent;
 import cn.omix.module.impl.combat.Aura;
+import cn.omix.module.impl.combat.TPAura;
 import cn.omix.module.impl.render.targethud.Exhibition;
 import cn.omix.module.impl.render.targethud.Novoline;
 import cn.omix.module.impl.render.targethud.Omix;
@@ -213,10 +214,8 @@ public final class TargetHUD extends Drag {
     }
 
     private LivingEntity resolveClassicTarget() {
-        Aura aura = getModule(Aura.class);
-        if (aura.isEnabled() && isValid(aura.getTarget())) {
-            return aura.getTarget();
-        }
+        LivingEntity combatTarget = getCombatTarget();
+        if (combatTarget != null) return combatTarget;
 
         if (chatPreview.getValue() && mc.currentScreen instanceof ChatScreen) {
             return mc.player;
@@ -234,8 +233,21 @@ public final class TargetHUD extends Drag {
     private LivingEntity getStyleTarget() {
         if (mc.currentScreen instanceof ChatScreen) return mc.player;
 
+        return getCombatTarget();
+    }
+
+    private LivingEntity getCombatTarget() {
         Aura aura = getModule(Aura.class);
-        return aura.isEnabled() ? aura.getTarget() : null;
+        if (aura.isEnabled() && isValid(aura.getTarget())) {
+            return aura.getTarget();
+        }
+
+        TPAura tpAura = getModule(TPAura.class);
+        if (tpAura.isEnabled() && isValid(tpAura.getTarget())) {
+            return tpAura.getTarget();
+        }
+
+        return null;
     }
 
     public LivingEntity getDisplayedTarget() {

@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
+import net.minecraft.text.Text;
 
 public final class ReconnectCommand extends Command {
 
@@ -29,14 +30,23 @@ public final class ReconnectCommand extends Command {
             return;
         }
 
+        ServerAddress serverAddress = ServerAddress.parse(serverInfo.address);
+
+        // The command is detected while the chat packet is being sent. Queue the
+        // reconnect so the old send call can finish before its connection is closed.
+        client.send(() -> reconnect(client, serverAddress, serverInfo));
+    }
+
+    private static void reconnect(
+            MinecraftClient client,
+            ServerAddress serverAddress,
+            ServerInfo serverInfo
+    ) {
+        // Use the vanilla quit path so the old channel is closed cleanly and all
+        // world/network state is torn down before a new connection is opened.
+        client.disconnect(Text.translatable("disconnect.quitting"));
+
         MultiplayerScreen parent = new MultiplayerScreen(new TitleScreen());
-        ConnectScreen.connect(
-                parent,
-                client,
-                ServerAddress.parse(serverInfo.address),
-                serverInfo,
-                false,
-                null
-        );
+        ConnectScreen.connect(parent, client, serverAddress, serverInfo, false, null);
     }
 }
