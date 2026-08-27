@@ -7,6 +7,7 @@ import cn.omix.command.impl.ConfigCommand;
 import cn.omix.command.impl.HelpCommand;
 import cn.omix.command.impl.ModuleCommand;
 import cn.omix.command.impl.ModulesCommand;
+import cn.omix.command.impl.ReconnectCommand;
 import cn.omix.command.impl.ToggleCommand;
 import cn.omix.command.impl.UsernameCommand;
 import cn.omix.command.impl.VClipCommand;
@@ -46,6 +47,7 @@ public final class CommandManager implements IMinecraft {
                 new VisibilityCommand(true, ".hide <module>", "hide", "h"),
                 new UsernameCommand(),
                 new VClipCommand(),
+                new ReconnectCommand(),
                 new WebPanelCommand()
         );
     }
