@@ -48,6 +48,10 @@ public class Util implements IMinecraft{
         addChatMessage(formatCodes(message));
     }
 
+    public void logRaw(Text message) {
+        addChatMessage(message);
+    }
+
     public String formatCodes(String message) {
         return message == null ? "" : message.replace('&', '§');
     }

@@ -19,6 +19,7 @@ import cn.omix.module.impl.exploits.Blink;
 import cn.omix.module.impl.exploits.BrandSpoofer;
 import cn.omix.module.impl.exploits.ChannelHider;
 import cn.omix.module.impl.exploits.Disabler;
+import cn.omix.module.impl.exploits.NoBan;
 import cn.omix.module.impl.exploits.PathFinder;
 import cn.omix.module.impl.exploits.Regen;
 import cn.omix.module.impl.exploits.ResourcepackSpoof;
@@ -67,6 +68,7 @@ public class ModuleManager implements IMinecraft {
                 new BrandSpoofer(),
                 new ChannelHider(),
                 new Disabler(),
+                new NoBan(),
                 new PathFinder(),
                 new MCF(),
                 new GuiMove(),
