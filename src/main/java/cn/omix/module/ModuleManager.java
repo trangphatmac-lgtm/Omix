@@ -50,6 +50,8 @@ public class ModuleManager implements IMinecraft {
                 new ScaffoldX(),
                 new Scaffold(),
                 new AutoPlay(),
+                new AutoGG(),
+                new AutoScreenshot(),
                 new QuickMacro(),
                 new WorldTweaks(),
                 new GhostHand(),
