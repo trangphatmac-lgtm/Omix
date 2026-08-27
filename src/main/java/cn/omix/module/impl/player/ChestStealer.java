@@ -16,13 +16,15 @@ import net.minecraft.screen.slot.Slot;
 public class ChestStealer extends Module {
     private final BoolValue onlyBest = new BoolValue("Only Best", true);
 
-    private final NumberValue delay = new NumberValue("Delay", 50, 0, 500, 10);
-    private final NumberValue openDelay = new NumberValue("Open Delay", 50, 0, 500, 10);
+    private final BoolValue instant = new BoolValue("Instant", false);
+    private final NumberValue delay = new NumberValue("Delay", 50, 0, 500, 10, () -> !instant.getValue());
+    private final NumberValue openDelay = new NumberValue("Open Delay", 50, 0, 500, 10, () -> !instant.getValue());
 
     private final BoolValue autoClose = new BoolValue("Auto Close", true);
 
     private final TimerUtil clickTimer = new TimerUtil();
     private final TimerUtil openTimer = new TimerUtil();
+    private boolean instantExecuted;
 
     public ChestStealer() {
         super("ChestStealer", Category.Player);
@@ -32,11 +34,12 @@ public class ChestStealer extends Module {
     public void onMotion(MotionEvent event) {
         if (mc.player == null || event.isPost()) return;
 
-        boolean instant = delay.getValue().doubleValue() == 0.0;
-        setSuffix(String.format("%.1f", delay.getValue()));
+        boolean instant = this.instant.getValue();
+        setSuffix(instant ? "Instant" : String.format("%.1f", delay.getValue()));
 
         if (mc.currentScreen instanceof GenericContainerScreen container) {
-            if (!openTimer.hasTimeElapsed(openDelay.getValue().longValue())) return;
+            if (instant && instantExecuted) return;
+            if (!instant && !openTimer.hasTimeElapsed(openDelay.getValue().longValue())) return;
 
             GenericContainerScreenHandler handler = container.getScreenHandler();
             boolean has = false;
@@ -58,11 +61,14 @@ public class ChestStealer extends Module {
                 }
             }
 
+            if (instant) instantExecuted = true;
+
             if ((!has || instant) && autoClose.getValue()) {
                 mc.player.closeHandledScreen();
             }
         } else {
             openTimer.reset();
+            instantExecuted = false;
         }
     }
 }

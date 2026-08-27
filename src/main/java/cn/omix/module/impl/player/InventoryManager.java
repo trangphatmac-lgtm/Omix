@@ -17,7 +17,8 @@ import net.minecraft.screen.slot.Slot;
 
 public class InventoryManager extends Module {
     private final BoolValue inventoryOnly = new BoolValue("Inventory Only", false);
-    private final NumberValue delay = new NumberValue("Delay", 50, 0, 1000, 10);
+    private final BoolValue instant = new BoolValue("Instant", false);
+    private final NumberValue delay = new NumberValue("Delay", 50, 0, 1000, 10, () -> !instant.getValue());
 
     private final NumberValue weaponSlot = new NumberValue("Weapon Slot", 1, 0, 9, 1);
     private final NumberValue pickaxeSlot = new NumberValue("Pickaxe Slot", 2, 0, 9, 1);
@@ -52,8 +53,8 @@ public class InventoryManager extends Module {
     public void onMotion(MotionEvent event) {
         if (mc.player == null || event.isPost()) return;
 
-        boolean instant = delay.getValue().doubleValue() == 0.0;
-        setSuffix(String.format("%.1f", delay.getValue()));
+        boolean instant = this.instant.getValue();
+        setSuffix(instant ? "Instant" : String.format("%.1f", delay.getValue()));
 
         if (inventoryOnly.getValue()) {
             if (!(mc.currentScreen instanceof InventoryScreen)) return;
