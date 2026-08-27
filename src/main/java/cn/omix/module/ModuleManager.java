@@ -13,6 +13,7 @@ import cn.omix.module.impl.combat.FastBow;
 import cn.omix.module.impl.combat.FastEat;
 import cn.omix.module.impl.combat.MaceDamageBooster;
 import cn.omix.module.impl.combat.TargetStrafe;
+import cn.omix.module.impl.combat.TPAura;
 import cn.omix.module.impl.combat.Velocity;
 import cn.omix.module.impl.exploits.Blink;
 import cn.omix.module.impl.exploits.BrandSpoofer;
@@ -54,6 +55,7 @@ public class ModuleManager implements IMinecraft {
                 new AntiBot(),
                 new AntiAim(),
                 new Aura(),
+                new TPAura(),
                 new AutoTotem(),
                 new Backtrack(),
                 new CrossbowExploit(),

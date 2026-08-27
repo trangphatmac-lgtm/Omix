@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "omix",
-  "version": "260818-SNAPSHOT",
+  "version": "260827-SNAPSHOT",
   "name": "omix",
   "description": "the All in one AI featured Minecraft Client for Fabric 1.21.11.",
   "authors": [],

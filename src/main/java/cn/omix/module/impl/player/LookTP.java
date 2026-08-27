@@ -4,6 +4,7 @@ import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.MotionEvent;
 import cn.omix.event.impl.MoveInputEvent;
 import cn.omix.event.impl.PacketEvent;
+import cn.omix.event.impl.Render3DEvent;
 import cn.omix.event.impl.UpdateEvent;
 import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.Category;
@@ -45,6 +46,7 @@ public final class LookTP extends Module {
     private Vec3d clientsideLockPosition;
     private Vec3d clientsideTargetPosition;
     private boolean waitingForClientsideTeleport;
+    private ArrayList<Vec3d> renderedPath = new ArrayList<>();
 
     public LookTP() {
         super("LookTP", Category.Player);
@@ -149,6 +151,11 @@ public final class LookTP extends Module {
     }
 
     @EventTarget
+    public void onRender3D(Render3DEvent event) {
+        cn.omix.module.impl.exploits.PathFinder.renderPath(event, renderedPath);
+    }
+
+    @EventTarget
     public void onWorld(WorldEvent event) {
         resetClientsideTeleport();
     }
@@ -195,12 +202,15 @@ public final class LookTP extends Module {
             return false;
         }
 
+        renderedPath.clear();
         ArrayList<Vec3d> path = MainPathFinder.computePath(mc.player.getEntityPos(), targetPosition);
         if (path.isEmpty()) {
             Util.log("&cLookTP: Failed to teleport");
             teleportTimer.reset();
             return false;
         }
+
+        renderedPath = withEndpoints(mc.player.getEntityPos(), path, targetPosition);
 
         if (clientsideTeleport.getValue() && isEnabled()) {
             beginClientsideTeleport(path, targetPosition);
@@ -306,7 +316,24 @@ public final class LookTP extends Module {
         clientsideLockPosition = null;
         clientsideTargetPosition = null;
         waitingForClientsideTeleport = false;
+        renderedPath.clear();
         setSuffix("");
+    }
+
+    private ArrayList<Vec3d> withEndpoints(Vec3d start, ArrayList<Vec3d> path, Vec3d end) {
+        ArrayList<Vec3d> result = new ArrayList<>(path.size() + 2);
+        addIfDifferent(result, start);
+        for (Vec3d location : path) {
+            addIfDifferent(result, location);
+        }
+        addIfDifferent(result, end);
+        return result;
+    }
+
+    private void addIfDifferent(ArrayList<Vec3d> path, Vec3d location) {
+        if (path.isEmpty() || !path.getLast().equals(location)) {
+            path.add(location);
+        }
     }
 
     private void notifySuccess() {

@@ -6,6 +6,7 @@ import cn.omix.event.impl.MotionEvent;
 import cn.omix.event.impl.MoveEvent;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
+import cn.omix.module.impl.combat.TPAura;
 import cn.omix.module.impl.combat.TargetStrafe;
 import cn.omix.module.impl.exploits.Disabler;
 import cn.omix.module.value.impl.ModeValue;
@@ -41,6 +42,11 @@ public final class Fly extends Module {
     public void onMotion(MotionEvent event) {
         if (mc.player == null || check()) return;
         setSuffix(mode.getValue());
+
+        TPAura tpAura = getModule(TPAura.class);
+        if (mode.is("SentinelA") && tpAura != null && tpAura.isBlinkAttackActive()) {
+            return;
+        }
 
         TargetStrafe ts = getModule(TargetStrafe.class);
         boolean strafing = ts.isEnabled() && ts.getTarget() != null && (!ts.getSpace().getValue() || mc.options.jumpKey.isPressed());
