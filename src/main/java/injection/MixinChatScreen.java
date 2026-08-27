@@ -13,11 +13,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinChatScreen implements IMinecraft {
 
     @Inject(method = "sendMessage", at = @At("HEAD"), cancellable = true)
-    private void redactAiApiKeyFromHistory(String chatText, boolean addToHistory, CallbackInfo ci) {
+    private void redactApiKeyFromHistory(String chatText, boolean addToHistory, CallbackInfo ci) {
         String normalized = ((ChatScreen) (Object) this).normalize(chatText);
         String[] arguments = normalized.trim().split("\\s+", 3);
         if (arguments.length < 3
-                || !arguments[0].equalsIgnoreCase(".ai")
+                || (!arguments[0].equalsIgnoreCase(".ai")
+                && !arguments[0].equalsIgnoreCase(".fis"))
                 || !arguments[1].equalsIgnoreCase("apikey")
                 || mc.player == null) {
             return;

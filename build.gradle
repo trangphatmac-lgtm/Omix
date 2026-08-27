@@ -323,6 +323,9 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
             if (zip.getEntry("assets/omix/music/sidecar.zip") == null) {
                 throw new GradleException("Music sidecar bundle missing from ${archive.name}")
             }
+            if (zip.getEntry("org/fisproxy/Client.class") == null) {
+                throw new GradleException("FisProxy SDK classes missing from ${archive.name}")
+            }
             def forbiddenName = { String name ->
                 def normalized = name.replace('\\', '/')
                 def leaf = normalized.tokenize('/').last()

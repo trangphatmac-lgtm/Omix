@@ -4,6 +4,7 @@ import ai.backend.AiBackend;
 import cn.omix.command.CommandManager;
 import cn.omix.config.ConfigManager;
 import cn.omix.event.base.EventManager;
+import cn.omix.fisproxy.FisProxyManager;
 import cn.omix.management.FriendManager;
 import cn.omix.management.PacketManager;
 import cn.omix.management.RotationManager;
@@ -33,6 +34,7 @@ public class Client implements IMinecraft {
 
     private EventManager eventManager;
     private AiBackend aiBackend;
+    private FisProxyManager fisProxyManager;
     private ModuleManager moduleManager;
     private CommandManager commandManager;
     private ConfigManager configManager;
@@ -54,6 +56,7 @@ public class Client implements IMinecraft {
         Render3D.init();
         eventManager = new EventManager();
         aiBackend = new AiBackend(Path.of(name, "ai.json"));
+        fisProxyManager = new FisProxyManager(Path.of(name, "fisproxy.json"));
         moduleManager = new ModuleManager();
         commandManager = new CommandManager();
         configManager = new ConfigManager();
@@ -73,6 +76,7 @@ public class Client implements IMinecraft {
     public void shutdown() {
         WebUiRuntime.getInstance().stop();
         configManager.saveAll();
+        fisProxyManager.close();
         aiBackend.close();
         AccountManager.save();
     }

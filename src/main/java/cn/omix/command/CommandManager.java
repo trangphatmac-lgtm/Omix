@@ -4,6 +4,7 @@ import cn.omix.command.impl.AiCommand;
 import cn.omix.command.impl.BindCommand;
 import cn.omix.command.impl.ChatCommand;
 import cn.omix.command.impl.ConfigCommand;
+import cn.omix.command.impl.FisCommand;
 import cn.omix.command.impl.HelpCommand;
 import cn.omix.command.impl.ModuleCommand;
 import cn.omix.command.impl.ModulesCommand;
@@ -42,6 +43,7 @@ public final class CommandManager implements IMinecraft {
                 new ToggleCommand(),
                 new BindCommand(),
                 new ConfigCommand(),
+                new FisCommand(),
                 new ModulesCommand(),
                 new VisibilityCommand(false, ".show <module>", "show", "s", "unhide"),
                 new VisibilityCommand(true, ".hide <module>", "hide", "h"),

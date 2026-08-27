@@ -34,6 +34,12 @@ public class AdaptiveTextBox implements IMinecraft {
         this.cursorAnimation = new EasingAnimation(Easing.EASE_OUT_QUART, 120);
     }
 
+    public void setText(String text) {
+        this.text = text == null ? "" : text;
+        this.cursorIndex = this.text.length();
+        this.isSelectedAll = false;
+    }
+
     public void setBounds(float x, float y, float width, float height) {
         this.x = x;
         this.y = y;
