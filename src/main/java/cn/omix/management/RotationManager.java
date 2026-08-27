@@ -10,6 +10,7 @@ import cn.omix.module.impl.move.Derp;
 import cn.omix.module.impl.move.NoFall;
 import cn.omix.module.impl.move.Speed;
 import cn.omix.module.impl.player.AntiLava;
+import cn.omix.module.impl.player.ChestArua;
 import cn.omix.module.impl.world.ScaffoldX;
 import cn.omix.module.impl.world.Scaffold;
 import cn.omix.util.IMinecraft;
@@ -51,6 +52,7 @@ public class RotationManager implements IMinecraft {
         Derp derp = instance.getModuleManager().getModule(Derp.class);
         Speed speed = instance.getModuleManager().getModule(Speed.class);
         AntiLava antiLava = instance.getModuleManager().getModule(AntiLava.class);
+        ChestArua chestArua = instance.getModuleManager().getModule(ChestArua.class);
         ScaffoldX scaffoldX = instance.getModuleManager().getModule(ScaffoldX.class);
         Scaffold scaffold = instance.getModuleManager().getModule(Scaffold.class);
         NoFall noFall = instance.getModuleManager().getModule(NoFall.class);
@@ -59,7 +61,10 @@ public class RotationManager implements IMinecraft {
         boolean visibleRotation = false;
         boolean yawOnlyRotation = false;
 
-        if (derpActive) {
+        if (chestArua.isManualRotationActive()) {
+            setRotations(chestArua.getRotations(), 0.0, MovementCorrection.None);
+            instantRotation = true;
+        } else if (derpActive) {
             setRotations(derp.getRotations(), 0.0, MovementCorrection.None);
             instantRotation = true;
         } else if (antiLava.isEnabled() && antiLava.getRotations() != null) {
@@ -70,6 +75,8 @@ public class RotationManager implements IMinecraft {
             setRotations(scaffold.getRotations(), scaffold.getRotationSpeed(), scaffold.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
         } else if (aura.isEnabled() && aura.getTarget() != null && aura.getRotations() != null) {
             setRotations(aura.getRotations(), aura.getRotationSpeed().getValue(), aura.getMovementFixMode().is("None") ? MovementCorrection.None : (aura.getMovementFixMode().is("Silent") ? MovementCorrection.Silent : MovementCorrection.Strict));
+        } else if (chestArua.isRotationActive()) {
+            setRotations(chestArua.getRotations(), 180.0, chestArua.getMovementCorrection());
         } else if (targetStrafe.isLegitRotationActive()) {
             setRotations(targetStrafe.getRotations(), 180, MovementCorrection.Strict);
             visibleRotation = !targetStrafe.getSilentAim().getValue();

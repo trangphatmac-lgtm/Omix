@@ -39,7 +39,7 @@ public final class TPAura extends Module {
 
     private final NumberValue range = new NumberValue("Range", 30, 3, 100, 1);
     private final NumberValue delay = new NumberValue("Delay", 500, 0, 2000, 50);
-    private final NumberValue attackTime = new NumberValue("Attack Time", 0, 0, 5000, 50);
+    private final BoolValue instant = new BoolValue("Instant", true);
     private final ModeValue targetMode = new ModeValue("Target Mode", "Single", "Single", "Switch");
     private final ModeValue priority = new ModeValue(
             "Priority",
@@ -51,10 +51,10 @@ public final class TPAura extends Module {
             "Armor"
     );
     private final BoolValue respectCooldown = new BoolValue("Respect Cooldown", true);
+    private final BoolValue rotation = new BoolValue("Rotation", false);
     private final BoolValue onGroundPacket = new BoolValue("On Ground Packet", true);
 
     private final TimerUtil attackTimer = new TimerUtil();
-    private final TimerUtil blinkTimer = new TimerUtil();
     private LivingEntity target;
     private ArrayList<Vec3d> renderedOutboundPath = new ArrayList<>();
     private ArrayList<Vec3d> renderedReturnPath = new ArrayList<>();
@@ -104,7 +104,7 @@ public final class TPAura extends Module {
         target = selectTarget();
         setSuffix(target == null ? "" : targetMode.getValue());
         if (target == null
-                || !isAttackDelayReady()
+                || !attackTimer.hasTimeElapsed(delay.getValue())
                 || respectCooldown.getValue() && mc.player.getAttackCooldownProgress(0.5F) < 1.0F) {
             return;
         }
@@ -218,8 +218,8 @@ public final class TPAura extends Module {
         renderedOutboundPath = withEndpoints(origin, outboundPath, attackPosition);
         renderedReturnPath = withEndpoints(attackPosition, returnPath, origin);
 
-        activeOutboundPath = new ArrayList<>(renderedOutboundPath);
-        activeReturnPath = new ArrayList<>(renderedReturnPath);
+        activeOutboundPath = withEndpoint(outboundPath, attackPosition);
+        activeReturnPath = withEndpoint(returnPath, origin);
         activeTarget = entity;
         attackOrigin = origin;
         this.attackPosition = attackPosition;
@@ -227,8 +227,9 @@ public final class TPAura extends Module {
         returnPathIndex = 0;
         attacked = false;
         blinkAttackActive = true;
-        blinkTimer.reset();
-        mc.player.setVelocity(Vec3d.ZERO);
+        if (!instant.getValue()) {
+            mc.player.setVelocity(Vec3d.ZERO);
+        }
 
         releaseSentinelAFlyBlink();
         instance.getPacketManager().getBlink().start(this);
@@ -239,48 +240,60 @@ public final class TPAura extends Module {
     private void updateBlinkAttack() {
         if (!blinkAttackActive) return;
 
-        long duration = attackTime.getValue().longValue();
-        double outboundDuration = duration * 0.5;
-        double elapsed = blinkTimer.getTime();
-
-        int outboundCount = getDueLocationCount(activeOutboundPath.size(), elapsed, outboundDuration);
-        outboundPathIndex = sendLocations(activeOutboundPath, outboundPathIndex, outboundCount);
-
-        if (!attacked && (duration == 0L || elapsed >= outboundDuration)) {
+        if (instant.getValue()) {
             outboundPathIndex = sendLocations(activeOutboundPath, outboundPathIndex, activeOutboundPath.size());
-            if (canAttackActiveTarget()) {
-                attack(activeTarget);
-                advanceSwitchTarget(activeTarget);
-            } else {
-                advanceSwitchTarget(activeTarget);
-            }
-            attacked = true;
-            attackTimer.reset();
-        }
-
-        if (attacked) {
-            double returnElapsed = Math.max(0.0, elapsed - outboundDuration);
-            int returnCount = getDueLocationCount(activeReturnPath.size(), returnElapsed, outboundDuration);
-            returnPathIndex = sendLocations(activeReturnPath, returnPathIndex, returnCount);
-        }
-
-        int progress = duration <= 0L
-                ? 100
-                : Math.min(100, (int) Math.round(elapsed / duration * 100.0));
-        setSuffix("Blink " + progress + "%");
-
-        if (duration == 0L || elapsed >= duration) {
+            performAttack();
             returnPathIndex = sendLocations(activeReturnPath, returnPathIndex, activeReturnPath.size());
+            finishBlinkAttack();
+            return;
+        }
+
+        if (outboundPathIndex < activeOutboundPath.size()) {
+            outboundPathIndex = sendLocations(activeOutboundPath, outboundPathIndex, outboundPathIndex + 1);
+            if (outboundPathIndex >= activeOutboundPath.size()) {
+                performAttack();
+            }
+            updateProgressSuffix();
+            return;
+        }
+
+        if (!attacked) {
+            performAttack();
+            updateProgressSuffix();
+            return;
+        }
+
+        if (returnPathIndex < activeReturnPath.size()) {
+            returnPathIndex = sendLocations(activeReturnPath, returnPathIndex, returnPathIndex + 1);
+        }
+        updateProgressSuffix();
+
+        if (returnPathIndex >= activeReturnPath.size()) {
             finishBlinkAttack();
         }
     }
 
-    private int getDueLocationCount(int pathSize, double elapsed, double phaseDuration) {
-        if (pathSize == 0) return 0;
-        if (phaseDuration <= 0.0 || elapsed >= phaseDuration) return pathSize;
+    private void performAttack() {
+        if (attacked) return;
 
-        double progress = Math.max(0.0, elapsed / phaseDuration);
-        return Math.min(pathSize, (int) Math.floor(progress * pathSize));
+        if (canAttackActiveTarget()) {
+            if (rotation.getValue()) {
+                sendAttackRotation(activeTarget);
+            }
+            attack(activeTarget);
+        }
+        advanceSwitchTarget(activeTarget);
+        attacked = true;
+        attackTimer.reset();
+    }
+
+    private void updateProgressSuffix() {
+        int totalLocations = activeOutboundPath.size() + activeReturnPath.size();
+        int completedLocations = outboundPathIndex + returnPathIndex;
+        int progress = totalLocations == 0
+                ? 100
+                : Math.min(100, Math.round((float) completedLocations / totalLocations * 100.0F));
+        setSuffix("Blink " + progress + "%");
     }
 
     private int sendLocations(ArrayList<Vec3d> path, int fromIndex, int toIndex) {
@@ -297,11 +310,6 @@ public final class TPAura extends Module {
         Vec3d attackEye = attackPosition.add(0.0, mc.player.getEyeHeight(mc.player.getPose()), 0.0);
         return activeTarget.getBoundingBox().squaredMagnitude(attackEye)
                 <= MAX_ATTACK_DISTANCE * MAX_ATTACK_DISTANCE;
-    }
-
-    private boolean isAttackDelayReady() {
-        long outboundTime = attackTime.getValue().longValue() / 2L;
-        return attackTimer.getTime() + outboundTime >= delay.getValue().longValue();
     }
 
     private void advanceSwitchTarget(LivingEntity currentTarget) {
@@ -417,6 +425,13 @@ public final class TPAura extends Module {
         return result;
     }
 
+    private ArrayList<Vec3d> withEndpoint(ArrayList<Vec3d> path, Vec3d end) {
+        ArrayList<Vec3d> result = new ArrayList<>(path.size() + 1);
+        result.addAll(path);
+        addIfDifferent(result, end);
+        return result;
+    }
+
     private void addIfDifferent(ArrayList<Vec3d> path, Vec3d location) {
         if (path.isEmpty() || !path.getLast().equals(location)) {
             path.add(location);
@@ -426,6 +441,29 @@ public final class TPAura extends Module {
     private void sendPosition(Vec3d position) {
         PacketUtil.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
                 position,
+                onGroundPacket.getValue(),
+                mc.player.horizontalCollision
+        ));
+    }
+
+    private void sendAttackRotation(LivingEntity entity) {
+        Box targetBox = entity.getBoundingBox();
+        Vec3d targetCenter = new Vec3d(
+                (targetBox.minX + targetBox.maxX) * 0.5,
+                (targetBox.minY + targetBox.maxY) * 0.5,
+                (targetBox.minZ + targetBox.maxZ) * 0.5
+        );
+        Vec3d attackEye = attackPosition.add(
+                0.0,
+                mc.player.getEyeHeight(mc.player.getPose()),
+                0.0
+        );
+        float[] rotations = RotationUtil.getRotations(attackEye, targetCenter);
+
+        PacketUtil.sendPacket(new PlayerMoveC2SPacket.Full(
+                attackPosition,
+                rotations[0],
+                rotations[1],
                 onGroundPacket.getValue(),
                 mc.player.horizontalCollision
         ));

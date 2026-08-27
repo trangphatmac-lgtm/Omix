@@ -4,6 +4,7 @@ import cn.omix.Client;
 import cn.omix.event.impl.RotationAppliedEvent;
 import cn.omix.event.impl.TickEvent;
 import cn.omix.event.impl.WorldEvent;
+import cn.omix.module.impl.player.ChestArua;
 import cn.omix.util.IMinecraft;
 import cn.omix.util.Util;
 import im.webui.WebUiRuntime;
@@ -67,6 +68,16 @@ public abstract class MixinMinecraftClient implements IMinecraft {
     private void beforeHandleInputEvents(CallbackInfo ci) {
         if (mc.player == null || mc.world == null) return;
         instance.getEventManager().call(new RotationAppliedEvent());
+    }
+
+    @Inject(method = "doItemUse", at = @At("HEAD"), cancellable = true)
+    private void omix$chestAruaManualUse(CallbackInfo ci) {
+        if (instance == null || instance.getModuleManager() == null) return;
+
+        ChestArua chestArua = instance.getModuleManager().getModule(ChestArua.class);
+        if (chestArua != null && chestArua.handleManualUse()) {
+            ci.cancel();
+        }
     }
 
     @Inject(method = "setWorld(Lnet/minecraft/client/world/ClientWorld;)V", at = @At("HEAD"))

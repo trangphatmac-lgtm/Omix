@@ -90,6 +90,7 @@ public class ModuleManager implements IMinecraft {
                 new AntiVoid(),
                 new NoFall(),
                 new Velocity(),
+                new ChestArua(),
                 new ChestStealer(),
                 new InventoryManager(),
                 new AutoTool(),
