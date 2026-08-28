@@ -28,6 +28,8 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -36,11 +38,20 @@ public final class TPAura extends Module {
     private static final double MAX_ATTACK_DISTANCE = 2.75;
     private static final double PATH_END_TOLERANCE = 1.75;
     private static final int ATTACK_POSITION_RADIUS = 2;
+    private static final int MAX_MULTI_TARGETS = 20;
 
     private final NumberValue range = new NumberValue("Range", 30, 3, 100, 1);
     private final NumberValue delay = new NumberValue("Delay", 500, 0, 2000, 50);
     private final BoolValue instant = new BoolValue("Instant", true);
-    private final ModeValue targetMode = new ModeValue("Target Mode", "Single", "Single", "Switch");
+    private final ModeValue targetMode = new ModeValue("Target Mode", "Single", "Single", "Switch", "Multi");
+    private final NumberValue maxTargets = new NumberValue(
+            "Max Targets",
+            5,
+            1,
+            MAX_MULTI_TARGETS,
+            1,
+            () -> targetMode.is("Multi")
+    );
     private final ModeValue priority = new ModeValue(
             "Priority",
             "Distance",
@@ -69,6 +80,9 @@ public final class TPAura extends Module {
     private boolean attacked;
     private LivingEntity switchTarget;
     private int switchIndex;
+    private final ArrayList<RouteLeg> activeMultiLegs = new ArrayList<>();
+    private int multiLegIndex;
+    private int multiPathIndex;
 
     public TPAura() {
         super("TPAura", Category.Combat);
@@ -98,6 +112,24 @@ public final class TPAura extends Module {
         if (blinkAttackActive) {
             lockClientPosition();
             updateBlinkAttack();
+            return;
+        }
+
+        if (targetMode.is("Multi")) {
+            List<LivingEntity> candidates = getCandidates();
+            target = candidates.isEmpty() ? null : candidates.getFirst();
+            switchTarget = null;
+            switchIndex = 0;
+            setSuffix(target == null ? "" : "Multi");
+            if (target == null
+                    || !attackTimer.hasTimeElapsed(delay.getValue())
+                    || respectCooldown.getValue() && mc.player.getAttackCooldownProgress(0.5F) < 1.0F) {
+                return;
+            }
+
+            if (!beginMultiAttack(candidates)) {
+                attackTimer.reset();
+            }
             return;
         }
 
@@ -237,8 +269,66 @@ public final class TPAura extends Module {
         return true;
     }
 
+    private boolean beginMultiAttack(List<LivingEntity> candidates) {
+        renderedOutboundPath.clear();
+        renderedReturnPath.clear();
+
+        Vec3d origin = mc.player.getEntityPos();
+        int targetLimit = Math.min(maxTargets.getValue().intValue(), candidates.size());
+        ArrayList<MultiNode> nodes = new ArrayList<>(targetLimit);
+        for (LivingEntity candidate : candidates) {
+            Vec3d position = findAttackPosition(candidate, origin);
+            if (position == null) continue;
+
+            nodes.add(new MultiNode(candidate, position));
+            if (nodes.size() >= targetLimit) break;
+        }
+        if (nodes.isEmpty()) return false;
+
+        ArrayList<RouteLeg> route = findShortestMultiRoute(origin, nodes);
+        if (route.isEmpty()) return false;
+
+        activeMultiLegs.clear();
+        activeMultiLegs.addAll(route);
+        multiLegIndex = 0;
+        multiPathIndex = 0;
+
+        renderedOutboundPath.add(origin);
+        for (int index = 0; index < route.size() - 1; index++) {
+            appendPath(renderedOutboundPath, route.get(index).path());
+        }
+        RouteLeg returnLeg = route.getLast();
+        Vec3d returnStart = route.size() == 1 ? origin : route.get(route.size() - 2).destination();
+        renderedReturnPath = withEndpoints(returnStart, returnLeg.path(), origin);
+
+        activeOutboundPath.clear();
+        activeReturnPath.clear();
+        RouteLeg firstLeg = route.getFirst();
+        activeTarget = firstLeg.target();
+        target = firstLeg.target();
+        attackOrigin = origin;
+        attackPosition = firstLeg.destination();
+        outboundPathIndex = 0;
+        returnPathIndex = 0;
+        attacked = false;
+        blinkAttackActive = true;
+        if (!instant.getValue()) {
+            mc.player.setVelocity(Vec3d.ZERO);
+        }
+
+        releaseSentinelAFlyBlink();
+        instance.getPacketManager().getBlink().start(this);
+        updateBlinkAttack();
+        return true;
+    }
+
     private void updateBlinkAttack() {
         if (!blinkAttackActive) return;
+
+        if (!activeMultiLegs.isEmpty()) {
+            updateMultiBlinkAttack();
+            return;
+        }
 
         if (instant.getValue()) {
             outboundPathIndex = sendLocations(activeOutboundPath, outboundPathIndex, activeOutboundPath.size());
@@ -273,6 +363,49 @@ public final class TPAura extends Module {
         }
     }
 
+    private void updateMultiBlinkAttack() {
+        if (instant.getValue()) {
+            for (; multiLegIndex < activeMultiLegs.size(); multiLegIndex++) {
+                RouteLeg leg = activeMultiLegs.get(multiLegIndex);
+                multiPathIndex = sendLocations(leg.path(), multiPathIndex, leg.path().size());
+                if (leg.target() != null) {
+                    performMultiAttack(leg);
+                }
+                multiPathIndex = 0;
+            }
+            finishBlinkAttack();
+            return;
+        }
+
+        if (multiLegIndex >= activeMultiLegs.size()) {
+            finishBlinkAttack();
+            return;
+        }
+
+        RouteLeg leg = activeMultiLegs.get(multiLegIndex);
+        if (leg.target() != null) {
+            activeTarget = leg.target();
+            target = leg.target();
+            attackPosition = leg.destination();
+        }
+        if (multiPathIndex < leg.path().size()) {
+            multiPathIndex = sendLocations(leg.path(), multiPathIndex, multiPathIndex + 1);
+        }
+
+        if (multiPathIndex >= leg.path().size()) {
+            if (leg.target() != null) {
+                performMultiAttack(leg);
+            }
+            multiLegIndex++;
+            multiPathIndex = 0;
+        }
+
+        updateMultiProgressSuffix();
+        if (multiLegIndex >= activeMultiLegs.size()) {
+            finishBlinkAttack();
+        }
+    }
+
     private void performAttack() {
         if (attacked) return;
 
@@ -287,6 +420,19 @@ public final class TPAura extends Module {
         attackTimer.reset();
     }
 
+    private void performMultiAttack(RouteLeg leg) {
+        activeTarget = leg.target();
+        target = leg.target();
+        attackPosition = leg.destination();
+        if (canAttackActiveTarget()) {
+            if (rotation.getValue()) {
+                sendAttackRotation(activeTarget);
+            }
+            attack(activeTarget);
+        }
+        attackTimer.reset();
+    }
+
     private void updateProgressSuffix() {
         int totalLocations = activeOutboundPath.size() + activeReturnPath.size();
         int completedLocations = outboundPathIndex + returnPathIndex;
@@ -294,6 +440,24 @@ public final class TPAura extends Module {
                 ? 100
                 : Math.min(100, Math.round((float) completedLocations / totalLocations * 100.0F));
         setSuffix("Blink " + progress + "%");
+    }
+
+    private void updateMultiProgressSuffix() {
+        int totalLocations = 0;
+        int completedLocations = 0;
+        for (int index = 0; index < activeMultiLegs.size(); index++) {
+            int pathSize = activeMultiLegs.get(index).path().size();
+            totalLocations += pathSize;
+            if (index < multiLegIndex) {
+                completedLocations += pathSize;
+            } else if (index == multiLegIndex) {
+                completedLocations += multiPathIndex;
+            }
+        }
+        int progress = totalLocations == 0
+                ? 100
+                : Math.min(100, Math.round((float) completedLocations / totalLocations * 100.0F));
+        setSuffix("Multi Blink " + progress + "%");
     }
 
     private int sendLocations(ArrayList<Vec3d> path, int fromIndex, int toIndex) {
@@ -356,8 +520,17 @@ public final class TPAura extends Module {
         if (!blinkAttackActive) return;
 
         if (completeReturn && mc.player != null && mc.getNetworkHandler() != null) {
-            outboundPathIndex = sendLocations(activeOutboundPath, outboundPathIndex, activeOutboundPath.size());
-            returnPathIndex = sendLocations(activeReturnPath, returnPathIndex, activeReturnPath.size());
+            if (!activeMultiLegs.isEmpty()) {
+                while (multiLegIndex < activeMultiLegs.size()) {
+                    ArrayList<Vec3d> path = activeMultiLegs.get(multiLegIndex).path();
+                    multiPathIndex = sendLocations(path, multiPathIndex, path.size());
+                    multiLegIndex++;
+                    multiPathIndex = 0;
+                }
+            } else {
+                outboundPathIndex = sendLocations(activeOutboundPath, outboundPathIndex, activeOutboundPath.size());
+                returnPathIndex = sendLocations(activeReturnPath, returnPathIndex, activeReturnPath.size());
+            }
         }
 
         if (instance.getPacketManager() != null) {
@@ -374,6 +547,9 @@ public final class TPAura extends Module {
         attackPosition = null;
         outboundPathIndex = 0;
         returnPathIndex = 0;
+        activeMultiLegs.clear();
+        multiLegIndex = 0;
+        multiPathIndex = 0;
         blinkAttackActive = false;
         attacked = false;
     }
@@ -410,6 +586,117 @@ public final class TPAura extends Module {
         return bestPosition;
     }
 
+    private ArrayList<RouteLeg> findShortestMultiRoute(Vec3d origin, ArrayList<MultiNode> nodes) {
+        int nodeCount = nodes.size();
+        PathEdge[] fromOrigin = new PathEdge[nodeCount];
+        PathEdge[] toOrigin = new PathEdge[nodeCount];
+        PathEdge[][] between = new PathEdge[nodeCount][nodeCount];
+
+        for (int index = 0; index < nodeCount; index++) {
+            Vec3d position = nodes.get(index).position();
+            fromOrigin[index] = computePathEdge(origin, position);
+            toOrigin[index] = computePathEdge(position, origin);
+            for (int other = 0; other < nodeCount; other++) {
+                if (index == other) continue;
+                between[index][other] = computePathEdge(position, nodes.get(other).position());
+            }
+        }
+
+        int stateCount = 1 << nodeCount;
+        double[][] costs = new double[stateCount][nodeCount];
+        int[][] previous = new int[stateCount][nodeCount];
+        for (int state = 0; state < stateCount; state++) {
+            Arrays.fill(costs[state], Double.POSITIVE_INFINITY);
+            Arrays.fill(previous[state], -1);
+        }
+        for (int index = 0; index < nodeCount; index++) {
+            if (fromOrigin[index] != null) {
+                costs[1 << index][index] = fromOrigin[index].cost();
+            }
+        }
+
+        for (int state = 1; state < stateCount; state++) {
+            for (int last = 0; last < nodeCount; last++) {
+                if ((state & 1 << last) == 0 || !Double.isFinite(costs[state][last])) continue;
+
+                for (int next = 0; next < nodeCount; next++) {
+                    if ((state & 1 << next) != 0 || between[last][next] == null) continue;
+
+                    int nextState = state | 1 << next;
+                    double nextCost = costs[state][last] + between[last][next].cost();
+                    if (nextCost < costs[nextState][next]) {
+                        costs[nextState][next] = nextCost;
+                        previous[nextState][next] = last;
+                    }
+                }
+            }
+        }
+
+        int fullState = stateCount - 1;
+        int bestLast = -1;
+        double bestCost = Double.POSITIVE_INFINITY;
+        for (int last = 0; last < nodeCount; last++) {
+            if (toOrigin[last] == null || !Double.isFinite(costs[fullState][last])) continue;
+
+            double routeCost = costs[fullState][last] + toOrigin[last].cost();
+            if (routeCost < bestCost) {
+                bestCost = routeCost;
+                bestLast = last;
+            }
+        }
+        if (bestLast < 0) return new ArrayList<>();
+
+        ArrayList<Integer> order = new ArrayList<>(nodeCount);
+        int state = fullState;
+        int current = bestLast;
+        while (current >= 0) {
+            order.add(current);
+            int prior = previous[state][current];
+            state ^= 1 << current;
+            current = prior;
+        }
+        Collections.reverse(order);
+
+        ArrayList<RouteLeg> route = new ArrayList<>(nodeCount + 1);
+        int first = order.getFirst();
+        MultiNode firstNode = nodes.get(first);
+        route.add(new RouteLeg(
+                firstNode.target(),
+                firstNode.position(),
+                withEndpoint(fromOrigin[first].path(), firstNode.position())
+        ));
+        for (int index = 1; index < order.size(); index++) {
+            int previousNodeIndex = order.get(index - 1);
+            int nodeIndex = order.get(index);
+            MultiNode node = nodes.get(nodeIndex);
+            route.add(new RouteLeg(
+                    node.target(),
+                    node.position(),
+                    withEndpoint(between[previousNodeIndex][nodeIndex].path(), node.position())
+            ));
+        }
+        route.add(new RouteLeg(
+                null,
+                origin,
+                withEndpoint(toOrigin[bestLast].path(), origin)
+        ));
+        return route;
+    }
+
+    private PathEdge computePathEdge(Vec3d start, Vec3d destination) {
+        ArrayList<Vec3d> path = MainPathFinder.computePath(start, destination);
+        if (!pathReaches(path, start, destination)) return null;
+
+        double cost = 0.0;
+        Vec3d previous = start;
+        for (Vec3d location : path) {
+            cost += previous.distanceTo(location);
+            previous = location;
+        }
+        cost += previous.distanceTo(destination);
+        return new PathEdge(path, cost);
+    }
+
     private boolean pathReaches(ArrayList<Vec3d> path, Vec3d start, Vec3d destination) {
         Vec3d endpoint = path.isEmpty() ? start : path.getLast();
         return endpoint.squaredDistanceTo(destination) <= PATH_END_TOLERANCE * PATH_END_TOLERANCE;
@@ -430,6 +717,12 @@ public final class TPAura extends Module {
         result.addAll(path);
         addIfDifferent(result, end);
         return result;
+    }
+
+    private void appendPath(ArrayList<Vec3d> destination, ArrayList<Vec3d> path) {
+        for (Vec3d location : path) {
+            addIfDifferent(destination, location);
+        }
     }
 
     private void addIfDifferent(ArrayList<Vec3d> path, Vec3d location) {
@@ -493,4 +786,10 @@ public final class TPAura extends Module {
         attackTimer.reset();
         setSuffix("");
     }
+
+    private record MultiNode(LivingEntity target, Vec3d position) {}
+
+    private record PathEdge(ArrayList<Vec3d> path, double cost) {}
+
+    private record RouteLeg(LivingEntity target, Vec3d destination, ArrayList<Vec3d> path) {}
 }
