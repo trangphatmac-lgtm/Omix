@@ -32,7 +32,7 @@ public final class AutoScreenshot extends VictoryActionModule {
         ScreenshotRecorder.saveScreenshot(
                 mc.runDirectory,
                 mc.getFramebuffer(),
-                message -> mc.inGameHud.getChatHud().addMessage(message)
+                message -> mc.execute(() -> mc.inGameHud.getChatHud().addMessage(message))
         );
         Util.log("&aAutoScreenshot captured a screenshot.");
     }
