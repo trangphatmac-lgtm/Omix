@@ -4,31 +4,36 @@ import cn.omix.util.IMinecraft;
 import net.minecraft.block.AbstractSignBlock;
 import net.minecraft.block.AbstractSkullBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.BushBlock;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
 
 import java.util.ArrayList;
 
 public final class MainPathFinder implements IMinecraft {
+    private static final double GROUND_EPSILON = 1.0E-4;
+
     private MainPathFinder() {}
 
     public static ArrayList<Vec3d> computePath(Vec3d from, Vec3d to) {
         if (!isFinite(from) || !isFinite(to) || mc.world == null) return new ArrayList<>();
 
         if (cn.omix.module.impl.exploits.PathFinder.mode.is("Linear")) {
-            return LinearPathFinder.INSTANCE.getPaths(
+            return applyNoGround(LinearPathFinder.INSTANCE.getPaths(
                     BlockPos.ofFloored(from),
                     BlockPos.ofFloored(to),
                     cn.omix.module.impl.exploits.PathFinder.linearSteps.getValue().intValue(),
                     4
-            );
+            ));
         }
 
         if (cn.omix.module.impl.exploits.PathFinder.verticalPassThrough.getValue()) {
             ArrayList<Vec3d> verticalPath = getVerticalPassThroughPath(from, to);
-            if (verticalPath != null) return verticalPath;
+            if (verticalPath != null) return applyNoGround(verticalPath);
         }
 
         PathFinder pathFinder = new PathFinder(from, to);
@@ -75,7 +80,7 @@ public final class MainPathFinder implements IMinecraft {
             index++;
         }
 
-        return path;
+        return applyNoGround(path);
     }
 
     public static boolean canPassThrough(BlockPos pos) {
@@ -114,6 +119,34 @@ public final class MainPathFinder implements IMinecraft {
             path.add(new Vec3d(from.x, from.y + (to.y - from.y) * progress, from.z));
         }
         return path;
+    }
+
+    private static ArrayList<Vec3d> applyNoGround(ArrayList<Vec3d> path) {
+        if (!cn.omix.module.impl.exploits.PathFinder.noGround.getValue()
+                || path.isEmpty()
+                || mc.world == null) {
+            return path;
+        }
+
+        ArrayList<Vec3d> adjustedPath = new ArrayList<>(path.size());
+        for (Vec3d location : path) {
+            adjustedPath.add(isOnGround(location) ? location.add(0.0, 0.25, 0.0) : location);
+        }
+        return adjustedPath;
+    }
+
+    private static boolean isOnGround(Vec3d location) {
+        BlockPos groundPos = BlockPos.ofFloored(
+                location.x,
+                location.y - GROUND_EPSILON,
+                location.z
+        );
+        BlockState groundState = mc.world.getBlockState(groundPos);
+        VoxelShape collisionShape = groundState.getCollisionShape(mc.world, groundPos);
+        if (collisionShape.isEmpty()) return false;
+
+        double collisionTop = groundPos.getY() + collisionShape.getMax(Direction.Axis.Y);
+        return Math.abs(location.y - collisionTop) <= GROUND_EPSILON;
     }
 
     private static boolean isFinite(Vec3d vector) {
