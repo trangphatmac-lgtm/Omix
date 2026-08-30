@@ -42,7 +42,7 @@ public class MainMenu extends AbstractScreen {
         proxy.setBounds(centerX + 102f, centerY + gap * 3, 98, 22);
         buttons.add(proxy);
 
-        AdaptiveButton quit = new AdaptiveButton("Quit", mc::close);
+        AdaptiveButton quit = new AdaptiveButton("Quit", mc::scheduleStop);
         quit.setBounds(centerX, centerY + gap * 4, 200, 22);
         buttons.add(quit);
     }
