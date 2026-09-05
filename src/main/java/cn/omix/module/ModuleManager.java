@@ -51,6 +51,7 @@ public class ModuleManager implements IMinecraft {
                 new Scaffold(),
                 new AutoPlay(),
                 new AutoGG(),
+                new AutoL(),
                 new AutoScreenshot(),
                 new QuickMacro(),
                 new WorldTweaks(),
