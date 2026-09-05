@@ -103,6 +103,7 @@ public class ModuleManager implements IMinecraft {
                 new AntiHunger(),
                 new AntiLava(),
                 new Stuck(),
+                new Phase(),
                 new LightningTracker(),
                 new Freecam(),
                 new LookTP(),
