@@ -79,9 +79,14 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
         super(world, profile);
     }
 
-    @Inject(method = "tick", at = @At("HEAD"))
+    @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void tick(CallbackInfo ci) {
-        Client.instance.getEventManager().call(new UpdateEvent());
+        UpdateEvent event = new UpdateEvent();
+        Client.instance.getEventManager().call(event);
+        if (event.isCancelled()) {
+            ci.cancel();
+            return;
+        }
         omix$swapFreecamInput();
     }
 

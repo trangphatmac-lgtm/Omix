@@ -1,15 +1,19 @@
 package cn.omix.module.impl.player;
 
 import cn.omix.event.BlockCollisionEventGuard;
+import cn.omix.event.base.annotation.EventPriority;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.BlockCollisionEvent;
 import cn.omix.event.impl.MotionEvent;
+import cn.omix.event.impl.PacketEvent;
 import cn.omix.event.impl.PlayerPositionLookEvent;
 import cn.omix.event.impl.UpdateEvent;
 import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
+import cn.omix.module.impl.player.phase.HeypixelPhaseState;
 import cn.omix.module.value.impl.ModeValue;
+import cn.omix.module.value.impl.NumberValue;
 import cn.omix.util.misc.TimerSpeedUtil;
 import cn.omix.util.network.PacketUtil;
 import cn.omix.util.player.MovementUtil;
@@ -17,6 +21,8 @@ import net.minecraft.block.ShapeContext;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
+import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -33,7 +39,11 @@ public final class Phase extends Module {
     private static final int VANILLA_PENDING_TICKS = 10;
     private static final int VANILLA_CORRECTION_COOLDOWN_TICKS = 5;
 
-    private final ModeValue mode = new ModeValue("Mode", "NCP", "Vanilla", "NCP", "AAC 4", "Hypixel", "Intave");
+    private final ModeValue mode = new ModeValue("Mode", "NCP", "Vanilla", "NCP", "AAC 4", "Hypixel", "Intave", "Heypixel");
+    private final NumberValue distance = new NumberValue("Distance", 3.0F, 2.0F, 7.0F, 1.0F, () -> mode.is("Heypixel"));
+    private final NumberValue pitch = new NumberValue("Pitch", 30.0F, -90.0F, 90.0F, 1.0F, () -> mode.is("Heypixel"));
+    private HeypixelPhaseState heypixelState = new HeypixelPhaseState();
+    private volatile Object heypixelSession = new Object();
 
     private boolean isClipping = false;
     private int phaseTicks;
@@ -82,6 +92,34 @@ public final class Phase extends Module {
     @EventTarget
     public void onWorld(WorldEvent event) {
         resetState();
+    }
+
+    @EventTarget
+    @EventPriority(0)
+    public void onPacket(PacketEvent event) {
+        if (event.getType() != PacketEvent.Type.Received || !mode.is("Heypixel")) return;
+
+        boolean subtitle;
+        String text;
+        if (event.getPacket() instanceof SubtitleS2CPacket packet) {
+            subtitle = true;
+            text = packet.text().getString();
+        } else if (event.getPacket() instanceof TitleS2CPacket packet) {
+            subtitle = false;
+            text = packet.text().getString();
+        } else {
+            return;
+        }
+
+        // Received packets run on the network thread. Player ticks and lifecycle
+        // changes own the state; a new lifecycle invalidates queued signals.
+        Object receivedSession = heypixelSession;
+        mc.execute(() -> {
+            if (!isEnabled() || !mode.is("Heypixel") || receivedSession != heypixelSession) return;
+            syncMode();
+            if (subtitle) heypixelState.onSubtitle(text);
+            else heypixelState.onTitle(text);
+        });
     }
 
     @EventTarget
@@ -185,6 +223,11 @@ public final class Phase extends Module {
             return;
         }
 
+        if (mode.is("Heypixel")) {
+            updateHeypixelPhase(player, event);
+            return;
+        }
+
         if (mode.is("AAC 4")) {
             setEnabled(false);
             return;
@@ -254,6 +297,24 @@ public final class Phase extends Module {
                 if (cachedDirection == null)
                     cachedDirection = direction;
             }
+        }
+    }
+
+    private void updateHeypixelPhase(ClientPlayerEntity player, UpdateEvent event) {
+        if (mc.getNetworkHandler() == null) return;
+
+        switch (heypixelState.onUpdate(player.age)) {
+            case FREEZE -> event.setCancelled();
+            case PHASE -> {
+                double angleDegrees = Math.toDegrees(Math.atan2(-player.getZ(), -player.getX()));
+                float yaw = (float) (angleDegrees - 90.0D);
+                Vec3d offset = Vec3d.fromPolar(-pitch.getValue(), yaw)
+                        .multiply((double) distance.getValue());
+                player.setPosition(player.getEntityPos().add(offset));
+                // Let this tick finish and send its movement normally. Only
+                // subsequent updates are cancelled until the start title arrives.
+            }
+            case WAIT -> { }
         }
     }
 
@@ -445,12 +506,18 @@ public final class Phase extends Module {
 
     private void syncMode() {
         if (!activeMode.equals(mode.getValue())) {
-            resetState();
+            resetModeState();
             activeMode = mode.getValue();
         }
     }
 
     private void resetState() {
+        heypixelSession = new Object();
+        resetModeState();
+    }
+
+    private void resetModeState() {
+        heypixelState = new HeypixelPhaseState();
         resetTimer();
         resetVanillaPhase();
         isClipping = false;
