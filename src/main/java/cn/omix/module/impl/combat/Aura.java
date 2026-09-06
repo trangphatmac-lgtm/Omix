@@ -189,7 +189,8 @@ public class Aura extends Module {
             return false;
         }
 
-        return true;
+        Criticals criticals = getModule(Criticals.class);
+        return criticals == null || !criticals.shouldDeferAttack(target);
     }
 
     private boolean isInAttackRange(LivingEntity target) {

@@ -68,6 +68,11 @@ public final class Stuck extends Module {
     private boolean pendingDisable;
 
     private int stuckTick;
+    private Integer criticalsWaitTicks;
+    private boolean criticalsFreezeOverride;
+    private boolean criticalsWasEnabled;
+    private String criticalsPreviousMode;
+    private int criticalsPreviousStuckTick;
     private String activeMode = "Delay";
     private boolean clutchFreezeOverride;
     private boolean clutchWasEnabled;
@@ -114,6 +119,7 @@ public final class Stuck extends Module {
 
     @Override
     public void onDisable() {
+        endCriticalsFreeze(false);
         flushPongs();
         resetState();
         stuckTick = 0;
@@ -207,7 +213,9 @@ public final class Stuck extends Module {
 
         switch (mode.getValue()) {
             case "Freeze" -> {
-                if (stuckTick >= freezeTick.getValue().intValue()) {
+                int waitTicks = criticalsWaitTicks != null && !clutchFreezeOverride
+                        ? criticalsWaitTicks : freezeTick.getValue().intValue();
+                if (stuckTick >= waitTicks) {
                     stuckTick = 0;
                     event.setCancelled(false);
                 } else {
@@ -236,6 +244,7 @@ public final class Stuck extends Module {
 
     @EventTarget
     public void onWorld(WorldEvent event) {
+        endCriticalsFreeze(false);
         stuckState = 3;
         capturedPacket = null;
         pongQueue.clear();
@@ -302,6 +311,8 @@ public final class Stuck extends Module {
     }
 
     public void beginClutchFreeze() {
+        // Scaffold takes ownership only after the combat override is restored.
+        endCriticalsFreeze(true);
         if (!clutchFreezeOverride) {
             clutchFreezeOverride = true;
             clutchWasEnabled = isEnabled();
@@ -316,6 +327,51 @@ public final class Stuck extends Module {
         } else {
             setEnabled(true);
         }
+    }
+
+    /** Enter Freeze once; subsequent updates change timing without restarting it. */
+    public void beginCriticalsFreeze(int ticks) {
+        if (mc.player == null || clutchFreezeOverride) return;
+        if (!criticalsFreezeOverride) {
+            criticalsFreezeOverride = true;
+            criticalsWasEnabled = isEnabled();
+            criticalsPreviousMode = mode.getValue();
+            criticalsPreviousStuckTick = stuckTick;
+            stuckTick = 0;
+        }
+        criticalsWaitTicks = ticks;
+        mode.setValue("Freeze");
+        if (isEnabled()) syncMode();
+        else setEnabled(true);
+    }
+
+    public void endCriticalsFreeze(boolean restoreEnabledState) {
+        if (!criticalsFreezeOverride) return;
+        boolean remainEnabled = restoreEnabledState && criticalsWasEnabled;
+        String previousMode = criticalsPreviousMode;
+        int previousTick = criticalsPreviousStuckTick;
+        // Clear ownership before disabling, since onDisable also cleans up.
+        criticalsFreezeOverride = false;
+        criticalsWaitTicks = null;
+        criticalsWasEnabled = false;
+        criticalsPreviousMode = null;
+        criticalsPreviousStuckTick = 0;
+
+        if (!remainEnabled && isEnabled()) {
+            // An override may have been edited to Delay in the GUI; cleanup
+            // must still finish immediately, without Delay's deferred disable.
+            super.setEnabled(false);
+        }
+        mode.setValue(previousMode);
+        if (remainEnabled) {
+            if (isEnabled()) syncMode();
+            else setEnabled(true);
+            if (mode.is("Freeze") || mode.is("Cancel")) stuckTick = previousTick;
+        }
+    }
+
+    public boolean isClutchFreezeActive() {
+        return clutchFreezeOverride;
     }
 
     public void endClutchFreeze(boolean restoreEnabledState) {
