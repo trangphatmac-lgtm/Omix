@@ -39,7 +39,7 @@ public final class Phase extends Module {
     private static final int VANILLA_PENDING_TICKS = 10;
     private static final int VANILLA_CORRECTION_COOLDOWN_TICKS = 5;
 
-    private final ModeValue mode = new ModeValue("Mode", "NCP", "Vanilla", "NCP", "AAC 4", "Hypixel", "Intave", "Heypixel");
+    private final ModeValue mode = new ModeValue("Mode", "NCP", "Vanilla", "NCP", "AAC 4", "Hypixel", "Intave", "Heypixel(Already Patched)");
     private final NumberValue distance = new NumberValue("Distance", 3.0F, 2.0F, 7.0F, 1.0F, () -> mode.is("Heypixel"));
     private final NumberValue pitch = new NumberValue("Pitch", 30.0F, -90.0F, 90.0F, 1.0F, () -> mode.is("Heypixel"));
     private HeypixelPhaseState heypixelState = new HeypixelPhaseState();
