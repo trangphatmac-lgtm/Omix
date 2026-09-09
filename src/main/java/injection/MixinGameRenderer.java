@@ -1,6 +1,7 @@
 package injection;
 
 import cn.omix.event.impl.Render3DEvent;
+import cn.omix.event.impl.RenderFrameEvent;
 import cn.omix.module.impl.player.Freecam;
 import cn.omix.module.impl.render.NoHurtCam;
 import cn.omix.module.impl.render.Zoom;
@@ -31,6 +32,13 @@ public abstract class MixinGameRenderer implements IMinecraft {
     @Inject(method = "render", at = @At("HEAD"))
     private void omix$driveWebUi(CallbackInfo ci) {
         WebUiRuntime.getInstance().onFrame();
+    }
+
+    @Inject(method = "render", at = @At("RETURN"))
+    private void omix$afterRenderFrame(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
+        if (!mc.skipGameRender && mc.isFinishedLoading() && tick && mc.world != null && mc.player != null) {
+            instance.getEventManager().call(new RenderFrameEvent());
+        }
     }
 
     @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;render(Lnet/minecraft/client/util/memory/ObjectAllocator;Lnet/minecraft/client/render/RenderTickCounter;ZLnet/minecraft/client/render/Camera;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Vector4f;Z)V", shift = At.Shift.AFTER))
