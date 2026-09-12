@@ -1,8 +1,10 @@
 package cn.omix.module.impl.world;
 
 import cn.omix.event.base.annotation.EventTarget;
+import cn.omix.event.base.annotation.EventPriority;
 import cn.omix.event.impl.LivingUpdateEvent;
 import cn.omix.event.impl.MoveInputEvent;
+import cn.omix.event.impl.PacketEvent;
 import cn.omix.event.impl.UpdateEvent;
 import cn.omix.event.impl.WorldEvent;
 import cn.omix.management.RotationManager;
@@ -17,6 +19,7 @@ import cn.omix.util.Util;
 import cn.omix.util.misc.TimerUtil;
 import cn.omix.util.network.PacketUtil;
 import cn.omix.util.player.*;
+import injection.accessor.ClientPlayerEntityAccessor;
 import lombok.Getter;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -42,9 +45,9 @@ public class Scaffold extends Module {
     public static NumberValue delay = new NumberValue("Delay", 0, 0, 200, 10);
     private final ModeValue mode = new ModeValue("Mode", "Normal", "Normal", "Telly Bridge");
     private final NumberValue tellyTick = new NumberValue("Telly Tick", 1, 0, 5, 1, () -> !mode.is("Normal"));
-    private final ModeValue rotationMode = new ModeValue("Rotation Mode", "Normal", "Normal", "Facing", "Hit Vec", "Nearest", "Hypixel", "Grim");
+    private final ModeValue rotationMode = new ModeValue("Rotation Mode", "Normal", "Normal", "Facing", "Hit Vec", "Nearest", "Hypixel", "On tick");
     private final NumberValue shrink = new NumberValue("Shrink", .1f, 0, .45f, .01f, () -> rotationMode.is("Nearest") || rotationMode.is("Hypixel"));
-    private final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 180, 0, 180, 5, () -> !rotationMode.is("Grim"));
+    private final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 180, 0, 180, 5, () -> !rotationMode.is("On tick"));
     private final ModeValue towerMode = new ModeValue(
             "Tower Mode",
             "None",
@@ -60,7 +63,7 @@ public class Scaffold extends Module {
     private final BoolValue maxStack = new BoolValue("Max Stack", false);
     private final BoolValue itemSpoof = new BoolValue("Item Spoof", false);
     private final BoolValue noSwing = new BoolValue("No Swing", false);
-    private final BoolValue movementFix = new BoolValue("Movement Fix", false, () -> !rotationMode.is("Grim"));
+    private final BoolValue movementFix = new BoolValue("Movement Fix", false, () -> !rotationMode.is("On tick"));
     private final BoolValue clutch = new BoolValue("Clutch", false);
     private final BoolValue onlyStuckInEssential = new BoolValue(
             "Only stuck in essential",
@@ -86,6 +89,7 @@ public class Scaffold extends Module {
     private double ncpTowerGround = Double.NaN;
     private double keepYCoord;
     private float[] rotations;
+    private float[] onTickServerRotations;
     private PlaceInfo data;
 
     public Scaffold() {
@@ -95,6 +99,8 @@ public class Scaffold extends Module {
     @Override
     public void onEnable() {
         ScaffoldMutex.activate(getModule(ScaffoldX.class));
+        rotations = null;
+        onTickServerRotations = null;
         if (mc.player == null || mc.world == null) return;
 
         oldSlot = mc.player.getInventory().getSelectedSlot();
@@ -106,6 +112,8 @@ public class Scaffold extends Module {
 
     @Override
     public void onDisable() {
+        rotations = null;
+        onTickServerRotations = null;
         stopClutch(true);
         clutchTimedOut = false;
         resetTowerState();
@@ -123,6 +131,8 @@ public class Scaffold extends Module {
 
     @EventTarget
     public void onWorld(WorldEvent event) {
+        rotations = null;
+        onTickServerRotations = null;
         stopClutch(false);
         clutchTimedOut = false;
         resetTowerState();
@@ -173,8 +183,8 @@ public class Scaffold extends Module {
         }
 
         if (!skipTowerPlacement && canPlace && data != null) {
-            if (rotationMode.is("Grim")) {
-                if (delayTimer.hasTimeElapsed(delay.getValue()) && placeGrim()) {
+            if (rotationMode.is("On tick")) {
+                if (delayTimer.hasTimeElapsed(delay.getValue()) && placeOnTick()) {
                     delayTimer.reset();
                 }
                 return;
@@ -182,7 +192,17 @@ public class Scaffold extends Module {
 
             boolean rayCast = true;
             if (this.rayCast.getValue()) {
-                rayCast = RayCastUtil.overBlock(data.blockPos(), data.facing(), false);
+                // The render crosshair can use an interpolated rotation and an
+                // older target. Trace from the current eyes using the applied aim.
+                float yaw = mc.player.getYaw();
+                float pitch = mc.player.getPitch();
+                if (RotationManager.isRotating()) {
+                    yaw = RotationManager.currentRotations[0];
+                    pitch = RotationManager.currentRotations[1];
+                }
+                BlockHitResult hit = ClientRayTraceUtil.raycastBlock(yaw, pitch, PLACEMENT_REACH);
+                rayCast = hit != null && hit.getType() == HitResult.Type.BLOCK
+                        && hit.getBlockPos().equals(data.blockPos());
             }
 
             if (rayCast) {
@@ -311,6 +331,10 @@ public class Scaffold extends Module {
 
     @EventTarget
     public void onLivingUpdate(LivingUpdateEvent e) {
+        if (rotationMode.is("On tick")) {
+            rotations = null;
+            return;
+        }
         if (mc.player == null || mc.world == null || data == null) return;
 
         switch (rotationMode.getValue()) {
@@ -318,46 +342,79 @@ public class Scaffold extends Module {
             case "Hit Vec" -> rotations = RotationUtil.getRotations(getVec(data.blockPos(), data.facing()));
             case "Nearest", "Hypixel" -> rotations = new float[]{RotationUtil.getNearestRotation(data.blockPos(), data.facing(), RotationManager.currentRotations, shrink.getValue())[0], RotationUtil.getRotations(data.blockPos())[1]};
             case "Facing" -> rotations = RotationUtil.getRotations(data.blockPos(), data.facing());
-            case "Grim" -> rotations = null;
         }
     }
 
-    private boolean placeGrim() {
-        if (mc.player == null || mc.world == null || mc.interactionManager == null || data == null) return false;
-
+    private float[] getOnTickRotations() {
         Vec3d faceCenter = data.blockPos().toCenterPos().add(
                 data.facing().getOffsetX() * 0.5,
                 data.facing().getOffsetY() * 0.5,
                 data.facing().getOffsetZ() * 0.5
         );
         float[] target = RotationUtil.getRotations(faceCenter);
-        float yaw = mc.player.getYaw() + MathHelper.wrapDegrees(target[0] - mc.player.getYaw());
-        float pitch = MathHelper.clamp(target[1], -90.0F, 90.0F);
-        BlockHitResult hit = RayCastUtil.raycastBlock(yaw, pitch, PLACEMENT_REACH);
+        float[] base = RotationManager.isRotating() ? RotationManager.currentRotations
+                : new float[]{mc.player.getYaw(), mc.player.getPitch()};
+        // LiquidBounce Rotation.normalize(): quantize the wrapped delta to the
+        // vanilla mouse sensitivity step, relative to the active/client rotation.
+        double sensitivity = mc.options.getMouseSensitivity().getValue() * 0.6 + 0.2;
+        double gcd = (float) (sensitivity * sensitivity * sensitivity * 8.0) * 0.15F;
+        float yaw = base[0] + (float) (Math.round(MathHelper.wrapDegrees(target[0] - base[0]) / gcd) * gcd);
+        float pitch = MathHelper.clamp(base[1] + (float) (Math.round(MathHelper.wrapDegrees(target[1] - base[1]) / gcd) * gcd), -90.0F, 90.0F);
+        return new float[]{yaw, pitch};
+    }
+
+    private BlockHitResult getOnTickHit(float yaw, float pitch) {
+        BlockHitResult hit = ClientRayTraceUtil.raycastBlock(yaw, pitch, PLACEMENT_REACH);
         if (hit == null || hit.getType() != HitResult.Type.BLOCK
                 || !hit.getBlockPos().equals(data.blockPos()) || hit.getSide() != data.facing()) {
-            return false;
+            return null;
         }
+        return hit;
+    }
 
-        // Grim only sends the placement rotation around the interaction; it never
-        // applies it to the camera or movement correction.
-        sendGrimPosLook(yaw, pitch);
+    @EventTarget
+    @EventPriority(Integer.MAX_VALUE)
+    public void onPacket(PacketEvent event) {
+        if (event.getType() == PacketEvent.Type.Send && !event.isCancelled()
+                && event.getPacket() instanceof PlayerMoveC2SPacket packet && packet.changesLook()) {
+            onTickServerRotations = new float[]{packet.getYaw(0.0F), packet.getPitch(0.0F)};
+        }
+    }
+
+    private boolean matchesOnTickServerRotation(float yaw, float pitch) {
+        if (onTickServerRotations == null) {
+            ClientPlayerEntityAccessor player = (ClientPlayerEntityAccessor) mc.player;
+            onTickServerRotations = new float[]{player.getLastYaw(), player.getLastPitch()};
+        }
+        return onTickServerRotations[0] == yaw && onTickServerRotations[1] == pitch;
+    }
+
+    private void sendOnTickRotation(float yaw, float pitch) {
+        PacketUtil.sendPacket(new PlayerMoveC2SPacket.Full(
+                mc.player.getX(), mc.player.getY(), mc.player.getZ(), yaw, pitch,
+                mc.player.isOnGround(), mc.player.horizontalCollision
+        ));
+    }
+
+    private boolean placeOnTick() {
+        if (mc.player == null || mc.world == null || mc.interactionManager == null || data == null) return false;
+
+        float[] target = getOnTickRotations();
+        BlockHitResult hit = getOnTickHit(target[0], target[1]);
+        if (hit == null) return false;
+
+        if (!matchesOnTickServerRotation(target[0], target[1])) {
+            sendOnTickRotation(target[0], target[1]);
+        }
         try {
             place(hit.getBlockPos(), hit.getSide(), hit.getPos());
         } finally {
-            sendGrimPosLook(
-                    mc.player.getYaw() + (float) (Math.random() * 0.04 - 0.02),
-                    MathHelper.clamp(mc.player.getPitch(), -90.0F, 90.0F)
-            );
+            if (!matchesOnTickServerRotation(mc.player.getYaw(), mc.player.getPitch())) {
+                float restoreYaw = target[0] + MathHelper.wrapDegrees(mc.player.getYaw() - target[0]);
+                sendOnTickRotation(restoreYaw, mc.player.getPitch());
+            }
         }
         return true;
-    }
-
-    private void sendGrimPosLook(float yaw, float pitch) {
-        PacketUtil.sendPacketNoEvent(new PlayerMoveC2SPacket.Full(
-                mc.player.getX(), mc.player.getBoundingBox().minY, mc.player.getZ(),
-                yaw, pitch, mc.player.isOnGround(), mc.player.horizontalCollision
-        ));
     }
 
     private void place(BlockPos pos, Direction facing, Vec3d hitVec) {

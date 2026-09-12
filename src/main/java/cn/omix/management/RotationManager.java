@@ -71,7 +71,7 @@ public class RotationManager implements IMinecraft {
             setRotations(antiLava.getRotations(), 180, antiLava.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
         } else if (scaffoldX.isEnabled() && scaffoldX.isCanRotation() && scaffoldX.getRotations() != null) {
             setRotations(scaffoldX.getRotations(), scaffoldX.getRotationSpeed().getValue(), scaffoldX.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
-        } else if (scaffold.isEnabled() && !scaffold.getRotationMode().is("Grim") && scaffold.isCanRotation() && scaffold.getRotations() != null) {
+        } else if (scaffold.isEnabled() && !scaffold.getRotationMode().is("On tick") && scaffold.isCanRotation() && scaffold.getRotations() != null) {
             setRotations(scaffold.getRotations(), scaffold.getRotationSpeed(), scaffold.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
         } else if (aura.isEnabled() && aura.getTarget() != null && aura.getRotations() != null) {
             setRotations(aura.getRotations(), aura.getRotationSpeed().getValue(), aura.getMovementFixMode().is("None") ? MovementCorrection.None : (aura.getMovementFixMode().is("Silent") ? MovementCorrection.Silent : MovementCorrection.Strict));

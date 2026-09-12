@@ -20,6 +20,12 @@ import cn.omix.module.value.impl.NumberValue;
 import cn.omix.util.Util;
 import cn.omix.util.misc.TimerSpeedUtil;
 import cn.omix.util.player.MovementUtil;
+import cn.omix.util.network.PacketUtil;
+import net.minecraft.block.SlabBlock;
+import net.minecraft.block.StairsBlock;
+import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.block.Blocks;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.util.PlayerInput;
@@ -29,9 +35,13 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 
 public class Speed extends Module {
-    private final ModeValue mode = new ModeValue("Mode", "Ground", "Ground", "Vulcan", "Prediction", "Prediction2", "Normal");
+    private final ModeValue mode = new ModeValue("Mode", "Ground", "Ground", "Vulcan", "Prediction", "Prediction2", "Normal",
+            "Vanilla", "Smooth Vanilla", "Hypixel NCP Hop", "Modern MMC",
+            "Boost", "Flag Boost", "NCP", "Verus", "Miniblox");
     private final BoolValue damageBoost = new BoolValue("Damage Boost", false,  () -> mode.is("Vulcan"));
-    private final NumberValue vanillaSpeed = new NumberValue("Speed", 1, 1, 5, 0.1f, () -> mode.is("Ground"));
+    private final NumberValue vanillaSpeed = new NumberValue("Speed", 1, 0.1f, 10, 0.1f,
+            () -> mode.is("Ground") || mode.is("Vanilla") || mode.is("Smooth Vanilla") || mode.is("Flag Boost"));
+    private final BoolValue vanillaAutoBHop = new BoolValue("Auto BHop", true, () -> mode.is("Vanilla"));
     private final NumberValue timerBoostMultiplier = new NumberValue("Timer Boost Multiplier", 0.75F, 0.1F, 1.0F, 0.05F, this::isPredictionMode);
     private final NumberValue lowTimerTicks = new NumberValue("Low Timer Ticks", 6, 1, 10, 1, this::isPredictionMode);
     private final BoolValue rotation = new BoolValue("Rotation", false, this::isPredictionMode);
@@ -39,6 +49,11 @@ public class Speed extends Module {
     private final NumberValue friction = new NumberValue("Friction", 1.0F, 0.0F, 10.0F, 0.1F, () -> mode.is("Normal"));
     private final NumberValue strafe = new NumberValue("Strafe", 0, 0, 100, 1, () -> mode.is("Normal"));
     private final BoolValue lagBackCheck = new BoolValue("LagBack Check", true);
+
+    private String activeMode;
+    private int airTicks;
+    private int flagBoostTicks;
+    private float boostSpeed;
 
     private int ticks;
     private float yaw;
@@ -61,6 +76,8 @@ public class Speed extends Module {
 
     @Override
     public void onEnable() {
+        activeMode = mode.getValue();
+        resetAddedModes();
         ticks = 0;
         finished = false;
         rotated = false;
@@ -70,6 +87,9 @@ public class Speed extends Module {
 
     @Override
     public void onDisable() {
+        stopMode(activeMode);
+        resetAddedModes();
+        activeMode = null;
         resetPredictionTimer();
         rotated = false;
         lastPredictionMode = null;
@@ -77,6 +97,7 @@ public class Speed extends Module {
 
     @EventTarget
     public void onTick(TickEvent event) {
+        syncMode();
         String predictionMode = isPredictionMode() ? mode.getValue() : null;
         if (mc.player == null || predictionMode == null) {
             if (lastPredictionMode != null) {
@@ -179,6 +200,12 @@ public class Speed extends Module {
 
     @EventTarget
     public void onMoveInput(MoveInputEvent event) {
+        syncMode();
+        if (mc.player != null && mc.player.isOnGround()
+                && (event.getForward() != 0 || event.getStrafe() != 0) && usesAutoHop()) {
+            // Suppress only this tick's input; never overwrite the physical jump key.
+            event.setJumping(false);
+        }
         if (isPredictionMode()
                 && rotation.getValue()
                 && rotated
@@ -216,6 +243,13 @@ public class Speed extends Module {
     @EventTarget
     @EventPriority(100)
     public void onLivingUpdate(LivingUpdateEvent event) {
+        syncMode();
+        if (mc.player == null || mc.world == null) {
+            resetAddedModes();
+            return;
+        }
+        airTicks = mc.player.isOnGround() ? 0 : airTicks + 1;
+        updateAddedModes();
         if (!mode.is("Normal") || !canBoost()) return;
 
         PlayerInput input = mc.player.input.playerInput;
@@ -234,9 +268,14 @@ public class Speed extends Module {
     public void onMotion(MotionEvent e) {
         if (mc.player == null) return;
 
+        syncMode();
         setSuffix(mode.getValue());
         if (e.isPre()) {
             switch (mode.getValue()) {
+                case "Modern MMC" -> {
+                    if (MovementUtil.isMoving() && mc.player.isOnGround()) mc.player.jump();
+                }
+                case "Flag Boost" -> handleFlagBoostMotion(e);
                 case "Ground" -> {
                     if (MovementUtil.isMoving() && mc.player.isOnGround()) {
                         MovementUtil.strafe(vanillaSpeed.getValue() / 4);
@@ -261,10 +300,213 @@ public class Speed extends Module {
 
     @EventTarget
     public void onPacket(PacketEvent event) {
-        if (lagBackCheck.getValue() && event.getPacket() instanceof PlayerPositionLookS2CPacket) {
+        syncMode();
+        if (mc.player == null || mc.world == null) return;
+        if (event.getType() == PacketEvent.Type.Send) {
+            if (mode.is("Modern MMC") && !event.isCancelled() && event.getPacket() instanceof PlayerMoveC2SPacket) {
+                PacketUtil.sendPacket(new PlayerInputC2SPacket(
+                        new PlayerInput(false, false, false, false, true, true, false)));
+            }
+            return;
+        }
+        if (!(event.getPacket() instanceof PlayerPositionLookS2CPacket) || event.isCancelled()) return;
+        // This correction is the handshake that starts Flag Boost's acceleration cycle.
+        if (mode.is("Flag Boost") && flagBoostTicks == 3) {
+            flagBoostTicks = 4;
+            return;
+        }
+        if (lagBackCheck.getValue()) {
             Util.log("Lag detected!");
             toggle();
         }
+    }
+
+    private void updateAddedModes() {
+        boolean moving = MovementUtil.isMoving();
+        switch (mode.getValue()) {
+            case "Vanilla" -> {
+                if (vanillaAutoBHop.getValue() && mc.player.isOnGround() && moving) mc.player.jump();
+                referenceStrafe(vanillaSpeed.getValue());
+            }
+            case "Smooth Vanilla" -> {
+                if (!mc.player.isOnGround() && moving) {
+                    MovementUtil.addSpeed(vanillaSpeed.getValue() / 4.0,
+                            (float) Math.toDegrees(MovementUtil.getDirection()));
+                }
+            }
+            case "Hypixel NCP Hop" -> updateHypixelHop();
+            case "Boost" -> {
+                if (mc.player.isTouchingWater()) return;
+                if (!moving) {
+                    boostSpeed = 0;
+                } else if (mc.player.isOnGround()) {
+                    referenceStrafe(Math.max(0.24f, boostSpeed));
+                    mc.player.jump();
+                    if (!mc.player.horizontalCollision) boostSpeed = Math.min(boostSpeed + 0.1f, 1f);
+                } else {
+                    referenceStrafe(Math.max(0.24f, MovementUtil.getSpeed()));
+                }
+            }
+            case "Flag Boost" -> {
+                if (flagBoostTicks >= 7 && flagBoostTicks != 9 && flagBoostTicks != 10 && flagBoostTicks < 12) {
+                    stopHorizontal();
+                    flagBoostTicks++;
+                }
+            }
+            case "NCP" -> {
+                if (mc.player.isTouchingWater() || !moving) return;
+                if (mc.player.isOnGround()) {
+                    mc.player.jump();
+                    referenceStrafe(Math.max(0.47f + speedEffectLevel() * 0.1, baseMoveSpeed(0.2873)));
+                } else {
+                    referenceStrafe(Math.max(0.24f, MovementUtil.getSpeed()));
+                }
+            }
+            case "Verus" -> {
+                boolean speedEffect = mc.player.hasStatusEffect(StatusEffects.SPEED);
+                if (mc.player.isOnGround()) {
+                    if (moving) mc.player.jump();
+                    referenceStrafe(speedEffect ? 0.53f : 0.48f);
+                } else {
+                    referenceStrafe(speedEffect ? 0.38f : 0.33f);
+                }
+            }
+            case "Miniblox" -> {
+                if (mc.player.isOnGround()) {
+                    referenceStrafe(0.36f);
+                    if (moving) mc.player.jump();
+                } else {
+                    switch (airTicks) {
+                        case 3 -> setVerticalSpeed(-0.2);
+                        case 5 -> {
+                            referenceStrafe(0.7f);
+                            setVerticalSpeed(0.3);
+                        }
+                        case 10 -> {
+                            referenceStrafe(0.8f);
+                            setVerticalSpeed(0.2);
+                        }
+                        case 18 -> {
+                            referenceStrafe(0.6f);
+                            setVerticalSpeed(0.2);
+                        }
+                        default -> referenceStrafe(0.3f);
+                    }
+                }
+            }
+        }
+    }
+
+    private void updateHypixelHop() {
+        if (mc.player.isTouchingWater() || mc.player.isSpectator() || isScaffoldActive()) return;
+
+        // Port the standalone branch: this project has no Hypixel motion-disabler state.
+        if (mc.player.isOnGround()) {
+            if (MovementUtil.isMoving()) mc.player.jump();
+            referenceStrafe(speedAdjustedStrafe(0.481f, 0.036f, 0.12f));
+        } else {
+            var below = mc.world.getBlockState(mc.player.getBlockPos().down());
+            if (below.isAir() || below.getBlock() instanceof SlabBlock || below.getBlock() instanceof StairsBlock) return;
+            switch (airTicks) {
+                case 1 -> referenceStrafe(baseMoveSpeed(0.2873));
+                case 10 -> {
+                    if (mc.player.hurtTime == 0) {
+                        setVerticalSpeed(-0.28);
+                        referenceStrafe(speedAdjustedStrafe(0.305f, 0.036f, 0.044f));
+                    }
+                }
+                case 11 -> referenceStrafe(baseMoveSpeed(0.2713));
+                case 12 -> stopHorizontal();
+            }
+        }
+    }
+
+    private void handleFlagBoostMotion(MotionEvent event) {
+        if (flagBoostTicks >= 12) {
+            flagBoostTicks = 0;
+            return;
+        }
+        if (flagBoostTicks < 3) flagBoostTicks++;
+        switch (flagBoostTicks) {
+            case 3 -> event.setY(event.getY() - (mc.player.isOnGround() ? 1 : 3));
+            case 4, 6 -> flagBoostTicks++;
+            case 5 -> {
+                event.setCancelled();
+                referenceStrafe(vanillaSpeed.getValue());
+                flagBoostTicks++;
+            }
+            case 9, 10 -> {
+                referenceStrafe(vanillaSpeed.getValue());
+                flagBoostTicks++;
+            }
+        }
+    }
+
+    private boolean usesAutoHop() {
+        return switch (mode.getValue()) {
+            case "Vanilla" -> vanillaAutoBHop.getValue();
+            case "Hypixel NCP Hop" -> !mc.player.isTouchingWater() && !mc.player.isSpectator() && !isScaffoldActive();
+            case "Boost", "NCP" -> !mc.player.isTouchingWater();
+            case "Modern MMC", "Verus", "Miniblox" -> true;
+            default -> false;
+        };
+    }
+
+    private boolean isScaffoldActive() {
+        Scaffold scaffold = getModule(Scaffold.class);
+        ScaffoldX scaffoldX = getModule(ScaffoldX.class);
+        return (scaffold != null && scaffold.isEnabled()) || (scaffoldX != null && scaffoldX.isEnabled());
+    }
+
+    private int speedEffectLevel() {
+        var effect = mc.player.getStatusEffect(StatusEffects.SPEED);
+        return effect == null ? 0 : effect.getAmplifier() + 1;
+    }
+
+    private double baseMoveSpeed(double base) {
+        return base * (1.0 + 0.2 * speedEffectLevel());
+    }
+
+    private float speedAdjustedStrafe(float base, float firstLevelBonus, float higherLevelBonus) {
+        int level = speedEffectLevel();
+        return base + (level == 0 ? 0 : level == 1 ? firstLevelBonus : higherLevelBonus);
+    }
+
+    private void setVerticalSpeed(double speed) {
+        mc.player.setVelocity(mc.player.getVelocity().x, speed, mc.player.getVelocity().z);
+    }
+
+    private void stopHorizontal() {
+        if (mc.player != null) mc.player.setVelocity(0, mc.player.getVelocity().y, 0);
+    }
+
+    private void referenceStrafe(double speed) {
+        // Krs strafe stops horizontal motion without input; the shared utility here does not.
+        if (MovementUtil.isMoving()) MovementUtil.strafe(speed);
+        else stopHorizontal();
+    }
+
+    private void resetAddedModes() {
+        airTicks = 0;
+        flagBoostTicks = 0;
+        boostSpeed = 0;
+    }
+
+    private void stopMode(String previousMode) {
+        if (previousMode == null) return;
+        switch (previousMode) {
+            case "Vanilla", "Flag Boost", "NCP", "Verus", "Boost", "Miniblox" -> stopHorizontal();
+        }
+    }
+
+    private void syncMode() {
+        if (mode.getValue().equals(activeMode)) return;
+        stopMode(activeMode);
+        resetAddedModes();
+        resetPredictionTimer();
+        rotated = false;
+        lastPredictionMode = null;
+        activeMode = mode.getValue();
     }
 
     public boolean isPredictionRotationActive() {
