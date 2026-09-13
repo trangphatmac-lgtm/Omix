@@ -4,7 +4,7 @@
 
 ## GuiMove
 
-允许在部分 GUI 打开时继续读取移动按键，从而在界面中移动玩家。
+允许在部分 GUI 打开时继续读取移动按键，从而在界面中移动玩家。ChestArua 或 ChestStealer 开启时，箱子界面内暂停移动输入，关闭后恢复。
 
 源码：`src/main/java/cn/omix/module/impl/move/GuiMove.java`。
 

@@ -50,26 +50,26 @@
 
 ## ChestArua
 
-寻找附近未打开的箱子并交互，可与 ChestStealer 配合；界面保留 ChestArua 拼写。
+寻找附近未打开的箱子并交互，可与 ChestStealer 配合；界面保留 ChestArua 拼写。开箱请求串行执行，等待箱子界面期间阻止原版右键和其他模块重复交互；失败后同一 tick 不重试，等待界面超过 2 秒时解除等待。箱子界面内暂停真实移动、跳跃、潜行和疾跑输入（包括 GuiMove）；经正常玩家 tick 同步停止后才允许自动取物和关箱。提前按 Esc 的关箱请求延后执行，关闭后恢复输入及原有疾跑。
 
 源码：`src/main/java/cn/omix/module/impl/player/ChestArua.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
 | Mode | Auto 自动寻找和打开；Manual 在玩家触发使用操作时寻找附近箱子并转向交互。 | 模式；默认 Auto；可选 Auto / Manual |
-| Allow Sprint | 允许疾跑时工作；关闭后，玩家疾跑时 Auto 和 Manual 均暂停寻找、转向和交互。 | 布尔；默认 true |
-| Sprint Bypass | Auto 和 Manual 开箱前暂停已有疾跑，箱子界面期间阻止重新疾跑，关闭箱子后立即恢复；不主动开启原本未开启的疾跑。Allow Sprint 关闭时仍禁止疾跑中开箱；交互失败或等待界面超过 2 秒时恢复。 | 布尔；默认 false |
+| Allow Sprint | 允许疾跑时工作；关闭后，Auto 和 Manual 均须等本地停止疾跑并由正常玩家 tick 同步后才工作。 | 布尔；默认 true |
+| Sprint Bypass | Auto 和 Manual 先在移动计算前暂停疾跑，经正常玩家 tick 同步后再开箱；等待和箱子界面期间阻止重新疾跑，关闭时立即恢复原有本地疾跑，由正常 tick 发包。开箱失败或等待界面超过 2 秒时恢复；不会开启原本未开启的疾跑，不覆盖 Allow Sprint 的限制；转向时自动修正移动方向。 | 布尔；默认 false |
 | Range | 寻找箱子的最大距离，单位方块。 | 数值；默认 4.5；1.0–6.0；步长 0.1 |
 | Delay | Auto 两次交互的间隔，单位毫秒。 | 数值；默认 250；0–1000；步长 25；显示条件：Mode = Auto |
-| Rotate | Auto 交互前转向箱子；Manual 始终处理转向。 | 布尔；默认 true；显示条件：Mode = Auto |
-| Movement Fix | Auto 转向时修正移动方向。 | 布尔；默认 false；显示条件：Mode = Auto 且 Rotate 开启 |
+| Rotate | Auto 交互前转向箱子；Manual 始终处理转向。转向交互使用已发送朝向的实际方块射线命中（Through Walls 除外），接管与退出时保持 yaw 连续。 | 布尔；默认 true；显示条件：Mode = Auto |
+| Movement Fix | Auto 转向时修正移动方向；Manual 或 Sprint Bypass 开启时自动启用修正。 | 布尔；默认 false；显示条件：Mode = Auto 且 Rotate 开启 |
 | Through Walls | 允许寻找被墙遮挡的箱子。 | 布尔；默认 false |
 | Ender Chests | 把末影箱也列为目标。 | 布尔；默认 true |
 | Swing | 交互成功后显示挥手动作。 | 布尔；默认 true |
 
 ## ChestStealer
 
-打开容器后自动把选中的物品快捷转移到背包。
+打开容器后自动把选中的物品快捷转移到背包。箱子界面内暂停真实移动、跳跃、潜行和疾跑输入；经正常玩家 tick 同步停止后才开始取物和关箱，Instant 或零延迟同样适用。手动提前关箱也会等待同步完成，关闭后恢复输入及原有疾跑。
 
 源码：`src/main/java/cn/omix/module/impl/player/ChestStealer.java`。
 

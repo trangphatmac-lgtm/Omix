@@ -5,6 +5,7 @@ import cn.omix.event.impl.RotationAppliedEvent;
 import cn.omix.event.impl.TickEvent;
 import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.impl.player.ChestArua;
+import cn.omix.module.impl.player.chest.ChestScreenGuard;
 import cn.omix.util.IMinecraft;
 import cn.omix.util.Util;
 import im.webui.WebUiRuntime;
@@ -51,6 +52,7 @@ public abstract class MixinMinecraftClient implements IMinecraft {
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo ci) {
+        ChestScreenGuard.clientTick();
         if (mc.player == null || mc.world == null) return;
 
         if (mc.player.isOnGround()) {
@@ -82,11 +84,13 @@ public abstract class MixinMinecraftClient implements IMinecraft {
 
     @Inject(method = "setWorld(Lnet/minecraft/client/world/ClientWorld;)V", at = @At("HEAD"))
     private void setWorld(ClientWorld world, CallbackInfo ci) {
+        ChestScreenGuard.clear();
         instance.getEventManager().call(new WorldEvent(world));
     }
 
     @Inject(method = "setScreen", at = @At("RETURN"))
     private void omix$chestAruaScreenChanged(CallbackInfo ci) {
+        ChestScreenGuard.screenChanged();
         if (instance == null || instance.getModuleManager() == null) return;
 
         ChestArua chestArua = instance.getModuleManager().getModule(ChestArua.class);

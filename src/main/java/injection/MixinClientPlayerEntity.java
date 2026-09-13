@@ -3,6 +3,7 @@ package injection;
 import cn.omix.Client;
 import cn.omix.event.impl.*;
 import cn.omix.module.impl.player.Freecam;
+import cn.omix.module.impl.player.chest.ChestScreenGuard;
 import cn.omix.module.impl.world.GhostHand;
 import cn.omix.util.IMinecraft;
 import com.mojang.authlib.GameProfile;
@@ -92,6 +93,7 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
 
     @Inject(method = "tick", at = @At("RETURN"))
     private void omix$restoreFreecamInput(CallbackInfo ci) {
+        ChestScreenGuard.playerTickCompleted();
         omix$restoreFreecamInput();
     }
 
@@ -131,7 +133,13 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
 
     @Inject(method = "tickMovement", at = @At("HEAD"))
     private void tickMovement(CallbackInfo ci) {
+        ChestScreenGuard.beforePlayerMovement();
         Client.instance.getEventManager().call(new LivingUpdateEvent());
+    }
+
+    @Inject(method = "closeHandledScreen", at = @At("HEAD"), cancellable = true)
+    private void omix$waitForNeutralChestInput(CallbackInfo ci) {
+        if (ChestScreenGuard.deferClose()) ci.cancel();
     }
 
     @Inject(method = "move", at = @At("HEAD"), cancellable = true)

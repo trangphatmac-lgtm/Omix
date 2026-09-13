@@ -12,6 +12,8 @@ import cn.omix.module.impl.move.Speed;
 import cn.omix.module.impl.player.AntiLava;
 import cn.omix.module.impl.player.AutoBlockIn;
 import cn.omix.module.impl.player.ChestArua;
+import cn.omix.module.impl.player.chest.ChestInteractionState;
+import injection.accessor.ClientPlayerEntityAccessor;
 import cn.omix.module.impl.world.ScaffoldX;
 import cn.omix.module.impl.world.Scaffold;
 import cn.omix.util.IMinecraft;
@@ -30,6 +32,8 @@ public class RotationManager implements IMinecraft {
     public static MovementCorrection correctMovement;
     private static double rotationSpeed;
     private static boolean enabled;
+    private boolean chestRotationSelected;
+    private boolean previousMotionUsedChestRotation;
 
     public RotationManager() {
         instance.getEventManager().register(this);
@@ -47,6 +51,7 @@ public class RotationManager implements IMinecraft {
     @EventPriority(999)
     public void onLivingUpdate(LivingUpdateEvent event) {
         if (mc.player == null) return;
+        chestRotationSelected = false;
 
         Aura aura = instance.getModuleManager().getModule(Aura.class);
         TargetStrafe targetStrafe = instance.getModuleManager().getModule(TargetStrafe.class);
@@ -64,7 +69,8 @@ public class RotationManager implements IMinecraft {
         boolean yawOnlyRotation = false;
 
         if (chestArua.isManualRotationActive()) {
-            setRotations(chestArua.getRotations(), 0.0, MovementCorrection.None);
+            setRotations(chestArua.getRotations(), 0.0, chestArua.getMovementCorrection());
+            chestRotationSelected = true;
             instantRotation = true;
         } else if (derpActive) {
             setRotations(derp.getRotations(), 0.0, MovementCorrection.None);
@@ -83,6 +89,7 @@ public class RotationManager implements IMinecraft {
             setRotations(aura.getRotations(), aura.getRotationSpeed().getValue(), aura.getMovementFixMode().is("None") ? MovementCorrection.None : (aura.getMovementFixMode().is("Silent") ? MovementCorrection.Silent : MovementCorrection.Strict));
         } else if (chestArua.isRotationActive()) {
             setRotations(chestArua.getRotations(), 180.0, chestArua.getMovementCorrection());
+            chestRotationSelected = true;
         } else if (targetStrafe.isLegitRotationActive()) {
             setRotations(targetStrafe.getRotations(), 180, MovementCorrection.Strict);
             visibleRotation = !targetStrafe.getSilentAim().getValue();
@@ -118,6 +125,10 @@ public class RotationManager implements IMinecraft {
             currentRotations[1] = mc.player.getPitch();
             lastRotations[1] = mc.player.lastPitch;
             targetRotations[1] = mc.player.getPitch();
+        }
+        if (chestRotationSelected) {
+            float sentYaw = ((ClientPlayerEntityAccessor) mc.player).getLastYaw();
+            currentRotations[0] = ChestInteractionState.nearestYaw(sentYaw, currentRotations[0]);
         }
         if (visibleRotation) {
             mc.player.setYaw(currentRotations[0]);
@@ -172,7 +183,25 @@ public class RotationManager implements IMinecraft {
                 e.setYaw(currentRotations[0]);
                 e.setPitch(currentRotations[1]);
             }
+            if (chestRotationSelected || previousMotionUsedChestRotation) {
+                float yaw = ChestInteractionState.nearestYaw(
+                        ((ClientPlayerEntityAccessor) mc.player).getLastYaw(), e.getYaw());
+                e.setYaw(yaw);
+                if (!enabled) {
+                    // Keep the camera's equivalent full-turn representation on release,
+                    // otherwise the next vanilla packet would undo the continuity fix.
+                    float offset = yaw - mc.player.getYaw();
+                    mc.player.setYaw(yaw);
+                    mc.player.lastYaw += offset;
+                }
+            }
+            previousMotionUsedChestRotation = chestRotationSelected;
         }
+    }
+
+    @EventTarget
+    public void onWorld(WorldEvent event) {
+        chestRotationSelected = previousMotionUsedChestRotation = false;
     }
 
     @EventTarget

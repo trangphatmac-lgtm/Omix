@@ -1,6 +1,7 @@
 package injection;
 
 import cn.omix.event.impl.MoveInputEvent;
+import cn.omix.module.impl.player.chest.ChestScreenGuard;
 import cn.omix.util.IMinecraft;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.input.KeyboardInput;
@@ -37,6 +38,10 @@ public abstract class MixinKeyboardInput extends Input implements IMinecraft {
             this.playerInput = new PlayerInput(
                     movementChanged ? newForward > 0 : this.playerInput.forward(), movementChanged ? newForward < 0 : this.playerInput.backward(),
                     movementChanged ? newStrafe > 0 : this.playerInput.left(), movementChanged ? newStrafe < 0 : this.playerInput.right(), newJump, newSneak, this.playerInput.sprint());
+        }
+        if (ChestScreenGuard.suppressInput()) {
+            this.movementVector = Vec2f.ZERO;
+            this.playerInput = PlayerInput.DEFAULT;
         }
     }
 }

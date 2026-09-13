@@ -5,6 +5,7 @@ import cn.omix.event.impl.MoveMathEvent;
 import cn.omix.event.impl.RenderRotationEvent;
 import cn.omix.module.impl.move.KeepSprint;
 import cn.omix.module.impl.player.ChestArua;
+import cn.omix.module.impl.player.chest.ChestScreenGuard;
 import cn.omix.module.impl.render.AntiDebuff;
 import cn.omix.module.impl.render.Animation;
 import cn.omix.util.IMinecraft;
@@ -29,7 +30,7 @@ public abstract class MixinLivingEntity implements IMinecraft {
                 || instance == null || instance.getModuleManager() == null) return;
 
         ChestArua chestArua = instance.getModuleManager().getModule(ChestArua.class);
-        if (chestArua != null && chestArua.isSprintSuppressed()) {
+        if (ChestScreenGuard.suppressInput() || chestArua != null && chestArua.isSprintSuppressed()) {
             ci.cancel();
         }
     }

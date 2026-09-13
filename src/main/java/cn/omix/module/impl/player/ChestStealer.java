@@ -4,6 +4,7 @@ import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.MotionEvent;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
+import cn.omix.module.impl.player.chest.ChestScreenGuard;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.NumberValue;
 import cn.omix.util.misc.TimerUtil;
@@ -38,6 +39,7 @@ public class ChestStealer extends Module {
         setSuffix(instant ? "Instant" : String.format("%.1f", delay.getValue()));
 
         if (mc.currentScreen instanceof GenericContainerScreen container) {
+            if (!ChestScreenGuard.canUseContainer()) return;
             if (instant && instantExecuted) return;
             if (!instant && !openTimer.hasTimeElapsed(openDelay.getValue().longValue())) return;
 
