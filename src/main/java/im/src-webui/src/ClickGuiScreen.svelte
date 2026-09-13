@@ -25,6 +25,7 @@
         max?: number;
         step?: number;
         keyName?: string;
+        mouseAllowed?: boolean;
         options?: Array<string | MultiOption>;
     }
 
@@ -164,10 +165,13 @@
             try {
                 const packet = JSON.parse(String(event.data)) as {
                     name?: string;
-                    event?: {route?: string};
+                    event?: {route?: string; button?: number};
                 };
                 if (packet.name === "screenClosing" && packet.event?.route === "clickgui") {
                     beginClose();
+                }
+                if (packet.name === "mouseBindingInput" && typeof packet.event?.button === "number") {
+                    void finishMouseBinding(packet.event.button);
                 }
             } catch {
                 // Ignore unrelated or malformed socket packets.
@@ -391,6 +395,17 @@
         );
     }
 
+    async function finishMouseBinding(button: number) {
+        const target = bindingTarget;
+        if (!target?.setting || !Number.isInteger(button) || button < 2 || button > 7) return;
+        const module = state.modules.find(candidate => candidate.name === target.module);
+        const setting = module?.settings.find(candidate => candidate.name === target.setting);
+        if (!setting?.mouseAllowed) return;
+        bindingTarget = null;
+        selectedModuleName = target.module;
+        await setSetting(setting, button - 100);
+    }
+
     async function runConfigAction(action: "create" | "load" | "save" | "delete") {
         const name = action === "create" ? configName.trim() : selectedConfig;
         if (!name || pendingAction) return;
@@ -532,6 +547,7 @@
     }
 
     function keyLabel(key: number) {
+        if (key >= -100 && key <= -93) return key === -98 ? "MOUSE MIDDLE" : `MOUSE ${key + 101}`;
         if (key <= 0) return "NONE";
         if (key >= 65 && key <= 90) return String.fromCharCode(key);
         if (key >= 48 && key <= 57) return String.fromCharCode(key);
@@ -1116,7 +1132,7 @@
                                                 >
                                                     {bindingTarget?.module === selectedModule.name
                                                         && bindingTarget.setting === setting.name
-                                                        ? "Press a key…"
+                                                        ? (setting.mouseAllowed ? "按键 / 中键 / 侧键…" : "Press a key…")
                                                         : setting.keyName}
                                                 </button>
                                             </div>

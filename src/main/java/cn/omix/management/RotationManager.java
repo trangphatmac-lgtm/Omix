@@ -10,6 +10,7 @@ import cn.omix.module.impl.move.Derp;
 import cn.omix.module.impl.move.NoFall;
 import cn.omix.module.impl.move.Speed;
 import cn.omix.module.impl.player.AntiLava;
+import cn.omix.module.impl.player.AutoBlockIn;
 import cn.omix.module.impl.player.ChestArua;
 import cn.omix.module.impl.world.ScaffoldX;
 import cn.omix.module.impl.world.Scaffold;
@@ -52,6 +53,7 @@ public class RotationManager implements IMinecraft {
         Derp derp = instance.getModuleManager().getModule(Derp.class);
         Speed speed = instance.getModuleManager().getModule(Speed.class);
         AntiLava antiLava = instance.getModuleManager().getModule(AntiLava.class);
+        AutoBlockIn autoBlockIn = instance.getModuleManager().getModule(AutoBlockIn.class);
         ChestArua chestArua = instance.getModuleManager().getModule(ChestArua.class);
         ScaffoldX scaffoldX = instance.getModuleManager().getModule(ScaffoldX.class);
         Scaffold scaffold = instance.getModuleManager().getModule(Scaffold.class);
@@ -69,6 +71,10 @@ public class RotationManager implements IMinecraft {
             instantRotation = true;
         } else if (antiLava.isEnabled() && antiLava.getRotations() != null) {
             setRotations(antiLava.getRotations(), 180, antiLava.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
+        } else if (autoBlockIn.isPlacing() && autoBlockIn.getRotations() != null) {
+            setRotations(autoBlockIn.getRotations(), 0.0, MovementCorrection.Silent);
+            // AutoBlockIn already applies the original speed/randomization curve.
+            instantRotation = true;
         } else if (scaffoldX.isEnabled() && scaffoldX.isCanRotation() && scaffoldX.getRotations() != null) {
             setRotations(scaffoldX.getRotations(), scaffoldX.getRotationSpeed().getValue(), scaffoldX.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
         } else if (scaffold.isEnabled() && !scaffold.getRotationMode().is("On tick") && scaffold.isCanRotation() && scaffold.getRotations() != null) {

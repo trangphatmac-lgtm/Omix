@@ -231,6 +231,7 @@ public final class ClickGuiInteropBridge {
                 result.addProperty("type", "key");
                 result.addProperty("value", key.getValue());
                 result.addProperty("keyName", KeyUtil.getKeyName(key.getValue()));
+                result.addProperty("mouseAllowed", key.isMouseAllowed());
             }
             default -> result.addProperty("type", "unsupported");
         }

@@ -50,6 +50,7 @@
     "MixinTextRenderer",
     "MixinWorldRenderer",
     "MixinWindow",
+    "accessor.BlockItemAccessor",
     "accessor.ClientPlayerEntityAccessor",
     "accessor.ChatHudAccessor",
     "accessor.ClientWorldAccessor",

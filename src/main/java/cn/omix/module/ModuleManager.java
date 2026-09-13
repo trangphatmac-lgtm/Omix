@@ -99,6 +99,7 @@ public class ModuleManager implements IMinecraft {
                 new ChestStealer(),
                 new InventoryManager(),
                 new AutoTool(),
+                new AutoBlockIn(),
                 new AutoArmor(),
                 new AntiHunger(),
                 new AntiLava(),

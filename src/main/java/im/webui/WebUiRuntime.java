@@ -335,6 +335,18 @@ public final class WebUiRuntime {
     }
 
     public void mouseButton(int button, int action) {
+        // CEF does not reliably expose GLFW side buttons as DOM mouse events.
+        // Deliver their original indices to the ClickGUI binding control directly.
+        if (button >= 2 && button <= 7 && interopServer != null
+                && MinecraftClient.getInstance().currentScreen instanceof WebUiScreen screen
+                && screen.getType().equals(WebScreenType.CLICK_GUI)) {
+            if (action == 1) {
+                JsonObject event = new JsonObject();
+                event.addProperty("button", button);
+                interopServer.broadcast("mouseBindingInput", event);
+            }
+            return;
+        }
         inputRouter.mouseButton(button, action);
     }
 

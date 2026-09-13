@@ -41,7 +41,8 @@ public final class KeyComponent extends Component {
         var font = instance.getFontManager().getFont(16);
         int alpha = MathHelper.clamp((int) (255.0F * finalProgress), 0, 255);
         float textY = y + (14.0F - font.getHeight()) / 2.0F + 1.0F;
-        String keyName = binding ? "Press key..." : KeyUtil.getKeyName(keyValue.getValue());
+        String keyName = binding ? (keyValue.isMouseAllowed() ? "Key / mouse..." : "Press key...")
+                : KeyUtil.getKeyName(keyValue.getValue());
 
         font.drawString(context, keyValue.getName(), x + 4.0F, textY,
                 new Color(204, 204, 204, alpha).getRGB());
@@ -51,6 +52,13 @@ public final class KeyComponent extends Component {
 
     @Override
     public void mouseClicked(double mouseX, double mouseY, int button) {
+        KeyValue keyValue = (KeyValue) getValue();
+        if (binding && keyValue.isMouseAllowed() && keyValue.isVisible()
+                && button >= GLFW.GLFW_MOUSE_BUTTON_MIDDLE && button <= GLFW.GLFW_MOUSE_BUTTON_LAST) {
+            keyValue.setValue(KeyUtil.mouseKeyCode(button));
+            binding = false;
+            return;
+        }
         if (button == 0 && hovered(mouseX, mouseY) && visibleAnimation.getValue().floatValue() > 0.8F) {
             binding = true;
         } else if (!hovered(mouseX, mouseY)) {

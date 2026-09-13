@@ -8,6 +8,12 @@ import java.util.function.Supplier;
 @Getter
 public final class KeyValue extends Value {
     private volatile int value;
+    private boolean mouseAllowed;
+
+    public KeyValue(String name, int value, boolean mouseAllowed) {
+        this(name, value);
+        this.mouseAllowed = mouseAllowed;
+    }
 
     public KeyValue(String name, int value, Supplier<Boolean> visible) {
         super(name, visible);
