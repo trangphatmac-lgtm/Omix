@@ -4,19 +4,24 @@ import cn.omix.event.base.annotation.EventPriority;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.AttackEvent;
 import cn.omix.event.impl.LivingUpdateEvent;
+import cn.omix.event.impl.PacketEvent;
 import cn.omix.event.impl.TickEvent;
+import cn.omix.event.impl.UpdateEvent;
 import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
+import cn.omix.module.impl.combat.Aura;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.util.hit.HitResult;
 
 public class KeepSprint extends Module {
-    public final ModeValue mode = new ModeValue("Mode", "Vanilla", "Vanilla", "Legit", "Grim", "Buffer");
+    public final ModeValue mode = new ModeValue("Mode", "Vanilla", "Vanilla", "Legit", "Grim", "Buffer", "Universal");
 
     // Kept as Motion instead of Slowdown so existing KeepSprint configs remain compatible.
     public final NumberValue motion = new NumberValue("Motion", 1, 0, 1, .1f, () -> mode.is("Vanilla"));
@@ -40,6 +45,11 @@ public class KeepSprint extends Module {
     private Entity bufferedTarget;
     private int bufferDelayTicks;
     private boolean replayingBufferedAttack;
+    private int attackPending;
+    private int velocityTicks;
+    private int groundTicks;
+    private boolean sprintCancelled;
+    private Entity lastTarget;
 
     public KeepSprint() {
         super("KeepSprint", Category.Move);
@@ -58,6 +68,7 @@ public class KeepSprint extends Module {
             case "Legit" -> false;
             case "Grim" -> !grimGroundOnly.getValue() || mc.player.isOnGround();
             case "Buffer" -> true;
+            case "Universal" -> lastTarget instanceof PlayerEntity;
             default -> (!groundOnly.getValue() || mc.player.isOnGround())
                     && (!reachOnly.getValue() || isOutsideVanillaReach());
         };
@@ -69,7 +80,7 @@ public class KeepSprint extends Module {
 
     public boolean shouldOverrideHitSlowdown() {
         return isEnabled()
-                && (mode.is("Vanilla") || mode.is("Grim"))
+                && (mode.is("Vanilla") || mode.is("Grim") || mode.is("Universal"))
                 && shouldKeepSprint();
     }
 
@@ -77,7 +88,7 @@ public class KeepSprint extends Module {
         return switch (mode.getValue()) {
             case "Legit" -> 0.6;
             case "Grim" -> getGrimFactor();
-            case "Buffer" -> 1.0;
+            case "Buffer", "Universal" -> 1.0;
             default -> 0.6 + 0.4 * motion.getValue();
         };
     }
@@ -103,9 +114,64 @@ public class KeepSprint extends Module {
 
     @EventTarget
     public void onAttack(AttackEvent event) {
+        if (mc.player == null) return;
+
         if (mode.is("Legit")) {
             disableSprintTicks = 3;
+        } else if (mode.is("Universal")) {
+            lastTarget = event.getEntity();
+            attackPending = Math.max(attackPending, 2);
+            if (lastTarget instanceof PlayerEntity && prepareAttack()) {
+                event.setCancelled();
+            }
         }
+    }
+
+    /** Returns true when the caller should defer this attack to stop sprinting first. */
+    public boolean prepareAttack() {
+        if (!isEnabled() || !mode.is("Universal") || mc.player == null || velocityTicks < 8) {
+            return false;
+        }
+        if (groundTicks == 1) return true;
+        if (!mc.player.isSprinting()) return false;
+
+        mc.player.setSprinting(false);
+        mc.options.sprintKey.setPressed(false);
+        sprintCancelled = true;
+        return true;
+    }
+
+    public boolean shouldCancelJump() {
+        return isEnabled() && mode.is("Universal") && sprintCancelled
+                && mc.player != null && !mc.player.isSprinting();
+    }
+
+    @EventTarget
+    @EventPriority(0)
+    public void onUpdate(UpdateEvent event) {
+        if (mc.player == null) return;
+
+        if (velocityTicks < Integer.MAX_VALUE) velocityTicks++;
+        groundTicks = mc.player.isOnGround() ? Math.min(groundTicks, Integer.MAX_VALUE - 1) + 1 : 0;
+        if (mc.player.isSprinting() || !mode.is("Universal") || !hasAttackTarget()) {
+            sprintCancelled = false;
+        }
+        if (attackPending > 0) attackPending--;
+    }
+
+    @EventTarget
+    public void onPacket(PacketEvent event) {
+        if (event.getType() == PacketEvent.Type.Received
+                && event.getPacket() instanceof EntityVelocityUpdateS2CPacket velocity
+                && mc.player != null && velocity.getEntityId() == mc.player.getId()) {
+            velocityTicks = 0;
+        }
+    }
+
+    private boolean hasAttackTarget() {
+        Aura aura = getModule(Aura.class);
+        return (aura != null && aura.isEnabled() && aura.getTarget() instanceof PlayerEntity)
+                || (attackPending > 0 && lastTarget instanceof PlayerEntity);
     }
 
     @EventTarget
@@ -149,21 +215,32 @@ public class KeepSprint extends Module {
     @EventTarget
     public void onWorld(WorldEvent event) {
         clearBuffer();
+        resetUniversal();
     }
 
     @Override
     public void onEnable() {
         disableSprintTicks = 0;
         clearBuffer();
+        resetUniversal();
     }
 
     @Override
     public void onDisable() {
         clearBuffer();
-        if (mc.player != null && mode.is("Legit")) {
+        if (mc.player != null && (mode.is("Legit") || sprintCancelled)) {
             int keyCode = InputUtil.fromTranslationKey(mc.options.sprintKey.getBoundKeyTranslationKey()).getCode();
             mc.options.sprintKey.setPressed(InputUtil.isKeyPressed(mc.getWindow(), keyCode));
         }
+        resetUniversal();
+    }
+
+    private void resetUniversal() {
+        attackPending = 0;
+        velocityTicks = 0;
+        groundTicks = 0;
+        sprintCancelled = false;
+        lastTarget = null;
     }
 
     private boolean isOutsideVanillaReach() {

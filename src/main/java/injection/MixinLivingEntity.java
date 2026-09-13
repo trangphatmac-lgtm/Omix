@@ -3,6 +3,7 @@ package injection;
 import cn.omix.event.impl.JumpEvent;
 import cn.omix.event.impl.MoveMathEvent;
 import cn.omix.event.impl.RenderRotationEvent;
+import cn.omix.module.impl.move.KeepSprint;
 import cn.omix.module.impl.render.AntiDebuff;
 import cn.omix.module.impl.render.Animation;
 import cn.omix.util.IMinecraft;
@@ -49,6 +50,16 @@ public abstract class MixinLivingEntity implements IMinecraft {
             if (event.isCancelled()) {
                 ci.cancel();
             }
+        }
+    }
+
+    @Inject(method = "jump", at = @At("HEAD"), cancellable = true)
+    private void omix$keepSprintJump(CallbackInfo ci) {
+        if (mc.player == null || (Object) this != mc.player || instance.getModuleManager() == null) return;
+
+        KeepSprint keepSprint = instance.getModuleManager().getModule(KeepSprint.class);
+        if (keepSprint != null && keepSprint.shouldCancelJump()) {
+            ci.cancel();
         }
     }
 

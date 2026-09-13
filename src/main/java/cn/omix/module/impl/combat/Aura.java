@@ -7,6 +7,7 @@ import cn.omix.event.impl.UpdateEvent;
 import cn.omix.management.RotationManager;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
+import cn.omix.module.impl.move.KeepSprint;
 import cn.omix.module.impl.world.ScaffoldX;
 import cn.omix.module.impl.world.Scaffold;
 import cn.omix.module.value.impl.BoolValue;
@@ -20,6 +21,7 @@ import cn.omix.util.player.RayCastUtil;
 import cn.omix.util.player.RotationUtil;
 import lombok.Getter;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
@@ -117,6 +119,10 @@ public class Aura extends Module {
                 }
 
                 if (attackTimer.hasTimeElapsed(700L / getCps())) {
+                    KeepSprint keepSprint = getModule(KeepSprint.class);
+                    if (target instanceof PlayerEntity && keepSprint != null && keepSprint.prepareAttack()) {
+                        return;
+                    }
                     doAttack(target);
                     attackTimer.reset();
                 }
