@@ -7,6 +7,9 @@ import cn.omix.event.impl.TickEvent;
 import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
+import cn.omix.module.impl.world.Scaffold;
+import cn.omix.module.impl.world.ScaffoldX;
+import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
 import net.minecraft.item.Items;
@@ -22,6 +25,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public final class AntiVoid extends Module {
     private final ModeValue mode = new ModeValue("Mode", "Blink", "Blink");
     private final NumberValue distance = new NumberValue("Distance", 5.0, 0.0, 16.0, 0.5);
+    private final BoolValue disablerWhileScaffold = new BoolValue("Disabler While Scaffold", false);
 
     private boolean inVoid;
     private boolean wasInVoid;
@@ -56,6 +60,11 @@ public final class AntiVoid extends Module {
         }
 
         setSuffix(mode.getValue());
+        if (disablerWhileScaffold.getValue() && isScaffoldActive()) {
+            resetState();
+            return;
+        }
+
         handlePearlUse();
 
         inVoid = !mc.player.getAbilities().allowFlying && isOverVoid(mc.player.getBoundingBox());
@@ -107,6 +116,12 @@ public final class AntiVoid extends Module {
     @EventTarget
     public void onWorld(WorldEvent event) {
         resetState();
+    }
+
+    private boolean isScaffoldActive() {
+        Scaffold scaffold = getModule(Scaffold.class);
+        ScaffoldX scaffoldX = getModule(ScaffoldX.class);
+        return (scaffold != null && scaffold.isEnabled()) || (scaffoldX != null && scaffoldX.isEnabled());
     }
 
     private void handlePearlUse() {

@@ -1,9 +1,11 @@
 package injection;
 
+import ai.backend.AiContainerTools;
 import cn.omix.event.impl.PlayerPositionLookEvent;
 import cn.omix.util.IMinecraft;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
+import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -12,6 +14,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler implements IMinecraft {
+
+    @Inject(method = "onInventory", at = @At("RETURN"))
+    private void afterContainerInventoryApplied(InventoryS2CPacket packet, CallbackInfo ci) {
+        AiContainerTools.inventorySynchronized(mc, packet.syncId());
+    }
 
     @Inject(
             method = "onPlayerPositionLook",

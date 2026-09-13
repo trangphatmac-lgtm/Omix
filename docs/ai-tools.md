@@ -1,6 +1,6 @@
 # AI Tools
 
-源码：`src/main/java/ai/backend/MinecraftCommandToolExecutor.java`。以下 14 个工具供 Agent 使用。工具参数是 JSON 对象，字段名称区分大小写；无参数工具传 `{}`，不要添加未声明字段。静态工具说明不代替每次请求提供的实时工具 schema 和可用命令列表。需要进入游戏、连接服务器或安装 Baritone 的工具，在条件不满足时返回错误信息。
+源码：`src/main/java/ai/backend/MinecraftCommandToolExecutor.java`、`src/main/java/ai/backend/AiContainerTools.java`。以下 19 个工具供 Agent 使用。工具参数是 JSON 对象，字段名称区分大小写；无参数工具传 `{}`，不要添加未声明字段。静态工具说明不代替每次请求提供的实时工具 schema 和可用命令列表。需要进入游戏、连接服务器或安装 Baritone 的工具，在条件不满足时返回错误信息。
 
 ## run_minecraft_command
 
@@ -57,6 +57,47 @@
 ## getcommandsuggestion
 
 读取与游戏聊天栏相同的命令/文本补全，可返回候选、替换范围和提示文字；包含客户端与 Minecraft/服务器补全，等待上限约 5 秒。参数 **`perfix`**：必填字符串，最长 256，可为空；拼写按现有协议保留，不能改成 prefix。例：`{"perfix":".aura "}`、`{"perfix":"/give "}`。工具只查询补全，不执行命令。
+
+## getnearbycontainer
+
+发现玩家附近已加载的方块容器及方块实体提供的交互界面，按玩家位置到方块中心的距离排序。包括箱子、陷阱箱、木桶、潜影盒、末影箱、熔炉、漏斗等；不扫描箱子矿车、运输船等实体容器。参数 `range`：必填整数，3–20，球形半径，单位方块。例：`{"range":8}`。
+
+返回 `pos` 坐标字符串、方块 ID、距离、`withinReach`（是否在当前玩家正常交互距离内）、`visible`（是否能射线命中容器的中心或某一面）。发现范围不扩大交互距离；可见且够得着也不保证容器未锁定、上方无遮挡或服务器允许打开。大箱子的两个方块可能分别出现，打开后由服务器提供合并槽位。扫描不读取方块实体里的物品缓存，`contentsKnown` 为 false；必须打开后用 `getcontainer` 查看内容。
+
+## opencontainer
+
+使用主手按原版右键交互指定方块容器。参数 `pos`：必填非空坐标字符串，支持绝对整数和相对玩家位置的 `~` 坐标，规则与 `getspecificblock` 一致。例：`{"pos":"~ ~ ~2"}`。
+
+玩家必须存活、非旁观、非潜行；已有容器界面时应先查看并关闭。目标必须处于已加载区块、正常交互距离内，且射线能命中目标，否则返回错误，可先移动到合适位置。此工具不自动寻路。返回 `interaction_submitted` 和 `clientAccepted`，只说明已尝试交互，不保证服务端已打开或已发送物品。接着调用 `getcontainer`；仍未打开时检查锁定、遮挡、服务器限制及模块干扰，不能报告已成功查看。
+
+## getcontainer
+
+读取当前打开的容器界面，无参数：`{}`。没有容器时返回 `no_open_container`；界面已打开但原版尚未应用首个服务器完整物品同步包时返回 `awaiting_sync`，稍后重试，不能把此状态当成空箱子。
+
+同步后返回 `open`、界面标题、类型、`syncId`、`revision`、`snapshotId`、光标持有物品 `cursor`，以及所有 `slots`（含空槽）。每个槽位带 `slot`、底层 `inventoryIndex`、`owner`（player/container）、物品 ID、名称、数量、堆叠/耐久信息、是否启用及可取出状态。操作时必须使用此处的 `slot`，不能直接使用 `getinventory` 的背包编号。箱子、熔炉等界面的槽位布局不同，不应硬编码容器大小。首次同步后，读取仍可能包含原版客户端预测，因此 `serverConfirmed` 为 false，不表示每次操作均已获服务器确认。
+
+每次成功读取生成新的 `snapshotId`，旧快照失效。取放或关闭需要最新快照；界面实例、服务端 revision、任意槽位或光标物品发生变化时也会拒绝旧快照，包括玩家手动点击、ChestStealer 等模块导致的本地变化。遇到冲突应重新读取；持续被模块改变时可根据任务需要调整相关模块。
+
+## clickcontainerslot
+
+在当前容器内执行一次原版槽位点击，可取出、放入、拆分、快速转移或与快捷栏/副手交换物品。参数均必填：
+
+| 参数 | 含义 |
+| --- | --- |
+| `snapshotId` | 最新 `getcontainer` 返回的非空快照标识。 |
+| `slot` | 该快照中的非负整数槽位 ID，必须存在且已启用。 |
+| `action` | 大小写敏感：`PICKUP`、`QUICK_MOVE` 或 `SWAP`。 |
+| `button` | `PICKUP` 为 0（左键）或 1（右键）；`QUICK_MOVE` 为 0；`SWAP` 为 0–8（快捷栏）或 40（副手）。 |
+
+例：`{"snapshotId":"从 getcontainer 获取","slot":0,"action":"QUICK_MOVE","button":0}`。Shift 点击容器槽通常取到背包，点击玩家槽通常存入容器；熔炉等特殊槽位的接受规则、移动方向与结果由原版界面和服务器决定。`PICKUP` 左键可拿起/放下一组，右键可拿起半组或放入单个；可多次读取并点击来精确取放。工具不支持界面外点击、丢弃、拖拽及一键双击收集。
+
+每次提交消耗快照，返回 `click_submitted`；随后必须重新调用 `getcontainer` 查看光标和槽位结果，再进行下一步，不能重放旧请求。工具遵循现有容器移动同步保护，尚未就绪时返回错误并允许稍后重试。服务器仍可能拒绝或纠正客户端预测，提交不等于转移已完成。
+
+## closecontainer
+
+关闭已查看且未改变的容器界面，并通过原版流程通知服务器。参数 `snapshotId`：必填非空字符串，使用最新 `getcontainer` 快照。例：`{"snapshotId":"从 getcontainer 获取"}`。光标必须为空；如仍拿着物品，应先用 `clickcontainerslot` 放入合适槽位，再重新读取并关闭，以免关闭时发生意外掉落。通常返回 `closed`；现有容器保护延迟关闭时返回 `close_pending`，可再用 `getcontainer` 确认。
+
+推荐流程：`getnearbycontainer` → 移动到可交互位置 → `opencontainer` → `getcontainer` → 按最新快照 `clickcontainerslot` → 再次 `getcontainer` 核对 → 光标清空后 `closecontainer`。
 
 ## 结果使用
 

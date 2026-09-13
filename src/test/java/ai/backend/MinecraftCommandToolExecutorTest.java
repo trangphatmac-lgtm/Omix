@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MinecraftCommandToolExecutorTest {
     @Test
-    void exposesAllCommandAndReadOnlyTools() {
+    void exposesAllCommandInspectionAndContainerTools() {
         AiToolSnapshot snapshot = MinecraftCommandToolExecutor.buildSnapshot(
                 List.of("/help"),
                 List.of(".toggle")
@@ -40,7 +40,12 @@ class MinecraftCommandToolExecutorTest {
                 "getscoreboard",
                 "getchatmessage",
                 "sendchatmessage",
-                "getcommandsuggestion"
+                "getcommandsuggestion",
+                "getnearbycontainer",
+                "opencontainer",
+                "getcontainer",
+                "clickcontainerslot",
+                "closecontainer"
         ), names);
 
         JsonObject nearby = findTool(snapshot.definitions(), "getnearbyblock");

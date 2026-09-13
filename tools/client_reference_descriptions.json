@@ -271,7 +271,8 @@
     "description": "玩家离开安全地面后暂存移动包，跌落超过阈值时尝试回到之前的安全位置。",
     "settings": {
       "Mode": "当前只有 Blink，使用移动包暂存保护。",
-      "Distance": "相对最后安全位置允许下降的距离，单位方块。"
+      "Distance": "相对最后安全位置允许下降的距离，单位方块。",
+      "Disabler While Scaffold": "Scaffold 或 ScaffoldX 开启时暂停 AntiVoid 保护，释放其暂存的数据包并重置保护状态；搭路模块关闭后自动恢复保护。"
     }
   },
   "NoFall": {

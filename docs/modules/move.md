@@ -156,6 +156,7 @@
 | --- | --- | --- |
 | Mode | 当前只有 Blink，使用移动包暂存保护。 | 模式；默认 Blink；可选 Blink |
 | Distance | 相对最后安全位置允许下降的距离，单位方块。 | 数值；默认 5.0；0.0–16.0；步长 0.5 |
+| Disabler While Scaffold | Scaffold 或 ScaffoldX 开启时暂停 AntiVoid 保护，释放其暂存的数据包并重置保护状态；搭路模块关闭后自动恢复保护。 | 布尔；默认 false |
 
 ## NoFall
 

@@ -60,6 +60,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 final class MinecraftCommandToolExecutor implements AiToolExecutor {
+    private final AiContainerTools containerTools = new AiContainerTools();
     private static final String MINECRAFT_TOOL = "run_minecraft_command";
     private static final String CLIENT_TOOL = "run_client_command";
     private static final String BARITONE_TOOL = "run_baritone_command";
@@ -140,6 +141,7 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
         tools.add(chatMessageTool());
         tools.add(sendChatMessageTool());
         tools.add(commandSuggestionTool());
+        AiContainerTools.addDefinitions(tools);
 
         String promptContext = """
                 You can operate or inspect the game through these tools:
@@ -157,6 +159,13 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
                 - getchatmessage reads the requested number of most recent original chat entries.
                 - sendchatmessage sends one plain player chat message; it cannot execute '/' or '.' commands.
                 - getcommandsuggestion returns the same completions as the current chat input for the given perfix.
+                - getnearbycontainer discovers loaded block containers; their contents are unknown until opened.
+                - opencontainer right-clicks a reachable, visible container at pos; then use getcontainer to inspect it.
+                - getcontainer reads the open container after initial server synchronization, including slot IDs and snapshotId.
+                - clickcontainerslot uses a fresh snapshotId to pick up/place, quick-move, or hotbar-swap a slot.
+                - closecontainer closes the inspected container only when the cursor is empty.
+                Container actions are submitted to the server, not proof of completion. Read getcontainer again after
+                each click; never reuse snapshotId or inventory indices from getinventory as container slot IDs.
 
                 Command-tool results contain every new plain-text chat line observed during the 0.5 seconds after \
                 command execution. An empty-window marker means the command produced no immediate chat output; it \
@@ -188,7 +197,7 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
                 validateCommand(call.name(), command);
             } else {
                 command = null;
-                validateReadOnlyArguments(call.name(), arguments);
+                validateStructuredArguments(call.name(), arguments);
             }
         } catch (Exception exception) {
             return CompletableFuture.completedFuture("Tool rejected the request: " + errorMessage(exception));
@@ -218,6 +227,10 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
     ) {
         try {
             showStructuredToolCall(toolName, arguments);
+            if (AiContainerTools.supports(toolName)) {
+                result.complete(containerTools.execute(client, toolName, arguments).toString());
+                return;
+            }
             if (toolName.equals(GET_COMMAND_SUGGESTION_TOOL)) {
                 getCommandSuggestions(client, arguments.get("perfix").getAsString())
                         .orTimeout(COMMAND_SUGGESTION_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -303,7 +316,8 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
 
     private void showStructuredToolCall(String toolName, JsonObject arguments) {
         String suffix = arguments.isEmpty() ? "" : " " + arguments;
-        String type = toolName.equals(SEND_CHAT_MESSAGE_TOOL) ? "Chat" : "Read Only";
+        String type = toolName.equals(SEND_CHAT_MESSAGE_TOOL) ? "Chat"
+                : AiContainerTools.isAction(toolName) ? "Container" : "Read Only";
         Util.log("&bAI Tool &8[&7" + type + "&8] &f" + toolName + suffix);
     }
 
@@ -770,7 +784,7 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
         return result;
     }
 
-    private static JsonObject itemStack(ItemStack stack) {
+    static JsonObject itemStack(ItemStack stack) {
         JsonObject result = new JsonObject();
         if (stack == null || stack.isEmpty()) {
             result.addProperty("empty", true);
@@ -878,7 +892,11 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
         return command;
     }
 
-    private static void validateReadOnlyArguments(String toolName, JsonObject arguments) {
+    private static void validateStructuredArguments(String toolName, JsonObject arguments) {
+        if (AiContainerTools.supports(toolName)) {
+            AiContainerTools.validateArguments(toolName, arguments);
+            return;
+        }
         switch (toolName) {
             case GET_INVENTORY_TOOL, GET_LOOKING_BLOCK_TOOL, GET_LOOKING_ENTITY_TOOL,
                     GET_ALL_CONFIG_TOOL, GET_SCOREBOARD_TOOL -> {
