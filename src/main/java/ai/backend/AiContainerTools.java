@@ -3,9 +3,12 @@ package ai.backend;
 import cn.omix.module.impl.player.chest.ChestScreenGuard;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import injection.accessor.ClientPlayerEntityAccessor;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.EnderChestBlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
@@ -25,6 +28,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /** Container discovery and vanilla screen interactions. All world/state access runs on the client thread. */
 public final class AiContainerTools {
@@ -34,6 +39,87 @@ public final class AiContainerTools {
     // A newly opened handler contains placeholder empty slots until vanilla applies its first inventory packet.
     private static final WeakHashMap<ScreenHandler, Boolean> SYNCHRONIZED = new WeakHashMap<>();
     private AiContainerSnapshot<ItemStack> lastSnapshot;
+    private static PendingOpen pendingOpen;
+
+    private static final class PendingOpen {
+        final ClientPlayerEntity player;
+        final ClientWorld world;
+        final BlockPos pos;
+        final CompletableFuture<JsonObject> result = new CompletableFuture<>();
+        final long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(3);
+        AiContainerRotation rotation;
+        boolean movementCompleted;
+
+        PendingOpen(MinecraftClient client, BlockPos pos) {
+            this.player = client.player;
+            this.world = client.world;
+            this.pos = pos;
+        }
+
+        void aim(BlockHitResult hit) {
+            // Aim just inside the hit surface to avoid floating-point edge misses.
+            Vec3d target = hit.getPos().lerp(pos.toCenterPos(), 0.001);
+            rotation = AiContainerRotation.toward(player.getEyePos(), target);
+            player.setYaw(rotation.yaw());
+            player.setPitch(rotation.pitch());
+            movementCompleted = false;
+        }
+    }
+
+    /** Called only after the normal, non-cancelled player movement update has run. */
+    public static void playerMovementUpdated(MinecraftClient client) {
+        PendingOpen pending = pendingOpen;
+        if (pending != null && pending.player == client.player && pending.world == client.world) {
+            pending.movementCompleted = true;
+        }
+    }
+
+    /** Normal next-tick interaction phase, including when the AI WebUI consumes input events. */
+    public static void clientTick(MinecraftClient client) {
+        PendingOpen pending = pendingOpen;
+        if (pending == null) return;
+        if (pending.result.isDone()) {
+            pendingOpen = null;
+            return;
+        }
+        try {
+            if (System.nanoTime() >= pending.deadline) {
+                throw new IllegalStateException("Container rotation synchronization timed out; no interaction was sent.");
+            }
+            if (client.player != pending.player || client.world != pending.world || client.interactionManager == null) {
+                throw new IllegalStateException("World or player changed while turning toward the container.");
+            }
+            requireOpeningPlayer(client);
+            if (!isContainer(client, pending.pos) || !client.player.canInteractWithBlockAt(pending.pos, 0)) {
+                throw new IllegalStateException("Container disappeared or moved outside interaction reach while turning.");
+            }
+            ClientPlayerEntityAccessor sent = (ClientPlayerEntityAccessor) client.player;
+            if (pending.rotation.ready(pending.movementCompleted, sent.getLastYaw(), sent.getLastPitch())) {
+                Vec3d eye = client.player.getEyePos();
+                Vec3d end = eye.add(Vec3d.fromPolar(sent.getLastPitch(), sent.getLastYaw())
+                        .multiply(client.player.getBlockInteractionRange()));
+                BlockHitResult hit = client.world.raycast(new RaycastContext(eye, end,
+                        RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, client.player));
+                if (hit.getType() == HitResult.Type.BLOCK && hit.getBlockPos().equals(pending.pos)) {
+                    // Consume before interacting: callbacks or later ticks must never send a duplicate click.
+                    pendingOpen = null;
+                    var action = client.interactionManager.interactBlock(client.player, Hand.MAIN_HAND, hit);
+                    JsonObject result = describeBlock(client, pending.pos);
+                    result.addProperty("status", "interaction_submitted");
+                    result.addProperty("clientAccepted", action.isAccepted());
+                    result.addProperty("message", "Rotation update sent before interaction. Use getcontainer to check server opening and inventory synchronization.");
+                    pending.result.complete(result);
+                    return;
+                }
+            }
+            BlockHitResult visible = visibleHit(client, pending.pos);
+            if (visible == null) throw new IllegalStateException("Container became obstructed while turning.");
+            pending.aim(visible);
+        } catch (Exception exception) {
+            pendingOpen = null;
+            pending.result.completeExceptionally(exception);
+        }
+    }
 
     public static void inventorySynchronized(MinecraftClient client, int syncId) {
         if (client.player != null && syncId != 0 && client.player.currentScreenHandler.syncId == syncId) {
@@ -56,7 +142,9 @@ public final class AiContainerTools {
                         + "opened; withinReach and visible do not guarantee the server will allow opening.",
                 "range", integer(3, 20, "Search radius in blocks; discovery does not extend interaction reach.")));
         tools.add(tool("opencontainer",
-                "Right-click a visible block container within normal player reach. Requires no other container open "
+                "Turn toward a visible block container within normal player reach, wait for a normal player rotation "
+                        + "update, then verify the sent direction hits it before right-clicking on the next tick. "
+                        + "Times out after 3 seconds without interacting if rotation cannot synchronize. Requires no other container open "
                         + "and no sneaking. Returns submission status, not contents or guaranteed success. Use getcontainer next.",
                 "pos", string("Absolute or player-relative block coordinates, e.g. '100 64 -20' or '~ ~ ~2'.")));
         tools.add(tool("getcontainer",
@@ -115,19 +203,19 @@ public final class AiContainerTools {
         }
     }
 
-    JsonObject execute(MinecraftClient client, String name, JsonObject arguments) {
+    CompletableFuture<JsonObject> execute(MinecraftClient client, String name, JsonObject arguments) {
         if (client.player == null || client.world == null || client.interactionManager == null) {
             lastSnapshot = null;
             throw new IllegalStateException("The player is not connected to a world.");
         }
-        return switch (name) {
+        if (name.equals("opencontainer")) return open(client, arguments.get("pos").getAsString());
+        return CompletableFuture.completedFuture(switch (name) {
             case "getnearbycontainer" -> nearby(client, arguments.get("range").getAsInt());
-            case "opencontainer" -> open(client, arguments.get("pos").getAsString());
             case "getcontainer" -> inspect(client);
             case "clickcontainerslot" -> click(client, arguments);
             case "closecontainer" -> close(client, arguments.get("snapshotId").getAsString());
             default -> throw new IllegalArgumentException("Unknown container tool: " + name);
-        };
+        });
     }
 
     private JsonObject nearby(MinecraftClient client, int range) {
@@ -156,12 +244,22 @@ public final class AiContainerTools {
         return result;
     }
 
-    private JsonObject open(MinecraftClient client, String coordinates) {
+    private static void requireOpeningPlayer(MinecraftClient client) {
         if (client.player.currentScreenHandler != client.player.playerScreenHandler) {
             throw new IllegalStateException("Another container is open. Inspect and close it first.");
         }
         if (!client.player.isAlive() || client.player.isSpectator() || client.player.isSneaking()) {
             throw new IllegalStateException("Opening requires an alive, non-spectating player who is not sneaking.");
+        }
+        if (client.player.hasVehicle() || client.getCameraEntity() != client.player) {
+            throw new IllegalStateException("Opening requires the player's own camera and no vehicle.");
+        }
+    }
+
+    private CompletableFuture<JsonObject> open(MinecraftClient client, String coordinates) {
+        requireOpeningPlayer(client);
+        if (pendingOpen != null && !pendingOpen.result.isDone()) {
+            throw new IllegalStateException("A container opening is already waiting for rotation synchronization.");
         }
         BlockPos pos = MinecraftCommandToolExecutor.parseBlockPosition(coordinates,
                 client.player.getX(), client.player.getY(), client.player.getZ());
@@ -172,12 +270,17 @@ public final class AiContainerTools {
         BlockHitResult hit = visibleHit(client, pos);
         if (hit == null) throw new IllegalArgumentException("Container is obstructed. Move to a visible face first.");
         lastSnapshot = null;
-        var action = client.interactionManager.interactBlock(client.player, Hand.MAIN_HAND, hit);
-        JsonObject result = describeBlock(client, pos);
-        result.addProperty("status", "interaction_submitted");
-        result.addProperty("clientAccepted", action.isAccepted());
-        result.addProperty("message", "Use getcontainer to check whether the server opened a container and synchronized its contents.");
-        return result;
+        PendingOpen pending = new PendingOpen(client, pos);
+        pending.aim(hit);
+        pendingOpen = pending;
+        CompletableFuture.delayedExecutor(3, TimeUnit.SECONDS).execute(() -> client.execute(() -> {
+            if (pendingOpen == pending) {
+                pendingOpen = null;
+                pending.result.completeExceptionally(new IllegalStateException(
+                        "Container rotation synchronization timed out; no interaction was sent."));
+            }
+        }));
+        return pending.result;
     }
 
     private JsonObject inspect(MinecraftClient client) {

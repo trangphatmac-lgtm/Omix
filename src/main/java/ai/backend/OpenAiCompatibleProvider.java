@@ -27,8 +27,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 final class OpenAiCompatibleProvider implements AiProvider {
     private static final Duration MODEL_REQUEST_TIMEOUT = Duration.ofSeconds(30);
     private static final Duration CHAT_REQUEST_TIMEOUT = Duration.ofMinutes(5);
-    private static final int MAX_TOOL_ROUNDS = 25;
-    private static final int MAX_TOOL_CALLS_PER_ROUND = 25;
+    private static final int MAX_TOOL_ROUNDS = 99;
+    private static final int MAX_TOOL_CALLS_PER_ROUND = 99;
 
     private final AiConfig config;
     private final HttpClient httpClient;

@@ -160,7 +160,7 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
                 - sendchatmessage sends one plain player chat message; it cannot execute '/' or '.' commands.
                 - getcommandsuggestion returns the same completions as the current chat input for the given perfix.
                 - getnearbycontainer discovers loaded block containers; their contents are unknown until opened.
-                - opencontainer right-clicks a reachable, visible container at pos; then use getcontainer to inspect it.
+                - opencontainer turns toward a reachable, visible container, waits for a normal rotation update, then right-clicks; use getcontainer next.
                 - getcontainer reads the open container after initial server synchronization, including slot IDs and snapshotId.
                 - clickcontainerslot uses a fresh snapshotId to pick up/place, quick-move, or hotbar-swap a slot.
                 - closecontainer closes the inspected container only when the cursor is empty.
@@ -228,7 +228,8 @@ final class MinecraftCommandToolExecutor implements AiToolExecutor {
         try {
             showStructuredToolCall(toolName, arguments);
             if (AiContainerTools.supports(toolName)) {
-                result.complete(containerTools.execute(client, toolName, arguments).toString());
+                containerTools.execute(client, toolName, arguments).whenComplete((content, error) -> result.complete(
+                        error == null ? content.toString() : "Tool failed: " + errorMessage(error)));
                 return;
             }
             if (toolName.equals(GET_COMMAND_SUGGESTION_TOOL)) {

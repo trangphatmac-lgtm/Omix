@@ -1,5 +1,6 @@
 package injection;
 
+import ai.backend.AiContainerTools;
 import cn.omix.Client;
 import cn.omix.event.impl.*;
 import cn.omix.module.impl.player.Freecam;
@@ -261,6 +262,7 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
                 this.lastOnGround = event.isOnGround();
                 this.lastHorizontalCollision = event.isHorizontalCollision();
                 this.autoJumpEnabled = this.client.options.getAutoJump().getValue();
+                AiContainerTools.playerMovementUpdated(this.client);
             }
 
             event.setPost();

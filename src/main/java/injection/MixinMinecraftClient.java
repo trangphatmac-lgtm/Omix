@@ -1,5 +1,6 @@
 package injection;
 
+import ai.backend.AiContainerTools;
 import cn.omix.Client;
 import cn.omix.event.impl.RotationAppliedEvent;
 import cn.omix.event.impl.TickEvent;
@@ -53,6 +54,7 @@ public abstract class MixinMinecraftClient implements IMinecraft {
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo ci) {
         ChestScreenGuard.clientTick();
+        AiContainerTools.clientTick(mc);
         if (mc.player == null || mc.world == null) return;
 
         if (mc.player.isOnGround()) {
