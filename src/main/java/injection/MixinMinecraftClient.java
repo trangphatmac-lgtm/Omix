@@ -85,6 +85,14 @@ public abstract class MixinMinecraftClient implements IMinecraft {
         instance.getEventManager().call(new WorldEvent(world));
     }
 
+    @Inject(method = "setScreen", at = @At("RETURN"))
+    private void omix$chestAruaScreenChanged(CallbackInfo ci) {
+        if (instance == null || instance.getModuleManager() == null) return;
+
+        ChestArua chestArua = instance.getModuleManager().getModule(ChestArua.class);
+        if (chestArua != null) chestArua.onScreenChanged();
+    }
+
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/InactivityFpsLimiter;update()I"))
     private int render(InactivityFpsLimiter instance) {
         return options.getMaxFps().getValue();

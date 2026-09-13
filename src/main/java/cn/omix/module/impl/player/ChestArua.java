@@ -15,6 +15,9 @@ import cn.omix.util.misc.TimerUtil;
 import cn.omix.util.player.RayCastUtil;
 import cn.omix.util.player.RotationUtil;
 import lombok.Getter;
+import injection.accessor.ClientPlayerEntityAccessor;
+import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ChestBlock;
@@ -39,6 +42,8 @@ import java.util.Set;
 @Getter
 public final class ChestArua extends Module {
     private final ModeValue mode = new ModeValue("Mode", "Auto", "Auto", "Manual");
+    private final BoolValue allowSprint = new BoolValue("Allow Sprint", true);
+    private final BoolValue sprintBypass = new BoolValue("Sprint Bypass", false);
     private final NumberValue range = new NumberValue("Range", 4.5F, 1.0F, 6.0F, 0.1F);
     private final NumberValue delay = new NumberValue("Delay", 250, 0, 1000, 25, () -> mode.is("Auto"));
     private final BoolValue rotate = new BoolValue("Rotate", true, () -> mode.is("Auto"));
@@ -57,6 +62,9 @@ public final class ChestArua extends Module {
     private ChestTarget target;
     private float[] rotations;
     private boolean manualPending;
+    private ClientPlayerEntity sprintPlayer;
+    private boolean chestScreenOpened;
+    private final TimerUtil sprintTimer = new TimerUtil();
 
     public ChestArua() {
         super("ChestArua", Category.Player);
@@ -69,6 +77,7 @@ public final class ChestArua extends Module {
 
     @Override
     public void onDisable() {
+        restoreSprint();
         reset();
     }
 
@@ -79,6 +88,15 @@ public final class ChestArua extends Module {
 
     @EventTarget
     public void onLivingUpdate(LivingUpdateEvent event) {
+        if (sprintPlayer != null) {
+            if (sprintPlayer != mc.player || !sprintPlayer.isAlive()) {
+                clearSprintBypass();
+            } else if (!sprintBypass.getValue()
+                    || !chestScreenOpened && sprintTimer.hasTimeElapsed(2000)) {
+                // A server may accept the use packet without opening a screen.
+                restoreSprint();
+            }
+        }
         setSuffix(mode.getValue() + " " + String.format(Locale.ROOT, "%.1f", range.getValue()));
 
         if (!canSearch()) {
@@ -128,8 +146,16 @@ public final class ChestArua extends Module {
             if (raycast == null || !raycast.getBlockPos().equals(target.pos())) return;
         }
 
-        ActionResult result = mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, target.hit());
+        suspendSprint();
+        ActionResult result;
+        try {
+            result = mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, target.hit());
+        } catch (RuntimeException exception) {
+            restoreSprint();
+            throw exception;
+        }
         if (!result.isAccepted()) {
+            restoreSprint();
             if (mode.is("Manual")) cancelManualInteraction();
             return;
         }
@@ -164,7 +190,7 @@ public final class ChestArua extends Module {
     }
 
     public boolean isRotationActive() {
-        return isEnabled() && shouldRotate() && target != null && rotations != null;
+        return isEnabled() && isSprintAllowed() && shouldRotate() && target != null && rotations != null;
     }
 
     public boolean isManualRotationActive() {
@@ -177,12 +203,57 @@ public final class ChestArua extends Module {
                 : MovementCorrection.None;
     }
 
+    private boolean isSprintAllowed() {
+        return allowSprint.getValue() || mc.player != null && !mc.player.isSprinting();
+    }
+
+    public boolean isSprintSuppressed() {
+        return sprintPlayer != null && sprintPlayer == mc.player;
+    }
+
+    private void suspendSprint() {
+        if (!sprintBypass.getValue() || !mc.player.isSprinting()) return;
+
+        sprintPlayer = mc.player;
+        chestScreenOpened = false;
+        sprintTimer.reset();
+        sprintPlayer.setSprinting(false);
+        // Use vanilla bookkeeping so STOP precedes interactBlock without duplicate packets.
+        ((ClientPlayerEntityAccessor) sprintPlayer).omix$sendSprintingPacket();
+    }
+
+    /** Called after screen changes, including manual and ChestStealer closes. */
+    public void onScreenChanged() {
+        if (sprintPlayer == null) return;
+        if (mc.currentScreen instanceof GenericContainerScreen) {
+            chestScreenOpened = true;
+        } else if (chestScreenOpened || mc.currentScreen != null) {
+            restoreSprint();
+        }
+    }
+
+    private void restoreSprint() {
+        ClientPlayerEntity player = sprintPlayer;
+        clearSprintBypass();
+        if (player != null && player == mc.player && player.isAlive() && mc.world != null) {
+            player.setSprinting(true);
+            ((ClientPlayerEntityAccessor) player).omix$sendSprintingPacket();
+        }
+    }
+
+    private void clearSprintBypass() {
+        sprintPlayer = null;
+        chestScreenOpened = false;
+    }
+
     private boolean canSearch() {
         return mc.player != null
                 && mc.world != null
                 && mc.interactionManager != null
                 && mc.player.isAlive()
                 && !mc.player.isSneaking()
+                && isSprintAllowed()
+                && !isSprintSuppressed()
                 && mc.currentScreen == null;
     }
 
@@ -321,6 +392,7 @@ public final class ChestArua extends Module {
     }
 
     private void reset() {
+        clearSprintBypass();
         cancelManualInteraction();
         openedChests.clear();
         interactionTimer.reset();

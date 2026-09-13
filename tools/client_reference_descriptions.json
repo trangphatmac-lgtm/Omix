@@ -335,6 +335,8 @@
     "description": "寻找附近未打开的箱子并交互，可与 ChestStealer 配合；界面保留 ChestArua 拼写。",
     "settings": {
       "Mode": "Auto 自动寻找和打开；Manual 在玩家触发使用操作时寻找附近箱子并转向交互。",
+      "Allow Sprint": "允许疾跑时工作；关闭后，玩家疾跑时 Auto 和 Manual 均暂停寻找、转向和交互。",
+      "Sprint Bypass": "Auto 和 Manual 开箱前暂停已有疾跑，箱子界面期间阻止重新疾跑，关闭箱子后立即恢复；不主动开启原本未开启的疾跑。Allow Sprint 关闭时仍禁止疾跑中开箱；交互失败或等待界面超过 2 秒时恢复。",
       "Range": "寻找箱子的最大距离，单位方块。",
       "Delay": "Auto 两次交互的间隔，单位毫秒。",
       "Rotate": "Auto 交互前转向箱子；Manual 始终处理转向。",
