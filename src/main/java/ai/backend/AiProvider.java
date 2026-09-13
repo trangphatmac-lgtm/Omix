@@ -10,6 +10,7 @@ interface AiProvider {
             AiGameContext gameContext,
             String message,
             AiChatMode mode,
+            List<AiMessage> history,
             AiStreamListener listener
     );
 }

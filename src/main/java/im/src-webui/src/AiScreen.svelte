@@ -51,6 +51,21 @@
         tool_call_id?: string;
     }
 
+    interface Conversation {
+        id: string;
+        title: string;
+        mode: Mode;
+        createdAt: number;
+        updatedAt: number;
+        messageCount: number;
+    }
+
+    interface ConversationList {
+        conversations: Conversation[];
+        selectedConversationId: string;
+        activeConversationId: string;
+    }
+
     interface AiConfiguration {
         baseUrl: string;
         hasApiKey: boolean;
@@ -70,7 +85,32 @@
     let composing = false;
     let socket: WebSocket | null = null;
     let connectionState: "connecting" | "ready" | "offline" = "connecting";
-    let conversations: Record<Mode, Message[]> = {chat: [], agent: []};
+    let conversations: Record<string, Message[]> = {};
+    let conversationList: Conversation[] = [];
+    let selectedId = "";
+    let selectedByMode: Record<Mode, string> = {chat: "", agent: ""};
+    let requestConversationId = "";
+    let backendActiveId = "";
+    let drafts: Record<string, string> = {};
+    let listBusy = false;
+    let listRevision = 0;
+    let historyFailed = false;
+    let historyLoading = true;
+    let listError = "";
+    let search = "";
+    let renameId = "";
+    let renameTitle = "";
+    let deleteId = "";
+    let sidebarOpen = false;
+    let viewportWidth = 1440;
+    let viewportHeight = 900;
+    // CEF can expose the full framebuffer as CSS pixels on high-resolution displays.
+    // Scale the complete UI, while keeping its layout inside the logical viewport.
+    $: uiScale = Math.max(1, Math.min(viewportWidth / 1440, viewportHeight / 900));
+    $: visibleMessages = conversations[selectedId] ?? [];
+    $: currentConversation = conversationList.find(item => item.id === selectedId);
+    $: modeConversations = conversationList.filter(item => item.mode === mode);
+    $: filteredConversations = modeConversations.filter(item => item.title.toLowerCase().includes(search.toLowerCase()));
     let conversationNode: HTMLDivElement;
     let inputNode: HTMLTextAreaElement;
     let activeRequestId = "";
@@ -107,10 +147,14 @@
         connectSocket();
         void acknowledgeScreen();
         void loadConfiguration();
-        void loadConversations();
+        void initializeConversations();
+        const refreshTimer = window.setInterval(() => {
+            if (!listBusy && !historyLoading && !sending && view === "conversation") void refreshConversations();
+        }, 3000);
         void loadAppearance();
 
         return () => {
+            clearInterval(refreshTimer);
             cancelAnimationFrame(firstFrame);
             window.removeEventListener("keydown", onKeyDown);
             socket?.close();
@@ -133,6 +177,7 @@
                 name?: string;
                 event?: {
                     requestId?: string;
+                    conversationId?: string;
                     content?: string;
                     route?: string;
                     toolCallId?: string;
@@ -145,7 +190,8 @@
                 beginClose();
                 return;
             }
-            if (!payload.requestId || payload.requestId !== activeRequestId) {
+            if (!payload.requestId || payload.requestId !== activeRequestId
+                || payload.conversationId !== requestConversationId) {
                 return;
             }
             if (packet.name === "aiDelta") {
@@ -234,33 +280,213 @@
         }
     }
 
-    async function loadConversations() {
-        const restored = await Promise.all((["chat", "agent"] as const).map(async targetMode => {
-            try {
-                const response = await fetch(
-                    `/api/v1/ai/conversation?mode=${encodeURIComponent(targetMode)}`
-                );
-                if (!response.ok || !response.headers.get("content-type")?.includes("application/json")) {
-                    return null;
-                }
-                const body = await response.json() as {messages?: StoredAiMessage[]};
-                return [targetMode, restoreConversation(targetMode, body.messages ?? [])] as const;
-            } catch {
-                return null;
-            }
-        }));
-
-        let next = conversations;
-        for (const entry of restored) {
-            if (entry) {
-                next = {...next, [entry[0]]: entry[1]};
-            }
+    async function readJson<T>(response: Response): Promise<T> {
+        if (!response.ok) throw new Error(await response.text());
+        if (!response.headers.get("content-type")?.includes("application/json")) {
+            throw new Error("AI 服务暂不可用，请重试。");
         }
-        conversations = next;
-        void scrollToBottom();
+        return await response.json() as T;
     }
 
-    function restoreConversation(targetMode: Mode, stored: StoredAiMessage[]) {
+    async function refreshConversations() {
+        const revision = ++listRevision;
+        try {
+            const body = await readJson<ConversationList>(await fetch("/api/v1/ai/conversations"));
+            if (revision !== listRevision) return null;
+            if (!historyFailed) listError = "";
+            const previousActiveId = backendActiveId;
+            conversationList = body.conversations;
+            backendActiveId = body.activeConversationId;
+            if (previousActiveId && previousActiveId !== backendActiveId && !sending) {
+                delete conversations[previousActiveId];
+                if (selectedId === previousActiveId) await loadHistory(selectedId);
+            }
+            return body;
+        } catch (error) {
+            if (revision !== listRevision) return null;
+            listError = error instanceof Error ? error.message : String(error);
+            return null;
+        }
+    }
+
+    async function initializeConversations() {
+        drafts = {...drafts, [draftKey()]: draft};
+        historyLoading = true;
+        historyFailed = false;
+        listError = "";
+        const body = await refreshConversations();
+        if (body) {
+            selectedId = body.selectedConversationId || body.conversations[0]?.id || "";
+            mode = body.conversations.find(item => item.id === selectedId)?.mode ?? "chat";
+            selectedByMode = {...selectedByMode, [mode]: selectedId};
+            draft = drafts[draftKey()] ?? "";
+            if (selectedId) await loadHistory(selectedId);
+            else historyLoading = false;
+        } else {
+            historyLoading = false;
+        }
+    }
+
+    async function loadHistory(id: string) {
+        historyLoading = true;
+        try {
+            const body = await readJson<{messages: StoredAiMessage[]}>(
+                await fetch(`/api/v1/ai/conversation?id=${encodeURIComponent(id)}`)
+            );
+            if (id !== requestConversationId) {
+                conversations = {...conversations, [id]: restoreConversation(id, body.messages)};
+            }
+            historyFailed = false;
+            listError = "";
+            void scrollToBottom();
+        } catch (error) {
+            historyFailed = true;
+            listError = error instanceof Error ? error.message : String(error);
+        } finally {
+            historyLoading = false;
+        }
+    }
+
+    function draftKey() {
+        return selectedId || `new:${mode}`;
+    }
+
+    async function selectMode(nextMode: Mode) {
+        if (listBusy || historyLoading) return;
+        if (nextMode === mode) {
+            view = "conversation";
+            return;
+        }
+        const nextConversation = conversationList.find(item => item.mode === nextMode
+                && item.id === selectedByMode[nextMode])
+            ?? conversationList.find(item => item.mode === nextMode);
+        if (nextConversation) {
+            await selectConversation(nextConversation);
+        } else {
+            drafts = {...drafts, [draftKey()]: draft};
+            mode = nextMode;
+            selectedId = "";
+            draft = drafts[draftKey()] ?? "";
+            view = "conversation";
+            sidebarOpen = false;
+            historyFailed = false;
+            listError = "";
+        }
+        if (mode === nextMode) {
+            search = "";
+            renameId = "";
+            deleteId = "";
+        }
+    }
+
+    async function selectConversation(item: Conversation) {
+        if (listBusy || historyLoading) return;
+        listBusy = true;
+        listRevision++;
+        try {
+            await readJson(await fetch("/api/v1/ai/conversation", {
+                method: "PUT", headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({id: item.id})
+            }));
+            drafts = {...drafts, [draftKey()]: draft};
+            selectedId = item.id;
+            mode = item.mode;
+            selectedByMode = {...selectedByMode, [mode]: selectedId};
+            draft = drafts[draftKey()] ?? "";
+            view = "conversation";
+            sidebarOpen = false;
+            renameId = "";
+            deleteId = "";
+            if (selectedId !== requestConversationId) await loadHistory(selectedId);
+            else void scrollToBottom();
+        } catch (error) {
+            listError = error instanceof Error ? error.message : String(error);
+        } finally {
+            listBusy = false;
+        }
+    }
+
+    async function createConversation(targetMode: Mode = mode): Promise<string> {
+        if (listBusy || historyLoading) return "";
+        listBusy = true;
+        listRevision++;
+        listError = "";
+        try {
+            const item = await readJson<Conversation>(await post("/api/v1/ai/conversations", {mode: targetMode}));
+            drafts = {...drafts, [draftKey()]: draft};
+            conversationList = [item, ...conversationList];
+            selectedId = item.id;
+            mode = item.mode;
+            selectedByMode = {...selectedByMode, [mode]: selectedId};
+            conversations = {...conversations, [selectedId]: []};
+            historyFailed = false;
+            draft = "";
+            view = "conversation";
+            sidebarOpen = false;
+            search = "";
+            deleteId = "";
+            renameId = "";
+            return item.id;
+        } catch (error) {
+            listError = error instanceof Error ? error.message : String(error);
+            return "";
+        } finally {
+            listBusy = false;
+        }
+    }
+
+    async function renameConversation() {
+        if (!renameTitle.trim() || listBusy) return;
+        listBusy = true;
+        listRevision++;
+        try {
+            await readJson(await fetch("/api/v1/ai/conversation", {
+                method: "PUT", headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({id: renameId, title: renameTitle.trim()})
+            }));
+            renameId = "";
+            listError = "";
+            await refreshConversations();
+        } catch (error) {
+            listError = error instanceof Error ? error.message : String(error);
+        } finally {
+            listBusy = false;
+        }
+    }
+
+    async function deleteConversation(id: string) {
+        if (listBusy || id === backendActiveId || id === requestConversationId) return;
+        listBusy = true;
+        listRevision++;
+        try {
+            await readJson(await fetch(`/api/v1/ai/conversation?id=${encodeURIComponent(id)}`, {method: "DELETE"}));
+            delete conversations[id];
+            delete drafts[id];
+            deleteId = "";
+            listError = "";
+            conversationList = conversationList.filter(item => item.id !== id);
+            if (id === selectedId) {
+                selectedId = conversationList.find(item => item.mode === mode)?.id ?? "";
+                selectedByMode = {...selectedByMode, [mode]: selectedId};
+                draft = drafts[draftKey()] ?? "";
+                historyFailed = false;
+                if (selectedId) {
+                    await readJson(await fetch("/api/v1/ai/conversation", {
+                        method: "PUT", headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify({id: selectedId})
+                    }));
+                    if (selectedId !== requestConversationId) await loadHistory(selectedId);
+                }
+            }
+            await refreshConversations();
+        } catch (error) {
+            listError = error instanceof Error ? error.message : String(error);
+        } finally {
+            listBusy = false;
+        }
+    }
+
+    function restoreConversation(targetMode: string, stored: StoredAiMessage[]) {
         const restored: Message[] = [];
         let assistant: Message | null = null;
 
@@ -399,31 +625,27 @@
         return await response.json() as AiConfiguration;
     }
 
-    function selectMode(next: Mode) {
-        if (sending) return;
-        view = "conversation";
-        if (next === mode) return;
-        mode = next;
-        void scrollToBottom();
-    }
-
     async function sendMessage() {
         const content = draft.trim();
-        if (!content || sending) return;
+        if (!content || sending || backendActiveId || listBusy || historyLoading || listError) return;
         if (!socket || socket.readyState !== WebSocket.OPEN) {
             connectionState = "offline";
             return;
         }
 
+        const targetId = selectedId || await createConversation();
+        if (!targetId) return;
         const requestId = globalThis.crypto?.randomUUID?.()
             ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`;
         activeRequestId = requestId;
+        requestConversationId = targetId;
+        backendActiveId = targetId;
         sending = true;
         const targetMode = mode;
         conversations = {
             ...conversations,
-            [targetMode]: [
-                ...conversations[targetMode],
+            [targetId]: [
+                ...(conversations[targetId] ?? []),
                 {
                     id: `${requestId}:user`,
                     role: "user",
@@ -448,20 +670,24 @@
         await tick();
         if (inputNode) inputNode.style.height = "";
         await scrollToBottom();
-        socket.send(JSON.stringify({
-            name: "aiChat",
-            event: {requestId, message: content, mode: targetMode}
-        }));
+        try {
+            socket.send(JSON.stringify({
+                name: "aiChat",
+                event: {requestId, conversationId: targetId, message: content, mode: targetMode}
+            }));
+        } catch (error) {
+            failActiveMessage(error instanceof Error ? error.message : String(error));
+        }
     }
 
     function updateAssistant(requestId: string, update: (message: Message) => Message) {
-        for (const targetMode of ["chat", "agent"] as const) {
+        for (const targetMode of Object.keys(conversations)) {
             const index = conversations[targetMode].findIndex(message => message.id === requestId);
             if (index < 0) continue;
             const messages = [...conversations[targetMode]];
             messages[index] = update(messages[index]);
             conversations = {...conversations, [targetMode]: messages};
-            void scrollToBottom();
+            if (targetMode === selectedId) void scrollToBottom();
             return;
         }
     }
@@ -479,6 +705,9 @@
     function finishRequest() {
         sending = false;
         activeRequestId = "";
+        requestConversationId = "";
+        backendActiveId = "";
+        if (!listBusy) void refreshConversations();
         void loadConfiguration();
     }
 
@@ -551,18 +780,20 @@
     }
 
     async function clearConversation() {
-        if (sending) return;
+        const targetId = selectedId;
+        if (!targetId || targetId === backendActiveId || targetId === requestConversationId) return;
         settingsBusy = true;
         settingsMessage = "";
         try {
             const response = await fetch(
-                `/api/v1/ai/conversation?mode=${encodeURIComponent(mode)}`,
+                `/api/v1/ai/conversation?id=${encodeURIComponent(targetId)}&clear=true`,
                 {method: "DELETE"}
             );
             if (!response.ok) throw new Error(await response.text());
-            conversations = {...conversations, [mode]: []};
+            conversations = {...conversations, [targetId]: []};
+            await refreshConversations();
             await loadConfiguration();
-            settingsMessage = `${mode === "chat" ? "Chat" : "Agent"} 上下文已清空`;
+            settingsMessage = "当前对话的上下文已清空";
         } catch (error) {
             settingsMessage = error instanceof Error ? error.message : String(error);
         } finally {
@@ -571,51 +802,92 @@
     }
 </script>
 
+<svelte:window bind:innerWidth={viewportWidth} bind:innerHeight={viewportHeight} />
+
 <main
     class:mounted
     class:closing
     class:dark-theme={appearance.theme === "dark"}
     class:no-blur={!appearance.blur}
     class="ai-screen"
-    style={`--surface-alpha:${appearance.opacity};--surface-strong-alpha:${Math.min(.96, appearance.opacity + .18)}`}
+    style={`zoom:${uiScale};--ai-viewport-width:${viewportWidth / uiScale}px;--ai-viewport-height:${viewportHeight / uiScale}px;--surface-alpha:${appearance.opacity};--surface-strong-alpha:${Math.min(.96, appearance.opacity + .18)}`}
     aria-label="AI 助手"
 >
-    {#if view === "conversation"}
-        <div class="mode-switcher" role="group" aria-label="AI 模式">
-            <span class:agent={mode === "agent"} class="mode-indicator" aria-hidden="true"></span>
-            <button
-                class:active={mode === "chat"}
-                class="mode-button"
-                type="button"
-                aria-pressed={mode === "chat"}
-                disabled={sending}
-                onclick={() => selectMode("chat")}
-            >
-                <span>Chat</span>
-            </button>
-            <button
-                class:active={mode === "agent"}
-                class="mode-button"
-                type="button"
-                aria-pressed={mode === "agent"}
-                disabled={sending}
-                onclick={() => selectMode("agent")}
-            >
-                <span>Agent</span>
-            </button>
+    <div class="mode-switcher" role="group" aria-label="AI 模式">
+        <span class:agent={mode === "agent"} class="mode-indicator" aria-hidden="true"></span>
+        <button class:active={mode === "chat"} class="mode-button" type="button"
+            aria-pressed={mode === "chat"} disabled={listBusy || historyLoading}
+            onclick={() => selectMode("chat")}><span>Chat</span></button>
+        <button class:active={mode === "agent"} class="mode-button" type="button"
+            aria-pressed={mode === "agent"} disabled={listBusy || historyLoading}
+            onclick={() => selectMode("agent")}><span>Agent</span></button>
+    </div>
+    <aside class:sidebar-open={sidebarOpen} class="conversation-sidebar glass" aria-label={`${mode === "chat" ? "Chat" : "Agent"} 对话列表`}>
+        <header class="sidebar-heading"><strong>{mode === "chat" ? "Chat" : "Agent"} 对话</strong><span>{modeConversations.length}</span></header>
+        <div class="new-conversation-actions">
+            <button type="button" disabled={listBusy || historyLoading} onclick={() => createConversation()}>＋ 新建对话</button>
         </div>
-    {/if}
-
-    {#key `${view}-${mode}`}
+        <input class="conversation-search" bind:value={search} placeholder="搜索对话" aria-label="搜索对话" />
+        <nav class="conversation-list" aria-label="历史对话">
+            {#each filteredConversations as item (item.id)}
+                <div class:selected={item.id === selectedId} class="conversation-entry">
+                    {#if renameId === item.id}
+                        <form class="rename-form" onsubmit={(event) => {event.preventDefault(); void renameConversation();}}>
+                            <input bind:value={renameTitle} maxlength="100" aria-label="对话名称" />
+                            <button type="submit" disabled={listBusy || !renameTitle.trim()}>保存</button>
+                            <button type="button" onclick={() => renameId = ""}>取消</button>
+                        </form>
+                    {:else}
+                        <button class="conversation-select" type="button" aria-current={item.id === selectedId ? "true" : undefined}
+                            disabled={listBusy || historyLoading} onclick={() => selectConversation(item)}>
+                            <span class="conversation-title">{item.title}</span>
+                            <small>{item.mode === "chat" ? "Chat" : "Agent"} · {item.id === backendActiveId ? "正在生成…" : `${item.messageCount} 条消息`}</small>
+                        </button>
+                        <div class="conversation-actions">
+                            <button type="button" disabled={listBusy} aria-label={`重命名 ${item.title}`}
+                                onclick={() => {renameId = item.id; renameTitle = item.title; deleteId = "";}}>重命名</button>
+                            <button type="button" disabled={listBusy || item.id === backendActiveId || item.id === requestConversationId}
+                                aria-label={`删除 ${item.title}`} onclick={() => deleteId = item.id}>删除</button>
+                        </div>
+                    {/if}
+                    {#if deleteId === item.id}
+                        <div class="delete-confirmation">
+                            <span>删除此对话及全部消息？</span>
+                            <button type="button" disabled={listBusy} onclick={() => deleteConversation(item.id)}>删除</button>
+                            <button type="button" onclick={() => deleteId = ""}>取消</button>
+                        </div>
+                    {/if}
+                </div>
+            {:else}
+                <p class="sidebar-empty">{search ? "没有匹配的对话" : "从一段新对话开始"}</p>
+            {/each}
+        </nav>
+        <button class="sidebar-settings" type="button" onclick={() => {openSettings(); sidebarOpen = false;}}>AI 设置</button>
+    </aside>
+    <div class="ai-content">
+        <header class="conversation-header">
+            <button class="sidebar-toggle" type="button" aria-label="切换对话列表" aria-expanded={sidebarOpen}
+                onclick={() => sidebarOpen = !sidebarOpen}>☰</button>
+            <div><strong>{view === "settings" ? "AI 设置" : currentConversation?.title ?? "新对话"}</strong>
+                <span>{mode === "chat" ? "Chat" : "Agent"}</span></div>
+            {#if sending || backendActiveId}<small>正在生成回复…</small>{/if}
+        </header>
+        {#if listError}
+            <div class="conversation-error" role="alert">{listError}
+                <button type="button" disabled={listBusy || historyLoading} onclick={initializeConversations}>重试</button>
+            </div>
+        {/if}
+    {#key `${view}-${mode}-${selectedId}`}
         {#if view === "conversation"}
             <section
                 class="workspace"
                 aria-label={mode === "chat" ? "Chat 对话" : "Agent 对话"}
                 in:fly={{x: mode === "chat" ? -54 : 54, duration: 430, easing: quintOut}}
-                out:fly={{x: mode === "chat" ? 54 : -54, duration: 250, easing: quintIn}}
             >
                 <div class="conversation glass" bind:this={conversationNode}>
-                    {#if conversations[mode].length === 0}
+                    {#if historyLoading}
+                        <div class="empty-state"><p>正在加载对话…</p></div>
+                    {:else if visibleMessages.length === 0}
                         <div class="empty-state">
                             <div class="mode-mark" aria-hidden="true">
                                 <img src={omixLogo} alt="" />
@@ -624,7 +896,7 @@
                         </div>
                     {:else}
                         <div class="messages" aria-live="polite">
-                            {#each conversations[mode] as message (message.id)}
+                            {#each visibleMessages as message (message.id)}
                                 <article class:user={message.role === "user"} class:error={message.error} class="message">
                                     <span class="message-role">{message.role === "user" ? "你" : mode}</span>
                                     {#if message.reasoning}
@@ -694,7 +966,7 @@
                         type="button"
                         aria-label="发送消息"
                         title="发送"
-                        disabled={!draft.trim() || sending || connectionState !== "ready"}
+                        disabled={!draft.trim() || sending || !!backendActiveId || listBusy || historyLoading || !!listError || connectionState !== "ready"}
                         onclick={sendMessage}
                     >
                         {#if sending}
@@ -836,8 +1108,8 @@
                     </button>
                 </div>
                 <div class="settings-actions">
-                    <button type="button" disabled={settingsBusy || sending} onclick={clearConversation}>
-                        清空 {mode === "chat" ? "Chat" : "Agent"}
+                    <button type="button" disabled={settingsBusy || !selectedId || selectedId === backendActiveId || selectedId === requestConversationId} onclick={clearConversation}>
+                        清空当前对话
                     </button>
                     <button class="primary" type="button" disabled={settingsBusy} onclick={saveConfiguration}>
                         {settingsBusy ? "保存中…" : "保存"}
@@ -849,4 +1121,5 @@
             </section>
         {/if}
     {/key}
+    </div>
 </main>

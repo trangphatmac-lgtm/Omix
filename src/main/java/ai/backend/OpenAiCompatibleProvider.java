@@ -81,6 +81,7 @@ final class OpenAiCompatibleProvider implements AiProvider {
             AiGameContext gameContext,
             String message,
             AiChatMode mode,
+            List<AiMessage> history,
             AiStreamListener listener
     ) {
         AiConfig.Snapshot settings = config.snapshot();
@@ -91,7 +92,7 @@ final class OpenAiCompatibleProvider implements AiProvider {
         AiToolSnapshot toolSnapshot = mode == AiChatMode.AGENT
                 ? toolExecutor.snapshot()
                 : new AiToolSnapshot(new JsonArray(), "");
-        JsonArray messages = buildMessages(settings, gameContext, message, mode, toolSnapshot);
+        JsonArray messages = buildMessages(gameContext, message, mode, history, toolSnapshot);
         return runChatLoop(
                 settings,
                 messages,
@@ -104,10 +105,10 @@ final class OpenAiCompatibleProvider implements AiProvider {
     }
 
     private JsonArray buildMessages(
-            AiConfig.Snapshot settings,
             AiGameContext gameContext,
             String message,
             AiChatMode mode,
+            List<AiMessage> history,
             AiToolSnapshot toolSnapshot
     ) {
         JsonArray messages = new JsonArray();
@@ -117,7 +118,7 @@ final class OpenAiCompatibleProvider implements AiProvider {
             systemMessage.addProperty("content", AiSystemPrompt.forContext(gameContext, toolSnapshot.promptContext()));
             messages.add(systemMessage);
         }
-        for (AiMessage historyMessage : settings.history(mode)) {
+        for (AiMessage historyMessage : history) {
             messages.add(historyMessage.toJson());
         }
         messages.add(AiMessage.user(message).toJson());

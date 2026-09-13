@@ -1,6 +1,7 @@
 package ai.backend;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 public final class AiBackend implements AutoCloseable {
     private static final long MODEL_CACHE_DURATION_MS = 5 * 60 * 1000L;
@@ -19,7 +21,9 @@ public final class AiBackend implements AutoCloseable {
     private final AiConfig config;
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
     private final AiProvider provider;
+    private final Function<String, CompletableFuture<AiGameContext>> captureContext;
     private final AtomicBoolean chatActive = new AtomicBoolean();
+    private volatile String activeConversationId = "";
 
     private volatile List<String> cachedModels = List.of();
     private volatile long lastModelRefresh;
@@ -29,6 +33,14 @@ public final class AiBackend implements AutoCloseable {
     public AiBackend(Path configFile) {
         this.config = new AiConfig(configFile);
         this.provider = new OpenAiCompatibleProvider(config, executor);
+        this.captureContext = AiGameContext::capture;
+    }
+
+    AiBackend(AiConfig config, AiProvider provider,
+              Function<String, CompletableFuture<AiGameContext>> captureContext) {
+        this.config = config;
+        this.provider = provider;
+        this.captureContext = captureContext;
     }
 
     public String getBaseUrl() {
@@ -85,22 +97,60 @@ public final class AiBackend implements AutoCloseable {
         return clearConversation(AiChatMode.AGENT);
     }
 
-    public int clearConversation(AiChatMode mode) {
-        if (chatActive.get()) {
-            throw new IllegalStateException("Wait for the current AI response before clearing context.");
+    public synchronized int clearConversation(AiChatMode mode) {
+        return clearConversation(config.conversationId(mode));
+    }
+
+    public JsonObject listConversations() {
+        JsonObject result = config.listConversations();
+        result.addProperty("activeConversationId", activeConversationId);
+        return result;
+    }
+
+    public JsonObject getConversation(String id) {
+        return config.conversation(id).toJson(true);
+    }
+
+    public JsonObject createConversation(AiChatMode mode) {
+        return config.createConversation(mode).toJson(true);
+    }
+
+    public void selectConversation(String id) {
+        config.selectConversation(id);
+    }
+
+    public void renameConversation(String id, String title) {
+        config.renameConversation(id, title);
+    }
+
+    public synchronized void deleteConversation(String id) {
+        requireIdleConversation(id);
+        config.deleteConversation(id);
+    }
+
+    public synchronized int clearConversation(String id) {
+        requireIdleConversation(id);
+        return config.clearHistory(id);
+    }
+
+    private void requireIdleConversation(String id) {
+        if (id.equals(activeConversationId)) {
+            throw new IllegalStateException("Wait for this conversation's AI response to finish.");
         }
-        return config.clearHistory(mode);
     }
 
     public CompletableFuture<String> streamChat(String username, String message, AiStreamListener listener) {
         return streamChat(username, message, AiChatMode.AGENT, listener);
     }
 
-    public CompletableFuture<String> streamChat(
-            String username,
-            String message,
-            AiChatMode mode,
-            AiStreamListener listener
+    public synchronized CompletableFuture<String> streamChat(
+            String username, String message, AiChatMode mode, AiStreamListener listener
+    ) {
+        return streamChat(username, message, mode, "", listener);
+    }
+
+    public synchronized CompletableFuture<String> streamChat(
+            String username, String message, AiChatMode mode, String conversationId, AiStreamListener listener
     ) {
         if (message == null || message.isBlank()) {
             return CompletableFuture.failedFuture(new IllegalArgumentException("Message cannot be empty."));
@@ -112,20 +162,33 @@ public final class AiBackend implements AutoCloseable {
             return CompletableFuture.failedFuture(new IllegalStateException("Another AI response is still streaming."));
         }
 
+        final AiConfig.Conversation conversation;
         final CompletableFuture<AiTurnResult> request;
         try {
-            request = AiGameContext.capture(username)
-                    .thenCompose(gameContext -> provider.streamChat(gameContext, message, mode, listener));
+            String id = conversationId == null || conversationId.isBlank()
+                    ? config.conversationId(mode) : conversationId;
+            conversation = config.conversation(id);
+            if (conversation.mode() != mode) {
+                throw new IllegalArgumentException("Conversation mode does not match the request.");
+            }
+            activeConversationId = id;
+            request = captureContext.apply(username)
+                    .thenCompose(gameContext -> provider.streamChat(gameContext, message, mode,
+                            conversation.messages(), listener));
         } catch (Exception exception) {
+            activeConversationId = "";
             chatActive.set(false);
             return CompletableFuture.failedFuture(exception);
         }
         return request.thenApply(result -> {
             if (!result.messages().isEmpty()) {
-                config.appendTurn(mode, message, result.messages());
+                config.appendTurn(conversation.id(), message, result.messages());
             }
             return result.content();
-        }).whenComplete((ignored, error) -> chatActive.set(false));
+        }).whenComplete((ignored, error) -> {
+            activeConversationId = "";
+            chatActive.set(false);
+        });
     }
 
     public synchronized CompletableFuture<List<String>> refreshModels() {

@@ -57,8 +57,20 @@ public final class AiInteropBridge {
                 );
             }
         });
+        routes.get("/api/v1/ai/conversations", ignored ->
+                InteropResponse.json(HttpResponseStatus.OK, backend.listConversations()));
+        routes.post("/api/v1/ai/conversations", request -> {
+            try {
+                return InteropResponse.json(HttpResponseStatus.CREATED,
+                        backend.createConversation(AiChatMode.fromName(stringValue(request.body(), "mode"))));
+            } catch (IllegalArgumentException | IllegalStateException exception) {
+                return InteropResponse.text(HttpResponseStatus.BAD_REQUEST, errorMessage(exception));
+            }
+        });
         routes.get(CONVERSATION_PATH, request -> {
             try {
+                String id = firstQueryValue(request, "id");
+                if (id != null) return InteropResponse.json(HttpResponseStatus.OK, backend.getConversation(id));
                 AiChatMode mode = AiChatMode.fromName(firstQueryValue(request, "mode"));
                 JsonObject response = new JsonObject();
                 response.addProperty("mode", mode.routeName());
@@ -68,14 +80,29 @@ public final class AiInteropBridge {
                 return InteropResponse.text(HttpResponseStatus.BAD_REQUEST, errorMessage(exception));
             }
         });
+        routes.put(CONVERSATION_PATH, request -> {
+            try {
+                JsonObject body = request.body();
+                String id = stringValue(body, "id");
+                if (body.has("title")) backend.renameConversation(id, stringValue(body, "title"));
+                else backend.selectConversation(id);
+                return InteropResponse.json(HttpResponseStatus.OK, backend.getConversation(id));
+            } catch (IllegalArgumentException | IllegalStateException exception) {
+                return InteropResponse.text(HttpResponseStatus.BAD_REQUEST, errorMessage(exception));
+            }
+        });
         routes.delete(CONVERSATION_PATH, request -> {
             try {
-                String modeName = firstQueryValue(request, "mode");
-                AiChatMode mode = AiChatMode.fromName(modeName);
-                int removed = backend.clearConversation(mode);
+                String id = firstQueryValue(request, "id");
                 JsonObject response = new JsonObject();
-                response.addProperty("mode", mode.routeName());
-                response.addProperty("removed", removed);
+                if (id == null) {
+                    AiChatMode mode = AiChatMode.fromName(firstQueryValue(request, "mode"));
+                    response.addProperty("removed", backend.clearConversation(mode));
+                } else if ("true".equals(firstQueryValue(request, "clear"))) {
+                    response.addProperty("removed", backend.clearConversation(id));
+                } else {
+                    backend.deleteConversation(id);
+                }
                 return InteropResponse.json(HttpResponseStatus.OK, response);
             } catch (IllegalArgumentException | IllegalStateException exception) {
                 return InteropResponse.text(HttpResponseStatus.BAD_REQUEST, errorMessage(exception));
@@ -87,6 +114,7 @@ public final class AiInteropBridge {
         socketEvents.register("aiChat", (event, reply) -> {
             String requestId = stringValue(event, "requestId");
             String message = stringValue(event, "message");
+            String conversationId = stringValue(event, "conversationId");
             final AiChatMode mode;
             try {
                 if (requestId.isBlank()) {
@@ -97,11 +125,11 @@ public final class AiInteropBridge {
                     throw new IllegalArgumentException("Message cannot be empty.");
                 }
             } catch (IllegalArgumentException exception) {
-                reply.accept("aiError", event(requestId, errorMessage(exception)));
+                reply.accept("aiError", event(requestId, conversationId, errorMessage(exception)));
                 return;
             }
 
-            JsonObject started = event(requestId, "");
+            JsonObject started = event(requestId, conversationId, "");
             started.addProperty("mode", mode.routeName());
             reply.accept("aiStarted", started);
 
@@ -109,27 +137,27 @@ public final class AiInteropBridge {
             try {
                 username = SessionService.current().getUsername();
             } catch (Exception exception) {
-                reply.accept("aiError", event(requestId, errorMessage(exception)));
+                reply.accept("aiError", event(requestId, conversationId, errorMessage(exception)));
                 return;
             }
-            backend.streamChat(username, message, mode, new AiStreamListener() {
+            backend.streamChat(username, message, mode, conversationId, new AiStreamListener() {
                 @Override
                 public void onDelta(String content) {
                     if (!content.isEmpty()) {
-                        reply.accept("aiDelta", event(requestId, content));
+                        reply.accept("aiDelta", event(requestId, conversationId, content));
                     }
                 }
 
                 @Override
                 public void onReasoning(String content) {
                     if (!content.isEmpty()) {
-                        reply.accept("aiReasoning", event(requestId, content));
+                        reply.accept("aiReasoning", event(requestId, conversationId, content));
                     }
                 }
 
                 @Override
                 public void onToolCall(String id, String name, String arguments) {
-                    JsonObject payload = event(requestId, "");
+                    JsonObject payload = event(requestId, conversationId, "");
                     payload.addProperty("toolCallId", id);
                     payload.addProperty("toolName", name);
                     payload.addProperty("arguments", arguments);
@@ -138,16 +166,16 @@ public final class AiInteropBridge {
 
                 @Override
                 public void onToolResult(String id, String content) {
-                    JsonObject payload = event(requestId, content);
+                    JsonObject payload = event(requestId, conversationId, content);
                     payload.addProperty("toolCallId", id);
                     reply.accept("aiToolResult", payload);
                 }
             }).whenComplete((content, error) -> {
                 if (error != null) {
-                    reply.accept("aiError", event(requestId, errorMessage(error)));
+                    reply.accept("aiError", event(requestId, conversationId, errorMessage(error)));
                     return;
                 }
-                reply.accept("aiComplete", event(requestId, content));
+                reply.accept("aiComplete", event(requestId, conversationId, content));
             });
         });
     }
@@ -169,9 +197,10 @@ public final class AiInteropBridge {
         return response;
     }
 
-    private static JsonObject event(String requestId, String content) {
+    private static JsonObject event(String requestId, String conversationId, String content) {
         JsonObject event = new JsonObject();
         event.addProperty("requestId", requestId);
+        event.addProperty("conversationId", conversationId);
         event.addProperty("content", content == null ? "" : content);
         return event;
     }

@@ -14,10 +14,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Comparator;
+import java.util.UUID;
 import java.util.Locale;
 import java.util.Set;
 
@@ -36,8 +41,8 @@ final class AiConfig {
     private String apiKey = "";
     private String model = DEFAULT_MODEL;
     private boolean thinking = true;
-    private final List<AiMessage> agentHistory = new ArrayList<>();
-    private final List<AiMessage> chatHistory = new ArrayList<>();
+    private final LinkedHashMap<String, Conversation> conversations = new LinkedHashMap<>();
+    private String selectedConversationId = "";
 
     AiConfig(Path file) {
         this.file = file;
@@ -49,9 +54,7 @@ final class AiConfig {
                 baseUrl,
                 apiKey,
                 model,
-                thinking,
-                List.copyOf(agentHistory),
-                List.copyOf(chatHistory)
+                thinking
         );
     }
 
@@ -86,32 +89,96 @@ final class AiConfig {
         return serializeHistory(history(mode));
     }
 
-    synchronized void appendTurn(
-            AiChatMode mode,
-            String userMessage,
-            List<AiMessage> turnMessages
-    ) {
-        List<AiMessage> history = history(mode);
-        int previousSize = history.size();
-        history.add(AiMessage.user(userMessage));
-        history.addAll(turnMessages);
-        try {
-            save();
-        } catch (RuntimeException exception) {
-            history.subList(previousSize, history.size()).clear();
-            throw exception;
-        }
+    synchronized JsonObject listConversations() {
+        JsonObject result = new JsonObject();
+        JsonArray entries = new JsonArray();
+        conversations.values().stream()
+                .sorted(Comparator.comparingLong(Conversation::updatedAt).reversed())
+                .forEach(conversation -> entries.add(conversation.toJson(false)));
+        result.add("conversations", entries);
+        result.addProperty("selectedConversationId", selectedConversationId);
+        return result;
     }
 
-    synchronized int clearHistory(AiChatMode mode) {
-        List<AiMessage> history = history(mode);
-        List<AiMessage> previous = List.copyOf(history);
-        history.clear();
+    synchronized Conversation conversation(String id) {
+        Conversation conversation = conversations.get(id);
+        if (conversation == null) throw new IllegalArgumentException("Conversation not found.");
+        return conversation;
+    }
+
+    synchronized String conversationId(AiChatMode mode) {
+        Conversation selected = selectedForMode(mode);
+        return selected == null ? createConversation(mode).id() : selected.id();
+    }
+
+    synchronized Conversation createConversation(AiChatMode mode) {
+        if (mode == null) throw new IllegalArgumentException("AI mode cannot be null.");
+        long now = System.currentTimeMillis();
+        Conversation conversation = new Conversation(UUID.randomUUID().toString(), "新对话", mode, now, now, List.of());
+        updateConversations(() -> {
+            conversations.put(conversation.id(), conversation);
+            selectedConversationId = conversation.id();
+        });
+        return conversation;
+    }
+
+    synchronized void selectConversation(String id) {
+        conversation(id);
+        updateConversations(() -> selectedConversationId = id);
+    }
+
+    synchronized void renameConversation(String id, String title) {
+        if (title == null || title.isBlank() || title.strip().length() > 100) {
+            throw new IllegalArgumentException("Title must contain 1–100 characters.");
+        }
+        Conversation previous = conversation(id);
+        updateConversations(() -> conversations.put(id, new Conversation(id, title.strip(), previous.mode(),
+                previous.createdAt(), previous.updatedAt(), previous.messages())));
+    }
+
+    synchronized void deleteConversation(String id) {
+        conversation(id);
+        updateConversations(() -> {
+            conversations.remove(id);
+            if (id.equals(selectedConversationId)) {
+                selectedConversationId = conversations.values().stream()
+                        .max(Comparator.comparingLong(Conversation::updatedAt)).map(Conversation::id).orElse("");
+            }
+        });
+    }
+
+    synchronized void appendTurn(String id, String userMessage, List<AiMessage> turnMessages) {
+        Conversation previous = conversation(id);
+        List<AiMessage> messages = new ArrayList<>(previous.messages());
+        messages.add(AiMessage.user(userMessage));
+        messages.addAll(turnMessages);
+        String title = previous.title();
+        if (previous.messages().isEmpty() && title.equals("新对话")) {
+            title = userMessage.strip().replaceAll("\\s+", " ");
+            if (title.length() > 40) title = title.substring(0, 40) + "…";
+        }
+        Conversation next = new Conversation(id, title, previous.mode(), previous.createdAt(),
+                System.currentTimeMillis(), List.copyOf(messages));
+        updateConversations(() -> conversations.put(id, next));
+    }
+
+    synchronized int clearHistory(String id) {
+        Conversation previous = conversation(id);
+        updateConversations(() -> conversations.put(id, new Conversation(id, previous.title(), previous.mode(),
+                previous.createdAt(), System.currentTimeMillis(), List.of())));
+        return previous.messages().size();
+    }
+
+    private void updateConversations(Runnable mutation) {
+        var previous = new LinkedHashMap<>(conversations);
+        String previousSelection = selectedConversationId;
         try {
+            mutation.run();
             save();
-            return previous.size();
         } catch (RuntimeException exception) {
-            history.addAll(previous);
+            conversations.clear();
+            conversations.putAll(previous);
+            selectedConversationId = previousSelection;
             throw exception;
         }
     }
@@ -140,19 +207,38 @@ final class AiConfig {
             if (root.has("thinking") && root.get("thinking").isJsonPrimitive()) {
                 thinking = root.get("thinking").getAsBoolean();
             }
-            if (root.has("history") && root.get("history").isJsonArray()) {
-                loadHistory(root.getAsJsonArray("history"), agentHistory);
+            if (root.has("conversations") && root.get("conversations").isJsonArray()) {
+                for (JsonElement element : root.getAsJsonArray("conversations")) {
+                    try {
+                        JsonObject entry = element.getAsJsonObject();
+                        List<AiMessage> messages = new ArrayList<>();
+                        loadHistory(entry.getAsJsonArray("messages"), messages);
+                        Conversation conversation = new Conversation(entry.get("id").getAsString(),
+                                entry.get("title").getAsString(), AiChatMode.fromName(entry.get("mode").getAsString()),
+                                entry.get("createdAt").getAsLong(), entry.get("updatedAt").getAsLong(), List.copyOf(messages));
+                        if (!conversation.id().isBlank()) conversations.putIfAbsent(conversation.id(), conversation);
+                    } catch (RuntimeException ignored) {
+                        // A damaged conversation must not discard other conversations or settings.
+                    }
+                }
+                if (root.has("selectedConversationId")) {
+                    selectedConversationId = root.get("selectedConversationId").getAsString();
+                }
+            } else {
+                migrateHistory(root, "chatHistory", AiChatMode.CHAT);
+                migrateHistory(root, "history", AiChatMode.AGENT);
+                migrateApiKey = true;
             }
-            if (root.has("chatHistory") && root.get("chatHistory").isJsonArray()) {
-                loadHistory(root.getAsJsonArray("chatHistory"), chatHistory);
+            if (!conversations.containsKey(selectedConversationId)) {
+                selectedConversationId = conversations.keySet().stream().findFirst().orElse("");
             }
         } catch (Exception ignored) {
             baseUrl = DEFAULT_BASE_URL;
             apiKey = "";
             model = DEFAULT_MODEL;
             thinking = true;
-            agentHistory.clear();
-            chatHistory.clear();
+            conversations.clear();
+            selectedConversationId = "";
             return;
         }
 
@@ -172,26 +258,33 @@ final class AiConfig {
         root.addProperty("apiKey", SafeStorage.encrypt(apiKey));
         root.addProperty("model", model);
         root.addProperty("thinking", thinking);
-        root.add("history", serializeHistory(agentHistory));
-        root.add("chatHistory", serializeHistory(chatHistory));
+        root.addProperty("conversationVersion", 1);
+        root.addProperty("selectedConversationId", selectedConversationId);
+        JsonArray entries = new JsonArray();
+        conversations.values().forEach(conversation -> entries.add(conversation.toJson(true)));
+        root.add("conversations", entries);
 
         try {
             Path parent = file.getParent();
             if (parent != null) {
                 Files.createDirectories(parent);
             }
-            Files.writeString(
-                    file,
-                    gson.toJson(root),
-                    StandardCharsets.UTF_8,
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING,
-                    StandardOpenOption.WRITE
-            );
+            Path temporary = Files.createTempFile(file.toAbsolutePath().getParent(), "ai-config-", ".tmp");
             try {
-                Files.setPosixFilePermissions(file, OWNER_ONLY_PERMISSIONS);
-            } catch (UnsupportedOperationException ignored) {
-                // POSIX permissions are not available on every supported platform.
+                try {
+                    Files.setPosixFilePermissions(temporary, OWNER_ONLY_PERMISSIONS);
+                } catch (UnsupportedOperationException ignored) {
+                    // POSIX permissions are not available on every supported platform.
+                }
+                Files.writeString(temporary, gson.toJson(root), StandardCharsets.UTF_8,
+                        StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+                try {
+                    Files.move(temporary, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+                } catch (AtomicMoveNotSupportedException ignored) {
+                    Files.move(temporary, file, StandardCopyOption.REPLACE_EXISTING);
+                }
+            } finally {
+                Files.deleteIfExists(temporary);
             }
         } catch (IOException exception) {
             throw new IllegalStateException("Failed to save AI configuration.", exception);
@@ -199,15 +292,50 @@ final class AiConfig {
     }
 
     private List<AiMessage> history(AiChatMode mode) {
-        return mode == AiChatMode.CHAT ? chatHistory : agentHistory;
+        Conversation selected = selectedForMode(mode);
+        return selected == null ? List.of() : selected.messages();
+    }
+
+    private Conversation selectedForMode(AiChatMode mode) {
+        Conversation selected = conversations.get(selectedConversationId);
+        if (selected != null && selected.mode() == mode) return selected;
+        return conversations.values().stream().filter(conversation -> conversation.mode() == mode)
+                .max(Comparator.comparingLong(Conversation::updatedAt)).orElse(null);
+    }
+
+    private void migrateHistory(JsonObject root, String key, AiChatMode mode) {
+        if (!root.has(key) || !root.get(key).isJsonArray()) return;
+        List<AiMessage> messages = new ArrayList<>();
+        loadHistory(root.getAsJsonArray(key), messages);
+        if (messages.isEmpty()) return;
+        long now = System.currentTimeMillis();
+        String id = UUID.randomUUID().toString();
+        conversations.put(id, new Conversation(id, mode == AiChatMode.CHAT ? "Chat 历史对话" : "Agent 历史对话",
+                mode, now, now, List.copyOf(messages)));
+    }
+
+    record Conversation(String id, String title, AiChatMode mode, long createdAt, long updatedAt,
+                        List<AiMessage> messages) {
+        JsonObject toJson(boolean includeMessages) {
+            JsonObject result = new JsonObject();
+            result.addProperty("id", id);
+            result.addProperty("title", title);
+            result.addProperty("mode", mode.routeName());
+            result.addProperty("createdAt", createdAt);
+            result.addProperty("updatedAt", updatedAt);
+            result.addProperty("messageCount", messages.size());
+            if (includeMessages) result.add("messages", serializeHistory(messages));
+            return result;
+        }
     }
 
     private static void loadHistory(JsonArray source, List<AiMessage> target) {
+        if (source == null) return;
         for (JsonElement element : source) {
             if (!element.isJsonObject()) continue;
             try {
                 target.add(AiMessage.fromJson(element.getAsJsonObject()));
-            } catch (IllegalArgumentException ignored) {
+            } catch (RuntimeException ignored) {
                 // Ignore malformed history entries without discarding valid configuration.
             }
         }
@@ -254,12 +382,6 @@ final class AiConfig {
             String baseUrl,
             String apiKey,
             String model,
-            boolean thinking,
-            List<AiMessage> agentHistory,
-            List<AiMessage> chatHistory
-    ) {
-        List<AiMessage> history(AiChatMode mode) {
-            return mode == AiChatMode.CHAT ? chatHistory : agentHistory;
-        }
-    }
+            boolean thinking
+    ) {}
 }
