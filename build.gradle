@@ -236,7 +236,25 @@ def bundleWebUi = tasks.register("bundleWebUi", Zip) {
     destinationDirectory = layout.buildDirectory.dir("generated/webui")
 }
 
+def generateClientReference = tasks.register("generateClientReference", Exec) {
+    group = "documentation"
+    description = "Generate module reference from source declarations and reviewed descriptions."
+    workingDir projectDir
+    def pythonExecutable = providers.gradleProperty("pythonExecutable").getOrElse(
+            System.getProperty("os.name").toLowerCase(java.util.Locale.ROOT).contains("windows")
+                    ? "python" : "python3"
+    )
+    commandLine pythonExecutable, "tools/generate_client_reference.py"
+    inputs.files("tools/generate_client_reference.py", "tools/client_reference_descriptions.json",
+            "src/main/java/cn/omix/ui/hud/Drag.java")
+    inputs.files(fileTree("src/main/java/cn/omix/module") { include "**/*.java" })
+    outputs.files(["combat", "exploits", "move", "player", "render", "world"].collect {
+        file("docs/modules/${it}.md")
+    })
+}
+
 processResources {
+    dependsOn generateClientReference
     dependsOn syncModVersion
     dependsOn bundleWebUi
     dependsOn bundleMusicSidecar
@@ -250,6 +268,12 @@ processResources {
         expand "version": project.version,
                 "minecraft_version": project.minecraft_version,
                 "loader_version": project.loader_version
+    }
+
+    // Ship the user-facing reference verbatim; Agent has no separate documentation copy.
+    from("docs") {
+        include "README.md", "commands.md", "ai-tools.md", "modules/*.md"
+        into "assets/omix/ai/reference"
     }
 
     from(bundleWebUi.flatMap { it.archiveFile }) {

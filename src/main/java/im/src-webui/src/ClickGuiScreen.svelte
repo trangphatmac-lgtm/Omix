@@ -76,6 +76,11 @@
     let configName = "";
     let selectedConfig = "";
     let pendingAction = "";
+    let viewportWidth = 1440;
+    let viewportHeight = 900;
+
+    // Match AIScreen: scale controls as well as the panel on high-resolution displays.
+    $: uiScale = Math.max(1, Math.min(viewportWidth / 1440, viewportHeight / 900));
 
     $: activeCategoryName = state.categories.find(category =>
         category.id === activeCategory)?.name ?? activeCategory;
@@ -714,11 +719,14 @@
     <title>Omix ClickGUI</title>
 </svelte:head>
 
+<svelte:window bind:innerWidth={viewportWidth} bind:innerHeight={viewportHeight} />
+
 <main
     class:mounted
     class:closing
     class:dark-theme={theme === "dark"}
     class="clickgui-screen"
+    style={`zoom:${uiScale};--gui-viewport-width:${viewportWidth / uiScale}px;--gui-viewport-height:${viewportHeight / uiScale}px`}
     aria-label="Omix ClickGUI"
 >
     <section class="window-shell">
@@ -1249,12 +1257,12 @@
         --muted: #818592;
         --faint: #aaadb7;
         --shadow: rgba(23, 27, 41, .28);
-        --screen-pad-x: clamp(22px, 4vw, 72px);
-        --screen-pad-y: clamp(22px, 5vh, 58px);
+        --screen-pad-x: clamp(22px, calc(var(--gui-viewport-width) * .04), 72px);
+        --screen-pad-y: clamp(22px, calc(var(--gui-viewport-height) * .05), 58px);
         position: relative;
         display: grid;
-        width: 100%;
-        height: 100%;
+        width: var(--gui-viewport-width);
+        height: var(--gui-viewport-height);
         padding: var(--screen-pad-y) var(--screen-pad-x);
         place-items: center;
         color: var(--text);
@@ -1316,9 +1324,9 @@
 
     .window-shell {
         display: grid;
-        width: min(1160px, calc(100vw - var(--screen-pad-x) - var(--screen-pad-x)));
-        height: min(735px, calc(100vh - var(--screen-pad-y) - var(--screen-pad-y)));
-        min-height: min(480px, calc(100vh - var(--screen-pad-y) - var(--screen-pad-y)));
+        width: min(1160px, calc(var(--gui-viewport-width) - var(--screen-pad-x) - var(--screen-pad-x)));
+        height: min(735px, calc(var(--gui-viewport-height) - var(--screen-pad-y) - var(--screen-pad-y)));
+        min-height: min(480px, calc(var(--gui-viewport-height) - var(--screen-pad-y) - var(--screen-pad-y)));
         grid-template-columns: 74px minmax(0, 1fr);
         overflow: hidden;
         border: 1px solid rgba(255, 255, 255, .52);
@@ -2616,8 +2624,8 @@
     .toast {
         position: absolute;
         z-index: 20;
-        right: max(28px, calc((100vw - min(1160px, calc(100vw - 44px))) / 2 + 18px));
-        bottom: max(28px, calc((100vh - min(735px, calc(100vh - 44px))) / 2 + 38px));
+        right: max(28px, calc((var(--gui-viewport-width) - min(1160px, calc(var(--gui-viewport-width) - 44px))) / 2 + 18px));
+        bottom: max(28px, calc((var(--gui-viewport-height) - min(735px, calc(var(--gui-viewport-height) - 44px))) / 2 + 38px));
         padding: 9px 13px;
         border: 1px solid rgba(42, 166, 137, .2);
         border-radius: 9px;

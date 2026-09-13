@@ -13,6 +13,8 @@ final class AiSystemPrompt {
             %s
 
             %s
+
+            %s
             """;
 
     private AiSystemPrompt() {
@@ -25,6 +27,6 @@ final class AiSystemPrompt {
         String tools = toolContext == null || toolContext.isBlank()
                 ? "No game-control tools are available in this request."
                 : toolContext.trim();
-        return TEMPLATE.formatted(context.promptContext(), tools);
+        return TEMPLATE.formatted(context.promptContext(), tools, AiClientReference.promptContext());
     }
 }

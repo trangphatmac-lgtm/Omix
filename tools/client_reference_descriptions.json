@@ -1,0 +1,819 @@
+{
+  "AntiAim": {
+    "description": "结合 TargetHUD 中的玩家目标和武器冷却暂存移动包；要求 Aura 的 Combat Mode 为 1.9+ 且 TargetHUD 开启。",
+    "settings": {
+      "Mode": "使用 Blink 暂存与释放数据包。",
+      "Blink Time": "最多暂存多少个游戏 tick。",
+      "Release Time": "在目标攻击冷却还剩多少 tick 时释放暂存包。",
+      "Release On Target Lost": "目标从 TargetHUD 消失时立即释放并停止追踪；关闭时允许完成已有暂存周期。"
+    }
+  },
+  "Aura": {
+    "description": "自动筛选附近目标、转向并进行近战攻击，支持旧版 CPS 与新版攻击冷却；目标过滤同时受 Targets、Teams 和 AntiBot 等模块影响。",
+    "settings": {
+      "Target Mode": "Single 持续攻击单个目标；Switch 按间隔轮换目标。",
+      "Switch Delay": "轮换目标的间隔，单位毫秒。",
+      "Priority": "目标排序依据：距离、生命值、视角偏差、存活时间或护甲。",
+      "Combat Mode": "1.8 按 CPS 发起攻击；1.9+ 按武器攻击冷却判断时机。",
+      "Max CPS": "旧版攻击频率的随机上限，每秒次数。",
+      "Min CPS": "旧版攻击频率的随机下限，每秒次数。",
+      "Keep Swing": "新版攻击尚未冷却时仍保留挥手动作。",
+      "Cooldown Bypass": "预测这一击足以击杀时允许跳过完整冷却等待。",
+      "Only Rot In Essential": "仅在攻击前后的必要时间段转向目标。",
+      "Aim Before Attack Ticks": "攻击前提前开始瞄准的 tick 数。",
+      "Aim After Attack Ticks": "攻击后继续保持瞄准的 tick 数。",
+      "Weapon Only": "仅当主手物品属于可附魔武器标签时攻击。",
+      "Range": "可见目标的最大攻击距离，单位方块。",
+      "Block Range": "触发自动格挡的目标距离，单位方块。",
+      "Wall Range": "无法直接看见目标时允许攻击的距离，0 表示不隔墙攻击。",
+      "Rotation Range": "寻找和转向目标的距离，单位方块。",
+      "AutoBlock Mode": "None 关闭格挡；Fake 仅表现格挡；Use Item 使用物品；Vanilla 按原版物品使用流程处理格挡。",
+      "Rotation Speed": "瞄准转向的最大角度步幅，越大转向越快。",
+      "MovementFix Mode": "None 不修正移动；Silent 和 Strict 在旋转改变时修正移动方向。",
+      "Ray Cast": "攻击前要求射线检测实际命中目标。"
+    }
+  },
+  "TPAura": {
+    "description": "通过 PathFinder 生成路径，沿路径发送位置更新接近目标、攻击后返回，支持单体、轮换和多目标。",
+    "settings": {
+      "Range": "搜寻目标的距离，单位方块。",
+      "Delay": "两轮攻击的最短间隔，单位毫秒。",
+      "Instant": "开启时立即发送整条往返路径；关闭时分阶段沿路径移动。",
+      "Target Mode": "Single 单体；Switch 轮换；Multi 一轮攻击多个候选目标。",
+      "Max Targets": "Multi 模式每轮最多处理的目标数量。",
+      "Priority": "按距离、生命、视角、存活时间或护甲排序。",
+      "Respect Cooldown": "等待原版武器攻击冷却恢复再出手。",
+      "Rotation": "攻击时向服务器发送朝向目标的旋转。",
+      "On Ground Packet": "路径移动包中的 onGround 标记。"
+    }
+  },
+  "AutoTotem": {
+    "description": "副手没有不死图腾时，从背包或快捷栏取图腾放入副手；固定换装间隔为 150 毫秒，打开容器界面或处于旁观模式时不执行。",
+    "settings": {}
+  },
+  "Backtrack": {
+    "description": "延迟处理目标的位置相关网络更新，用来保留其较早位置；可同时显示服务器更新的真实位置。",
+    "settings": {
+      "Track Delay": "延迟目标更新的时长，单位毫秒。",
+      "ShowRealPosition": "绘制目标未延迟的真实位置提示。"
+    }
+  },
+  "CrossbowExploit": {
+    "description": "使用已装填的弩时，按设定的起始等待和射击间隔反复触发使用动作。",
+    "settings": {
+      "Start Delay": "已装填弩进入连续射击前的等待 tick 数。",
+      "Shot Delay": "连续射击动作之间的等待 tick 数。"
+    }
+  },
+  "FastBow": {
+    "description": "拉弓时额外发送移动包并发送释放使用物品动作，尝试加速射箭流程。",
+    "settings": {
+      "Packets": "每次触发补发的移动包数量。"
+    }
+  },
+  "FastEat": {
+    "description": "进食或饮用时额外发送移动包，尝试加速物品使用流程。",
+    "settings": {
+      "Packets": "每次触发补发的落地状态包数量。"
+    }
+  },
+  "MaceDamageBooster": {
+    "description": "手持重锤攻击时发送上下位置变化包，尝试提高服务器计算的下落攻击伤害；界面名称是 Mace Exploit。",
+    "settings": {
+      "Height": "模拟抬升的高度，单位方块。"
+    }
+  },
+  "Criticals": {
+    "description": "在近战攻击时调整位置、落地标志或攻击时机，尝试触发暴击；不同模式对应不同实现。",
+    "settings": {
+      "Mode": "No Ground 修改落地状态；NCP、Strict、Sentinel、Packet 和 Heypixel 使用各自位置包流程；Stuck 配合短暂冻结；1.9+ 配合攻击冷却。",
+      "WaitTicks": "Stuck 模式请求冻结的 tick 数。",
+      "FallDistance": "Stuck 模式额外检查下落距离和纵向速度，避免不合适的下落时机。",
+      "TargetTicks": "参与攻击时机判断的冷却 tick 阈值；仅适用于使用攻击时机判断的模式。"
+    }
+  },
+  "TargetStrafe": {
+    "description": "围绕当前战斗目标移动，选择可通行的环绕点或目标背后位置，可与移动加速模块协作。",
+    "settings": {
+      "Mode": "Adaptive 从环绕点选择合适位置；Behind 优先位于目标身后。",
+      "Distance": "希望与目标保持的环绕半径，单位方块。",
+      "Points": "围绕目标生成的候选点数量。",
+      "Require space key": "仅按住空格时运行环绕移动。",
+      "Auto 3rd Person": "环绕期间自动切换第三人称视角。",
+      "Legit": "通过较接近正常输入的移动控制实现环绕。",
+      "Silent Aim": "Legit 模式中使用静默瞄准方向。"
+    }
+  },
+  "Velocity": {
+    "description": "调整自身收到的击退速度；具体效果取决于模式及服务器对移动的处理。",
+    "settings": {
+      "Mode": "Normal 使用取消击退处理；Packet 按比例修改击退分量；Reduce 使用减弱击退流程。",
+      "Horizontal": "Packet 模式保留的水平击退百分比。",
+      "Vertical": "Packet 模式保留的垂直击退百分比。"
+    }
+  },
+  "BrandSpoofer": {
+    "description": "修改发送给服务器的客户端品牌标识，默认开启并使用 vanilla 品牌。",
+    "settings": {
+      "Custom Brand": "启用自定义品牌文本，关闭时报告 vanilla。",
+      "Brand String": "开启 Custom Brand 后报告的品牌名称。"
+    }
+  },
+  "ChannelHider": {
+    "description": "控制 Fabric 注册消息中向服务器声明的网络频道；频道名按实际遇到的注册数据动态加入，默认开启模块。",
+    "settings": {
+      "name": "每个实际频道 namespace:path 对应一个动态布尔选项：true 保留注册，false 从注册列表中隐藏；新遇到的频道默认 true。"
+    }
+  },
+  "Disabler": {
+    "description": "集中处理特定协议或服务器场景的数据包兼容逻辑，按模式选择 Heypixel、CubeCraft 或 MiniBlox 实现。",
+    "settings": {
+      "Mode": "选择 Heypixel、CubeCraft 或 MiniBlox 的数据包处理流程；模式名称不代表对任意服务器都有效。",
+      "Wait After Lag (ms)": "CubeCraft 遇到延迟或回弹后恢复处理前的等待时间，单位毫秒。",
+      "Debug": "输出 MiniBlox 调试信息。",
+      "Options": "Heypixel 的细分数据包处理开关组，子项可单独设置。",
+      "Grim Bad PacketsA": "取消与上一次相同的重复快捷栏切换包。",
+      "Grim Duplicate RotPlace": "处理重复旋转或放置相关的数据包。",
+      "ACA Fast Switch": "跨槽切换时补发中间槽位的切换包。",
+      "ACA Inventory Frequency": "调整关闭物品栏相关数据包的发送频率。",
+      "ACA Aim Step": "修正符合 Aim Step 特征的旋转数据。",
+      "ACA Perfect Rotation": "调整过于精确的旋转数值。",
+      "Themis Blink": "暂存特定数据包并按周期放行。",
+      "Only Remote Server": "仅在远程服务器执行 Heypixel 数据包处理。",
+      "Logging": "输出 Heypixel 处理日志。"
+    }
+  },
+  "NoBan": {
+    "description": "收到服务器踢出消息时记录并显示原因，并在短暂宽限期内抑制对应断开界面的处理；不能解除服务器封禁或保证连接仍然有效。",
+    "settings": {}
+  },
+  "PathFinder": {
+    "description": "为 LookTP、TPAura 等模块提供路径计算和显示，模块被强制保持开启。",
+    "settings": {
+      "Mode": "Reconstruct 使用路径重建算法；Linear 沿起终点直线划分移动步。",
+      "Linear Steps": "Linear 路径的分段步长参数。",
+      "Allow Vertical Pass Through": "允许 Reconstruct 搜索使用垂直穿越策略。",
+      "Max Vertical Range": "允许垂直穿越时的最大纵向搜索范围。",
+      "NoGround": "路径节点贴在地面碰撞面上时，将节点提高 0.25 格。",
+      "Show Path": "在世界中显示最近计算的路径。",
+      "Line Only": "只画路径连线，省略路径节点方框。",
+      "Path Color": "路径连线和节点的颜色。"
+    }
+  },
+  "Regen": {
+    "description": "生命值与吸收生命之和低于阈值时持续补发移动包，尝试加快服务器侧恢复处理。",
+    "settings": {
+      "Health": "触发补发包的生命值上限，以生命点计。",
+      "Packets/Tick": "每个 tick 补发的移动包数量。"
+    }
+  },
+  "ResourcepackSpoof": {
+    "description": "拦截服务器资源包流程，向服务器报告资源包处理成功而不按正常流程下载应用。",
+    "settings": {}
+  },
+  "GuiMove": {
+    "description": "允许在部分 GUI 打开时继续读取移动按键，从而在界面中移动玩家。",
+    "settings": {}
+  },
+  "Jesus": {
+    "description": "改变水面或液体中的碰撞、浮力与跳动行为，帮助在液体表面移动。",
+    "settings": {
+      "Mode": "Vanilla 使用液体表面碰撞；Verus 使用专用浮力流程；Bouncy 较大幅度弹跳；Mini Jump 小幅跳动。"
+    }
+  },
+  "FastWeb": {
+    "description": "减轻蛛网对移动的限制。",
+    "settings": {
+      "Mode": "Vanilla 取消蛛网减速事件；Motion 直接控制蛛网内速度。",
+      "Motion": "Motion 模式的水平移动速度；空格和潜行另行控制上下运动。"
+    }
+  },
+  "NoJumpDelay": {
+    "description": "缩短玩家连续跳跃的冷却等待。",
+    "settings": {
+      "Delay": "跳跃冷却配置值，按 tick 计；实现把原版冷却限制为该值加 1。"
+    }
+  },
+  "NoSlowDown": {
+    "description": "使用物品时取消移动减速，可保持疾跑。",
+    "settings": {
+      "Mode": "当前只有 Vanilla，直接取消物品使用减速。",
+      "Keep Sprint": "使用物品时保持疾跑状态。"
+    }
+  },
+  "Parkour": {
+    "description": "玩家移动到脚下无方块的边缘时自动起跳；潜行、飞行或在液体中时不触发。",
+    "settings": {
+      "Jump Delay": "自动跳跃之间的最短间隔，单位毫秒。",
+      "Only Forward": "只在向前输入时自动跳跃，关闭则允许其他移动方向。"
+    }
+  },
+  "Derp": {
+    "description": "向服务器提供自定义的偏航和俯仰方向，支持固定、偏移、随机和旋转表现。",
+    "settings": {
+      "Yaw": "Static 固定偏航；Offset 相对偏航；Random 随机；Jitter 前后交替；Spin 连续旋转。",
+      "Yaw Value": "固定偏航角，单位度。",
+      "Yaw Offset": "相对真实朝向增加的偏航角。",
+      "Forward Ticks": "Jitter 保持前向的 tick 数。",
+      "Backward Ticks": "Jitter 保持后向的 tick 数。",
+      "Spin Speed": "Spin 每次更新的旋转量，正负控制方向。",
+      "Pitch": "Static 固定俯仰；Offset 相对俯仰；Random 随机俯仰。",
+      "Pitch Value": "固定俯仰角，单位度。",
+      "Pitch Offset": "相对真实视角增加的俯仰角。",
+      "Safe Pitch": "将输出俯仰限制在正常的 -90 到 90 度。",
+      "Not During Sprint": "疾跑时暂停伪装旋转。"
+    }
+  },
+  "Speed": {
+    "description": "提供地面加速、连续跳跃、预测与定时器等移动加速实现；模式按源码中的具体移动流程执行。",
+    "settings": {
+      "Mode": "选择 Ground 地面加速、Vanilla 直接速度、Smooth Vanilla 平滑加速、Normal 自定义移动、Prediction/Prediction2 预测流程，或各服务器命名的跳跃与加速流程。",
+      "Damage Boost": "Vulcan 模式受击时利用受伤状态加速。",
+      "Speed": "所选直接速度模式的移动强度；Ground 与 Smooth Vanilla 在实现中使用该值的四分之一。",
+      "Auto BHop": "Vanilla 移动时自动连续起跳。",
+      "Timer Boost Multiplier": "Prediction 系列减速阶段的游戏时钟倍率。",
+      "Low Timer Ticks": "Prediction 系列保持低速时钟的 tick 数。",
+      "Rotation": "Prediction 系列按移动键调整旋转方向。",
+      "Multiplier": "Normal 模式的起跳水平加速倍率。",
+      "Friction": "Normal 模式对移动事件摩擦系数的倍率。",
+      "Strafe": "Normal 模式重新对齐侧向移动的比例，单位百分比。",
+      "LagBack Check": "检测服务器位置回弹后执行对应的减速或重置处理。"
+    }
+  },
+  "Spider": {
+    "description": "玩家贴墙时自动向上移动，可连续上升、周期脉冲或通过时钟调整爬升。",
+    "settings": {
+      "Mode": "Vanilla 连续上升；Timer 调整游戏时钟辅助爬墙；Pulse 间歇施加上升速度。",
+      "Speed": "Vanilla/Pulse 的向上速度。",
+      "Timer Speed": "Timer 模式使用的游戏时钟倍率。",
+      "Only Moving": "仅有移动输入时贴墙爬升。"
+    }
+  },
+  "Step": {
+    "description": "提高地面行走时可直接跨越的台阶高度至 1 格；离地或关闭后恢复 0.6 格。",
+    "settings": {
+      "Mode": "当前只有 Vanilla，直接修改台阶高度属性。"
+    }
+  },
+  "Strafe": {
+    "description": "根据当前移动方向重新对齐水平速度，增强空中或地面的转向控制。",
+    "settings": {}
+  },
+  "Fly": {
+    "description": "通过水平与垂直速度控制实现飞行移动；空格上升，潜行下降。",
+    "settings": {
+      "Mode": "Vanilla 直接设置速度；SentinelA、SentinelC 使用各自的飞行数据包或运动流程。",
+      "Horizontal Speed": "飞行时的水平移动速度。",
+      "Vertical Speed": "上升或下降时的垂直速度。"
+    }
+  },
+  "AntiVoid": {
+    "description": "玩家离开安全地面后暂存移动包，跌落超过阈值时尝试回到之前的安全位置。",
+    "settings": {
+      "Mode": "当前只有 Blink，使用移动包暂存保护。",
+      "Distance": "相对最后安全位置允许下降的距离，单位方块。"
+    }
+  },
+  "NoFall": {
+    "description": "按所选模式处理下落、落地标记或水桶落地，尝试减少摔落伤害。",
+    "settings": {
+      "Mode": "Packet 发送落地包；Blink 暂存落下过程；NoGround 报告未落地；Spoof 修改落地标志；CubeCraft Reduce 专用减伤；MLG 水桶落地与回收；Grim 专用落地恢复流程。",
+      "Distance": "触发保护时的下落距离阈值，单位方块。",
+      "Delay": "允许使用延迟的模式中，两次保护之间的间隔，单位毫秒。",
+      "Rotation": "MLG 使用旋转瞄准放水位置。"
+    }
+  },
+  "KeepSprint": {
+    "description": "调整攻击造成的水平减速和疾跑保持行为，可按场景选择直接补偿或较接近原版的流程。",
+    "settings": {
+      "Mode": "Vanilla 按强度补偿减速；Legit 保留原版减速并处理疾跑；Grim 用偏移预算控制；Buffer 暂存相关处理；Universal 针对玩家目标保持速度。",
+      "Motion": "Vanilla 的减速补偿比例，0 保留原版减速、1 完全保持水平速度。",
+      "Ground Only": "Vanilla 仅落地时补偿。",
+      "Reach Only": "Vanilla 仅目标超出原版近战距离时补偿。",
+      "On Hurt": "Legit/Buffer 在自身受伤期间也执行相关逻辑。",
+      "Auto Factor": "Grim 自动根据移动量计算减速系数。",
+      "Offset Budget": "Grim 自动计算时使用的偏移预算百分比。",
+      "Factor": "关闭 Auto Factor 后手动指定 Grim 保留速度的百分比。",
+      "Grim Ground Only": "Grim 仅在地面执行。"
+    }
+  },
+  "Sprint": {
+    "description": "有向前移动输入、饥饿值大于 6 且没有水平碰撞时自动按住疾跑键，默认开启。",
+    "settings": {}
+  },
+  "AntiBot": {
+    "description": "按玩家实体特征标记疑似机器人，供战斗目标过滤使用；这些规则可能误判。",
+    "settings": {
+      "EntityID": "过滤 ID 大于等于 1000000000 或小于等于 -1 的实体。",
+      "Sleep": "过滤处于睡眠状态的实体。",
+      "Sentinel": "过滤宽度或高度不超过 0.3 的玩家实体。"
+    }
+  },
+  "Targets": {
+    "description": "集中选择战斗模块允许处理的目标类型；模块保持开启并隐藏于普通 HUD 列表。",
+    "settings": {
+      "Target": "目标类型开关组。",
+      "Player": "允许玩家目标。",
+      "Dead": "允许死亡目标。",
+      "Villager": "允许村民目标。",
+      "Invisible": "允许隐形目标。",
+      "Mob": "允许怪物目标。",
+      "Animal": "允许动物目标。"
+    }
+  },
+  "Teams": {
+    "description": "识别队友，供目标筛选避免攻击同队玩家。",
+    "settings": {
+      "Mode": "Color 比较名称格式颜色；Armor 比较背包槽位 3 物品的染色组件；Scoreboard 比较计分板队伍或队伍颜色。"
+    }
+  },
+  "MCF": {
+    "description": "鼠标中键点击玩家，在好友列表中添加或移除该玩家。",
+    "settings": {}
+  },
+  "ChestArua": {
+    "description": "寻找附近未打开的箱子并交互，可与 ChestStealer 配合；界面保留 ChestArua 拼写。",
+    "settings": {
+      "Mode": "Auto 自动寻找和打开；Manual 在玩家触发使用操作时寻找附近箱子并转向交互。",
+      "Range": "寻找箱子的最大距离，单位方块。",
+      "Delay": "Auto 两次交互的间隔，单位毫秒。",
+      "Rotate": "Auto 交互前转向箱子；Manual 始终处理转向。",
+      "Movement Fix": "Auto 转向时修正移动方向。",
+      "Through Walls": "允许寻找被墙遮挡的箱子。",
+      "Ender Chests": "把末影箱也列为目标。",
+      "Swing": "交互成功后显示挥手动作。"
+    }
+  },
+  "ChestStealer": {
+    "description": "打开容器后自动把选中的物品快捷转移到背包。",
+    "settings": {
+      "Only Best": "仅取筛选器认为值得保留或优于现有装备的物品。",
+      "Instant": "连续转移物品，跳过逐件等待。",
+      "Delay": "逐件转移的间隔，单位毫秒。",
+      "Open Delay": "打开容器后首次取物前等待，单位毫秒。",
+      "Auto Close": "没有可转移目标时关闭容器。"
+    }
+  },
+  "InventoryManager": {
+    "description": "整理快捷栏中的工具与物资，并丢弃筛选器认为无用或超出上限的物品。",
+    "settings": {
+      "Inventory Only": "仅打开自身物品栏时整理。",
+      "Instant": "连续完成操作，跳过逐次等待。",
+      "Delay": "整理操作间隔，单位毫秒。",
+      "Weapon Slot": "武器的快捷栏位置：1–9，0 表示不安排指定槽位。",
+      "Pickaxe Slot": "镐的快捷栏位置：1–9，0 表示不安排指定槽位。",
+      "Axe Slot": "斧的快捷栏位置：1–9，0 表示不安排指定槽位。",
+      "Shovel Slot": "铲的快捷栏位置：1–9，0 表示不安排指定槽位。",
+      "Block Slot": "方块的快捷栏位置：1–9，0 表示不安排指定槽位。",
+      "Pearl Slot": "末影珍珠的快捷栏位置：1–9，0 表示不安排指定槽位。",
+      "Projectile Slot": "投掷物的快捷栏位置：1–9，0 表示不安排指定槽位。",
+      "Bow Slot": "弓的快捷栏位置：1–9，0 表示不安排指定槽位。",
+      "Fishing Rod Slot": "钓鱼竿的快捷栏位置：1–9，0 表示不安排指定槽位。",
+      "Water Bucket Slot": "水桶的快捷栏位置：1–9，0 表示不安排指定槽位。",
+      "Lava Bucket Slot": "岩浆桶的快捷栏位置：1–9，0 表示不安排指定槽位。",
+      "Keep Food": "保留食物并启用食物数量限制。",
+      "Food Slot": "食物的快捷栏位置：1–9，0 表示不安排。",
+      "Food Limit": "启用 Keep Food 时保留的食物数量上限。",
+      "Block Limit": "保留的方块数量上限。"
+    }
+  },
+  "AutoTool": {
+    "description": "挖掘时自动选择适合目标方块的工具。",
+    "settings": {
+      "Implementation": "Classic 使用延迟及潜行限制；Omix 使用 Switch/Spoof 切槽流程。",
+      "Delay": "Classic 切换前等待的 tick 数。",
+      "Switch Back": "Classic 停止挖掘后切回原槽位。",
+      "Sneak Only": "Classic 仅潜行时切换。",
+      "Omix Switch Mode": "Switch 实际切换槽位；Spoof 使用物品槽伪装。"
+    }
+  },
+  "AutoBlockIn": {
+    "description": "按住选择键时，围绕附近玩家规划放置方块并执行围堵；避让冲突的搭路、旋转和自由视角模块。",
+    "settings": {
+      "Speed": "瞄准平滑速度参数，越大转向越快。",
+      "Randomization": "转向随机扰动百分比。",
+      "Rotation Tolerance": "瞄准与放置方向允许的角度误差，单位度。",
+      "Select Keybind": "按住以执行围堵的键位，允许鼠标按钮；0 为未绑定。",
+      "Ignore Blocks": "启用方块物品排除列表。",
+      "Ignored Items": "不用于放置的物品注册 ID；逗号、分号或空白分隔。"
+    }
+  },
+  "AutoArmor": {
+    "description": "从背包自动选择并穿戴更优护甲。",
+    "settings": {
+      "Inventory Only": "仅打开自身物品栏时换装。",
+      "Delay": "换装间隔，单位毫秒。"
+    }
+  },
+  "AntiHunger": {
+    "description": "修改落地和疾跑网络信息，尝试降低饥饿消耗。",
+    "settings": {
+      "Cancel Ground": "修改发出的落地状态。",
+      "Cancel Sprint": "取消开始或停止疾跑的数据包。"
+    }
+  },
+  "AntiLava": {
+    "description": "寻找附近岩浆并自动放置方块封堵。",
+    "settings": {
+      "Range": "搜索距离，单位方块。",
+      "Item Spoof": "放置时使用物品槽伪装。",
+      "No Swing": "抑制本地挥手表现。",
+      "Movement Fix": "瞄准时修正移动方向。"
+    }
+  },
+  "Stuck": {
+    "description": "通过移动计算冻结或数据包处理使玩家短暂停留，也供 Criticals 与 Scaffold 调用。",
+    "settings": {
+      "Mode": "Delay 取消移动包并延迟交互，关闭时等待恢复；Packet 取消移动包并周期发送滑翔动作；Freeze 周期放行移动计算；Cancel 持续取消移动计算。",
+      "Freeze Tick": "Freeze 每次放行前冻结的 tick 数。",
+      "No Move": "Freeze/Cancel 时清空水平移动输入。"
+    }
+  },
+  "Phase": {
+    "description": "按位置或碰撞处理流程尝试穿过方块，效果受服务器判定影响。",
+    "settings": {
+      "Mode": "选择 Vanilla、NCP、AAC 4、Hypixel、Intave 或 Heypixel 实现。",
+      "Distance": "Heypixel 尝试移动的距离，单位方块。",
+      "Pitch": "Heypixel 俯仰角，单位度。"
+    }
+  },
+  "LightningTracker": {
+    "description": "接收闪电实体生成消息时，在聊天中报告坐标。",
+    "settings": {}
+  },
+  "Freecam": {
+    "description": "摄像机脱离玩家自由移动；玩家实际位置保持在服务器原处。",
+    "settings": {
+      "Horizontal Speed": "摄像机水平速度。",
+      "Vertical Speed": "摄像机升降速度。"
+    }
+  },
+  "LookTP": {
+    "description": "按住左 Alt 并触发使用键，沿 PathFinder 路径尝试移动到视线目标；也为 .vclip 提供向上寻找安全地面的功能。",
+    "settings": {
+      "TP On Ground Packet": "路径位置包的落地标记。",
+      "Clientside Teleport": "客户端分阶段移动；关闭时集中发送路径包后更新位置。",
+      "Always Top": "将目的地调整到目标上方的安全落脚位置。"
+    }
+  },
+  "HUD": {
+    "description": "显示客户端水印与状态信息，并提供其他渲染模块使用的主题颜色。",
+    "settings": {
+      "Mode": "Classic 经典样式；Omix 使用 Omix HUD。",
+      "Color Setting": "Rainbow 彩虹；Fade 两色渐变；Custom 自定义颜色。",
+      "Main Color": "Omix 主色。",
+      "Second Color": "Omix Fade 第二色。",
+      "HUD Options": "Omix 信息组件组。",
+      "TabGUI": "显示键盘导航 TabGUI。",
+      "Watermark": "显示客户端水印。",
+      "Potion Effects": "显示药水效果。",
+      "Display": "显示 CubeCraft Disabler 的等待提示或队列数量。",
+      "Position": "显示坐标、FPS 和 TPS。",
+      "No Potion Icons": "隐藏原版药水图标。",
+      "White Mode": "Omix 使用白色风格。",
+      "HUD FPS": "HUD 缓存画面的刷新率上限，不是整个游戏的 FPS 上限。",
+      "Classic Color": "Rainbow 彩虹、Chroma 色相变化、Astolfo 往返色相、Custom 单色、Fade 两色、Triple 三色。",
+      "Classic Color Speed": "动态颜色变化速度。",
+      "Classic Saturation": "颜色饱和度百分比。",
+      "Classic Brightness": "颜色亮度百分比。",
+      "Classic Color 1": "自定义/渐变第一色。",
+      "Classic Color 2": "渐变第二色。",
+      "Classic Color 3": "三色渐变第三色。",
+      "Classic Position X": "水平锚点。",
+      "Classic Position Y": "垂直锚点。",
+      "Classic Offset X": "相对水平锚点偏移。",
+      "Classic Offset Y": "相对垂直锚点偏移。",
+      "Classic Scale": "缩放倍率。",
+      "Classic Background": "背景不透明度百分比。",
+      "Classic Bar": "显示侧边装饰条。",
+      "Classic Shadow": "显示阴影。",
+      "Classic Suffixes": "显示模块附加状态文字。",
+      "Classic Lower Case": "模块名称小写。",
+      "Classic Blink Ticks": "显示 Blink 暂存 tick 信息。",
+      "Classic Disabler Queue": "显示 Disabler 队列信息。",
+      "Classic Timer Speed": "显示游戏时钟倍率。"
+    }
+  },
+  "ClickGui": {
+    "description": "打开模块配置 WebUI，失败时回退原生界面；默认右 Shift，打开后自动关闭模块。",
+    "settings": {}
+  },
+  "AIScreen": {
+    "description": "打开 AI 多对话界面，支持 Chat/Agent；默认句号键，打开后自动关闭模块。",
+    "settings": {}
+  },
+  "MusicPlayer": {
+    "description": "打开客户端音乐播放器界面，打开后自动关闭模块。",
+    "settings": {}
+  },
+  "DamageTint": {
+    "description": "生命值低于 12 点时绘制随低血量增强的屏幕颜色渐变。",
+    "settings": {}
+  },
+  "NickHider": {
+    "description": "本地名称渲染中替换自己的名称，不修改服务器账号名。",
+    "settings": {
+      "NickName": "替换显示的昵称。"
+    }
+  },
+  "ModuleList": {
+    "description": "在 HUD 显示开启的模块列表，可拖动位置。",
+    "settings": {
+      "Only Important": "过滤 Render 类模块。",
+      "Spacing": "模块行间距调整量。"
+    }
+  },
+  "AntiDebuff": {
+    "description": "隐藏失明、黑暗和反胃的画面干扰，不移除服务器状态效果。",
+    "settings": {}
+  },
+  "Brightness": {
+    "description": "提高客户端画面亮度。",
+    "settings": {
+      "Mode": "Effects 使用夜视效果流程；Gamma 调整渲染亮度。"
+    }
+  },
+  "Chams": {
+    "description": "为实体绘制着色或平面颜色效果，可穿墙显示。",
+    "settings": {
+      "Render Mode": "Tint 保留纹理并染色；Flat 平面颜色。",
+      "Color Mode": "Aura 把当前 Aura 目标显示为红色、其他选中实体为绿色；Custom 使用自定义颜色。",
+      "Custom Color": "自定义实体颜色。",
+      "Through Walls": "允许穿墙显示。",
+      "Alpha": "不透明度，0 透明、255 不透明。"
+    }
+  },
+  "NoFog": {
+    "description": "关闭渲染雾效。",
+    "settings": {}
+  },
+  "NoHurtCam": {
+    "description": "取消受伤时的摄像机摇晃。",
+    "settings": {}
+  },
+  "Zoom": {
+    "description": "按住模块绑定键放大画面；默认视野 20 度，滚轮以 5 度调整，范围 3–160 度。",
+    "settings": {}
+  },
+  "ViewClip": {
+    "description": "第三人称摄像机忽略方块遮挡，允许镜头穿墙。",
+    "settings": {}
+  },
+  "ItemPhysics": {
+    "description": "为掉落物启用物理风格的姿态与旋转渲染。",
+    "settings": {}
+  },
+  "Notify": {
+    "description": "选择客户端通知显示位置。",
+    "settings": {
+      "Mode": "Chat 聊天；HUD 屏幕；Both 同时显示。"
+    }
+  },
+  "Animation": {
+    "description": "调整第一人称挥手、格挡及装备切换动画；默认开启并隐藏，关闭时会自动重新开启。",
+    "settings": {
+      "Swing Speed": "挥手时长调整量，0 使用基础时长。",
+      "Swing Mode": "Vanilla 原版；Smooth 平滑挥手。",
+      "Block Mode": "各名称对应一种格挡姿态与摆动预设。",
+      "Equip Progress": "允许装备切换进度影响动画。"
+    }
+  },
+  "ESP": {
+    "description": "绘制实体边框及生命、护甲和名称信息。",
+    "settings": {
+      "2D ESP": "绘制二维方框。",
+      "Health Bar": "显示生命条。",
+      "Armor Bar": "显示护甲条。",
+      "Name Tags": "显示名称标签。"
+    }
+  },
+  "BedESP": {
+    "description": "高亮床的位置，并可标记黑曜石防护。",
+    "settings": {
+      "Mode": "Default 高亮床实际高度 0.5625 格；Full 使用整格高度，均覆盖床头和床尾。",
+      "Color": "Custom 指定颜色；HUD 主题颜色。",
+      "Custom Color": "自定义高亮颜色。",
+      "Opacity": "填充不透明度百分比。",
+      "Outline": "绘制轮廓线。",
+      "Obsidian": "显示黑曜石相关标记。"
+    }
+  },
+  "ChestESP": {
+    "description": "高亮普通箱、陷阱箱与末影箱。",
+    "settings": {
+      "Implementation": "Classic 可配置颜色与连线；Omix 使用 Omix 实现。",
+      "Chest": "普通箱颜色。",
+      "Trapped Chest": "陷阱箱颜色。",
+      "Ender Chest": "末影箱颜色。",
+      "Tracers": "显示指向容器的连线。"
+    }
+  },
+  "Xray": {
+    "description": "突出显示选定矿物与资源方块，按范围与洞穴条件筛选。",
+    "settings": {
+      "Mode": "Soft 保留普通方块并叠加标记；Full 完整透视渲染。",
+      "Opacity": "普通地形的透视不透明度百分比。",
+      "Range": "最大距离，单位方块。",
+      "Caves Only": "按邻近非完整、不透明度较低或特殊方块判断洞穴暴露目标。",
+      "Caves Radius": "检查邻近空气的半径，单位方块。",
+      "Diamonds": "启用钻石矿目标显示。",
+      "Diamonds Tracers": "绘制指向钻石矿的连线，需同时启用该类型。",
+      "Gold": "启用金矿目标显示。",
+      "Gold Tracers": "绘制指向金矿的连线，需同时启用该类型。",
+      "Iron": "启用铁矿目标显示。",
+      "Iron Tracers": "绘制指向铁矿的连线，需同时启用该类型。",
+      "Coal": "启用煤矿目标显示。",
+      "Coal Tracers": "绘制指向煤矿的连线，需同时启用该类型。",
+      "Redstone": "启用红石矿目标显示。",
+      "Redstone Tracers": "绘制指向红石矿的连线，需同时启用该类型。",
+      "Lapis": "启用青金石矿目标显示。",
+      "Lapis Tracers": "绘制指向青金石矿的连线，需同时启用该类型。",
+      "Emeralds": "启用绿宝石矿目标显示。",
+      "Emeralds Tracers": "绘制指向绿宝石矿的连线，需同时启用该类型。",
+      "Spawners": "启用刷怪笼目标显示。",
+      "Spawners Tracers": "绘制指向刷怪笼的连线，需同时启用该类型。",
+      "Canes": "启用甘蔗目标显示。",
+      "Canes Tracers": "绘制指向甘蔗的连线，需同时启用该类型。",
+      "Warts": "启用下界疣目标显示。",
+      "Warts Tracers": "绘制指向下界疣的连线，需同时启用该类型。"
+    }
+  },
+  "TargetHUD": {
+    "description": "显示战斗目标的头像、生命等信息，支持多种布局与拖动位置。",
+    "settings": {
+      "Mode": "选择目标面板样式。",
+      "Color": "默认颜色或跟随 HUD。",
+      "Position X": "水平锚点。",
+      "Position Y": "垂直锚点。",
+      "Scale": "面板缩放倍率。",
+      "Offset X": "水平偏移。",
+      "Offset Y": "垂直偏移。",
+      "Background": "背景不透明度百分比。",
+      "Head": "显示头像。",
+      "Indicator": "显示状态指示。",
+      "Outline": "绘制轮廓。",
+      "Animations": "启用过渡动画。",
+      "Shadow": "绘制阴影。",
+      "Aura Only": "仅展示 Aura 目标。",
+      "Chat Preview": "打开聊天时显示预览。"
+    }
+  },
+  "Tracers": {
+    "description": "以连线或方向箭头指示玩家，可分别筛选好友、敌人与机器人。",
+    "settings": {
+      "Color": "Default 默认；Teams 队伍颜色；HUD 主题。",
+      "Lines": "绘制连线。",
+      "Arrows": "绘制方向箭头。",
+      "Opacity": "不透明度百分比。",
+      "Distance": "距离上限，单位方块。",
+      "Players": "显示普通玩家。",
+      "Friends": "显示好友。",
+      "Enemies": "显示敌对分类玩家。",
+      "Bots": "显示 AntiBot 标记实体。"
+    }
+  },
+  "Trajectories": {
+    "description": "预览弓和投掷物的飞行轨迹与落点。",
+    "settings": {
+      "Opacity": "轨迹不透明度百分比。",
+      "Bow": "预览弓箭。",
+      "Projectiles": "预览常规投掷物。",
+      "Pearls": "预览末影珍珠。",
+      "Tridents": "预览三叉戟。",
+      "Crossbows": "预览弩轨迹。"
+    }
+  },
+  "MoreParticles": {
+    "description": "攻击时额外生成粒子。",
+    "settings": {
+      "Type": "选择暴击、附魔暴击、爱心、火焰或烟雾。",
+      "Amount": "每次额外生成的粒子数。"
+    }
+  },
+  "KillEffect": {
+    "description": "目标死亡时播放本地击杀特效。",
+    "settings": {
+      "Lightning": "闪电特效。",
+      "Explosion": "爆炸特效。",
+      "Blood": "血液风格粒子。"
+    }
+  },
+  "ScaffoldX": {
+    "description": "自动选择方块和放置面搭路，支持 Telly 节奏与安全补救。",
+    "settings": {
+      "Mode": "Telly 按跳跃时机；Snap 瞬时转向；Normal 持续搭路。",
+      "Always Update Rotation": "不放置时仍更新搭路旋转。",
+      "Place Tick": "Telly 放置 tick 时机阈值。",
+      "Rotation Tick": "Telly 旋转 tick 时机阈值。",
+      "Rotation Speed": "转向最大角度步幅。",
+      "Movement Fix": "转向时修正移动方向。",
+      "Spoof Item": "使用物品槽伪装。",
+      "No Swing": "抑制本地挥手。",
+      "Strict Ray Cast": "要求严格射线命中放置面。",
+      "Smooth Telly": "Telly 使用平滑转向。",
+      "Safe Mode": "启用落脚点与补救检查。",
+      "No Up Telly": "限制 Telly 向上搭路。",
+      "Eagle": "启用边缘潜行。",
+      "Eagle Tick": "触发潜行的 tick 阈值。",
+      "Keep Eagle Tick": "保持潜行的 tick 数。",
+      "Jump Mode": "Normal 正常跳跃；Parkour 边缘起跳；None 不自动跳。",
+      "Block Slot Mode": "副手方块优先；Farthest 优先当前槽，否则选择最右有效槽；Most Blocks 选择数量最多的快捷栏方块。",
+      "Clutch Safe Distance": "安全补救距离，单位方块。",
+      "Mark": "显示放置标记。",
+      "Block Count": "显示方块数量。"
+    }
+  },
+  "Scaffold": {
+    "description": "自动向脚下或边缘放置方块，支持搭高、向下搭路与跌落补救。",
+    "settings": {
+      "Delay": "放置间隔，单位毫秒。",
+      "Mode": "Normal 连续搭路；Telly Bridge 按跳跃节奏。",
+      "Telly Tick": "Telly 开始处理的 tick 阈值。",
+      "Rotation Mode": "Normal、Facing、Hit Vec、Nearest、Hypixel 采用不同瞄准点算法；On tick 在移动 tick 应用旋转。",
+      "Shrink": "搜索命中点时的边缘收缩量。",
+      "Rotation Speed": "转向最大角度步幅。",
+      "Tower Mode": "None 不自动搭高；其余为不同搭高运动流程。",
+      "Downwards": "允许向下搭路。",
+      "Auto Jump": "自动起跳。",
+      "Sprint": "搭路期间允许疾跑。",
+      "Ray Cast": "要求射线命中放置目标。",
+      "Max Stack": "优先最多方块堆。",
+      "Item Spoof": "使用物品槽伪装。",
+      "No Swing": "抑制本地挥手。",
+      "Movement Fix": "转向时修正移动。",
+      "Clutch": "启用跌落补救放置。",
+      "Only stuck in essential": "仅补救必要时请求 Stuck 冻结。",
+      "Clutch Eye Tick": "预测眼睛位置的 tick 数。",
+      "Clutch Height Tick": "预测高度的 tick 数。",
+      "Clutch Ground Distance": "检查地面距离参数。",
+      "Clutch Stuck Time (s)": "补救冻结最长秒数。"
+    }
+  },
+  "AutoPlay": {
+    "description": "按服务器提示自动回大厅、再次游玩、出售或登录；界面名称 Auto Bypass。",
+    "settings": {
+      "Mode": "Hypixel Limbo 发送 /lobby；Cubecraft 发送 /playagain now；Purple Prison 背包满后 /sell；Auth Me 响应登录注册提示。",
+      "Password": "登录注册密码；敏感文本，不展示默认值。"
+    }
+  },
+  "AutoGG": {
+    "description": "识别胜利后延迟自动发送 GG。",
+    "settings": {
+      "Title": "通过标题识别胜利。",
+      "Chat": "通过聊天识别胜利。",
+      "Fireworks": "通过烟花识别胜利。",
+      "Cooldown": "两次动作冷却，单位毫秒。",
+      "Delay": "胜利后等待时间，单位毫秒。"
+    }
+  },
+  "AutoScreenshot": {
+    "description": "识别胜利后保存截图到标准截图目录。",
+    "settings": {
+      "Auto 2nd Perspective": "截图前临时切换正面第三人称，完成后恢复。",
+      "Title": "通过标题识别胜利。",
+      "Chat": "通过聊天识别胜利。",
+      "Fireworks": "通过烟花识别胜利。",
+      "Cooldown": "两次动作冷却，单位毫秒。",
+      "Delay": "胜利后等待时间，单位毫秒。"
+    }
+  },
+  "AutoL": {
+    "description": "记录自己攻击过的玩家，确认其生命归零后发送所选文本；离开渲染距离本身不触发。",
+    "settings": {
+      "Word Pattern": "选择内置文本集合或 Custom；Classic 组合前后句。",
+      "NameInFront": "文本前加被击杀玩家名。",
+      "SendL": "70% 概率在文本前加全角 Ｌ。",
+      "Content": "自定义文本，支持 <target>；空白时发送未设置提示。",
+      "Target": "<target> 使用客户端名、账号名或自定义文本。",
+      "Target Text": "替换 <target> 的自定义内容。"
+    }
+  },
+  "QuickMacro": {
+    "description": "按快捷键发送预设聊天或命令，空文本不执行。",
+    "settings": {
+      "Macro Key": "触发键位，默认 X。",
+      "Message / Command": "发送文本；以 / 开头时按服务器命令处理。"
+    }
+  },
+  "WorldTweaks": {
+    "description": "本地覆盖时间与天气画面，不改变服务器世界状态。",
+    "settings": {
+      "Time": "显示的日内时间，按 Minecraft tick 计。",
+      "Weather": "Normal 保留天气；Clear 晴；Rain 雨；Snow 雪。",
+      "Intensity": "雨雪强度。"
+    }
+  },
+  "GhostHand": {
+    "description": "调整方块交互射线，允许更远距离或穿过遮挡选择。",
+    "settings": {
+      "Through Wall": "忽略普通方块遮挡，选择箱子、门、按钮等可交互目标，不是任意方块。",
+      "Distance": "交互射线距离，单位方块。"
+    }
+  },
+  "Blink": {
+    "description": "在多人游戏中暂存移动等数据包，关闭时统一释放；服务器位置暂时停留在开始暂存的位置。",
+    "settings": {
+      "RenderRealPosition": "绘制服务器端保留的位置。"
+    }
+  }
+}

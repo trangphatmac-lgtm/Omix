@@ -104,7 +104,7 @@ final class OpenAiCompatibleProvider implements AiProvider {
         );
     }
 
-    private JsonArray buildMessages(
+    static JsonArray buildMessages(
             AiGameContext gameContext,
             String message,
             AiChatMode mode,
