@@ -1,6 +1,7 @@
 package injection;
 
 import cn.omix.event.impl.AttackEvent;
+import cn.omix.module.impl.combat.Reach;
 import cn.omix.module.impl.move.KeepSprint;
 import cn.omix.module.impl.player.ChestArua;
 import cn.omix.util.IMinecraft;
@@ -33,6 +34,12 @@ public class MixinClientPlayerInteractionManager implements IMinecraft {
     @Inject(method = "attackEntity", at = @At("HEAD"), cancellable = true)
     private void attackEntity(PlayerEntity player, Entity target, CallbackInfo ci) {
         if (mc.player == null || mc.world == null) return;
+
+        Reach reach = instance.getModuleManager().getModule(Reach.class);
+        if (player == mc.player && reach != null && reach.shouldBlockAttack(target)) {
+            ci.cancel();
+            return;
+        }
 
         KeepSprint keepSprint = instance.getModuleManager().getModule(KeepSprint.class);
         if (keepSprint != null && keepSprint.tryBufferAttack(target)) {
