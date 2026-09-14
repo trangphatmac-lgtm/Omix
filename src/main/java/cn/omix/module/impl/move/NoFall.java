@@ -2,6 +2,7 @@ package cn.omix.module.impl.move;
 
 import cn.omix.event.base.annotation.EventPriority;
 import cn.omix.event.base.annotation.EventTarget;
+import cn.omix.event.impl.JumpEvent;
 import cn.omix.event.impl.MotionEvent;
 import cn.omix.event.impl.MoveInputEvent;
 import cn.omix.event.impl.PacketEvent;
@@ -21,6 +22,7 @@ import cn.omix.util.player.RayCastUtil;
 import injection.accessor.LivingEntityAccessor;
 import injection.accessor.PlayerMoveC2SPacketAccessor;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.Item;
@@ -28,6 +30,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.util.ActionResult;
@@ -40,6 +43,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import org.lwjgl.glfw.GLFW;
 
 public final class NoFall extends Module {
     private static final long PLACE_DELAY = 500L;
@@ -59,15 +63,22 @@ public final class NoFall extends Module {
             "Spoof",
             "CubeCraft Reduce",
             "MLG",
-            "Grim"
+            "Grim",
+            "Grim2",
+            "Heypixel"
     );
-    private final NumberValue distance = new NumberValue("Distance", 3.0, 0.0, 20.0, 0.5);
+    private final NumberValue distance = new NumberValue("Distance", 3.0F, 0.0F, 20.0F, 0.5F,
+            () -> !mode.is("Grim2") && !mode.is("Heypixel"));
     private final NumberValue delay = new NumberValue("Delay", 0, 0, 10000, 50,
             () -> !mode.is("NoGround")
                     && !mode.is("CubeCraft Reduce")
                     && !mode.is("MLG")
-                    && !mode.is("Grim"));
+                    && !mode.is("Grim")
+                    && !mode.is("Grim2")
+                    && !mode.is("Heypixel"));
     private final BoolValue rotation = new BoolValue("Rotation", false, () -> mode.is("MLG"));
+    private final BoolValue newestGrim = new BoolValue("Newest Grim, may flag the anticheat", false,
+            () -> mode.is("Grim2"));
     private final TimerUtil packetDelayTimer = new TimerUtil();
 
     private boolean slowFalling;
@@ -83,6 +94,19 @@ public final class NoFall extends Module {
     private boolean awaitingPickupConfirmation;
     private boolean mlgActionThisTick;
     private int restoreSlotTicks;
+
+    private float referenceFallDistance;
+    private double referenceTickStartY;
+    private int referenceGroundTicks;
+    private int referenceAirTicks;
+    private int referenceVelocityTicks;
+    private int referenceTeleportTicks;
+    private boolean grim2ShouldNoFall;
+    private boolean grim2ShouldJump;
+    private boolean grim2HoldingPackets;
+    private boolean heypixelSpoofingFall;
+    private boolean heypixelHoldingJump;
+    private boolean referenceControlsJump;
 
     private GrimStep grimStep = GrimStep.COMMON;
     private int grimTick;
@@ -127,8 +151,12 @@ public final class NoFall extends Module {
     @EventTarget
     @EventPriority(1)
     public void onPacket(PacketEvent event) {
+        if (mc.player != null) {
+            syncModeState();
+            handleReferencePacket(event);
+        }
         if (event.getType() == PacketEvent.Type.Received && event.getPacket() instanceof PlayerPositionLookS2CPacket) {
-            if (!mode.is("Grim")) {
+            if (!mode.is("Grim") && !mode.is("Grim2") && !mode.is("Heypixel")) {
                 resetState(true);
             }
             return;
@@ -202,6 +230,17 @@ public final class NoFall extends Module {
         if (mc.player == null) return;
 
         syncModeState();
+        if (usesReferenceMode()) {
+            referenceTickStartY = mc.player.getY();
+            referenceVelocityTicks++;
+            referenceTeleportTicks++;
+            referenceGroundTicks = mc.player.isOnGround() ? referenceGroundTicks + 1 : 0;
+            referenceAirTicks = mc.player.isOnGround() ? 0 : referenceAirTicks + 1;
+            if (grim2HoldingPackets && mc.player.isOnGround()) {
+                // The supplied reference never adds packets to heldPackets.
+                grim2HoldingPackets = false;
+            }
+        }
         if (mode.is("Grim")) {
             setSuffix(mode.getValue());
             handleGrimTick();
@@ -252,6 +291,15 @@ public final class NoFall extends Module {
 
         if (!event.isPre()) return;
 
+        if (mode.is("Grim2")) {
+            handleGrim2Motion(event);
+            return;
+        }
+        if (mode.is("Heypixel")) {
+            handleHeypixelMotion(event);
+            return;
+        }
+
         if (mode.is("CubeCraft Reduce")) {
             setSuffix(mode.getValue());
             handleCubeCraftReduce(event);
@@ -282,6 +330,8 @@ public final class NoFall extends Module {
 
     @EventTarget
     public void onPlayerPositionLook(PlayerPositionLookEvent event) {
+        // Teleport releases only spoofing; jumping stays held until the next jump.
+        if (mode.is("Heypixel")) heypixelSpoofingFall = false;
         if (!mode.is("Grim")) return;
 
         if (grimWaitStartPos == null
@@ -298,11 +348,153 @@ public final class NoFall extends Module {
 
     @EventTarget
     public void onWorld(WorldEvent event) {
+        resetReferenceState();
         resetGrimState();
         grimLastGroundHeight = 0.0;
         grimPosAtTickStart = null;
         grimOnGroundAtTickStart = false;
         grimHorizontalCollisionAtTickStart = false;
+    }
+
+    private boolean usesReferenceMode() {
+        return mode.is("Grim2") || mode.is("Heypixel");
+    }
+
+    private void handleReferencePacket(PacketEvent event) {
+        if (!usesReferenceMode() || event.getType() != PacketEvent.Type.Received) return;
+        if (event.getPacket() instanceof PlayerPositionLookS2CPacket) {
+            if (!event.isCancelled()) referenceTeleportTicks = 0;
+        } else if (!event.isCancelled()
+                && event.getPacket() instanceof EntityVelocityUpdateS2CPacket velocity
+                && velocity.getEntityId() == mc.player.getId()) {
+            if (mode.is("Grim2") && mc.player.age >= 10 && !mc.player.horizontalCollision) {
+                if (velocity.getVelocity().y > 0 || referenceVelocityTicks <= 14 || referenceGroundTicks <= 1) {
+                    grim2ShouldJump = true;
+                }
+                if (!mc.player.isOnGround() && grim2ShouldNoFall) grim2HoldingPackets = true;
+            }
+            referenceVelocityTicks = 0;
+        }
+        // Deliberately no cancellation/queue: the reference's transaction branches only return.
+    }
+
+    private void handleGrim2Motion(MotionEvent event) {
+        if (mc.player.horizontalCollision) return;
+        if (mc.player.getVelocity().y > 0.1) grim2ShouldNoFall = false;
+        if (referenceFallDistance > 3.0F) grim2ShouldNoFall = true;
+        if (grim2ShouldNoFall && mc.player.isOnGround()) {
+            if (newestGrim.getValue()) {
+                PacketUtil.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
+                        new Vec3d(mc.player.getX(), mc.player.getY() + 0.01, mc.player.getZ()), true, mc.player.horizontalCollision));
+            }
+            event.setCancelled();
+            PacketUtil.sendPacket(new PlayerMoveC2SPacket.OnGroundOnly(true, mc.player.horizontalCollision));
+            referenceFallDistance = 0.0F;
+        }
+        if (grim2ShouldNoFall) {
+            referenceControlsJump = true;
+            mc.options.jumpKey.setPressed(false);
+        }
+        if (newestGrim.getValue() && referenceAirTicks == 9
+                && referenceTeleportTicks > 200 && referenceGroundDistance() > 5.0) {
+            Vec3d velocity = mc.player.getVelocity();
+            double y = velocity.y;
+            for (int i = 0; i < 10; i++) y = (y - 0.08) * 0.98F;
+            mc.player.setVelocity(velocity.x, y, velocity.z);
+        }
+    }
+
+    private double referenceGroundDistance() {
+        if (mc.world == null) return -1.0;
+        Box box = mc.player.getBoundingBox();
+        double distance = Double.POSITIVE_INFINITY;
+        for (int x = MathHelper.floor(box.minX + 1.0E-7); x <= MathHelper.floor(box.maxX - 1.0E-7); x++) {
+            for (int z = MathHelper.floor(box.minZ + 1.0E-7); z <= MathHelper.floor(box.maxZ - 1.0E-7); z++) {
+                for (int y = MathHelper.floor(box.minY) - 1; y >= mc.world.getBottomY(); y--) {
+                    BlockPos pos = new BlockPos(x, y, z);
+                    var shape = mc.world.getBlockState(pos).getCollisionShape(mc.world, pos);
+                    if (shape.isEmpty()) continue;
+                    distance = Math.min(distance, Math.max(0.0, box.minY - (y + shape.getMax(Direction.Axis.Y))));
+                    break;
+                }
+            }
+        }
+        return distance == Double.POSITIVE_INFINITY ? -1.0 : distance;
+    }
+
+    private void handleHeypixelMotion(MotionEvent event) {
+        if (heypixelHoldingJump) mc.options.jumpKey.setPressed(true);
+        if (heypixelSpoofingFall) {
+            Vec3d velocity = mc.player.getVelocity();
+            mc.player.setVelocity(velocity.x, 0.0, velocity.z);
+            event.setOnGround(false);
+            event.setY(event.getY() - 0.098F);
+            mc.player.refreshPositionAndAngles(mc.player.getX(), event.getY(), mc.player.getZ(),
+                    mc.player.getYaw(), mc.player.getPitch());
+            // setPositionAndUpdate in the reference also resets lastTickPosY.
+            referenceTickStartY = mc.player.getY();
+        } else if (mc.world != null && mc.player.getVelocity().y <= 0.0 && referenceFallDistance > 3.0F
+                && mc.world.getBlockState(BlockPos.ofFloored(event.getX(),
+                event.getY() + mc.player.getVelocity().y, event.getZ())).isSolid()) {
+            referenceFallDistance = 0.0F;
+            heypixelSpoofingFall = true;
+            heypixelHoldingJump = true;
+            referenceControlsJump = true;
+            mc.options.jumpKey.setPressed(true);
+        }
+    }
+
+    @EventTarget
+    @EventPriority(1001)
+    public void onReferenceFallDistance(MotionEvent event) {
+        if (mc.player == null || !usesReferenceMode() || !event.isPre()) return;
+        // Rise's FallDistanceComponent runs AFTER the NoFall pre-motion listener.
+        double fallen = referenceTickStartY - mc.player.getY();
+        if (fallen > 0.0) referenceFallDistance = (float) (referenceFallDistance + fallen);
+        if (event.isOnGround()) referenceFallDistance = 0.0F;
+    }
+
+    @EventTarget
+    @EventPriority(1001)
+    public void onReferenceMoveInput(MoveInputEvent event) {
+        if (mc.player == null) return;
+        syncModeState();
+        if (mode.is("Grim2") && !mc.player.horizontalCollision && grim2ShouldJump && grim2ShouldNoFall) {
+            event.setJumping(true);
+            grim2ShouldJump = false;
+        } else if (mode.is("Heypixel") && heypixelHoldingJump) {
+            event.setJumping(true);
+        }
+    }
+
+    @EventTarget
+    @EventPriority(1001)
+    public void onReferenceJump(JumpEvent event) {
+        if (mode.is("Heypixel") && heypixelHoldingJump && !heypixelSpoofingFall && !event.isCancelled()) {
+            releaseReferenceJump();
+        }
+    }
+
+    private void releaseReferenceJump() {
+        heypixelHoldingJump = false;
+        if (!referenceControlsJump) return;
+        referenceControlsJump = false;
+        InputUtil.Key key = InputUtil.fromTranslationKey(mc.options.jumpKey.getBoundKeyTranslationKey());
+        boolean pressed = key.getCategory() == InputUtil.Type.MOUSE
+                ? GLFW.glfwGetMouseButton(mc.getWindow().getHandle(), key.getCode()) == GLFW.GLFW_PRESS
+                : key.getCategory() == InputUtil.Type.KEYSYM && InputUtil.isKeyPressed(mc.getWindow(), key.getCode());
+        mc.options.jumpKey.setPressed(pressed);
+    }
+
+    private void resetReferenceState() {
+        releaseReferenceJump();
+        grim2ShouldNoFall = false;
+        grim2ShouldJump = false;
+        grim2HoldingPackets = false;
+        heypixelSpoofingFall = false;
+        referenceFallDistance = 0.0F;
+        referenceTickStartY = mc.player == null ? 0.0 : mc.player.getY();
+        referenceGroundTicks = referenceAirTicks = referenceVelocityTicks = referenceTeleportTicks = 0;
     }
 
     private void handlePacket(PlayerMoveC2SPacket packet) {
@@ -1072,6 +1264,7 @@ public final class NoFall extends Module {
     }
 
     private void resetState(boolean releaseBlink) {
+        resetReferenceState();
         blinkArmed = false;
         slowFalling = false;
         TimerSpeedUtil.reset();

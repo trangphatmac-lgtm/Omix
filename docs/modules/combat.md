@@ -46,7 +46,7 @@
 
 ## Reach
 
-Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原版客户端实体距离及武器攻击范围，不扩展客户端射线距离。Grim 拦截 TeleportConfirm（传送确认包），仍正常应用 PlayerPositionLook 并发送移动包；存在待确认传送时，攻击前检查保存的服务器眼睛位置到目标碰撞箱最近点的三维距离，超过配置距离则取消攻击，硬上限为 6 格。每个游戏 tick 按 Chance 抽样，在 Min Range 与 Max Range 之间选取距离；条件未满足时，Normal 使用原版距离，Grim 的服务器距离限制回退为 3 格。没有待确认服务器位置时，Grim 保留普通攻击流程。关闭模块或切回 Normal 时进入退出恢复：停止拦截，等待新的 PlayerPositionLook，由原版应用其位置、速度和旋转并发送对应确认与移动响应。退出动作本身不重放旧确认、不发送额外移动或 tick-end 包，也不修改位置、速度及落地状态。原版服务端等待确认超过 20 tick 后，会在处理后续正常移动包时重发位置修正；恢复时机取决于服务端重发。快速重新开启时也会先放行一次新的修正响应。切换世界、连接或玩家实体后丢弃旧记录。ShowServerPosition 显示最新待确认位置。Grim 模式未进行服务端验证。
+Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原版客户端实体距离及武器攻击范围，不扩展客户端射线距离。Grim 拦截 TeleportConfirm（传送确认包），仍正常应用 PlayerPositionLook 并发送移动包；存在待确认传送时，攻击前检查保存的服务器眼睛位置到目标碰撞箱最近点的三维距离，超过配置距离则取消攻击，硬上限为 6 格。每个游戏 tick 按 Chance 抽样，在 Min Range 与 Max Range 之间选取距离；条件未满足时，Normal 使用原版距离，Grim 的服务器距离限制回退为 3 格。没有待确认服务器位置时，Grim 保留普通攻击流程。关闭模块或切回 Normal 时回到最新待确认位置、清除速度与下落距离，并补发最新确认和位置包；切换世界、连接或玩家实体后丢弃旧记录。ShowServerPosition 显示最新待确认位置。Grim 模式未进行服务端验证。
 
 源码：`src/main/java/cn/omix/module/impl/combat/Reach.java`。
 

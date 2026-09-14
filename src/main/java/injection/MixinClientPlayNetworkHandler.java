@@ -2,14 +2,8 @@ package injection;
 
 import ai.backend.AiContainerTools;
 import cn.omix.event.impl.PlayerPositionLookEvent;
-import cn.omix.module.impl.combat.Reach;
 import cn.omix.util.IMinecraft;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.util.math.Vec3d;
@@ -20,18 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler implements IMinecraft {
-
-    @WrapOperation(method = "onPlayerPositionLook", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/network/ClientConnection;send(Lnet/minecraft/network/packet/Packet;)V", ordinal = 0))
-    private void omix$reachTeleportConfirmation(ClientConnection connection, Packet<?> packet, Operation<Void> original) {
-        if (packet instanceof TeleportConfirmC2SPacket confirm
-                && instance != null && instance.getModuleManager() != null) {
-            Reach reach = instance.getModuleManager().getModule(Reach.class);
-            // Keep this hook active while the module is disabled so pending recovery can finish.
-            if (reach != null && reach.suppressTeleportConfirmation(confirm.getTeleportId())) return;
-        }
-        original.call(connection, packet);
-    }
 
     @Inject(method = "onInventory", at = @At("RETURN"))
     private void afterContainerInventoryApplied(InventoryS2CPacket packet, CallbackInfo ci) {

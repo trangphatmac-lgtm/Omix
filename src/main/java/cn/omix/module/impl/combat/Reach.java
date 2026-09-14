@@ -1,6 +1,7 @@
 package cn.omix.module.impl.combat;
 
 import cn.omix.event.base.annotation.EventTarget;
+import cn.omix.event.impl.PacketEvent;
 import cn.omix.event.impl.Render3DEvent;
 import cn.omix.event.impl.UpdateEvent;
 import cn.omix.event.impl.WorldEvent;
@@ -10,10 +11,13 @@ import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
 import cn.omix.util.player.MovementUtil;
+import cn.omix.util.network.PacketUtil;
 import cn.omix.util.render.Render3D;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.Vec3d;
 
 import java.awt.Color;
@@ -40,15 +44,33 @@ public final class Reach extends Module {
         super("Reach", Category.Combat);
     }
 
-    /** Called only while vanilla handles a freshly received PlayerPositionLook, after applying it. */
-    public boolean suppressTeleportConfirmation(int teleportId) {
-        return teleports.onCorrection(mc.getNetworkHandler(), mc.world, mc.player, teleportId,
-                mc.player == null ? null : mc.player.getEntityPos(), isEnabled() && mode.is("Grim"));
+    @EventTarget
+    public void onPacket(PacketEvent event) {
+        if (!isEnabled() || event.getType() != PacketEvent.Type.Send) return;
+
+        if (!mode.is("Grim")) {
+            if (event.getPacket() instanceof TeleportConfirmC2SPacket) {
+                // A newer vanilla correction supersedes our pending recovery.
+                teleports.clear();
+            } else if (restorePendingTeleport() && event.getPacket() instanceof PlayerMoveC2SPacket) {
+                // This packet was built before recovery moved the player back.
+                event.setCancelled();
+            }
+            return;
+        }
+
+        if (event.getPacket() instanceof TeleportConfirmC2SPacket confirm
+                && mc.player != null && mc.world != null && mc.getNetworkHandler() != null) {
+            // Vanilla has already applied PlayerPositionLook, including relative coordinates.
+            teleports.remember(mc.getNetworkHandler(), mc.world, mc.player,
+                    confirm.getTeleportId(), mc.player.getEntityPos());
+            event.setCancelled();
+        }
     }
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
-        if (!mode.is("Grim")) beginRecovery();
+        if (!mode.is("Grim")) restorePendingTeleport();
         else teleports.peek(mc.getNetworkHandler(), mc.world, mc.player);
     }
 
@@ -68,10 +90,23 @@ public final class Reach extends Module {
         Render3D.drawBox(event, mc.player.getBoundingBox().offset(offset), SERVER_POSITION_COLOR, true, true);
     }
 
-    private void beginRecovery() {
-        // The old teleport's movement response has already been sent and consumed by Grim.
-        // Wait for a new server correction instead of fabricating another response to the old one.
-        teleports.beginRecovery(mc.getNetworkHandler(), mc.world, mc.player);
+    private boolean restorePendingTeleport() {
+        var handler = mc.getNetworkHandler();
+        var pending = teleports.take(handler, mc.world, mc.player);
+        if (pending == null || handler == null || !handler.getConnection().isOpen()) return false;
+
+        Vec3d position = pending.position();
+        mc.player.setPosition(position);
+        mc.player.setVelocity(Vec3d.ZERO);
+        mc.player.fallDistance = 0;
+        // Recovery must not be cancelled again or buffered by another packet listener.
+        PacketUtil.runWithoutEvents(() -> {
+            handler.sendPacket(new TeleportConfirmC2SPacket(pending.id()));
+            handler.sendPacket(new PlayerMoveC2SPacket.Full(position.x, position.y, position.z,
+                    mc.player.getYaw(), mc.player.getPitch(), false, false));
+            return null;
+        });
+        return true;
     }
 
     public double getRange(double vanillaRange) {
@@ -115,12 +150,12 @@ public final class Reach extends Module {
     @Override
     public void onEnable() {
         clearSample();
-        teleports.peek(mc.getNetworkHandler(), mc.world, mc.player);
+        teleports.clear();
     }
 
     @Override
     public void onDisable() {
-        beginRecovery();
+        restorePendingTeleport();
         clearSample();
     }
 

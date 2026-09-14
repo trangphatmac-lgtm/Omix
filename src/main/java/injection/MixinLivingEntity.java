@@ -94,6 +94,15 @@ public abstract class MixinLivingEntity implements IMinecraft {
         }
     }
 
+    @Inject(method = "jump", at = @At(value = "FIELD",
+            target = "Lnet/minecraft/entity/LivingEntity;velocityDirty:Z", opcode = org.objectweb.asm.Opcodes.PUTFIELD))
+    private void omix$notifyNonSprintJump(CallbackInfo ci) {
+        if (mc.player == null || mc.world == null || (Object) this != mc.player || mc.player.isSprinting()) return;
+        // The yaw STORE below exists only for sprint jumps. Heypixel must also
+        // observe ordinary jumps to release its held jump key after a teleport.
+        instance.getEventManager().call(new JumpEvent(mc.player.getYaw()));
+    }
+
     @ModifyVariable(method = "jump", at = @At("STORE"), index = 3)
     private float modifyJumpYaw(float yawRadians) {
         if (mc.player == null || mc.world == null || (Object) this != mc.player) return yawRadians;
