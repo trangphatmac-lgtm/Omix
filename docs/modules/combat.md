@@ -44,6 +44,20 @@
 | MovementFix Mode | None 不修正移动；Silent 和 Strict 在旋转改变时修正移动方向。 | 模式；默认 None；可选 None / Silent / Strict |
 | Ray Cast | 攻击前要求射线检测实际命中目标。 | 布尔；默认 false |
 
+## Reach
+
+扩展本地玩家的实体选取与近战攻击距离；每个游戏 tick 按 Chance 抽样，在 Min Range 与 Max Range 之间随机选取距离，同一 tick 共用结果。不会缩短原版或武器自带的更长距离，不增加方块交互距离；服务器仍独立验证攻击距离。
+
+源码：`src/main/java/cn/omix/module/impl/combat/Reach.java`。
+
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| Min Range | 随机距离下限，单位方块；大于 Max Range 时按交换后的区间计算。 | 数值；默认 3.0；3.0–6.0；步长 0.05 |
+| Max Range | 随机距离上限，单位方块；等于 Min Range 时使用固定距离。 | 数值；默认 3.0；3.0–6.0；步长 0.05 |
+| Chance | 每个游戏 tick 启用扩展距离的概率（百分比）；0 始终使用原版距离，100 始终通过概率判断。 | 数值；默认 100；0–100；步长 1 |
+| Only Moving | 仅存在水平移动输入时生效。 | 布尔；默认 false |
+| Only Sprint | 仅玩家处于疾跑状态时生效；与 Only Moving 同时开启时须同时满足。 | 布尔；默认 false |
+
 ## TPAura
 
 通过 PathFinder 生成路径，沿路径发送位置更新接近目标、攻击后返回，支持单体、轮换和多目标。

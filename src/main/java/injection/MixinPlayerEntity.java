@@ -1,6 +1,7 @@
 package injection;
 
 import cn.omix.module.impl.move.KeepSprint;
+import cn.omix.module.impl.combat.Reach;
 import cn.omix.module.impl.world.GhostHand;
 import cn.omix.util.IMinecraft;
 import net.minecraft.entity.Entity;
@@ -14,6 +15,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerEntity.class)
 public class MixinPlayerEntity implements IMinecraft {
+
+    @Inject(method = "getEntityInteractionRange", at = @At("RETURN"), cancellable = true)
+    private void omix$reachDistance(CallbackInfoReturnable<Double> cir) {
+        if (mc.player == null || (Object) this != mc.player
+                || instance == null || instance.getModuleManager() == null) return;
+
+        Reach reach = instance.getModuleManager().getModule(Reach.class);
+        if (reach != null) {
+            cir.setReturnValue(reach.getRange(cir.getReturnValue()));
+        }
+    }
 
     @Inject(method = "getBlockInteractionRange", at = @At("RETURN"), cancellable = true)
     private void omix$ghostHandDistance(CallbackInfoReturnable<Double> cir) {

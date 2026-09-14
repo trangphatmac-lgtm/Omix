@@ -4,6 +4,8 @@ import cn.omix.event.impl.JumpEvent;
 import cn.omix.event.impl.MoveMathEvent;
 import cn.omix.event.impl.RenderRotationEvent;
 import cn.omix.module.impl.move.KeepSprint;
+import cn.omix.module.impl.combat.Reach;
+import net.minecraft.component.type.AttackRangeComponent;
 import cn.omix.module.impl.player.ChestArua;
 import cn.omix.module.impl.player.chest.ChestScreenGuard;
 import cn.omix.module.impl.render.AntiDebuff;
@@ -24,6 +26,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class MixinLivingEntity implements IMinecraft {
+    @Inject(method = "getAttackRange", at = @At("RETURN"), cancellable = true)
+    private void omix$reachAttackRange(CallbackInfoReturnable<AttackRangeComponent> cir) {
+        if (mc.player == null || (Object) this != mc.player
+                || instance == null || instance.getModuleManager() == null) return;
+
+        Reach reach = instance.getModuleManager().getModule(Reach.class);
+        if (reach == null || !reach.isEnabled()) return;
+        AttackRangeComponent original = cir.getReturnValue();
+        float maxRange = (float) reach.getRange(original.maxRange());
+        float maxCreativeRange = (float) reach.getRange(original.maxCreativeRange());
+        if (maxRange != original.maxRange() || maxCreativeRange != original.maxCreativeRange()) {
+            cir.setReturnValue(new AttackRangeComponent(original.minRange(), maxRange,
+                    original.minCreativeRange(), maxCreativeRange, original.hitboxMargin(), original.mobFactor()));
+        }
+    }
+
     @Inject(method = "setSprinting", at = @At("HEAD"), cancellable = true)
     private void omix$chestAruaSuppressSprint(boolean sprinting, CallbackInfo ci) {
         if (!sprinting || (Object) this != mc.player

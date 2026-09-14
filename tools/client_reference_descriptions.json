@@ -8,6 +8,16 @@
       "Release On Target Lost": "目标从 TargetHUD 消失时立即释放并停止追踪；关闭时允许完成已有暂存周期。"
     }
   },
+  "Reach": {
+    "description": "扩展本地玩家的实体选取与近战攻击距离；每个游戏 tick 按 Chance 抽样，在 Min Range 与 Max Range 之间随机选取距离，同一 tick 共用结果。不会缩短原版或武器自带的更长距离，不增加方块交互距离；服务器仍独立验证攻击距离。",
+    "settings": {
+      "Min Range": "随机距离下限，单位方块；大于 Max Range 时按交换后的区间计算。",
+      "Max Range": "随机距离上限，单位方块；等于 Min Range 时使用固定距离。",
+      "Chance": "每个游戏 tick 启用扩展距离的概率（百分比）；0 始终使用原版距离，100 始终通过概率判断。",
+      "Only Moving": "仅存在水平移动输入时生效。",
+      "Only Sprint": "仅玩家处于疾跑状态时生效；与 Only Moving 同时开启时须同时满足。"
+    }
+  },
   "Aura": {
     "description": "自动筛选附近目标、转向并进行近战攻击，支持旧版 CPS 与新版攻击冷却；目标过滤同时受 Targets、Teams 和 AntiBot 等模块影响。",
     "settings": {
