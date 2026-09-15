@@ -17,7 +17,7 @@
 
 ## Aura
 
-自动筛选附近目标、转向并进行近战攻击，支持旧版 CPS 与新版攻击冷却；目标过滤同时受 Targets、Teams 和 AntiBot 等模块影响。
+自动筛选附近目标、转向并进行近战攻击，支持旧版 CPS 与新版攻击冷却；目标过滤同时受 Targets、Teams 和 AntiBot 等模块影响。旋转通过每 tick 请求参与统一仲裁，默认优先级 400；Rotation Speed 为 0 时仍使用原有随机微量速度和平滑处理。
 
 源码：`src/main/java/cn/omix/module/impl/combat/Aura.java`。
 
@@ -29,7 +29,7 @@
 | Combat Mode | 1.8 按 CPS 发起攻击；1.9+ 按武器攻击冷却判断时机。 | 模式；默认 1.8；可选 1.8 / 1.9+ |
 | Max CPS | 旧版攻击频率的随机上限，每秒次数。 | 数值；默认 10；1–20；步长 1；显示条件：Combat Mode = 1.8 |
 | Min CPS | 旧版攻击频率的随机下限，每秒次数。 | 数值；默认 7；1–20；步长 1；显示条件：Combat Mode = 1.8 |
-| No swing | 与 Rise KillAura 同款：跳过 Aura 的挥手动作及对应挥手包，仍正常攻击；适用于两种 Combat Mode，开启时优先于 Keep Swing。 | 布尔；默认 false |
+| No swing | 仅隐藏 Aura 的本地挥手动画，攻击后仍发送主手挥手包，保持 1.21.11 的攻击→挥手包顺序，避免因缺失挥手包触发 PacketOrderB；其他玩家仍可能看到挥手。适用于两种 Combat Mode，开启时优先于 Keep Swing；Combat Mode 的 1.8 仅表示 CPS 攻击模式，不改变协议包顺序。 | 布尔；默认 false |
 | Keep Swing | 新版攻击尚未冷却时仍保留挥手动作；No swing 开启时不生效。 | 布尔；默认 false；显示条件：Combat Mode = 1.9+ |
 | Cooldown Bypass | 预测这一击足以击杀时允许跳过完整冷却等待。 | 布尔；默认 false；显示条件：Combat Mode = 1.9+ |
 | Only Rot In Essential | 仅在攻击前后的必要时间段转向目标。 | 布尔；默认 false；显示条件：Combat Mode = 1.9+ |
@@ -141,7 +141,7 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 
 ## TargetStrafe
 
-围绕当前战斗目标移动，选择可通行的环绕点或目标背后位置，可与移动加速模块协作。
+围绕当前战斗目标移动，选择可通行的环绕点或目标背后位置，可与移动加速模块协作。Legit 旋转以优先级 200 提交 yaw 请求，保留镜头 pitch；Silent Aim 控制是否同步镜头 yaw。
 
 源码：`src/main/java/cn/omix/module/impl/combat/TargetStrafe.java`。
 

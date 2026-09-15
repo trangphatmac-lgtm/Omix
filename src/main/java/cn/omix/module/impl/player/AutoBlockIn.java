@@ -1,5 +1,8 @@
 package cn.omix.module.impl.player;
 
+import cn.omix.management.movement.MovementCorrection;
+import cn.omix.management.rotation.RotationRequest;
+import cn.omix.event.impl.RotationRequestEvent;
 import cn.omix.Client;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.LivingUpdateEvent;
@@ -80,6 +83,15 @@ public final class AutoBlockIn extends Module {
     @Override
     public void onDisable() {
         reset();
+    }
+
+    @EventTarget
+    public void onRotationRequest(RotationRequestEvent event) {
+        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (!isPlacing() || rotations == null) return;
+        // The planner has already applied the speed/randomization curve.
+        event.submit(RotationRequest.builder(getName(), rotations, 700)
+                .speed(0).movementCorrection(MovementCorrection.Silent).build());
     }
 
     @EventTarget

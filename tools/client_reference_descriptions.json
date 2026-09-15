@@ -29,7 +29,7 @@
   },
 
   "Aura": {
-    "description": "自动筛选附近目标、转向并进行近战攻击，支持旧版 CPS 与新版攻击冷却；目标过滤同时受 Targets、Teams 和 AntiBot 等模块影响。",
+    "description": "自动筛选附近目标、转向并进行近战攻击，支持旧版 CPS 与新版攻击冷却；目标过滤同时受 Targets、Teams 和 AntiBot 等模块影响。旋转通过每 tick 请求参与统一仲裁，默认优先级 400；Rotation Speed 为 0 时仍使用原有随机微量速度和平滑处理。",
     "settings": {
       "Target Mode": "Single 持续攻击单个目标；Switch 按间隔轮换目标。",
       "Switch Delay": "轮换目标的间隔，单位毫秒。",
@@ -37,7 +37,7 @@
       "Combat Mode": "1.8 按 CPS 发起攻击；1.9+ 按武器攻击冷却判断时机。",
       "Max CPS": "旧版攻击频率的随机上限，每秒次数。",
       "Min CPS": "旧版攻击频率的随机下限，每秒次数。",
-      "No swing": "与 Rise KillAura 同款：跳过 Aura 的挥手动作及对应挥手包，仍正常攻击；适用于两种 Combat Mode，开启时优先于 Keep Swing。",
+      "No swing": "仅隐藏 Aura 的本地挥手动画，攻击后仍发送主手挥手包，保持 1.21.11 的攻击→挥手包顺序，避免因缺失挥手包触发 PacketOrderB；其他玩家仍可能看到挥手。适用于两种 Combat Mode，开启时优先于 Keep Swing；Combat Mode 的 1.8 仅表示 CPS 攻击模式，不改变协议包顺序。",
       "Keep Swing": "新版攻击尚未冷却时仍保留挥手动作；No swing 开启时不生效。",
       "Cooldown Bypass": "预测这一击足以击杀时允许跳过完整冷却等待。",
       "Only Rot In Essential": "仅在攻击前后的必要时间段转向目标。",
@@ -114,7 +114,7 @@
     }
   },
   "TargetStrafe": {
-    "description": "围绕当前战斗目标移动，选择可通行的环绕点或目标背后位置，可与移动加速模块协作。",
+    "description": "围绕当前战斗目标移动，选择可通行的环绕点或目标背后位置，可与移动加速模块协作。Legit 旋转以优先级 200 提交 yaw 请求，保留镜头 pitch；Silent Aim 控制是否同步镜头 yaw。",
     "settings": {
       "Mode": "Adaptive 从环绕点选择合适位置；Behind 优先位于目标身后。",
       "Distance": "希望与目标保持的环绕半径，单位方块。",
@@ -230,7 +230,7 @@
     }
   },
   "Derp": {
-    "description": "向服务器提供自定义的偏航和俯仰方向，支持固定、偏移、随机和旋转表现。",
+    "description": "向服务器提供自定义的偏航和俯仰方向，支持固定、偏移、随机和旋转表现。旋转以优先级 900 提交 silent 请求并立即应用。",
     "settings": {
       "Yaw": "Static 固定偏航；Offset 相对偏航；Random 随机；Jitter 前后交替；Spin 连续旋转。",
       "Yaw Value": "固定偏航角，单位度。",
@@ -246,7 +246,7 @@
     }
   },
   "Speed": {
-    "description": "提供地面加速、连续跳跃、预测与定时器等移动加速实现；模式按源码中的具体移动流程执行。",
+    "description": "提供地面加速、连续跳跃、预测与定时器等移动加速实现；模式按源码中的具体移动流程执行。Prediction 旋转以优先级 100 提交并立即应用，使用 Prediction 移动修正。",
     "settings": {
       "Mode": "选择 Ground 地面加速、Vanilla 直接速度、Smooth Vanilla 平滑加速、Normal 自定义移动、Prediction/Prediction2 预测流程，或各服务器命名的跳跃与加速流程。",
       "Damage Boost": "Vulcan 模式受击时利用受伤状态加速。",
@@ -297,7 +297,7 @@
     }
   },
   "NoFall": {
-    "description": "按所选模式处理下落、落地标记或水桶落地，尝试减少摔落伤害。Grim2 与 Heypixel 使用参考代码的独立累计下落距离，并在模式处理之后更新。Grim2 落地时取消常规移动包、发送落地标志包，受击条件满足后补跳；参考代码未实际入队或取消接收包，此处同样不做收包缓存。Heypixel 预测脚下实心方块后进入偏移状态，每 tick 将垂直速度归零、报告未落地并下移 0.098F；位置修正仅结束偏移，下一次未取消的跳跃才释放按键，普通跳跃与疾跑跳跃均可触发释放。关闭、切换模式或换世界时清理状态并恢复实际跳跃按键。",
+    "description": "按所选模式处理下落、落地标记或水桶落地，尝试减少摔落伤害。Grim2 与 Heypixel 使用参考代码的独立累计下落距离，并在模式处理之后更新。Grim2 落地时取消常规移动包、发送落地标志包，受击条件满足后补跳；参考代码未实际入队或取消接收包，此处同样不做收包缓存。Heypixel 预测脚下实心方块后进入偏移状态，每 tick 将垂直速度归零、报告未落地并下移 0.098F；位置修正仅结束偏移，下一次未取消的跳跃才释放按键，普通跳跃与疾跑跳跃均可触发释放。关闭、切换模式或换世界时清理状态并恢复实际跳跃按键。Grim 的静默朝下旋转以优先级 1100 提交 pitch 覆盖请求，继承其他请求的 yaw；Derp 正在旋转时不提交。Grim 控制窗口内的移动包 pitch=90 修正保留原有独立行为，不受旋转请求是否获胜影响。",
     "settings": {
       "Mode": "Packet 发送落地包；Blink 暂存落下过程；NoGround 报告未落地；Spoof 修改落地标志；CubeCraft Reduce 专用减伤；MLG 水桶落地与回收；Grim 专用落地恢复流程；Grim2 按 GrimServer19 参考实现处理落地与受击跳跃；Heypixel 下落偏移并在位置修正后跳跃。",
       "Distance": "触发保护时的下落距离阈值，单位方块；Grim2 与 Heypixel 按参考代码固定为累计下落距离大于 3，不使用此设置。",
@@ -355,7 +355,7 @@
     "settings": {}
   },
   "ChestArua": {
-    "description": "寻找附近未打开的箱子并交互，可与 ChestStealer 配合；界面保留 ChestArua 拼写。开箱请求串行执行，等待箱子界面期间阻止原版右键和其他模块重复交互；失败后同一 tick 不重试，等待界面超过 2 秒时解除等待。箱子界面内暂停真实移动、跳跃、潜行和疾跑输入（包括 GuiMove）；经正常玩家 tick 同步停止后才允许自动取物和关箱。提前按 Esc 的关箱请求延后执行，关闭后恢复输入及原有疾跑。",
+    "description": "寻找附近未打开的箱子并交互，可与 ChestStealer 配合；界面保留 ChestArua 拼写。开箱请求串行执行，等待箱子界面期间阻止原版右键和其他模块重复交互；失败后同一 tick 不重试，等待界面超过 2 秒时解除等待。箱子界面内暂停真实移动、跳跃、潜行和疾跑输入（包括 GuiMove）；经正常玩家 tick 同步停止后才允许自动取物和关箱。提前按 Esc 的关箱请求延后执行，关闭后恢复输入及原有疾跑。旋转通过统一请求仲裁：Manual 待交互时优先级 1000 且立即应用，自动模式优先级 300；保持发送 yaw 的整圈连续性。",
     "settings": {
       "Mode": "Auto 自动寻找和打开；Manual 在玩家触发使用操作时寻找附近箱子并转向交互。",
       "Allow Sprint": "允许疾跑时工作；关闭后，Auto 和 Manual 均须等本地停止疾跑并由正常玩家 tick 同步后才工作。",
@@ -413,7 +413,7 @@
     }
   },
   "AutoBlockIn": {
-    "description": "按住选择键时，围绕附近玩家规划放置方块并执行围堵；避让冲突的搭路、旋转和自由视角模块。",
+    "description": "按住选择键时，围绕附近玩家规划放置方块并执行围堵；避让冲突的搭路、旋转和自由视角模块。旋转以优先级 700 提交 silent 请求；直接应用规划器已平滑的角度，避免重复平滑。",
     "settings": {
       "Speed": "瞄准平滑速度参数，越大转向越快。",
       "Randomization": "转向随机扰动百分比。",
@@ -438,7 +438,7 @@
     }
   },
   "AntiLava": {
-    "description": "寻找附近岩浆并自动放置方块封堵。",
+    "description": "寻找附近岩浆并自动放置方块封堵。旋转以优先级 800 提交 silent 请求，移动修正跟随 Movement Fix。",
     "settings": {
       "Range": "搜索距离，单位方块。",
       "Item Spoof": "放置时使用物品槽伪装。",
@@ -724,7 +724,7 @@
     }
   },
   "ScaffoldX": {
-    "description": "自动选择方块和放置面搭路，支持 Telly 节奏与安全补救。",
+    "description": "自动选择方块和放置面搭路，支持 Telly 节奏与安全补救。旋转以优先级 600 提交请求，速度和移动修正跟随模块选项。",
     "settings": {
       "Mode": "Telly 按跳跃时机；Snap 瞬时转向；Normal 持续搭路。",
       "Always Update Rotation": "不放置时仍更新搭路旋转。",
@@ -749,7 +749,7 @@
     }
   },
   "Scaffold": {
-    "description": "自动向脚下或边缘放置方块，支持搭高、向下搭路与跌落补救。",
+    "description": "自动向脚下或边缘放置方块，支持搭高、向下搭路与跌落补救。非 On tick 模式的持续旋转以优先级 500 提交请求；Rotation Speed 为 0 时仍走原有平滑流程。On tick 的放置事务旋转保持原有流程。切换世界后旋转缓存为空时，Nearest/Hypixel 使用玩家当前视角作为计算起点。",
     "settings": {
       "Delay": "放置间隔，单位毫秒。",
       "Mode": "Normal 连续搭路；Telly Bridge 按跳跃节奏。",

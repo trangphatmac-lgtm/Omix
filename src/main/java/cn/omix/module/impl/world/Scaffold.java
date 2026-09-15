@@ -1,5 +1,8 @@
 package cn.omix.module.impl.world;
 
+import cn.omix.management.movement.MovementCorrection;
+import cn.omix.management.rotation.RotationRequest;
+import cn.omix.event.impl.RotationRequestEvent;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.base.annotation.EventPriority;
 import cn.omix.event.impl.LivingUpdateEvent;
@@ -127,6 +130,17 @@ public class Scaffold extends Module {
         mc.player.getInventory().setSelectedSlot(oldSlot);
         canPlace = false;
         data = null;
+    }
+
+    @EventTarget
+    public void onRotationRequest(RotationRequestEvent event) {
+        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (rotationMode.is("On tick") || !isCanRotation() || rotations == null) return;
+        event.submit(RotationRequest.builder(getName(), rotations, 500)
+                .speed(getRotationSpeed())
+                .instant(false) // Preserve smoothing when the configured speed is zero.
+                .movementCorrection(movementFix.getValue() ? MovementCorrection.Silent : MovementCorrection.None)
+                .build());
     }
 
     @EventTarget
@@ -340,7 +354,11 @@ public class Scaffold extends Module {
         switch (rotationMode.getValue()) {
             case "Normal" -> rotations = RotationUtil.getRotations(data.blockPos());
             case "Hit Vec" -> rotations = RotationUtil.getRotations(getVec(data.blockPos(), data.facing()));
-            case "Nearest", "Hypixel" -> rotations = new float[]{RotationUtil.getNearestRotation(data.blockPos(), data.facing(), RotationManager.currentRotations, shrink.getValue())[0], RotationUtil.getRotations(data.blockPos())[1]};
+            case "Nearest", "Hypixel" -> {
+                float[] reference = RotationManager.currentRotations != null ? RotationManager.currentRotations
+                        : new float[]{mc.player.getYaw(), mc.player.getPitch()};
+                rotations = new float[]{RotationUtil.getNearestRotation(data.blockPos(), data.facing(), reference, shrink.getValue())[0], RotationUtil.getRotations(data.blockPos())[1]};
+            }
             case "Facing" -> rotations = RotationUtil.getRotations(data.blockPos(), data.facing());
         }
     }

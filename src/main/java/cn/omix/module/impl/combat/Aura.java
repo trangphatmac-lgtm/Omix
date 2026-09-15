@@ -1,5 +1,8 @@
 package cn.omix.module.impl.combat;
 
+import cn.omix.management.movement.MovementCorrection;
+import cn.omix.management.rotation.RotationRequest;
+import cn.omix.event.impl.RotationRequestEvent;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.LivingUpdateEvent;
 import cn.omix.event.impl.MotionEvent;
@@ -23,6 +26,7 @@ import lombok.Getter;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
+import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
 import net.minecraft.registry.tag.ItemTags;
@@ -93,6 +97,18 @@ public class Aura extends Module {
         target = null;
 
         unBlock();
+    }
+
+    @EventTarget
+    public void onRotationRequest(RotationRequestEvent event) {
+        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (target == null || rotations == null) return;
+        event.submit(RotationRequest.builder(getName(), rotations, 400)
+                .speed(rotationSpeed.getValue())
+                .instant(false) // A configured zero still uses the original speed + random smoothing.
+                .movementCorrection(movementFixMode.is("None") ? MovementCorrection.None
+                        : movementFixMode.is("Silent") ? MovementCorrection.Silent : MovementCorrection.Strict)
+                .build());
     }
 
     @EventTarget
@@ -250,7 +266,10 @@ public class Aura extends Module {
         if (mc.player == null || mc.world == null || mc.interactionManager == null) return;
 
         mc.interactionManager.attackEntity(mc.player, entity);
-        if (!noSwing.getValue()) {
+        if (noSwing.getValue()) {
+            // Keep the modern attack -> swing packet order without a local swing animation.
+            PacketUtil.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
+        } else {
             mc.player.swingHand(Hand.MAIN_HAND);
         }
         lastAuraAttackTick = mc.player.age;

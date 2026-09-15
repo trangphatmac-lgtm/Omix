@@ -1,5 +1,8 @@
 package cn.omix.module.impl.world;
 
+import cn.omix.management.movement.MovementCorrection;
+import cn.omix.management.rotation.RotationRequest;
+import cn.omix.event.impl.RotationRequestEvent;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.LivingUpdateEvent;
 import cn.omix.event.impl.MoveInputEvent;
@@ -132,6 +135,17 @@ public final class ScaffoldX extends Module {
         markBounds = null;
         canRotation = false;
         canPlace = false;
+    }
+
+    @EventTarget
+    public void onRotationRequest(RotationRequestEvent event) {
+        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (!isCanRotation() || rotations == null) return;
+        event.submit(RotationRequest.builder(getName(), rotations, 600)
+                .speed(rotationSpeed.getValue())
+                .instant(false)
+                .movementCorrection(movementFix.getValue() ? MovementCorrection.Silent : MovementCorrection.None)
+                .build());
     }
 
     @EventTarget

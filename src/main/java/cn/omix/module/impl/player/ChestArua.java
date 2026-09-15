@@ -1,5 +1,7 @@
 package cn.omix.module.impl.player;
 
+import cn.omix.management.rotation.RotationRequest;
+import cn.omix.event.impl.RotationRequestEvent;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.base.annotation.EventPriority;
 import cn.omix.event.impl.PacketEvent;
@@ -88,6 +90,16 @@ public final class ChestArua extends Module {
     public void onDisable() {
         restoreSprint();
         reset();
+    }
+
+    @EventTarget
+    public void onRotationRequest(RotationRequestEvent event) {
+        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (!isRotationActive()) return;
+        boolean manual = isManualRotationActive();
+        event.submit(RotationRequest.builder(getName(), rotations, manual ? 1000 : 300)
+                .speed(manual ? 0 : 180)
+                .movementCorrection(getMovementCorrection()).continuousYaw(true).build());
     }
 
     @EventTarget

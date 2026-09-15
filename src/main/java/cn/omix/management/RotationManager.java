@@ -4,18 +4,8 @@ import cn.omix.event.base.annotation.EventPriority;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.*;
 import cn.omix.management.movement.MovementCorrection;
-import cn.omix.module.impl.combat.Aura;
-import cn.omix.module.impl.combat.TargetStrafe;
-import cn.omix.module.impl.move.Derp;
-import cn.omix.module.impl.move.NoFall;
-import cn.omix.module.impl.move.Speed;
-import cn.omix.module.impl.player.AntiLava;
-import cn.omix.module.impl.player.AutoBlockIn;
-import cn.omix.module.impl.player.ChestArua;
-import cn.omix.module.impl.player.chest.ChestInteractionState;
+import cn.omix.management.rotation.RotationRequest;
 import injection.accessor.ClientPlayerEntityAccessor;
-import cn.omix.module.impl.world.ScaffoldX;
-import cn.omix.module.impl.world.Scaffold;
 import cn.omix.util.IMinecraft;
 import cn.omix.util.player.MovementUtil;
 import cn.omix.util.player.RotationUtil;
@@ -30,109 +20,62 @@ public class RotationManager implements IMinecraft {
     public static float[] lastRotations;
 
     public static MovementCorrection correctMovement;
-    private static double rotationSpeed;
     private static boolean enabled;
-    private boolean chestRotationSelected;
-    private boolean previousMotionUsedChestRotation;
+    private static RotationRequest activeRequest;
+    private boolean continuousYawSelected;
+    private boolean previousMotionUsedContinuousYaw;
 
     public RotationManager() {
         instance.getEventManager().register(this);
     }
 
-    public static void setRotations(float[] rotations, double rotationSpeed, MovementCorrection correctMovement) {
-        RotationManager.targetRotations = rotations;
-        RotationManager.rotationSpeed = rotationSpeed;
-        RotationManager.correctMovement = correctMovement;
-
-        enabled = true;
-    }
-
     @EventTarget
     @EventPriority(999)
     public void onLivingUpdate(LivingUpdateEvent event) {
-        if (mc.player == null) return;
-        chestRotationSelected = false;
-
-        Aura aura = instance.getModuleManager().getModule(Aura.class);
-        TargetStrafe targetStrafe = instance.getModuleManager().getModule(TargetStrafe.class);
-        Derp derp = instance.getModuleManager().getModule(Derp.class);
-        Speed speed = instance.getModuleManager().getModule(Speed.class);
-        AntiLava antiLava = instance.getModuleManager().getModule(AntiLava.class);
-        AutoBlockIn autoBlockIn = instance.getModuleManager().getModule(AutoBlockIn.class);
-        ChestArua chestArua = instance.getModuleManager().getModule(ChestArua.class);
-        ScaffoldX scaffoldX = instance.getModuleManager().getModule(ScaffoldX.class);
-        Scaffold scaffold = instance.getModuleManager().getModule(Scaffold.class);
-        NoFall noFall = instance.getModuleManager().getModule(NoFall.class);
-        boolean derpActive = derp.isEnabled() && derp.getRotations() != null;
-        boolean instantRotation = false;
-        boolean visibleRotation = false;
-        boolean yawOnlyRotation = false;
-
-        if (chestArua.isManualRotationActive()) {
-            setRotations(chestArua.getRotations(), 0.0, chestArua.getMovementCorrection());
-            chestRotationSelected = true;
-            instantRotation = true;
-        } else if (derpActive) {
-            setRotations(derp.getRotations(), 0.0, MovementCorrection.None);
-            instantRotation = true;
-        } else if (antiLava.isEnabled() && antiLava.getRotations() != null) {
-            setRotations(antiLava.getRotations(), 180, antiLava.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
-        } else if (autoBlockIn.isPlacing() && autoBlockIn.getRotations() != null) {
-            setRotations(autoBlockIn.getRotations(), 0.0, MovementCorrection.Silent);
-            // AutoBlockIn already applies the original speed/randomization curve.
-            instantRotation = true;
-        } else if (scaffoldX.isEnabled() && scaffoldX.isCanRotation() && scaffoldX.getRotations() != null) {
-            setRotations(scaffoldX.getRotations(), scaffoldX.getRotationSpeed().getValue(), scaffoldX.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
-        } else if (scaffold.isEnabled() && !scaffold.getRotationMode().is("On tick") && scaffold.isCanRotation() && scaffold.getRotations() != null) {
-            setRotations(scaffold.getRotations(), scaffold.getRotationSpeed(), scaffold.getMovementFix().getValue() ? MovementCorrection.Silent : MovementCorrection.None);
-        } else if (aura.isEnabled() && aura.getTarget() != null && aura.getRotations() != null) {
-            setRotations(aura.getRotations(), aura.getRotationSpeed().getValue(), aura.getMovementFixMode().is("None") ? MovementCorrection.None : (aura.getMovementFixMode().is("Silent") ? MovementCorrection.Silent : MovementCorrection.Strict));
-        } else if (chestArua.isRotationActive()) {
-            setRotations(chestArua.getRotations(), 180.0, chestArua.getMovementCorrection());
-            chestRotationSelected = true;
-        } else if (targetStrafe.isLegitRotationActive()) {
-            setRotations(targetStrafe.getRotations(), 180, MovementCorrection.Strict);
-            visibleRotation = !targetStrafe.getSilentAim().getValue();
-            yawOnlyRotation = true;
-        } else if (speed.isPredictionRotationActive()) {
-            // Myau's `2` is a rotation priority, not a two-degrees-per-tick
-            // smoothing speed. Prediction requires movement correction and the
-            // applied yaw to use the exact same value in the current tick.
-            setRotations(new float[]{speed.getPredictionRotationYaw(), mc.player.getPitch()}, 0.0, MovementCorrection.Prediction);
-            instantRotation = true;
-        } else {
-            enabled = false;
+        if (mc.player == null || mc.world == null) {
+            reset();
+            return;
         }
 
-        if (!derpActive && noFall.isGrimSilentRotationActive()) {
-            float yaw = enabled && targetRotations != null ? targetRotations[0] : mc.player.getYaw();
-            setRotations(new float[]{yaw, 90.0F}, 0.0, MovementCorrection.None);
-            instantRotation = true;
-            visibleRotation = false;
-            yawOnlyRotation = false;
-        }
+        RotationRequestEvent requests = new RotationRequestEvent();
+        instance.getEventManager().call(requests);
+        RotationRequestEvent.Selection selection = requests.resolve(mc.player.getYaw(), mc.player.getPitch());
+        activeRequest = selection == null ? null : selection.request();
+        enabled = activeRequest != null;
+        continuousYawSelected = selection != null && selection.continuousYaw();
+        if (enabled) correctMovement = activeRequest.movementCorrection();
 
         if (currentRotations == null) {
             currentRotations = new float[]{mc.player.getYaw(), mc.player.getPitch()};
         }
         lastRotations = currentRotations.clone();
-        if (instantRotation) {
-            currentRotations = targetRotations.clone();
-        } else if (enabled && targetRotations != null) {
-            currentRotations = RotationUtil.getSmoothRotation(lastRotations, targetRotations, rotationSpeed + Math.random());
+        if (enabled) {
+            targetRotations = selection.rotations();
+            // Yaw-only modules may have sampled pitch earlier in the tick. Preserve
+            // that input to the legacy smoothing curve before releasing the pitch axis.
+            if (activeRequest.axes() == RotationRequest.Axes.YAW_ONLY) {
+                targetRotations[1] = activeRequest.pitch();
+            }
+            currentRotations = activeRequest.instant()
+                    ? targetRotations.clone()
+                    : RotationUtil.getSmoothRotation(lastRotations, targetRotations, activeRequest.speed() + Math.random());
+            if (activeRequest.axes() == RotationRequest.Axes.YAW_ONLY) {
+                currentRotations[1] = mc.player.getPitch();
+                lastRotations[1] = mc.player.lastPitch;
+                targetRotations[1] = mc.player.getPitch();
+            }
+            if (continuousYawSelected) {
+                float sentYaw = ((ClientPlayerEntityAccessor) mc.player).getLastYaw();
+                currentRotations[0] = nearestYaw(sentYaw, currentRotations[0]);
+            }
+            if (!activeRequest.silent()) {
+                // Pitch-only requests inherit a server yaw, not a camera yaw.
+                if (activeRequest.axes() != RotationRequest.Axes.PITCH_ONLY) mc.player.setYaw(currentRotations[0]);
+                if (activeRequest.axes() != RotationRequest.Axes.YAW_ONLY) mc.player.setPitch(currentRotations[1]);
+            }
         }
-        if (yawOnlyRotation) {
-            currentRotations[1] = mc.player.getPitch();
-            lastRotations[1] = mc.player.lastPitch;
-            targetRotations[1] = mc.player.getPitch();
-        }
-        if (chestRotationSelected) {
-            float sentYaw = ((ClientPlayerEntityAccessor) mc.player).getLastYaw();
-            currentRotations[0] = ChestInteractionState.nearestYaw(sentYaw, currentRotations[0]);
-        }
-        if (visibleRotation) {
-            mc.player.setYaw(currentRotations[0]);
-        }
+        // Preserve the last applied cache until pre-motion, as before. Some placement
+        // consumers read it between living update and the movement packet.
         mc.gameRenderer.updateCrosshairTarget(1.0f);
     }
 
@@ -183,8 +126,8 @@ public class RotationManager implements IMinecraft {
                 e.setYaw(currentRotations[0]);
                 e.setPitch(currentRotations[1]);
             }
-            if (chestRotationSelected || previousMotionUsedChestRotation) {
-                float yaw = ChestInteractionState.nearestYaw(
+            if (continuousYawSelected || previousMotionUsedContinuousYaw) {
+                float yaw = nearestYaw(
                         ((ClientPlayerEntityAccessor) mc.player).getLastYaw(), e.getYaw());
                 e.setYaw(yaw);
                 if (!enabled) {
@@ -195,13 +138,13 @@ public class RotationManager implements IMinecraft {
                     mc.player.lastYaw += offset;
                 }
             }
-            previousMotionUsedChestRotation = chestRotationSelected;
+            previousMotionUsedContinuousYaw = continuousYawSelected;
         }
     }
 
     @EventTarget
     public void onWorld(WorldEvent event) {
-        chestRotationSelected = previousMotionUsedChestRotation = false;
+        reset();
     }
 
     @EventTarget
@@ -221,6 +164,30 @@ public class RotationManager implements IMinecraft {
             e.setRotation(currentRotations);
             e.setLastRotation(lastRotations);
         }
+    }
+
+    private void reset() {
+        enabled = false;
+        activeRequest = null;
+        currentRotations = targetRotations = lastRotations = null;
+        correctMovement = MovementCorrection.None;
+        continuousYawSelected = previousMotionUsedContinuousYaw = false;
+    }
+
+    /** Keep the nearest equivalent full-turn representation on acquisition and release. */
+    private static float nearestYaw(float reference, float yaw) {
+        float delta = (yaw - reference) % 360.0F;
+        if (delta >= 180.0F) delta -= 360.0F;
+        if (delta < -180.0F) delta += 360.0F;
+        return reference + delta;
+    }
+
+    public static RotationRequest getActiveRequest() {
+        return activeRequest;
+    }
+
+    public static boolean isOwner(String owner) {
+        return isRotating() && activeRequest != null && activeRequest.owner().equals(owner);
     }
 
     private boolean canRotation() {

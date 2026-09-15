@@ -1,5 +1,8 @@
 package cn.omix.module.impl.combat;
 
+import cn.omix.management.movement.MovementCorrection;
+import cn.omix.management.rotation.RotationRequest;
+import cn.omix.event.impl.RotationRequestEvent;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.LivingUpdateEvent;
 import cn.omix.event.impl.MoveEvent;
@@ -41,6 +44,17 @@ public final class TargetStrafe extends Module {
     public void onDisable() {
         rotations = null;
         resetPerspective();
+    }
+
+    @EventTarget
+    public void onRotationRequest(RotationRequestEvent event) {
+        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (!isLegitRotationActive()) return;
+        event.submit(RotationRequest.builder(getName(), rotations, 200)
+                .silent(silentAim.getValue())
+                .axes(RotationRequest.Axes.YAW_ONLY)
+                .movementCorrection(MovementCorrection.Strict)
+                .build());
     }
 
     @EventTarget

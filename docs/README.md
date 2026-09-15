@@ -10,6 +10,7 @@
 - [Render 画面与界面模块](modules/render.md)
 - [World 世界交互模块](modules/world.md)
 - [AI Tools 及每个参数](ai-tools.md)
+- [RotationManager 开发说明](rotation-manager.md)
 
 ## 配置共通规则
 

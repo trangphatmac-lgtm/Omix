@@ -1,5 +1,7 @@
 package cn.omix.module.impl.move;
 
+import cn.omix.management.rotation.RotationRequest;
+import cn.omix.event.impl.RotationRequestEvent;
 import cn.omix.event.base.annotation.EventPriority;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.JumpEvent;
@@ -146,6 +148,16 @@ public final class NoFall extends Module {
     public void onDisable() {
         resetState(true);
         activeMode = null;
+    }
+
+    @EventTarget
+    public void onRotationRequest(RotationRequestEvent event) {
+        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (!isGrimSilentRotationActive()) return;
+        Derp derp = getModule(Derp.class);
+        if (derp.isEnabled() && derp.getRotations() != null) return;
+        event.submit(RotationRequest.builder(getName(), new float[]{mc.player.getYaw(), 90.0F}, 1100)
+                .speed(0).axes(RotationRequest.Axes.PITCH_ONLY).build());
     }
 
     @EventTarget

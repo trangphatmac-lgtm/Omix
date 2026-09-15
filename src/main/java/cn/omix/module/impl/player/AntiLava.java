@@ -1,5 +1,8 @@
 package cn.omix.module.impl.player;
 
+import cn.omix.management.movement.MovementCorrection;
+import cn.omix.management.rotation.RotationRequest;
+import cn.omix.event.impl.RotationRequestEvent;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.LivingUpdateEvent;
 import cn.omix.event.impl.UpdateEvent;
@@ -43,6 +46,15 @@ public class AntiLava extends Module {
     @Override
     public void onDisable() {
         reset();
+    }
+
+    @EventTarget
+    public void onRotationRequest(RotationRequestEvent event) {
+        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (rotations == null) return;
+        event.submit(RotationRequest.builder(getName(), rotations, 800)
+                .movementCorrection(movementFix.getValue() ? MovementCorrection.Silent : MovementCorrection.None)
+                .build());
     }
 
     @EventTarget

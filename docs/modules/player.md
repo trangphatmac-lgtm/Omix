@@ -50,7 +50,7 @@
 
 ## ChestArua
 
-寻找附近未打开的箱子并交互，可与 ChestStealer 配合；界面保留 ChestArua 拼写。开箱请求串行执行，等待箱子界面期间阻止原版右键和其他模块重复交互；失败后同一 tick 不重试，等待界面超过 2 秒时解除等待。箱子界面内暂停真实移动、跳跃、潜行和疾跑输入（包括 GuiMove）；经正常玩家 tick 同步停止后才允许自动取物和关箱。提前按 Esc 的关箱请求延后执行，关闭后恢复输入及原有疾跑。
+寻找附近未打开的箱子并交互，可与 ChestStealer 配合；界面保留 ChestArua 拼写。开箱请求串行执行，等待箱子界面期间阻止原版右键和其他模块重复交互；失败后同一 tick 不重试，等待界面超过 2 秒时解除等待。箱子界面内暂停真实移动、跳跃、潜行和疾跑输入（包括 GuiMove）；经正常玩家 tick 同步停止后才允许自动取物和关箱。提前按 Esc 的关箱请求延后执行，关闭后恢复输入及原有疾跑。旋转通过统一请求仲裁：Manual 待交互时优先级 1000 且立即应用，自动模式优先级 300；保持发送 yaw 的整圈连续性。
 
 源码：`src/main/java/cn/omix/module/impl/player/ChestArua.java`。
 
@@ -124,7 +124,7 @@
 
 ## AutoBlockIn
 
-按住选择键时，围绕附近玩家规划放置方块并执行围堵；避让冲突的搭路、旋转和自由视角模块。
+按住选择键时，围绕附近玩家规划放置方块并执行围堵；避让冲突的搭路、旋转和自由视角模块。旋转以优先级 700 提交 silent 请求；直接应用规划器已平滑的角度，避免重复平滑。
 
 源码：`src/main/java/cn/omix/module/impl/player/AutoBlockIn.java`。
 
@@ -161,7 +161,7 @@
 
 ## AntiLava
 
-寻找附近岩浆并自动放置方块封堵。
+寻找附近岩浆并自动放置方块封堵。旋转以优先级 800 提交 silent 请求，移动修正跟随 Movement Fix。
 
 源码：`src/main/java/cn/omix/module/impl/player/AntiLava.java`。
 

@@ -1,5 +1,8 @@
 package cn.omix.module.impl.move;
 
+import cn.omix.management.movement.MovementCorrection;
+import cn.omix.management.rotation.RotationRequest;
+import cn.omix.event.impl.RotationRequestEvent;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.base.annotation.EventPriority;
 import cn.omix.event.impl.LivingUpdateEvent;
@@ -93,6 +96,16 @@ public class Speed extends Module {
         resetPredictionTimer();
         rotated = false;
         lastPredictionMode = null;
+    }
+
+    @EventTarget
+    public void onRotationRequest(RotationRequestEvent event) {
+        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (!isPredictionRotationActive()) return;
+        // Prediction and movement correction must use exactly the same yaw this tick.
+        event.submit(RotationRequest.builder(getName(),
+                        new float[]{getPredictionRotationYaw(), mc.player.getPitch()}, 100)
+                .speed(0).movementCorrection(MovementCorrection.Prediction).build());
     }
 
     @EventTarget
