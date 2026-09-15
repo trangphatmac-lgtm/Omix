@@ -6,7 +6,7 @@ import cn.omix.event.impl.RotationAppliedEvent;
 import cn.omix.event.impl.TickEvent;
 import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.impl.player.ChestArua;
-import cn.omix.module.impl.player.chest.ChestScreenGuard;
+import cn.omix.util.player.chest.ChestScreenGuard;
 import cn.omix.util.IMinecraft;
 import cn.omix.util.Util;
 import im.webui.WebUiRuntime;

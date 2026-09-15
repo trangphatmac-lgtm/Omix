@@ -11,7 +11,7 @@ import cn.omix.event.impl.WorldEvent;
 import cn.omix.management.movement.MovementCorrection;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
-import cn.omix.module.impl.player.chest.ChestInteractionState;
+import cn.omix.util.player.chest.ChestInteractionState;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;

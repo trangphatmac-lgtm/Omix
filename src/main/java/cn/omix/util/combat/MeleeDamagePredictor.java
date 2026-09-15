@@ -1,4 +1,4 @@
-package cn.omix.module.impl.combat;
+package cn.omix.util.combat;
 
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
@@ -24,14 +24,14 @@ import net.minecraft.util.math.MathHelper;
  * Client-side approximation of the vanilla melee damage pipeline. Dynamic
  * server-side enchantments or damage modifications cannot be predicted here.
  */
-final class MeleeDamagePredictor {
+public final class MeleeDamagePredictor {
     private static final float ATTACK_TICK_DELTA = .5f;
     private static final float FULL_CHARGE_THRESHOLD = .9f;
 
     private MeleeDamagePredictor() {
     }
 
-    static boolean canKill(PlayerEntity player, LivingEntity target) {
+    public static boolean canKill(PlayerEntity player, LivingEntity target) {
         float remainingHealth = target.getHealth() + target.getAbsorptionAmount();
         return remainingHealth > 0 && predictDamage(player, target) >= remainingHealth;
     }

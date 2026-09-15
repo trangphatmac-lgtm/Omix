@@ -1,6 +1,6 @@
 package injection;
 
-import cn.omix.module.impl.player.chest.ChestScreenGuard;
+import cn.omix.util.player.chest.ChestScreenGuard;
 import cn.omix.util.IMinecraft;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import org.spongepowered.asm.mixin.Mixin;

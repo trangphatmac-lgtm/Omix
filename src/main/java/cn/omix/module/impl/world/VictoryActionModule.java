@@ -5,6 +5,7 @@ import cn.omix.module.Category;
 import cn.omix.module.Module;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.NumberValue;
+import cn.omix.util.world.VictorySignalMatcher;
 import net.minecraft.entity.EntityType;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;

@@ -1,9 +1,9 @@
-package cn.omix.module.impl.world;
+package cn.omix.util.world;
 
 import java.util.List;
 import java.util.Locale;
 
-final class VictorySignalMatcher {
+public final class VictorySignalMatcher {
     private static final List<String> TITLE_KEYWORDS = List.of(
             "victory",
             "胜利",
@@ -20,11 +20,11 @@ final class VictorySignalMatcher {
 
     private VictorySignalMatcher() {}
 
-    static boolean matchesTitle(String text) {
+    public static boolean matchesTitle(String text) {
         return containsAny(text, TITLE_KEYWORDS);
     }
 
-    static boolean matchesChat(String text) {
+    public static boolean matchesChat(String text) {
         return containsAny(text, CHAT_KEYWORDS);
     }
 

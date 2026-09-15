@@ -1,7 +1,7 @@
 package injection;
 
 import cn.omix.event.impl.MoveInputEvent;
-import cn.omix.module.impl.player.chest.ChestScreenGuard;
+import cn.omix.util.player.chest.ChestScreenGuard;
 import cn.omix.util.IMinecraft;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.input.KeyboardInput;

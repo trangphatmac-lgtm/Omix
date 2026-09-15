@@ -1,6 +1,6 @@
 package ai.backend;
 
-import cn.omix.module.impl.player.chest.ChestScreenGuard;
+import cn.omix.util.player.chest.ChestScreenGuard;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import injection.accessor.ClientPlayerEntityAccessor;

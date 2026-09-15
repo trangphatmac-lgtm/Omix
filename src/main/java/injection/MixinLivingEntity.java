@@ -7,7 +7,7 @@ import cn.omix.module.impl.move.KeepSprint;
 import cn.omix.module.impl.combat.Reach;
 import net.minecraft.component.type.AttackRangeComponent;
 import cn.omix.module.impl.player.ChestArua;
-import cn.omix.module.impl.player.chest.ChestScreenGuard;
+import cn.omix.util.player.chest.ChestScreenGuard;
 import cn.omix.module.impl.render.AntiDebuff;
 import cn.omix.module.impl.render.Animation;
 import cn.omix.util.IMinecraft;

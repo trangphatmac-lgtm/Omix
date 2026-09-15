@@ -26,6 +26,7 @@ import cn.omix.util.player.RayCastUtil;
 import cn.omix.util.player.RotationUtil;
 import cn.omix.util.render.ProjectUtil;
 import cn.omix.util.render.Render2D;
+import cn.omix.util.world.ScaffoldMutex;
 import lombok.Getter;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItem;

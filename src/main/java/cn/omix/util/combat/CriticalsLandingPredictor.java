@@ -1,4 +1,4 @@
-package cn.omix.module.impl.combat;
+package cn.omix.util.combat;
 
 import cn.omix.util.player.MovementUtil;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -8,10 +8,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 /** Short airborne prediction using Minecraft's block/entity collision resolution. */
-final class CriticalsLandingPredictor {
+public final class CriticalsLandingPredictor {
     private CriticalsLandingPredictor() { }
 
-    static boolean willLand(ClientPlayerEntity player, int ticks) {
+    public static boolean willLand(ClientPlayerEntity player, int ticks) {
         var world = player.getEntityWorld();
         Box box = player.getBoundingBox();
         Vec3d velocity = player.getVelocity();

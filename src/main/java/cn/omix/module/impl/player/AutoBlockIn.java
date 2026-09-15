@@ -14,7 +14,7 @@ import cn.omix.management.RotationManager;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
 import cn.omix.module.impl.move.Derp;
-import cn.omix.module.impl.player.blockin.BlockInPlanner;
+import cn.omix.util.player.blockin.BlockInPlanner;
 import cn.omix.module.impl.world.Scaffold;
 import cn.omix.module.impl.world.ScaffoldX;
 import cn.omix.module.value.impl.BoolValue;

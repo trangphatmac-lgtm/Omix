@@ -13,6 +13,8 @@ import cn.omix.module.impl.world.ScaffoldX;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
+import cn.omix.util.combat.CriticalsLandingPredictor;
+import cn.omix.util.combat.CriticalsTiming;
 import cn.omix.util.network.PacketUtil;
 import injection.accessor.ClientPlayerEntityAccessor;
 import net.minecraft.block.CobwebBlock;

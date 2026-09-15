@@ -1,7 +1,7 @@
-package cn.omix.module.impl.combat;
+package cn.omix.util.combat;
 
 /** Keeps only the latest acknowledgement, scoped to the original connection, world and player. */
-final class ReachTeleportState<T> {
+public final class ReachTeleportState<T> {
     private Object connection;
     private Object world;
     private Object player;
@@ -33,5 +33,5 @@ final class ReachTeleportState<T> {
         connection = world = player = null;
     }
 
-    record Pending<T>(int id, T position) {}
+    public record Pending<T>(int id, T position) {}
 }

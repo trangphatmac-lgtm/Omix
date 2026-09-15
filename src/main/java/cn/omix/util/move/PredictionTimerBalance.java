@@ -1,11 +1,11 @@
-package cn.omix.module.impl.move;
+package cn.omix.util.move;
 
 /**
  * Records all TB earned during the configured falling phase, then distributes
  * that balance evenly over the observed number of ascent ticks on the next
  * jump.
  */
-final class PredictionTimerBalance {
+public final class PredictionTimerBalance {
     private static final double EPSILON = 1.0E-7;
 
     private double balance;
@@ -16,7 +16,7 @@ final class PredictionTimerBalance {
     private boolean ascentPlanPrepared;
     private double spendPerAscentTick;
 
-    float boost() {
+    public float boost() {
         if (falling) {
             prepareNextJump();
         }
@@ -42,7 +42,7 @@ final class PredictionTimerBalance {
         return (float) (1.0 + 1.0);
     }
 
-    float slow(float lowSpeed, int maxSlowTicks) {
+    public float slow(float lowSpeed, int maxSlowTicks) {
         if (!falling) {
             if (ascentTicks > 0) {
                 expectedAscentTicks = ascentTicks;
@@ -64,7 +64,7 @@ final class PredictionTimerBalance {
         return lowSpeed;
     }
 
-    void prepareNextJump() {
+    public void prepareNextJump() {
         ascentTicks = 0;
         slowTicks = 0;
         falling = false;
@@ -72,7 +72,7 @@ final class PredictionTimerBalance {
         spendPerAscentTick = 0.0;
     }
 
-    void reset() {
+    public void reset() {
         balance = 0.0;
         expectedAscentTicks = 0;
         prepareNextJump();
@@ -86,7 +86,7 @@ final class PredictionTimerBalance {
         return slowTicks;
     }
 
-    static boolean isNormalSpeed(float speed) {
+    public static boolean isNormalSpeed(float speed) {
         return Math.abs(speed - 1.0F) <= EPSILON;
     }
 

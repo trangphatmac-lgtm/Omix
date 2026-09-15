@@ -1,4 +1,4 @@
-package cn.omix.module.impl.player.chest;
+package cn.omix.util.player.chest;
 
 /** A close request must stay attached to the container that received it. */
 public final class ChestScreenState {

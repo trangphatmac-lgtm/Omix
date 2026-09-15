@@ -16,6 +16,7 @@ import cn.omix.module.impl.world.Scaffold;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
+import cn.omix.util.combat.MeleeDamagePredictor;
 import cn.omix.util.misc.MathUtil;
 import cn.omix.util.misc.TimerUtil;
 import cn.omix.util.network.PacketUtil;

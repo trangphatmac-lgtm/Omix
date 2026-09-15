@@ -10,6 +10,8 @@ import cn.omix.module.Module;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
+import cn.omix.util.combat.ReachServerRange;
+import cn.omix.util.combat.ReachTeleportState;
 import cn.omix.util.player.MovementUtil;
 import cn.omix.util.network.PacketUtil;
 import cn.omix.util.render.Render3D;

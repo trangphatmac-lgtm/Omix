@@ -1,4 +1,4 @@
-package cn.omix.module.impl.world;
+package cn.omix.util.world;
 
 import org.junit.jupiter.api.Test;
 

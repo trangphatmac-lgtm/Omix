@@ -1,4 +1,4 @@
-package cn.omix.module.impl.player.chest;
+package cn.omix.util.player.chest;
 
 import cn.omix.module.impl.player.ChestArua;
 import cn.omix.module.impl.player.ChestStealer;

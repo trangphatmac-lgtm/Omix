@@ -1,4 +1,4 @@
-package cn.omix.module.impl.player.chest;
+package cn.omix.util.player.chest;
 
 import org.junit.jupiter.api.Test;
 

@@ -4,7 +4,7 @@ import ai.backend.AiContainerTools;
 import cn.omix.Client;
 import cn.omix.event.impl.*;
 import cn.omix.module.impl.player.Freecam;
-import cn.omix.module.impl.player.chest.ChestScreenGuard;
+import cn.omix.util.player.chest.ChestScreenGuard;
 import cn.omix.module.impl.world.GhostHand;
 import cn.omix.util.IMinecraft;
 import com.mojang.authlib.GameProfile;

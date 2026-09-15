@@ -1,4 +1,4 @@
-package cn.omix.module.impl.player.blockin;
+package cn.omix.util.player.blockin;
 
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;

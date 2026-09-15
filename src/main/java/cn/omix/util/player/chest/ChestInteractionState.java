@@ -1,4 +1,4 @@
-package cn.omix.module.impl.player.chest;
+package cn.omix.util.player.chest;
 
 /** Tracks the actual outgoing tick boundary, independently of local sprint state. */
 public final class ChestInteractionState {

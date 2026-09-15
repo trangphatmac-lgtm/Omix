@@ -1,4 +1,4 @@
-package cn.omix.module.impl.combat;
+package cn.omix.util.combat;
 
 import org.junit.jupiter.api.Test;
 

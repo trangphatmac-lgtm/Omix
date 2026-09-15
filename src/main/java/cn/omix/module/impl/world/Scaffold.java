@@ -22,6 +22,7 @@ import cn.omix.util.Util;
 import cn.omix.util.misc.TimerUtil;
 import cn.omix.util.network.PacketUtil;
 import cn.omix.util.player.*;
+import cn.omix.util.world.ScaffoldMutex;
 import injection.accessor.ClientPlayerEntityAccessor;
 import lombok.Getter;
 import net.minecraft.block.BlockState;

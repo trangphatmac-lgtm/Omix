@@ -1,12 +1,12 @@
-package cn.omix.module.impl.combat;
+package cn.omix.util.combat;
 
 import java.util.function.IntPredicate;
 
 /** Attack timing shared by the reconstructed 1.9+ and Heypixel modes. */
-final class CriticalsTiming {
+public final class CriticalsTiming {
     private float cachedDamage;
 
-    boolean shouldDefer(boolean modern, int hurtTime, float damage, boolean cannotCrit,
+    public boolean shouldDefer(boolean modern, int hurtTime, float damage, boolean cannotCrit,
                         double vy, float cooldown, float cooldownPeriod, float targetTicks,
                         IntPredicate predictsLanding) {
         if (modern && hurtTime > 0 && damage <= cachedDamage) return false;
@@ -26,13 +26,13 @@ final class CriticalsTiming {
         return Math.max(cooldownTicks, verticalTicks);
     }
 
-    static float estimateDamage(float base, float cooldown, boolean cannotCrit, double vy) {
+    public static float estimateDamage(float base, float cooldown, boolean cannotCrit, double vy) {
         float damage = base * (.2F + cooldown * cooldown * .8F);
         if (!cannotCrit && vy < -.08) damage *= 1.5F;
         return damage;
     }
 
-    static boolean skipStuckFall(boolean useFallDistance, double fallDistance, double vy) {
+    public static boolean skipStuckFall(boolean useFallDistance, double fallDistance, double vy) {
         return useFallDistance ? fallDistance <= 0.0 : vy > -.08;
     }
 }

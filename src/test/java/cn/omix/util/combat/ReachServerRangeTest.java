@@ -1,4 +1,4 @@
-package cn.omix.module.impl.combat;
+package cn.omix.util.combat;
 
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
