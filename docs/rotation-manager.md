@@ -44,7 +44,7 @@ public void onRotationRequest(RotationRequestEvent event) {
 
 | 模块/场景 | 默认优先级 | 特殊策略 |
 | --- | ---: | --- |
-| LongJump 起跳 / 收集 motion | 1200 | 起跳离地上升即开始 Silent 转头并锁定 yaw；达到高度且旋转到位后发射，收齐 motion 后释放请求。0 速度立即应用。 |
+| LongJump 起跳 / 收集 motion | 1200 | 起跳离地上升即开始 Silent 转至镜头 yaw + 180° 和 Target Pitch，并启用 Silent 移动修正；达到高度且旋转到位后发射。交互 tick 固定精确角度，后续 tick 收齐 motion 后释放请求。0 速度立即应用。 |
 | NoFall Grim | 1100 | 立即覆盖 pitch=90，继承 yaw；Derp 活跃时不提交。控制窗口内移动包 pitch=90 修正仍独立执行，保留旧行为，不检查仲裁归属。 |
 | ChestArua Manual 待交互 | 1000 | 立即应用，保持 yaw 连续。 |
 | Derp | 900 | 立即应用，silent，无移动修正。 |
@@ -62,6 +62,8 @@ public void onRotationRequest(RotationRequestEvent event) {
 ## 行为兼容边界
 
 LongJump 的 motion 收集与顶点释放由 `src/main/java/cn/omix/util/LongJumpMotionQueue.java` 管理，模块通过公共接口调用；旋转请求仍由 LongJump 模块提交。
+
+LongJump 在 `RotationAppliedEvent` 的正常交互阶段使用上一玩家 tick 已发送的旋转，由原版交互管理器同步槽位并右键：Fireball 使用这组 Silent 角度射线检测交互距离内的方块，再调用 `interactionManager.interactBlock`，使用真实命中点和面；Windcharge 调用 `interactionManager.interactItem`。Fireball 未命中方块时在开启 Timer 前退出并提示，不回退为空气使用；不再从 post-motion 或收包回调直接发交互，也不额外发送转头移动包。交互走正常发包事件链，避免跳过 Disabler 等监听器的槽位记录。交互期间临时设置 yaw/pitch，并在 finally 中恢复镜头角度。使用物品的同 tick 内，`LongJumpAim` 保存精确浮点角度；旋转请求直接应用这组值，最终 pre-motion 和带转头的发送包也固定为这组值，防止平滑微调或其他模块改写导致 USE_ITEM 与 tick 角度不一致。`src/main/java/cn/omix/util/LongJumpUseSchedule.java` 保证同 tick 最多一次交互，Multi 收包只预约下一次交互，冷却期间保留预约。Scaffold/ScaffoldX 在该次交互所在 tick 暂停切槽与放置，下一 tick 恢复。
 
 保留默认优先顺序、零速平滑、TargetStrafe 的单轴平滑顺序，以及无请求时到 pre-motion 才恢复缓存的时机。NoFall Grim 的发包层 pitch 修正与持续旋转仲裁仍是独立流程。
 

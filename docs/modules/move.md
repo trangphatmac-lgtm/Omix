@@ -105,15 +105,15 @@
 
 ## LongJump
 
-使用 Fireball（火焰弹）或 Windcharge（风弹）的服务器击退完成 LongJump。启用后暂时关闭 Velocity；由玩家自行起跳，离地且 vy > 0 时立即开始 Silent 转头，不等待 Target Height。起跳时锁定 yaw，只改变服务端 pitch，不转动镜头；转头仲裁优先级 1200。上升时脚底距下方碰撞面的高度达到或越过 Target Height、且 yaw/pitch 误差均不超过 0.65° 后，开启 0.02x 临时 Timer；按需启用 Scaffold，再切换快捷栏并右键使用。每次右键接收一个属于本玩家的 EntityVelocityUpdateS2CPacket，或含玩家击退的 ExplosionS2CPacket；后者将增量击退转换为当前速度加击退量，保留原爆炸音效和粒子。收包线程只收集速度，客户端线程负责右键和应用 motion。Multi 关闭时首个 motion 立即恢复时钟并应用；开启时收到一个 motion 后再次右键，直到收齐 Multi Times 个（包含第一次），恢复时钟并先应用队首，余下 motion 在每次上升顶点 0 < vy ≤ 0.08 时按 FIFO 顺序释放，同一 tick 最多一次。落地且 |vy| ≤ 0.08 后自动关闭；未达到发射条件的跳跃落地后也退出。关闭、死亡、切世界、缺少物品或每次右键等待 Velocity 超过 10 秒时，丢弃剩余队列并恢复 Velocity、原快捷栏和本次管理的 Scaffold/ScaffoldX 开关；原来已开启的 Scaffold 保持开启。临时 Timer 优先于 Timer 模块，释放后恢复当时其他 Timer 设置。配置在启用时快照，下次启用生效。Fireball 需要服务器支持右键火焰弹发射；该流程无法区分本次发射与其他来源的玩家击退。服务器冷却可能拒绝连续右键并触发超时。
+使用 Fireball（火焰弹）或 Windcharge（风弹）的服务器击退完成 LongJump。启用后暂时关闭 Velocity；由玩家自行起跳，离地且 vy > 0 时立即开始 Silent 转头，不等待 Target Height。起跳时以镜头 yaw + 180° 锁定身后方向，pitch 使用 Target Pitch，不转动镜头；采用 Silent 移动修正保持原移动方向，转头仲裁优先级 1200。上升时脚底距下方碰撞面的高度达到或越过 Target Height、且 yaw/pitch 误差均不超过 0.65° 后，开启 0.02x 临时 Timer；按需启用 Scaffold，在正常交互阶段设置本地快捷栏槽位，再由原版交互管理器同步服务器槽位并右键：Fireball 从眼睛沿已到位的身后 yaw / Target Pitch 射线检测交互距离内的方块，将真实命中位置和面交给 interactBlock；Windcharge 使用 interactItem。Fireball 未命中方块时提示原因并退出，不开启 Timer 或等待击退，也不回退为空气使用；不手动发送切槽包或额外转头移动包。交互走正常发包事件链，使 Disabler 等监听器同步记录切槽，避免绕过事件导致槽位记录失配。交互时临时应用 Silent yaw/pitch，finally 恢复镜头；使用物品的该 tick 冻结这组角度，旋转请求直接应用，最终 Motion 和带转头的移动包复用相同浮点值，避免 USE_ITEM 与 tick 旋转不一致；只在本地交互被接受时挥手。库存消耗由原版预测和服务器同步处理，恢复槽位也只修改本地选择并交由原版同步。每次右键接收一个属于本玩家的 EntityVelocityUpdateS2CPacket，或含玩家击退的 ExplosionS2CPacket；后者将增量击退转换为当前速度加击退量，保留原爆炸音效和粒子。收包线程只收集速度，客户端线程负责右键和应用 motion。Multi 关闭时首个 motion 立即恢复时钟并应用；开启时收到一个 motion 后预约下一个游戏 tick 的正常交互阶段再次右键，每 tick 最多一次且遵守物品冷却；0.02x 会延长后续交互的现实等待时间，直到收齐 Multi Times 个（包含第一次），恢复时钟并先应用队首，余下 motion 在每次上升顶点 0 < vy ≤ 0.08 时按 FIFO 顺序释放，同一 tick 最多一次。落地且 |vy| ≤ 0.08 后自动关闭；未达到发射条件的跳跃落地后也退出。关闭、死亡、切世界、缺少物品或每次右键等待 Velocity 超过 10 秒时，丢弃剩余队列并恢复 Velocity、原快捷栏和本次管理的 Scaffold/ScaffoldX 开关；原来已开启的 Scaffold 保持开启。临时 Timer 优先于 Timer 模块，释放后恢复当时其他 Timer 设置。配置在启用时快照，下次启用生效。Fireball 对准方块使用火焰弹；后续 motion 仍以实际收到的玩家击退为准，无法区分其来源。Scaffold/ScaffoldX 在右键所在 tick 暂停切槽与放置，下一 tick 恢复。服务器仍可能拒绝使用并触发超时；10 秒超时只计算已发送右键后等待击退的时间，不计算预约或本地冷却等待。
 
 源码：`src/main/java/cn/omix/module/impl/move/LongJump.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Fireball 使用快捷栏中的 FIRE_CHARGE；Windcharge 使用 WIND_CHARGE。 | 模式；默认 Fireball；可选 Fireball / Windcharge |
-| Target Pitch | Silent 转头目标俯仰角，单位度；正值朝下。起跳时就开始转头。 | 数值；默认 80；-90–90；步长 1 |
-| Target Height | 脚底到正下方最近方块碰撞面的垂直距离，单位方块；仅上升时达到或越过阈值才允许右键，无下方碰撞面时不触发。 | 数值；默认 0.5；0–10；步长 0.05 |
+| Mode | Fireball 使用快捷栏中的 FIRE_CHARGE 右键目标角度命中的方块；Windcharge 使用 WIND_CHARGE 执行物品使用。 | 模式；默认 Fireball；可选 Fireball / Windcharge |
+| Target Pitch | 身后方向的目标俯仰角，单位度；正值朝下。起跳时 Silent 转至镜头 yaw + 180°，并转到此 pitch。 | 数值；默认 80；-90–90；步长 1 |
+| Target Height | 脚底到正下方最近方块碰撞面的垂直距离，单位方块；仅上升时达到或越过阈值才允许右键，无下方碰撞面时不触发。 | 数值；默认 0.5；0–2；步长 0.01 |
 | Multi | 启用后连续收集多次右键对应的 motion，收齐后在上升顶点依次释放。 | 布尔；默认 false |
 | Multi Times | 收集的 motion / 右键总次数，包含第一次；1 与单次行为相同。仅 Multi 开启时显示。 | 数值；默认 3；1–10；步长 1；显示条件：Multi 开启 |
 | Rotation Speed | 每次旋转更新的角度步幅；0 表示立即到位，正值使用统一旋转管理器平滑。 | 数值；默认 180；0–180；步长 5 |

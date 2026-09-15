@@ -14,6 +14,7 @@ import cn.omix.management.RotationManager;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
 import cn.omix.module.impl.move.Speed;
+import cn.omix.module.impl.move.LongJump;
 import cn.omix.module.impl.player.Stuck;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
@@ -169,6 +170,8 @@ public class Scaffold extends Module {
     @EventTarget
     public void onUpdate(UpdateEvent event) {
         if (mc.player == null || mc.world == null) return;
+        LongJump longJump = getModule(LongJump.class);
+        if (longJump != null && longJump.isUsingItemThisTick()) return;
 
         setSuffix(mode.getValue());
         if (BlockUtil.getBlockSlot(maxStack.getValue()) == -1) {

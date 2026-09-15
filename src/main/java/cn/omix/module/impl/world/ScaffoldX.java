@@ -12,6 +12,7 @@ import cn.omix.event.impl.RotationAppliedEvent;
 import cn.omix.management.RotationManager;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
+import cn.omix.module.impl.move.LongJump;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
@@ -178,6 +179,8 @@ public final class ScaffoldX extends Module {
     @EventTarget
     public void onLivingUpdate(LivingUpdateEvent event) {
         if (mc.player == null || mc.world == null) return;
+        LongJump longJump = getModule(LongJump.class);
+        if (longJump != null && longJump.isUsingItemThisTick()) return;
 
         blockSlot = findBlockSlot();
         if (blockSlot == null || !blockSlot.isValid()) {
@@ -309,6 +312,8 @@ public final class ScaffoldX extends Module {
     }
 
     private void place() {
+        LongJump longJump = getModule(LongJump.class);
+        if (longJump != null && longJump.isUsingItemThisTick()) return;
         if (!canPlace || !canRotation || blockData == null || blockSlot == null || !blockSlot.isValid()
                 || mc.player == null || mc.world == null || mc.interactionManager == null) return;
 

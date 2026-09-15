@@ -4,7 +4,7 @@
 
 ## ScaffoldX
 
-自动选择方块和放置面搭路，支持 Telly 节奏与安全补救。旋转以优先级 600 提交请求，速度和移动修正跟随模块选项。
+自动选择方块和放置面搭路，支持 Telly 节奏与安全补救。旋转以优先级 600 提交请求，速度和移动修正跟随模块选项。 LongJump 使用物品的同一 tick 内暂停切槽和放置，下一 tick 自动恢复，避免在 USE_ITEM 后插入 HELD_ITEM_CHANGE。
 
 源码：`src/main/java/cn/omix/module/impl/world/ScaffoldX.java`。
 
@@ -33,7 +33,7 @@
 
 ## Scaffold
 
-自动向脚下或边缘放置方块，支持搭高、向下搭路与跌落补救。非 On tick 模式的持续旋转以优先级 500 提交请求；Rotation Speed 为 0 时仍走原有平滑流程。On tick 的放置事务旋转保持原有流程。切换世界后旋转缓存为空时，Nearest/Hypixel 使用玩家当前视角作为计算起点。
+自动向脚下或边缘放置方块，支持搭高、向下搭路与跌落补救。非 On tick 模式的持续旋转以优先级 500 提交请求；Rotation Speed 为 0 时仍走原有平滑流程。On tick 的放置事务旋转保持原有流程。切换世界后旋转缓存为空时，Nearest/Hypixel 使用玩家当前视角作为计算起点。 LongJump 使用物品的同一 tick 内暂停切槽和放置，下一 tick 自动恢复，避免在 USE_ITEM 后插入 HELD_ITEM_CHANGE。
 
 源码：`src/main/java/cn/omix/module/impl/world/Scaffold.java`。
 
