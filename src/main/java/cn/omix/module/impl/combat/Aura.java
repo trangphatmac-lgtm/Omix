@@ -43,6 +43,7 @@ public class Aura extends Module {
     private final ModeValue attackMode = new ModeValue("Combat Mode", "1.8", "1.8", "1.9+");
     private final NumberValue maxCps = new NumberValue("Max CPS", 10, 1, 20, 1, () -> attackMode.is("1.8"));
     private final NumberValue minCps = new NumberValue("Min CPS", 7, 1, 20, 1, () -> attackMode.is("1.8"));
+    private final BoolValue noSwing = new BoolValue("No swing", false);
     private final BoolValue keepSwing = new BoolValue("Keep Swing", false, () -> attackMode.is("1.9+"));
     private final BoolValue cooldownBypass = new BoolValue("Cooldown Bypass", false, () -> attackMode.is("1.9+"));
     private final BoolValue onlyRotInEssential = new BoolValue("Only Rot In Essential", false, () -> attackMode.is("1.9+"));
@@ -108,7 +109,7 @@ public class Aura extends Module {
 
         if (target != null) {
             if (canAttack(target)) {
-                if (keepSwing.getValue()) {
+                if (keepSwing.getValue() && !noSwing.getValue()) {
                     mc.player.handSwinging = true;
                 }
 
@@ -249,7 +250,9 @@ public class Aura extends Module {
         if (mc.player == null || mc.world == null || mc.interactionManager == null) return;
 
         mc.interactionManager.attackEntity(mc.player, entity);
-        mc.player.swingHand(Hand.MAIN_HAND);
+        if (!noSwing.getValue()) {
+            mc.player.swingHand(Hand.MAIN_HAND);
+        }
         lastAuraAttackTick = mc.player.age;
     }
 

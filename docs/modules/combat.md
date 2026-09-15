@@ -29,7 +29,8 @@
 | Combat Mode | 1.8 按 CPS 发起攻击；1.9+ 按武器攻击冷却判断时机。 | 模式；默认 1.8；可选 1.8 / 1.9+ |
 | Max CPS | 旧版攻击频率的随机上限，每秒次数。 | 数值；默认 10；1–20；步长 1；显示条件：Combat Mode = 1.8 |
 | Min CPS | 旧版攻击频率的随机下限，每秒次数。 | 数值；默认 7；1–20；步长 1；显示条件：Combat Mode = 1.8 |
-| Keep Swing | 新版攻击尚未冷却时仍保留挥手动作。 | 布尔；默认 false；显示条件：Combat Mode = 1.9+ |
+| No swing | 与 Rise KillAura 同款：跳过 Aura 的挥手动作及对应挥手包，仍正常攻击；适用于两种 Combat Mode，开启时优先于 Keep Swing。 | 布尔；默认 false |
+| Keep Swing | 新版攻击尚未冷却时仍保留挥手动作；No swing 开启时不生效。 | 布尔；默认 false；显示条件：Combat Mode = 1.9+ |
 | Cooldown Bypass | 预测这一击足以击杀时允许跳过完整冷却等待。 | 布尔；默认 false；显示条件：Combat Mode = 1.9+ |
 | Only Rot In Essential | 仅在攻击前后的必要时间段转向目标。 | 布尔；默认 false；显示条件：Combat Mode = 1.9+ |
 | Aim Before Attack Ticks | 攻击前提前开始瞄准的 tick 数。 | 数值；默认 2；0–20；步长 1；显示条件：Combat Mode = 1.9+ 且 Only Rot In Essential 开启 |
