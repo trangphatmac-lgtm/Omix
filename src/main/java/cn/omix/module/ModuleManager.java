@@ -91,6 +91,7 @@ public class ModuleManager implements IMinecraft {
                 new Derp(),
                 new ModuleList(),
                 new Speed(),
+                new LongJump(),
                 new Timer(),
                 new Spider(),
                 new Step(),

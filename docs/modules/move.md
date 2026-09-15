@@ -103,9 +103,25 @@
 | Strafe | Normal 模式重新对齐侧向移动的比例，单位百分比。 | 数值；默认 0；0–100；步长 1；显示条件：Mode = Normal |
 | LagBack Check | 检测服务器位置回弹后执行对应的减速或重置处理。 | 布尔；默认 true |
 
+## LongJump
+
+使用 Fireball（火焰弹）或 Windcharge（风弹）的服务器击退完成 LongJump。启用后暂时关闭 Velocity；由玩家自行起跳，离地且 vy > 0 时立即开始 Silent 转头，不等待 Target Height。起跳时锁定 yaw，只改变服务端 pitch，不转动镜头；转头仲裁优先级 1200。上升时脚底距下方碰撞面的高度达到或越过 Target Height、且 yaw/pitch 误差均不超过 0.65° 后，开启 0.02x 临时 Timer；按需启用 Scaffold，再切换快捷栏并右键使用。每次右键接收一个属于本玩家的 EntityVelocityUpdateS2CPacket，或含玩家击退的 ExplosionS2CPacket；后者将增量击退转换为当前速度加击退量，保留原爆炸音效和粒子。收包线程只收集速度，客户端线程负责右键和应用 motion。Multi 关闭时首个 motion 立即恢复时钟并应用；开启时收到一个 motion 后再次右键，直到收齐 Multi Times 个（包含第一次），恢复时钟并先应用队首，余下 motion 在每次上升顶点 0 < vy ≤ 0.08 时按 FIFO 顺序释放，同一 tick 最多一次。落地且 |vy| ≤ 0.08 后自动关闭；未达到发射条件的跳跃落地后也退出。关闭、死亡、切世界、缺少物品或每次右键等待 Velocity 超过 10 秒时，丢弃剩余队列并恢复 Velocity、原快捷栏和本次管理的 Scaffold/ScaffoldX 开关；原来已开启的 Scaffold 保持开启。临时 Timer 优先于 Timer 模块，释放后恢复当时其他 Timer 设置。配置在启用时快照，下次启用生效。Fireball 需要服务器支持右键火焰弹发射；该流程无法区分本次发射与其他来源的玩家击退。服务器冷却可能拒绝连续右键并触发超时。
+
+源码：`src/main/java/cn/omix/module/impl/move/LongJump.java`。
+
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| Mode | Fireball 使用快捷栏中的 FIRE_CHARGE；Windcharge 使用 WIND_CHARGE。 | 模式；默认 Fireball；可选 Fireball / Windcharge |
+| Target Pitch | Silent 转头目标俯仰角，单位度；正值朝下。起跳时就开始转头。 | 数值；默认 80；-90–90；步长 1 |
+| Target Height | 脚底到正下方最近方块碰撞面的垂直距离，单位方块；仅上升时达到或越过阈值才允许右键，无下方碰撞面时不触发。 | 数值；默认 0.5；0–10；步长 0.05 |
+| Multi | 启用后连续收集多次右键对应的 motion，收齐后在上升顶点依次释放。 | 布尔；默认 false |
+| Multi Times | 收集的 motion / 右键总次数，包含第一次；1 与单次行为相同。仅 Multi 开启时显示。 | 数值；默认 3；1–10；步长 1；显示条件：Multi 开启 |
+| Rotation Speed | 每次旋转更新的角度步幅；0 表示立即到位，正值使用统一旋转管理器平滑。 | 数值；默认 180；0–180；步长 5 |
+| Enable Scaffold | 首次右键前启用 Scaffold；结束后恢复启用前 Scaffold 和 ScaffoldX 的开关状态。 | 布尔；默认 false |
+
 ## Timer
 
-调整客户端游戏时钟倍率，支持 0.01x–5.00x；1.00x 为正常速度。启用期间优先于 Speed、Spider、Phase 等模块的时钟设置，修改倍率在下一次渲染时钟计算时生效，无需等待游戏 tick。关闭后恢复其他模块当前的时钟设置；没有其他倍率设置时恢复 1.00x。没有玩家或世界时使用 1.00x，进入世界后自动应用配置倍率。列表后缀显示两位小数倍率。
+调整客户端游戏时钟倍率，支持 0.01x–5.00x；1.00x 为正常速度。启用期间优先于 Speed、Spider、Phase 等模块的时钟设置；LongJump 收集 motion 时的临时 0.02x 优先于本模块，结束后恢复本模块当前倍率。修改倍率在下一次渲染时钟计算时生效，无需等待游戏 tick。关闭后恢复其他模块当前的时钟设置；没有其他倍率设置时恢复 1.00x。没有玩家或世界时使用 1.00x，进入世界后自动应用配置倍率。列表后缀显示两位小数倍率。
 
 源码：`src/main/java/cn/omix/module/impl/move/Timer.java`。
 

@@ -44,6 +44,7 @@ public void onRotationRequest(RotationRequestEvent event) {
 
 | 模块/场景 | 默认优先级 | 特殊策略 |
 | --- | ---: | --- |
+| LongJump 起跳 / 收集 motion | 1200 | 起跳离地上升即开始 Silent 转头并锁定 yaw；达到高度且旋转到位后发射，收齐 motion 后释放请求。0 速度立即应用。 |
 | NoFall Grim | 1100 | 立即覆盖 pitch=90，继承 yaw；Derp 活跃时不提交。控制窗口内移动包 pitch=90 修正仍独立执行，保留旧行为，不检查仲裁归属。 |
 | ChestArua Manual 待交互 | 1000 | 立即应用，保持 yaw 连续。 |
 | Derp | 900 | 立即应用，silent，无移动修正。 |
@@ -59,6 +60,8 @@ public void onRotationRequest(RotationRequestEvent event) {
 这些数值位于各模块的提交代码中，不是新的用户配置项。默认顺序延续原管理器策略。Scaffold 的 On tick 放置事务、NoFall 的其他模式及临时交互发包保持各自现有流程；本接口接管此前由 RotationManager 管理的持续旋转。
 
 ## 行为兼容边界
+
+LongJump 的 motion 收集与顶点释放由 `src/main/java/cn/omix/util/LongJumpMotionQueue.java` 管理，模块通过公共接口调用；旋转请求仍由 LongJump 模块提交。
 
 保留默认优先顺序、零速平滑、TargetStrafe 的单轴平滑顺序，以及无请求时到 pre-motion 才恢复缓存的时机。NoFall Grim 的发包层 pitch 修正与持续旋转仲裁仍是独立流程。
 
