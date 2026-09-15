@@ -25,6 +25,7 @@ import cn.omix.module.impl.exploits.PathFinder;
 import cn.omix.module.impl.exploits.Regen;
 import cn.omix.module.impl.exploits.ResourcepackSpoof;
 import cn.omix.module.impl.move.*;
+import cn.omix.module.impl.move.Timer;
 import cn.omix.module.impl.player.*;
 import cn.omix.module.impl.render.*;
 import cn.omix.module.impl.world.*;
@@ -90,6 +91,7 @@ public class ModuleManager implements IMinecraft {
                 new Derp(),
                 new ModuleList(),
                 new Speed(),
+                new Timer(),
                 new Spider(),
                 new Step(),
                 new Strafe(),
