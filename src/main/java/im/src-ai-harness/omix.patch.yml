@@ -1,0 +1,3 @@
+- insert:
+    - id: omix-game-tools
+      name: './plugin/omix.mjs'

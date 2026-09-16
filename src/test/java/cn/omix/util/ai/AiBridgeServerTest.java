@@ -1,0 +1,44 @@
+package cn.omix.util.ai;
+
+import com.google.gson.*;
+import org.junit.jupiter.api.Test;
+import java.net.URI;
+import java.net.http.*;
+import java.util.concurrent.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+class AiBridgeServerTest {
+    @Test void requiresNodeAuthenticationAndReturnsTypedDomainResults() throws Exception {
+        var calls = new java.util.concurrent.atomic.AtomicInteger();
+        var sessions = new GameToolSessions(Runnable::run, () -> 7, new GameToolSessions.Tools() {
+            public CompletableFuture<JsonElement> execute(String name, JsonObject args) {
+                calls.incrementAndGet();
+                return CompletableFuture.completedFuture(JsonParser.parseString("{\"status\":\"awaiting_sync\"}"));
+            }
+            public void reset() { }
+        });
+        try (var server = new AiBridgeServer(sessions, () -> CompletableFuture.completedFuture(new JsonObject()), () -> "reference")) {
+            var http = HttpClient.newHttpClient();
+            var url = URI.create(server.endpoint() + "/v1/snapshot");
+            assertEquals(403, http.send(HttpRequest.newBuilder(url).GET().build(), HttpResponse.BodyHandlers.ofString()).statusCode());
+            assertEquals(403, http.send(HttpRequest.newBuilder(url).header("Authorization", "Bearer " + server.token())
+                    .header("Origin", "https://example.org").GET().build(), HttpResponse.BodyHandlers.ofString()).statusCode());
+            String body = "{\"id\":\"call1\",\"agentId\":\"agent\",\"worldEpoch\":7,\"name\":\"getcontainer\",\"arguments\":{}}";
+            var request = HttpRequest.newBuilder(URI.create(server.endpoint()+"/v1/calls"))
+                    .header("Authorization", "Bearer " + server.token()).POST(HttpRequest.BodyPublishers.ofString(body)).build();
+            var response = http.send(request, HttpResponse.BodyHandlers.ofString());
+            var json = JsonParser.parseString(response.body()).getAsJsonObject();
+            assertTrue(json.get("ok").getAsBoolean());
+            assertEquals("awaiting_sync", json.getAsJsonObject("value").get("status").getAsString());
+            assertFalse(response.headers().firstValue("Access-Control-Allow-Origin").isPresent());
+            http.send(request, HttpResponse.BodyHandlers.ofString()); assertEquals(1, calls.get());
+        }
+    }
+    @Test void archivePathsAndLogsRejectEscapesAndSecrets() throws Exception {
+        var root = java.nio.file.Path.of("/tmp/harness");
+        assertThrows(java.io.IOException.class, () -> HarnessBundle.safePath(root, "../outside"));
+        assertThrows(java.io.IOException.class, () -> HarnessBundle.safePath(root, "C:\\outside"));
+        assertEquals(root.resolve("plugin/a.js"), HarnessBundle.safePath(root, "plugin/a.js"));
+        assertFalse(HarnessRuntime.redact("http://127.0.0.1:4/?token=secret apiKey=key").contains("secret"));
+    }
+}

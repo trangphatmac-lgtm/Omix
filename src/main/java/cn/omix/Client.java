@@ -1,6 +1,5 @@
 package cn.omix;
 
-import ai.backend.AiBackend;
 import cn.omix.command.CommandManager;
 import cn.omix.config.ConfigManager;
 import cn.omix.event.base.EventManager;
@@ -30,10 +29,9 @@ public class Client implements IMinecraft {
     public static Logger logger;
 
     public static String name = "Omix";
-    public static String version = "260915-SNAPSHOT";
+    public static String version = "260916-SNAPSHOT";
 
     private EventManager eventManager;
-    private AiBackend aiBackend;
     private FisProxyManager fisProxyManager;
     private ModuleManager moduleManager;
     private CommandManager commandManager;
@@ -55,7 +53,6 @@ public class Client implements IMinecraft {
         Render2D.init();
         Render3D.init();
         eventManager = new EventManager();
-        aiBackend = new AiBackend(Path.of(name, "ai.json"));
         fisProxyManager = new FisProxyManager(Path.of(name, "fisproxy.json"));
         moduleManager = new ModuleManager();
         commandManager = new CommandManager();
@@ -68,16 +65,12 @@ public class Client implements IMinecraft {
         clickGuiScreen = new ClickGuiScreen();
         AccountManager.init();
         WebUiRuntime.getInstance().start();
-        if (aiBackend.hasApiKey()) {
-            aiBackend.refreshModels().exceptionally(error -> java.util.List.of());
-        }
     }
 
     public void shutdown() {
         WebUiRuntime.getInstance().stop();
         configManager.saveAll();
         fisProxyManager.close();
-        aiBackend.close();
         AccountManager.save();
     }
 }

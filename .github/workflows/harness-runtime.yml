@@ -1,0 +1,49 @@
+name: Harness runtime compatibility
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/main/java/im/src-ai-harness/**'
+      - '.github/workflows/harness-runtime.yml'
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.18.0'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm --prefix src/main/java/im/src-ai-harness ci --omit=dev --no-audit --no-fund
+      - run: npm --prefix src/main/java/im/src-ai-harness test
+      - run: python src/main/java/im/src-ai-harness/scripts/bundle.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: harness-runtime
+          path: src/main/java/im/src-ai-harness/dist/
+  smoke:
+    needs: package
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm, windows-2025, windows-11-arm, macos-15-intel, macos-15]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.18.0'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: harness-runtime
+          path: src/main/java/im/src-ai-harness/dist/
+      - run: python src/main/java/im/src-ai-harness/scripts/extract-smoke.py build/harness-smoke/runtime
+      - run: node src/main/java/im/src-ai-harness/scripts/native-smoke.mjs build/harness-smoke/runtime
+      - run: node src/main/java/im/src-ai-harness/scripts/smoke.mjs build/harness-smoke/runtime

@@ -1,6 +1,6 @@
 package injection;
 
-import ai.backend.AiContainerTools;
+import cn.omix.util.ai.AiContainerTools;
 import cn.omix.Client;
 import cn.omix.event.impl.RotationAppliedEvent;
 import cn.omix.event.impl.TickEvent;

@@ -27,11 +27,15 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.network.packet.c2s.play.ClientTickEndC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.s2c.play.CooldownUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -132,7 +136,7 @@ public class LongJump extends Module {
             launchYaw = LongJumpAim.behind(mc.player.getYaw(), active.pitch).yaw();
             phase = Phase.AIMING;
         }
-        LongJumpAim usedAim = active.uses.getAim();
+        LongJumpAim usedAim = collectionAim(active);
         if (usedAim != null || phase == Phase.AIMING || phase == Phase.CHARGING) {
             float[] angles = usedAim == null ? new float[]{launchYaw, active.pitch}
                     : new float[]{usedAim.yaw(), usedAim.pitch()};
@@ -147,7 +151,7 @@ public class LongJump extends Module {
     public void onMotion(MotionEvent event) {
         Session active = session;
         if (!event.isPre() || !validate(active)) return;
-        LongJumpAim aim = active.uses.getAim();
+        LongJumpAim aim = collectionAim(active);
         if (aim == null) return;
         // BadPacketsJ compares exact floats, not an angular tolerance. Also keep
         // vanilla's lastYaw/lastPitch cache aligned with the final movement angles.
@@ -160,9 +164,13 @@ public class LongJump extends Module {
     public void onSendMovement(PacketEvent event) {
         Session active = session;
         if (active == null || event.isCancelled() || event.getType() != PacketEvent.Type.Send
-                || !sameContext(active) || !(event.getPacket() instanceof PlayerMoveC2SPacket packet)
-                || !packet.changesLook()) return;
-        LongJumpAim aim = active.uses.getAim();
+                || !sameContext(active)) return;
+        if (event.getPacket() instanceof ClientTickEndC2SPacket) {
+            active.uses.endTick();
+            return;
+        }
+        if (!(event.getPacket() instanceof PlayerMoveC2SPacket packet) || !packet.changesLook()) return;
+        LongJumpAim aim = collectionAim(active);
         if (aim == null) return;
         // A packet listener (e.g. NoFall) may rewrite rotation after MotionEvent.
         PlayerMoveC2SPacketAccessor accessor = (PlayerMoveC2SPacketAccessor) packet;
@@ -175,7 +183,7 @@ public class LongJump extends Module {
     public void onRotationApplied(RotationAppliedEvent event) {
         Session active = session;
         if (!validate(active) || !active.uses.isPending()
-                || (phase != Phase.AIMING && phase != Phase.CHARGING)
+                || phase != Phase.AIMING
                 || !RotationManager.isOwner(getName())) return;
         // This is before the current tick's movement. Use the aim already sent by the
         // preceding tick, as ChestArua does, rather than adding a synthetic movement packet.
@@ -188,7 +196,7 @@ public class LongJump extends Module {
             if (mc.player.isOnGround() || mc.player.getVelocity().y <= 0
                     || !Double.isFinite(height) || height + 1.0E-4 < active.height) return;
         }
-        useItem(active, new LongJumpAim(sent.getLastYaw(), sent.getLastPitch()));
+        useItem(active, new LongJumpAim(sent.getLastYaw(), sent.getLastPitch()), false);
     }
 
     @EventTarget
@@ -197,10 +205,20 @@ public class LongJump extends Module {
         Session active = session;
         if (active == null || event.isCancelled() || event.getType() != PacketEvent.Type.Received
                 || !sameContext(active)) return;
+        if (event.getPacket() instanceof CooldownUpdateS2CPacket cooldown
+                && cooldown.cooldownGroup().equals(active.cooldownGroup)) {
+            long receivedAt = System.nanoTime();
+            mc.execute(() -> {
+                if (session == active && validate(active)) {
+                    active.uses.setCooldown(receivedAt, cooldown.cooldown());
+                }
+            });
+            return;
+        }
         if (event.getPacket() instanceof EntityVelocityUpdateS2CPacket packet
                 && packet.getEntityId() == active.player.getId() && active.motions.capture(packet.getVelocity())) {
             event.setCancelled(true);
-            // Restore Timer/apply motion promptly; subsequent uses wait for the interaction phase.
+            // All interactions remain on the client thread, independently of the slow game tick.
             mc.execute(() -> onVelocity(active));
         } else if (event.getPacket() instanceof ExplosionS2CPacket explosion && explosion.playerKnockback().isPresent()) {
             // Modern wind charges can deliver their impulse in EXPLODE rather than ENTITY_VELOCITY.
@@ -227,10 +245,21 @@ public class LongJump extends Module {
             if (first != null) mc.player.setVelocityClient(first);
         } else {
             active.uses.requestNextUse();
+            continueUse(active);
         }
     }
 
-    private void useItem(Session active, LongJumpAim aim) {
+    private void continueUse(Session active) {
+        if (session != active || !validate(active) || phase != Phase.CHARGING
+                || mc.isPaused() || !active.uses.canContinue(System.nanoTime())) return;
+        useItem(active, active.uses.getLastAim(), true);
+    }
+
+    private LongJumpAim collectionAim(Session active) {
+        return phase == Phase.CHARGING ? active.uses.getLastAim() : active.uses.getAim();
+    }
+
+    private void useItem(Session active, LongJumpAim aim, boolean continuation) {
         if (!validate(active) || mc.interactionManager == null) return;
         int slot = findSlot(active);
         if (slot < 0) {
@@ -247,12 +276,21 @@ public class LongJump extends Module {
             abort("Fireball 目标方向在交互距离内未命中方块");
             return;
         }
-        if (!active.uses.beginUse(mc.player.getItemCooldownManager()
-                .isCoolingDown(mc.player.getInventory().getStack(slot)), aim)) return;
+        var stack = mc.player.getInventory().getStack(slot);
+        long now = System.nanoTime();
+        if (continuation) {
+            if (!active.uses.beginContinuation(now)) return;
+        } else if (!active.uses.beginUse(mc.player.getItemCooldownManager().isCoolingDown(stack), aim)) {
+            return;
+        }
         if (!active.motions.awaitMotion()) return;
+        // Remain at 0.02x throughout collection, including every follow-up and cooldown.
+        TimerSpeedUtil.setTemporaryOverride(active, 0.02F);
+        active.cooldownGroup = mc.player.getItemCooldownManager().getGroup(stack);
+        var cooldown = stack.get(DataComponentTypes.USE_COOLDOWN);
+        active.uses.setCooldown(now, cooldown == null ? 0 : cooldown.getCooldownTicks());
         if (phase == Phase.AIMING) {
             phase = Phase.CHARGING;
-            TimerSpeedUtil.setTemporaryOverride(active, 0.02F);
             if (active.scaffold) {
                 touchedScaffold = true;
                 getModule(Scaffold.class).setEnabled(true);
@@ -287,8 +325,11 @@ public class LongJump extends Module {
 
     @EventTarget
     public void onRenderFrame(RenderFrameEvent event) {
-        if (!validate(session)) return;
-        if (phase == Phase.CHARGING && !session.uses.isPending()
+        Session active = session;
+        if (!validate(active)) return;
+        continueUse(active);
+        if (session != active) return;
+        if (phase == Phase.CHARGING && !active.uses.isPending()
                 && System.nanoTime() - lastUseNanos > 10_000_000_000L) {
             abort("等待 Velocity 超时");
         }
@@ -316,7 +357,7 @@ public class LongJump extends Module {
 
     /** Prevent Scaffold from changing the held item after USE_ITEM within the same tick. */
     public boolean isUsingItemThisTick() {
-        return session != null && session.uses.isUsedThisTick();
+        return session != null && (phase == Phase.CHARGING || session.uses.isUsedThisTick());
     }
 
     private double heightAboveGround() {
@@ -363,6 +404,7 @@ public class LongJump extends Module {
         final boolean scaffold;
         final LongJumpMotionQueue<Vec3d> motions;
         final LongJumpUseSchedule uses = new LongJumpUseSchedule();
+        volatile Identifier cooldownGroup;
 
         Session(ClientPlayerEntity player, ClientWorld world, ClientPlayNetworkHandler network,
                 Item item, float pitch, float height, float rotationSpeed, int times, boolean scaffold) {

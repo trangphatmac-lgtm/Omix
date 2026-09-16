@@ -1,6 +1,6 @@
 package injection;
 
-import ai.backend.AiChatCapture;
+import cn.omix.util.ai.AiChatCapture;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.MessageIndicator;
 import net.minecraft.network.message.MessageSignatureData;

@@ -47,3 +47,5 @@ AI 应先区分说明中的默认值和当前状态；需要现况时调用读�
 模块语义说明维护于 `tools/client_reference_descriptions.json`；生成器从 ModuleManager 注册列表与各模块（含父类）的 Value 构造器提取名称、模式、范围、默认值和显示条件。Gradle 的 `processResources` 自动先执行 `generateClientReference` 更新分类文档，再打包，因此正常构建无需手动运行脚本。源码或说明修改后会重新生成，输入未变时使用增量构建。构建环境需有 Python 3，默认使用 macOS/Linux 的 `python3` 或 Windows 的 `python`，可用 `-PpythonExecutable=/path/to/python` 指定解释器。也可单独运行 `python3 tools/generate_client_reference.py --check` 检查漏项或文档过期。新增配置必须补充人工说明，不能仅用名称自动猜测用途。改变功能实现但没有改变声明时，也需人工复核对应简介。
 
 命令和 AI 工具介绍直接维护 `docs/commands.md`、`docs/ai-tools.md`。修改注册、子命令或工具参数时同步更新说明和覆盖测试。Agent 直接加载这些 Markdown 文件，没有单独维护的 Prompt 文档副本。
+
+AI 架构、运行时和插件开发见 [DeepSeek Harness AI](ai-system.md)。

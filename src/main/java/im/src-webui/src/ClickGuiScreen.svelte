@@ -1,6 +1,7 @@
 <script lang="ts">
     import {onMount} from "svelte";
     import omixLogo from "./assets/omix.png";
+    import {loadNavigation, saveNavigation, type ClickGuiNavigation} from "./clickGuiNavigation";
 
     type Theme = "light" | "dark";
     type View = "modules" | "configs";
@@ -78,6 +79,20 @@
     let pendingAction = "";
     let viewportWidth = 1440;
     let viewportHeight = 900;
+    let navigationReady = false;
+    let navigationTimer: number | undefined;
+    let moduleScroll = 0;
+    let settingsScroll = 0;
+    let configScroll = 0;
+    let stateRevision = 0;
+    let disposed = false;
+    let acknowledging = false;
+
+    $: navigation = {
+        view, activeCategory, selectedModuleName, search, selectedConfig,
+        moduleScroll, settingsScroll, configScroll
+    } satisfies ClickGuiNavigation;
+    $: if (navigationReady) scheduleNavigationSave(navigation);
 
     // Match AIScreen: scale controls as well as the panel on high-resolution displays.
     $: uiScale = Math.max(1, Math.min(viewportWidth / 1440, viewportHeight / 900));
@@ -129,15 +144,37 @@
 
         window.addEventListener("keydown", onKeyDown, true);
         window.addEventListener("pointerdown", onPointerDown);
+        const onVisibility = (event: Event) => {
+            if ((event as CustomEvent<{visible: boolean}>).detail.visible) {
+                closing = false;
+                mounted = true;
+                bindingTarget = null;
+                openModeSetting = "";
+                if (!socket || socket.readyState >= WebSocket.CLOSING) connectSocket();
+                void acknowledgeScreen();
+                if (!loading) void loadState(true);
+            } else {
+                persistNavigation();
+                bindingTarget = null;
+                openModeSetting = "";
+            }
+        };
+        window.addEventListener("omix-browser-visibility", onVisibility);
+        window.addEventListener("pagehide", persistNavigation);
         connectSocket();
         void acknowledgeScreen();
         void loadTheme();
+        // Fetch both concurrently, but validate selections only after restoration.
         void loadState();
 
         return () => {
+            persistNavigation();
+            disposed = true;
             cancelAnimationFrame(firstFrame);
             window.removeEventListener("keydown", onKeyDown, true);
             window.removeEventListener("pointerdown", onPointerDown);
+            window.removeEventListener("omix-browser-visibility", onVisibility);
+            window.removeEventListener("pagehide", persistNavigation);
             socket?.close();
             if (toastTimer) window.clearTimeout(toastTimer);
         };
@@ -185,38 +222,86 @@
     }
 
     async function acknowledgeScreen() {
-        if (import.meta.env.DEV) return;
-        for (let attempt = 0; attempt < 40; attempt++) {
-            try {
-                const response = await post("/api/v1/client/virtualScreen", {name: "clickgui"});
-                if (response.ok) return;
-            } catch {
-                // CEF can paint before the local bridge is ready.
+        if (import.meta.env.DEV || acknowledging || disposed) return;
+        acknowledging = true;
+        try {
+            for (let attempt = 0; attempt < 40 && !disposed; attempt++) {
+                try {
+                    const response = await post("/api/v1/client/virtualScreen", {name: "clickgui"});
+                    if (response.ok) return;
+                } catch {
+                    // CEF can paint before the local bridge is ready.
+                }
+                await new Promise(resolve => setTimeout(resolve, 250));
             }
-            await new Promise(resolve => setTimeout(resolve, 250));
+        } finally {
+            acknowledging = false;
         }
     }
 
     async function loadState(silent = false) {
+        if (pendingAction) return;
+        const revision = ++stateRevision;
         try {
-            const response = await fetch("/api/v1/clickgui/state");
-            state = await readState(response);
+            const [nextState] = await Promise.all([
+                fetch("/api/v1/clickgui/state").then(readState).catch(error => {
+                    if (import.meta.env.DEV) return demoState();
+                    throw error;
+                }),
+                restoreNavigation()
+            ]);
+            if (disposed || revision !== stateRevision) return;
+            state = nextState;
             loading = false;
             errorMessage = "";
             ensureSelection();
         } catch (error) {
-            if (import.meta.env.DEV) {
-                state = demoState();
-                loading = false;
-                connectionState = "ready";
-                ensureSelection();
-                return;
-            }
+            if (disposed || revision !== stateRevision) return;
             if (!silent) {
                 loading = false;
                 errorMessage = error instanceof Error ? error.message : String(error);
             }
         }
+    }
+
+    async function restoreNavigation() {
+        if (navigationReady) return;
+        const saved = await loadNavigation();
+        if (disposed || navigationReady) return;
+        view = saved.view;
+        activeCategory = saved.activeCategory;
+        selectedModuleName = saved.selectedModuleName;
+        search = saved.search;
+        selectedConfig = saved.selectedConfig;
+        moduleScroll = saved.moduleScroll;
+        settingsScroll = saved.settingsScroll;
+        configScroll = saved.configScroll;
+        navigationReady = true;
+    }
+
+    function scheduleNavigationSave(value: ClickGuiNavigation) {
+        window.clearTimeout(navigationTimer);
+        navigationTimer = window.setTimeout(() => void saveNavigation(value), 200);
+    }
+
+    function persistNavigation() {
+        window.clearTimeout(navigationTimer);
+        if (navigationReady) {
+            void saveNavigation({view, activeCategory, selectedModuleName, search,
+                selectedConfig, moduleScroll, settingsScroll, configScroll});
+        }
+    }
+
+    function rememberScroll(node: HTMLElement, kind: "modules" | "settings" | "configs") {
+        node.scrollTop = kind === "modules" ? moduleScroll
+            : kind === "settings" ? settingsScroll : configScroll;
+        const onScroll = () => {
+            if (kind === "modules") moduleScroll = node.scrollTop;
+            else if (kind === "settings") settingsScroll = node.scrollTop;
+            else configScroll = node.scrollTop;
+        };
+        node.addEventListener("scroll", onScroll, {passive: true});
+        return {destroy: () => node.removeEventListener("scroll", onScroll)};
     }
 
     async function readState(response: Response): Promise<ClickGuiState> {
@@ -236,13 +321,15 @@
         const selectedStillExists = state.modules.some(module =>
             module.category === activeCategory && module.name === selectedModuleName);
         if (!selectedStillExists) {
+            settingsScroll = 0;
             const candidates = state.modules.filter(module => module.category === activeCategory);
             selectedModuleName = candidates.find(module => module.enabled)?.name
                 ?? candidates[0]?.name
                 ?? "";
         }
         if (!selectedConfig || !state.configs.includes(selectedConfig)) {
-            selectedConfig = state.currentConfig || state.configs[0] || "";
+            selectedConfig = state.configs.includes(state.currentConfig)
+                ? state.currentConfig : state.configs[0] || "";
         }
     }
 
@@ -297,6 +384,7 @@
 
     async function mutate(action: string, path: string, body: unknown) {
         if (pendingAction) return;
+        ++stateRevision;
         pendingAction = action;
         try {
             const response = await fetch(path, {
@@ -421,6 +509,7 @@
         if (action === "delete" && !window.confirm(`删除配置 “${name}”？`)) return;
 
         pendingAction = `config:${action}`;
+        ++stateRevision;
         try {
             const response = await post("/api/v1/clickgui/config", {action, name});
             state = await readState(response);
@@ -475,6 +564,7 @@
 
     function beginClose() {
         if (!closing) {
+            persistNavigation();
             closing = true;
             mounted = false;
         }
@@ -830,7 +920,7 @@
                             <span class="count-badge">{state.configs.length}</span>
                         </div>
 
-                        <div class="config-list">
+                        <div class="config-list" use:rememberScroll={"configs"}>
                             {#each state.configs as config}
                                 <button
                                     class:active={selectedConfig === config}
@@ -966,7 +1056,7 @@
                                 </button>
                             </div>
 
-                            <div class="settings-scroll">
+                            <div class="settings-scroll" use:rememberScroll={"settings"}>
                                 {#if visibleSettings.length === 0}
                                     <div class="empty-settings">
                                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1170,7 +1260,7 @@
                             {/if}
                         </label>
 
-                        <div class="module-list">
+                        <div class="module-list" use:rememberScroll={"modules"}>
                             {#each categoryModules as module}
                                 <div
                                     class:active={selectedModule?.name === module.name}

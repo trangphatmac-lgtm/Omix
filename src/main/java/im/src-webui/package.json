@@ -6,6 +6,7 @@
   "scripts": {
     "build": "vite build",
     "check": "svelte-check --tsconfig ./tsconfig.json",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "dev": "vite"
   },
   "devDependencies": {

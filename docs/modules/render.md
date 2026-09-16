@@ -46,7 +46,7 @@
 
 ## ClickGui
 
-打开模块配置 WebUI，失败时回退原生界面；默认右 Shift，打开后自动关闭模块。
+打开模块配置 WebUI，失败时回退原生界面；默认右 Shift，打开后自动关闭模块。页面提前加载，重复打开时复用已加载的页面并后台刷新模块状态；记忆模块/配置页、分类、选中模块、搜索内容、选中配置及滚动位置，重启后也会恢复。已移除的模块或配置会自动回退到有效选项。
 
 源码：`src/main/java/cn/omix/module/impl/render/ClickGui.java`。
 
@@ -54,7 +54,7 @@
 
 ## AIScreen
 
-打开 AI 多对话界面，支持 Chat/Agent；默认句号键，打开后自动关闭模块。
+打开独立的 DeepSeek Harness 完整 WebUI，支持通用 Agent 和 19 个游戏工具；默认句号键，打开后自动关闭模块。首次使用准备运行时，Esc 关闭界面不停止 Agent；失败时按 R 重试，模型和会话在 Harness 中管理。
 
 源码：`src/main/java/cn/omix/module/impl/render/AIScreen.java`。
 

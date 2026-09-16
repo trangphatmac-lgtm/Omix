@@ -2,7 +2,6 @@ package cn.omix.command;
 
 import cn.omix.command.impl.AiCommand;
 import cn.omix.command.impl.BindCommand;
-import cn.omix.command.impl.ChatCommand;
 import cn.omix.command.impl.ConfigCommand;
 import cn.omix.command.impl.FisCommand;
 import cn.omix.command.impl.HelpCommand;
@@ -39,7 +38,6 @@ public final class CommandManager implements IMinecraft {
         addCommands(
                 new HelpCommand(),
                 new AiCommand(),
-                new ChatCommand(),
                 new ToggleCommand(),
                 new BindCommand(),
                 new ConfigCommand(),

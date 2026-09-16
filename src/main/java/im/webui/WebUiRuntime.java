@@ -12,7 +12,7 @@ import im.webui.backend.input.BrowserInputRouter;
 import im.webui.backend.input.InputAcceptor;
 import im.webui.interop.InteropServer;
 import im.webui.interop.InteropResponse;
-import im.webui.interop.AiInteropBridge;
+import cn.omix.util.ai.HarnessRuntime;
 import im.webui.interop.ClickGuiInteropBridge;
 import im.webui.interop.PersistentLocalStorage;
 import im.webui.render.BrowserRenderer;
@@ -43,7 +43,10 @@ public final class WebUiRuntime {
     private volatile boolean openWhenReady;
     private InteropServer interopServer;
     private PersistentLocalStorage localStorage;
-    private AiInteropBridge aiInteropBridge;
+    private HarnessRuntime aiRuntime;
+    private Browser aiBrowser;
+    private Throwable aiBrowserFailure;
+    private String aiLaunchUrl;
     private ClickGuiInteropBridge clickGuiInteropBridge;
     private MusicRuntimeManager musicRuntime;
     private PersistentLocalStorage musicStorage;
@@ -91,6 +94,29 @@ public final class WebUiRuntime {
         return musicRuntime;
     }
 
+    public HarnessRuntime getAiRuntime() {
+        if (aiRuntime == null) throw new IllegalStateException("AI runtime has not initialized");
+        return aiRuntime;
+    }
+
+    public Throwable getAiFailure() {
+        if (aiRuntime != null && aiRuntime.getFailure() != null) return aiRuntime.getFailure();
+        if (aiBrowser != null && aiBrowser.getState().status() == BrowserLoadState.Status.FAILURE)
+            return new IllegalStateException("Harness page failed to load; press R to retry");
+        return aiBrowserFailure;
+    }
+
+    public void restartAi() {
+        if (aiBrowser != null) { aiBrowser.close(); aiBrowser = null; }
+        aiLaunchUrl = null;
+        aiBrowserFailure = null;
+        aiRuntime.restartAsync().whenComplete((url, error) -> MinecraftClient.getInstance().execute(() -> {
+            if (error == null && MinecraftClient.getInstance().currentScreen instanceof WebUiScreen screen
+                    && screen.getType().equals(WebScreenType.AI) && state == WebUiState.READY)
+                activateScreen(WebScreenType.AI);
+        }));
+    }
+
     public String getWebPanelUrl() {
         return getInteropServer().getAuthenticatedBaseUrl()
                 + "#/" + WebScreenType.CLICK_GUI.routeName();
@@ -111,6 +137,8 @@ public final class WebUiRuntime {
                     "Omix",
                     "music"
             ));
+            aiRuntime = new HarnessRuntime(webUiDirectory.getParent().resolve("ai"),
+                    webUiDirectory.getParent().resolve("music"));
             localStorage = new PersistentLocalStorage(
                     webUiDirectory.resolve("local-storage.json")
             );
@@ -124,7 +152,6 @@ public final class WebUiRuntime {
                     musicStorage
             );
             interopServer.start();
-            aiInteropBridge = new AiInteropBridge(interopServer, Client.instance.getAiBackend());
             clickGuiInteropBridge = new ClickGuiInteropBridge(interopServer);
             registerStorageRoutes();
             registerMusicRoutes();
@@ -147,7 +174,8 @@ public final class WebUiRuntime {
             preparationProgress = BrowserPreparationProgress.determinate("Chromium initialized", 1.0F);
             state = WebUiState.CEF_READY;
             mainBrowser = backendManager.getBackend().createBrowser(
-                    themeManager.getScreenUrl(WebScreenType.AI),
+                    // Warm the most frequently opened panel before the first key press.
+                    themeManager.getScreenUrl(WebScreenType.CLICK_GUI),
                     BrowserViewport.fullFrame(),
                     BrowserSettings.DEFAULT,
                     (short) 0,
@@ -168,7 +196,9 @@ public final class WebUiRuntime {
             backendManager.update();
             if (mainBrowser != null) {
                 for (Browser browser : backendManager.getBrowsers()) {
-                    browser.update();
+                    if (browser == aiBrowser) {
+                        try { browser.update(); } catch (Throwable error) { aiBrowserFailure = error; }
+                    } else browser.update();
                 }
                 if (state == WebUiState.BROWSER_LOADING
                         && mainBrowser.isInitialized()
@@ -214,9 +244,8 @@ public final class WebUiRuntime {
         if (state != WebUiState.READY) {
             openWhenReady = true;
             screenManager.open(type);
-            if (type.equals(WebScreenType.MUSIC)) {
-                musicRuntime.startAsync();
-            }
+            if (type.equals(WebScreenType.MUSIC)) musicRuntime.startAsync();
+            if (type.equals(WebScreenType.AI)) aiRuntime.startAsync();
             if (!(client.currentScreen instanceof WebUiScreen screen)
                     || !screen.getType().equals(type)) {
                 client.setScreen(new WebUiScreen(client.currentScreen, type));
@@ -236,11 +265,41 @@ public final class WebUiRuntime {
             return WebScreenOpenResult.QUEUED;
         }
 
+        if (type.equals(WebScreenType.AI) && aiRuntime.getState() != HarnessRuntime.State.READY) {
+            screenManager.open(type);
+            if (!(client.currentScreen instanceof WebUiScreen screen) || !screen.getType().equals(type))
+                client.setScreen(new WebUiScreen(client.currentScreen, type));
+            prepareAiAndActivate();
+            return WebScreenOpenResult.QUEUED;
+        }
         activateScreen(type);
         return WebScreenOpenResult.OPENED;
     }
 
     private void activateScreen(WebScreenType type) {
+        if (type.equals(WebScreenType.AI)) {
+            if (aiRuntime.getState() != HarnessRuntime.State.READY) { prepareAiAndActivate(); return; }
+            try {
+                String launchUrl = aiRuntime.getUrl().toString();
+                if (aiBrowser == null || !launchUrl.equals(aiLaunchUrl)) {
+                    if (aiBrowser != null) aiBrowser.close();
+                    aiBrowser = backendManager.getBackend().createBrowser(launchUrl, BrowserViewport.fullFrame(),
+                            BrowserSettings.DEFAULT, (short) 10, this::acceptsAiBrowserInput);
+                    aiLaunchUrl = launchUrl;
+                    aiBrowserFailure = null;
+                }
+                mainBrowser.setVisible(false);
+                if (musicBrowser != null) musicBrowser.setVisible(false);
+                aiBrowser.setVisible(true);
+                screenManager.open(type);
+                openWhenReady = false;
+                MinecraftClient client = MinecraftClient.getInstance();
+                if (!(client.currentScreen instanceof WebUiScreen screen) || !screen.getType().equals(type))
+                    client.setScreen(new WebUiScreen(client.currentScreen, type));
+            } catch (Throwable error) { aiBrowserFailure = error; }
+            return;
+        }
+        if (aiBrowser != null) aiBrowser.setVisible(false);
         if (type.equals(WebScreenType.MUSIC)
                 && musicRuntime.getState() != im.music.MusicServiceState.READY) {
             prepareMusicAndActivate();
@@ -256,9 +315,15 @@ public final class WebUiRuntime {
         String screenUrl = themeManager.getScreenUrl(type);
         if (!screenUrl.equals(browser.getUrl())) {
             browser.setUrl(screenUrl);
-        } else if (needsAcknowledgement && !type.equals(WebScreenType.MUSIC)) {
+        } else if (type.equals(WebScreenType.CLICK_GUI)
+                && browser.getState().status() == BrowserLoadState.Status.FAILURE) {
+            // Reopening also provides recovery if navigation itself failed.
+            browser.reload();
+        } else if (needsAcknowledgement && !type.equals(WebScreenType.MUSIC)
+                && !type.equals(WebScreenType.CLICK_GUI)) {
             // The shared browser may have loaded its route while hidden and exhausted the
-            // front-end acknowledgement retries. Reload when a user opens it later.
+            // front-end acknowledgement retries. ClickGUI re-acknowledges on visibility
+            // changes and retains its loaded document instead of reloading on every open.
             browser.forceReload();
         }
         if (type.equals(WebScreenType.MUSIC)) {
@@ -296,6 +361,7 @@ public final class WebUiRuntime {
         WebScreenType current = screenManager.current();
         Browser browser = current == null ? null : existingBrowserFor(current);
         return state == WebUiState.READY
+                && (!WebScreenType.AI.equals(current) || (aiRuntime.getState() == HarnessRuntime.State.READY && getAiFailure() == null))
                 && browser != null
                 && browser.isVisible()
                 && browser.isTextureReady();
@@ -326,7 +392,7 @@ public final class WebUiRuntime {
             throw new IllegalStateException("WebUI backend is not ready: " + state);
         }
         return backendManager.getBackend().createBrowser(
-                themeManager.getScreenUrl(type),
+                type.equals(WebScreenType.AI) ? getAiRuntime().getUrl().toString() : themeManager.getScreenUrl(type),
                 viewport,
                 settings,
                 priority,
@@ -375,15 +441,32 @@ public final class WebUiRuntime {
         if (interopServer != null) {
             interopServer.stop();
         }
-        if (musicRuntime != null) {
-            musicRuntime.stop();
-        }
+        if (musicRuntime != null) musicRuntime.stop();
+        if (aiRuntime != null) aiRuntime.close();
+        aiBrowser = null;
+        mainBrowser = null;
+        musicBrowser = null;
         state = WebUiState.STOPPED;
     }
 
     private boolean acceptsMainBrowserInput() {
         return MinecraftClient.getInstance().currentScreen instanceof WebUiScreen screen
-                && !screen.getType().equals(WebScreenType.MUSIC);
+                && !screen.getType().equals(WebScreenType.MUSIC)
+                && !screen.getType().equals(WebScreenType.AI);
+    }
+
+    private boolean acceptsAiBrowserInput() {
+        return MinecraftClient.getInstance().currentScreen instanceof WebUiScreen screen
+                && screen.getType().equals(WebScreenType.AI);
+    }
+
+    private void prepareAiAndActivate() {
+        if (aiRuntime.getState() == HarnessRuntime.State.FAILED) return;
+        aiRuntime.startAsync().whenComplete((url, error) -> MinecraftClient.getInstance().execute(() -> {
+            if (error == null && state == WebUiState.READY
+                    && MinecraftClient.getInstance().currentScreen instanceof WebUiScreen screen
+                    && screen.getType().equals(WebScreenType.AI)) activateScreen(WebScreenType.AI);
+        }));
     }
 
     private boolean acceptsMusicBrowserInput() {
@@ -392,6 +475,7 @@ public final class WebUiRuntime {
     }
 
     private Browser browserFor(WebScreenType type) {
+        if (type.equals(WebScreenType.AI)) return aiBrowser;
         if (!type.equals(WebScreenType.MUSIC)) return mainBrowser;
         if (musicBrowser == null) {
             musicBrowser = backendManager.getBackend().createBrowser(
@@ -407,7 +491,7 @@ public final class WebUiRuntime {
     }
 
     private Browser existingBrowserFor(WebScreenType type) {
-        return type.equals(WebScreenType.MUSIC) ? musicBrowser : mainBrowser;
+        return type.equals(WebScreenType.AI) ? aiBrowser : type.equals(WebScreenType.MUSIC) ? musicBrowser : mainBrowser;
     }
 
     private void prepareMusicAndActivate() {
@@ -479,21 +563,6 @@ public final class WebUiRuntime {
                 Client.logger.error("Failed to write WebUI local storage", exception);
                 return InteropResponse.text(HttpResponseStatus.INTERNAL_SERVER_ERROR, "Storage write failed");
             }
-        });
-        routes.put("/api/v1/client/backgroundBlur", request -> {
-            JsonObject body = request.body();
-            if (!body.has("enabled") || !body.get("enabled").isJsonPrimitive()) {
-                return InteropResponse.text(HttpResponseStatus.BAD_REQUEST, "Missing enabled state");
-            }
-            boolean enabled = body.get("enabled").getAsBoolean();
-            MinecraftClient client = MinecraftClient.getInstance();
-            client.execute(() -> {
-                if (client.currentScreen instanceof WebUiScreen screen
-                        && screen.getType().equals(WebScreenType.AI)) {
-                    screen.setBackgroundBlurEnabled(enabled);
-                }
-            });
-            return InteropResponse.noContent();
         });
         routes.post("/api/v1/client/closeScreen", ignored -> {
             MinecraftClient client = MinecraftClient.getInstance();

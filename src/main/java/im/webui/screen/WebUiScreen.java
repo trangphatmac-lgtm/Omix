@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 public final class WebUiScreen extends Screen {
     private final Screen parent;
     private final WebScreenType type;
-    private volatile boolean backgroundBlurEnabled = true;
     private boolean closing;
 
     public WebUiScreen(Screen parent, WebScreenType type) {
@@ -26,10 +25,6 @@ public final class WebUiScreen extends Screen {
 
     public WebScreenType getType() {
         return type;
-    }
-
-    public void setBackgroundBlurEnabled(boolean backgroundBlurEnabled) {
-        this.backgroundBlurEnabled = backgroundBlurEnabled;
     }
 
     @Override
@@ -44,6 +39,7 @@ public final class WebUiScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
         WebUiRuntime runtime = WebUiRuntime.getInstance();
         boolean music = type.equals(WebScreenType.MUSIC);
+        boolean ai = type.equals(WebScreenType.AI);
         MusicPanelLayout musicLayout = music ? MusicPanelLayout.current() : null;
         if (music) {
             renderMusicBackdrop(context);
@@ -58,12 +54,13 @@ public final class WebUiScreen extends Screen {
             context.fill(0, 0, width, height, 0xFF101218);
         }
         boolean failed = runtime.getState() == im.webui.WebUiState.FAILED
-                || (music && runtime.getMusicRuntime().getState() == im.music.MusicServiceState.FAILED);
+                || (music && runtime.getMusicRuntime().getState() == im.music.MusicServiceState.FAILED)
+                || (ai && runtime.getAiFailure() != null);
         String status = failed
-                ? (music
+                ? (ai ? "Harness failed — R retry, Esc close" : music
                     ? "Music service failed — R retry, Shift+R re-download"
                     : "WebUI failed — press Esc")
-                : (music ? "Loading Omix Music…" : "Loading WebUI…");
+                : (music ? "Loading Omix Music…" : ai ? "Loading DeepSeek Harness…" : "Loading WebUI…");
         context.drawCenteredTextWithShadow(
                 textRenderer,
                 Text.literal(status),
@@ -73,7 +70,7 @@ public final class WebUiScreen extends Screen {
         );
 
         if (failed) {
-            Throwable failure = music
+            Throwable failure = ai && runtime.getAiFailure() != null ? runtime.getAiFailure() : music
                     ? runtime.getMusicRuntime().getFailure()
                     : runtime.getFailure();
             String detail = failure == null || failure.getMessage() == null
@@ -91,8 +88,10 @@ public final class WebUiScreen extends Screen {
 
         BrowserPreparationProgress progress = music
                 ? runtime.getMusicRuntime().getProgress()
-                : runtime.getPreparationProgress();
-        String detail = music ? progressDetail(progress) : preparationDetail(runtime, progress);
+                : ai && runtime.getState() == im.webui.WebUiState.READY
+                    ? runtime.getAiRuntime().getProgress() : runtime.getPreparationProgress();
+        String detail = music || (ai && runtime.getState() == im.webui.WebUiState.READY)
+                ? progressDetail(progress) : preparationDetail(runtime, progress);
         context.drawCenteredTextWithShadow(
                 textRenderer,
                 Text.literal(detail),
@@ -118,33 +117,15 @@ public final class WebUiScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
-        if (!type.equals(WebScreenType.AI) || backgroundBlurEnabled) {
-            super.renderBackground(context, mouseX, mouseY, deltaTicks);
-            return;
-        }
-        if (deferSubtitles()) {
-            renderInGameBackground(context);
-        } else {
-            if (client.world == null) {
-                renderPanoramaBackground(context, deltaTicks);
-            }
-            renderDarkening(context);
-        }
-        client.inGameHud.renderDeferredSubtitles();
-    }
-
-    @Override
     public void close() {
         WebUiRuntime runtime = WebUiRuntime.getInstance();
-        if ((type.equals(WebScreenType.AI) || type.equals(WebScreenType.CLICK_GUI))
-                && runtime.isBrowserTextureReady()) {
+        if (type.equals(WebScreenType.CLICK_GUI) && runtime.isBrowserTextureReady()) {
             if (closing) {
                 return;
             }
             closing = true;
             runtime.beginScreenCloseAnimation();
-            long closeDelay = type.equals(WebScreenType.CLICK_GUI) ? 300L : 420L;
+            long closeDelay = 300L;
             CompletableFuture.delayedExecutor(closeDelay, TimeUnit.MILLISECONDS)
                     .execute(() -> MinecraftClient.getInstance().execute(this::finishClose));
             return;
@@ -154,6 +135,11 @@ public final class WebUiScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyInput input) {
+        if (type.equals(WebScreenType.AI) && input.key() == GLFW.GLFW_KEY_R
+                && WebUiRuntime.getInstance().getAiFailure() != null) {
+            WebUiRuntime.getInstance().restartAi();
+            return true;
+        }
         if (type.equals(WebScreenType.MUSIC)
                 && input.key() == GLFW.GLFW_KEY_R
                 && WebUiRuntime.getInstance().getMusicRuntime().getState()

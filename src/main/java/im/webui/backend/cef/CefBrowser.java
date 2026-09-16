@@ -60,13 +60,15 @@ public final class CefBrowser implements Browser {
             initialized = true;
             browserApi.loadURL(requestedUrl);
             browserApi.setZoomLevel(viewport.zoomLevel(settings.quality()));
-            Client.logger.info("MCEF browser initialized: {}", requestedUrl);
+            Client.logger.info("MCEF browser initialized: {}", requestedUrl.replaceAll("([?&]token=)[^&#]*", "$1[redacted]"));
         }
     }
 
     void setState(BrowserLoadState state) {
         this.state = state;
         if (state.status() == BrowserLoadState.Status.SUCCESS) {
+            // Apply visibility again after navigation, when the new document exists.
+            setVisible(visible);
             Client.logger.info("WebUI page loaded with HTTP {}", state.httpStatusCode());
         } else if (state.status() == BrowserLoadState.Status.FAILURE) {
             Client.logger.error("WebUI page failed: {} ({})", state.errorText(), state.errorCode());
@@ -113,7 +115,10 @@ public final class CefBrowser implements Browser {
                         "omix-browser-hidden",
                         %s
                     );
-                    """.formatted(!visible);
+                    window.dispatchEvent(new CustomEvent("omix-browser-visibility", {
+                        detail: { visible: %s }
+                    }));
+                    """.formatted(!visible, visible);
             browserApi.executeJavaScript(script, browserApi.getURL(), 0);
         }
     }

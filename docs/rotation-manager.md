@@ -63,7 +63,11 @@ public void onRotationRequest(RotationRequestEvent event) {
 
 LongJump 的 motion 收集与顶点释放由 `src/main/java/cn/omix/util/LongJumpMotionQueue.java` 管理，模块通过公共接口调用；旋转请求仍由 LongJump 模块提交。
 
-LongJump 在 `RotationAppliedEvent` 的正常交互阶段使用上一玩家 tick 已发送的旋转，由原版交互管理器同步槽位并右键：Fireball 使用这组 Silent 角度射线检测交互距离内的方块，再调用 `interactionManager.interactBlock`，使用真实命中点和面；Windcharge 调用 `interactionManager.interactItem`。Fireball 未命中方块时在开启 Timer 前退出并提示，不回退为空气使用；不再从 post-motion 或收包回调直接发交互，也不额外发送转头移动包。交互走正常发包事件链，避免跳过 Disabler 等监听器的槽位记录。交互期间临时设置 yaw/pitch，并在 finally 中恢复镜头角度。使用物品的同 tick 内，`LongJumpAim` 保存精确浮点角度；旋转请求直接应用这组值，最终 pre-motion 和带转头的发送包也固定为这组值，防止平滑微调或其他模块改写导致 USE_ITEM 与 tick 角度不一致。`src/main/java/cn/omix/util/LongJumpUseSchedule.java` 保证同 tick 最多一次交互，Multi 收包只预约下一次交互，冷却期间保留预约。Scaffold/ScaffoldX 在该次交互所在 tick 暂停切槽与放置，下一 tick 恢复。
+LongJump 首次使用在 `RotationAppliedEvent` 的正常交互阶段使用上一玩家 tick 已发送的旋转，由原版交互管理器同步槽位并右键：Fireball 沿 Silent 角度射线检测交互距离内的方块，再调用 `interactBlock`；Windcharge 调用 `interactItem`。未命中方块时在开启 Timer 前退出并提示。交互走正常发包事件链，临时设置 yaw/pitch，并在 finally 中恢复镜头。
+
+Multi 收到上一发 motion 后，客户端线程直接尝试连续使用；若原生 tick 尚未发出 `CLIENT_TICK_END`，由渲染帧在其结束后继续。只观察原有 tick-end，不创建移动包或额外 tick-end，也不推进玩家、世界或冷却管理器 tick。整个收集过程保持 0.02x，直到收齐 motion 或退出才清除倍率。后续使用按物品冷却组件及服务器冷却包确定真实时间期限，过期后通过原版交互管理器发送交互，即使本地冷却显示仍受慢速 tick 影响。每个续用必须有新的 motion 响应授权，渲染帧仅重试尚未到期的预约，不会连续重复发包。
+
+`LongJumpUseSchedule` 保存上一发的 `LongJumpAim`；收集期间旋转请求、最终 pre-motion 和带转头的发送包均复用这组精确浮点值。Scaffold/ScaffoldX 在收集期间及交互所在 tick 暂停切槽与放置。
 
 保留默认优先顺序、零速平滑、TargetStrafe 的单轴平滑顺序，以及无请求时到 pre-motion 才恢复缓存的时机。NoFall Grim 的发包层 pitch 修正与持续旋转仲裁仍是独立流程。
 

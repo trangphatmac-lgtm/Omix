@@ -8,6 +8,65 @@ class LongJumpUseScheduleTest {
     private static final LongJumpAim AIM = new LongJumpAim(180, 80);
 
     @Test
+    void acknowledgedFollowupsRunWithoutAnotherSimulationTick() {
+        var schedule = new LongJumpUseSchedule();
+        assertTrue(schedule.beginUse(false, AIM));
+        schedule.requestNextUse();
+        assertFalse(schedule.beginContinuation(0), "Wait for the existing tick end, not a new tick");
+        schedule.endTick();
+        for (int shot = 0; shot < 3; shot++) {
+            assertTrue(schedule.beginContinuation(0));
+            assertEquals(AIM, schedule.getAim());
+            assertFalse(schedule.beginContinuation(0), "No additional use without another response");
+            schedule.requestNextUse();
+        }
+    }
+
+    @Test
+    void cooldownExpiresInRealTimeWithoutAdvancingPlayerTicks() {
+        var schedule = new LongJumpUseSchedule();
+        assertTrue(schedule.beginUse(false, AIM));
+        schedule.setCooldown(1_000_000_000L, 10);
+        schedule.endTick();
+        schedule.requestNextUse();
+        assertFalse(schedule.beginContinuation(1_499_999_999L));
+        assertTrue(schedule.beginContinuation(1_500_000_000L));
+        assertEquals(AIM, schedule.getAim());
+    }
+
+    @Test
+    void serverCooldownUpdatesAndCancellationAreRespectedBetweenTicks() {
+        var schedule = new LongJumpUseSchedule();
+        schedule.beginUse(false, AIM);
+        schedule.endTick();
+        schedule.requestNextUse();
+        schedule.setCooldown(0, 10);
+        schedule.setCooldown(400_000_000L, 20);
+        assertFalse(schedule.canContinue(500_000_000L));
+        schedule.setCooldown(500_000_000L, 0);
+        assertTrue(schedule.canContinue(500_000_000L));
+        schedule.close();
+        schedule.requestNextUse();
+        schedule.endTick();
+        assertFalse(schedule.beginContinuation(2_000_000_000L));
+    }
+
+    @Test
+    void aNaturalTickDefersContinuationUntilItsEndButKeepsTheOriginalAim() {
+        var schedule = new LongJumpUseSchedule();
+        schedule.beginUse(false, AIM);
+        schedule.endTick();
+        schedule.requestNextUse();
+        schedule.beginTick();
+        assertNull(schedule.getAim());
+        assertEquals(AIM, schedule.getLastAim());
+        assertFalse(schedule.canContinue(0));
+        schedule.endTick();
+        assertTrue(schedule.beginContinuation(0));
+        assertEquals(AIM, schedule.getAim());
+    }
+
+    @Test
     void useAnglesRemainBitExactThroughTheTickIncludingAnEarlyVelocityResponse() {
         var schedule = new LongJumpUseSchedule();
         var sent = new LongJumpAim(359.93872F, 79.953125F);
@@ -35,7 +94,7 @@ class LongJumpUseScheduleTest {
     }
 
     @Test
-    void responseInTheUseTickCannotCauseAnotherUseUntilNextTick() {
+    void ordinaryInteractionPhaseCannotSendAnotherUseInTheSameTick() {
         var schedule = new LongJumpUseSchedule();
         schedule.beginTick();
         assertTrue(schedule.beginUse(false, AIM));

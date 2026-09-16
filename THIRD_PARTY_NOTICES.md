@@ -95,3 +95,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## DeepSeek Harness
+
+Omix bundles @deepseek-ai/dsh 0.1.6-alpha.1 (MIT), its production dependency graph and pnpm 11.7.0 (MIT). Upstream: https://github.com/deepseek-ai/deepseek-harness . Per-package license and notice files remain in the runtime archives. Native system primitives use BSD-3-Clause; dependency versions and integrity are recorded in src/main/java/im/src-ai-harness/package-lock.json. No Electron application or Node executable is embedded.

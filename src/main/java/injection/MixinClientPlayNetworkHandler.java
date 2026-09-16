@@ -1,6 +1,6 @@
 package injection;
 
-import ai.backend.AiContainerTools;
+import cn.omix.util.ai.AiContainerTools;
 import cn.omix.event.impl.PlayerPositionLookEvent;
 import cn.omix.util.IMinecraft;
 import net.minecraft.client.network.ClientPlayNetworkHandler;

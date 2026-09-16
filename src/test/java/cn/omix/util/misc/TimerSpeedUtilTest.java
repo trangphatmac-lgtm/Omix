@@ -1,5 +1,7 @@
 package cn.omix.util.misc;
 
+import cn.omix.util.LongJumpAim;
+import cn.omix.util.LongJumpUseSchedule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,27 @@ class TimerSpeedUtilTest {
         assertEquals(0.02F, TimerSpeedUtil.getTimerSpeed());
         TimerSpeedUtil.clearTemporaryOverride(longJump);
         assertEquals(3.0F, TimerSpeedUtil.getTimerSpeed());
+    }
+
+    @Test
+    void multiContinuationNeverChangesTheSimulationTimer() {
+        var schedule = new LongJumpUseSchedule();
+        var aim = new LongJumpAim(180, 80);
+        TimerSpeedUtil.setTimerOverride(() -> 0.01F);
+        schedule.beginUse(false, aim);
+        TimerSpeedUtil.setTemporaryOverride(longJump, 0.02F);
+        schedule.endTick();
+        for (int shot = 0; shot < 3; shot++) {
+            schedule.requestNextUse();
+            assertEquals(0.02F, TimerSpeedUtil.getTimerSpeed());
+            schedule.setCooldown(0, 10);
+            assertEquals(false, schedule.beginContinuation(499_999_999L));
+            assertEquals(0.02F, TimerSpeedUtil.getTimerSpeed());
+            assertEquals(true, schedule.beginContinuation(500_000_000L));
+            assertEquals(0.02F, TimerSpeedUtil.getTimerSpeed());
+        }
+        TimerSpeedUtil.clearTemporaryOverride(longJump);
+        assertEquals(0.01F, TimerSpeedUtil.getTimerSpeed());
     }
 
     @Test

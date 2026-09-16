@@ -125,6 +125,7 @@ sourceSets {
             exclude "im/src-webui/**"
             exclude "im/src-music-webui/**"
             exclude "im/src-music-sidecar/**"
+            exclude "im/src-ai-harness/**"
         }
     }
 }
@@ -210,6 +211,30 @@ def bundleMusicSidecar = tasks.register("bundleMusicSidecar", Zip) {
     destinationDirectory = layout.buildDirectory.dir("generated/music")
 }
 
+def installAiHarness = tasks.register("installAiHarness", NpmTask) {
+    args = ["--prefix", file("src/main/java/im/src-ai-harness").absolutePath,
+            "ci", "--omit=dev", "--no-audit", "--no-fund"]
+    inputs.files("src/main/java/im/src-ai-harness/package.json", "src/main/java/im/src-ai-harness/package-lock.json")
+    outputs.dir("src/main/java/im/src-ai-harness/node_modules")
+}
+
+def bundleAiHarness = tasks.register("bundleAiHarness", Exec) {
+    dependsOn installAiHarness
+    commandLine providers.gradleProperty("pythonExecutable").getOrElse(
+            System.getProperty("os.name").toLowerCase().contains("win") ? "python" : "python3"),
+            "src/main/java/im/src-ai-harness/scripts/bundle.py"
+    inputs.files(fileTree("src/main/java/im/src-ai-harness") {
+        exclude "node_modules/**", "dist/**", "tests/**"
+    })
+    outputs.dir("src/main/java/im/src-ai-harness/dist")
+}
+
+def testAiHarness = tasks.register("testAiHarness", NpmTask) {
+    dependsOn installAiHarness
+    args = ["--prefix", file("src/main/java/im/src-ai-harness").absolutePath, "test"]
+    inputs.files(fileTree("src/main/java/im/src-ai-harness") { exclude "node_modules/**", "dist/**" })
+}
+
 def testMusicSidecar = tasks.register("testMusicSidecar", NpmTask) {
     dependsOn installMusicSidecar
     args = [
@@ -258,6 +283,7 @@ processResources {
     dependsOn syncModVersion
     dependsOn bundleWebUi
     dependsOn bundleMusicSidecar
+    dependsOn bundleAiHarness
 
     inputs.property "version", project.version
     inputs.property "minecraft_version", project.minecraft_version
@@ -278,6 +304,10 @@ processResources {
 
     from(bundleWebUi.flatMap { it.archiveFile }) {
         into "assets/omix/webui"
+    }
+    from("src/main/java/im/src-ai-harness/dist") {
+        include "*.zip", "manifest.json"
+        into "assets/omix/ai/harness"
     }
     from(bundleMusicSidecar.flatMap { it.archiveFile }) {
         into "assets/omix/music"
@@ -347,6 +377,12 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
             if (zip.getEntry("assets/omix/music/sidecar.zip") == null) {
                 throw new GradleException("Music sidecar bundle missing from ${archive.name}")
             }
+            ["common", "windows-x64", "windows-arm64", "macos-x64", "macos-arm64", "linux-x64", "linux-arm64"].each { platform ->
+                if (zip.getEntry("assets/omix/ai/harness/${platform}.zip") == null)
+                    throw new GradleException("Harness bundle missing: ${platform}")
+            }
+            if (zip.getEntry("assets/omix/ai/harness/manifest.json") == null)
+                throw new GradleException("Harness manifest missing")
             if (zip.getEntry("org/fisproxy/Client.class") == null) {
                 throw new GradleException("FisProxy SDK classes missing from ${archive.name}")
             }
@@ -370,6 +406,12 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
                     }
                 } finally {
                     nested.close()
+                }
+            }
+            ["common", "windows-x64", "windows-arm64", "macos-x64", "macos-arm64", "linux-x64", "linux-arm64"].each { platform ->
+                inspectNestedZip("assets/omix/ai/harness/${platform}.zip") { entry ->
+                    if (!entry.directory && forbiddenName(entry.name))
+                        throw new GradleException("Node runtime leaked into Harness bundle: ${entry.name}")
                 }
             }
             def hasMusicIndex = false
@@ -396,6 +438,7 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
 tasks.named("check") {
     dependsOn verifyWebUiRuntimeBundle
     dependsOn testMusicSidecar
+    dependsOn testAiHarness
 }
 
 // configure the maven publication

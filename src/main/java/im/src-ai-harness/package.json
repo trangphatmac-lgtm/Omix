@@ -1,0 +1,17 @@
+{
+  "name": "omix-ai-harness",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "bundle": "python3 scripts/bundle.py",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh": "0.1.6-alpha.1",
+    "@deepseek-ai/dsh-tools": "0.1.6-alpha.1",
+    "@deepseek-ai/cordis": "4.0.2",
+    "pnpm": "11.7.0"
+  }
+}

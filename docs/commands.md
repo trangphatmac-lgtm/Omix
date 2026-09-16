@@ -8,13 +8,11 @@
 
 显示所有已注册命令的用法以及通用模块设置命令，没有参数。
 
-## .ai [baseurl/apikey/model/think/clear] [value]
+## .ai [open/status/restart]
 
-### 禁止自我循环调用
+`.ai` 或 `.ai open` 打开游戏内 DeepSeek Harness 界面；`status` 显示运行状态和失败原因；`restart` 取消当前 AI 工作并重启独立服务。模型、API Key、会话与插件均在新 Harness 系统中管理，旧 baseurl/apikey/model/think/clear 子命令与 `.chat` 已移除。不读取或迁移旧 ai.json。
 
-## .chat <message>
-
-### 禁止自我循环调用
+AI 游戏工具禁止调用 `.ai`、`.chat`，防止自我循环或在调用过程中重启自身。
 
 ## .toggle <module>
 

@@ -1,5 +1,9 @@
 package im.music;
 
+import cn.omix.util.node.NodePlatform;
+import cn.omix.util.node.NodeRuntimeManager;
+import cn.omix.util.node.NodeRuntimeDescriptor;
+
 import com.google.gson.JsonObject;
 import im.webui.backend.BrowserPreparationProgress;
 
@@ -116,7 +120,7 @@ public final class MusicRuntimeManager {
         result.addProperty("totalBytes", progress.totalBytes());
         result.addProperty("nodeVersion", NodeRuntimeDescriptor.VERSION);
         try {
-            result.addProperty("platform", MusicPlatform.current().id());
+            result.addProperty("platform", NodePlatform.current().id());
         } catch (Exception exception) {
             result.addProperty("platform", "unsupported");
         }

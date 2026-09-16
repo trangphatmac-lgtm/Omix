@@ -1,10 +1,9 @@
 <script lang="ts">
     import {onMount} from "svelte";
-    import AiScreen from "./AiScreen.svelte";
     import ClickGuiScreen from "./ClickGuiScreen.svelte";
 
     function currentRoute() {
-        return location.hash.replace(/^#\/?/, "").split(/[/?]/, 1)[0] || "ai";
+        return location.hash.replace(/^#\/?/, "").split(/[/?]/, 1)[0] || "clickgui";
     }
 
     let route = currentRoute();
@@ -19,5 +18,5 @@
 {#if route === "clickgui"}
     <ClickGuiScreen />
 {:else}
-    <AiScreen />
+    <p>AI 已迁移到独立的 DeepSeek Harness 界面。请在游戏内打开 AIScreen。</p>
 {/if}
