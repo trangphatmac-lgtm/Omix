@@ -2,6 +2,9 @@ package cn.omix.module.impl.move;
 
 import cn.omix.management.rotation.RotationRequest;
 import cn.omix.event.impl.RotationRequestEvent;
+import cn.omix.event.impl.RenderRotationEvent;
+import cn.omix.event.impl.WorldEvent;
+import cn.omix.event.base.annotation.EventPriority;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.LivingUpdateEvent;
 import cn.omix.module.Category;
@@ -15,7 +18,7 @@ import net.minecraft.util.math.MathHelper;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Spoofs the player's server-side rotation without changing the camera.
+ * Applies custom rotations to the server or only to the local player model.
  */
 @Getter
 public final class Derp extends Module {
@@ -49,9 +52,11 @@ public final class Derp extends Module {
     );
 
     private final BoolValue safePitch = new BoolValue("Safe Pitch", true);
+    private final BoolValue clientOnly = new BoolValue("Client Only", false);
     private final BoolValue notDuringSprint = new BoolValue("Not During Sprint", true);
 
     private float[] rotations;
+    private float[] lastRotations;
     private float jitterYaw;
     private float spinYaw;
     private int jitterTick;
@@ -62,20 +67,35 @@ public final class Derp extends Module {
 
     @Override
     public void onDisable() {
-        rotations = null;
+        rotations = lastRotations = null;
+    }
+
+    @EventTarget
+    public void onWorld(WorldEvent event) {
+        rotations = lastRotations = null;
+    }
+
+    @EventTarget
+    @EventPriority(1000)
+    public void onRenderRotation(RenderRotationEvent event) {
+        if (!isEnabled() || !clientOnly.getValue() || mc.player == null || mc.world == null) return;
+        if (rotations == null) return;
+        // Run after RotationManager; this event changes model rendering only.
+        event.setRotation(rotations);
+        event.setLastRotation(lastRotations == null ? rotations : lastRotations);
     }
 
     @EventTarget
     public void onRotationRequest(RotationRequestEvent event) {
         if (!isEnabled() || mc.player == null || mc.world == null) return;
-        if (rotations == null) return;
+        if (clientOnly.getValue() || rotations == null) return;
         event.submit(RotationRequest.builder(getName(), rotations, 900).speed(0).build());
     }
 
     @EventTarget
     public void onLivingUpdate(LivingUpdateEvent event) {
-        if (mc.player == null) {
-            rotations = null;
+        if (mc.player == null || mc.world == null) {
+            rotations = lastRotations = null;
             return;
         }
 
@@ -84,7 +104,7 @@ public final class Derp extends Module {
 
         if (notDuringSprint.getValue()
                 && (mc.options.sprintKey.isPressed() || mc.player.isSprinting())) {
-            rotations = null;
+            rotations = lastRotations = null;
             return;
         }
 
@@ -108,6 +128,7 @@ public final class Derp extends Module {
             spoofedPitch = MathHelper.clamp(spoofedPitch, -90.0F, 90.0F);
         }
 
+        lastRotations = rotations;
         rotations = new float[]{spoofedYaw, spoofedPitch};
     }
 

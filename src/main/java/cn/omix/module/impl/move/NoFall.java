@@ -155,7 +155,7 @@ public final class NoFall extends Module {
         if (!isEnabled() || mc.player == null || mc.world == null) return;
         if (!isGrimSilentRotationActive()) return;
         Derp derp = getModule(Derp.class);
-        if (derp.isEnabled() && derp.getRotations() != null) return;
+        if (derp.isEnabled() && !derp.getClientOnly().getValue() && derp.getRotations() != null) return;
         event.submit(RotationRequest.builder(getName(), new float[]{mc.player.getYaw(), 90.0F}, 1100)
                 .speed(0).axes(RotationRequest.Axes.PITCH_ONLY).build());
     }

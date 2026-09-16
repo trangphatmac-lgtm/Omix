@@ -212,7 +212,7 @@ public final class AutoBlockIn extends Module {
                 || !mc.isWindowFocused() || !selectPressed() || Freecam.isActive()) return false;
         // These modules also own the hotbar or have higher-priority rotation requests.
         return !getModule(Scaffold.class).isEnabled() && !getModule(ScaffoldX.class).isEnabled()
-                && !getModule(Derp.class).isEnabled()
+                && !(getModule(Derp.class).isEnabled() && !getModule(Derp.class).getClientOnly().getValue())
                 && !getModule(ChestArua.class).isManualRotationActive()
                 && !(getModule(AntiLava.class).isEnabled() && getModule(AntiLava.class).getRotations() != null);
     }

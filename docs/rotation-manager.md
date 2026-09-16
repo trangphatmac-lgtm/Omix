@@ -45,9 +45,9 @@ public void onRotationRequest(RotationRequestEvent event) {
 | 模块/场景 | 默认优先级 | 特殊策略 |
 | --- | ---: | --- |
 | LongJump 起跳 / 收集 motion | 1200 | 起跳离地上升即开始 Silent 转至镜头 yaw + 180° 和 Target Pitch，并启用 Silent 移动修正；达到高度且旋转到位后发射。交互 tick 固定精确角度，后续 tick 收齐 motion 后释放请求。0 速度立即应用。 |
-| NoFall Grim | 1100 | 立即覆盖 pitch=90，继承 yaw；Derp 活跃时不提交。控制窗口内移动包 pitch=90 修正仍独立执行，保留旧行为，不检查仲裁归属。 |
+| NoFall Grim | 1100 | 立即覆盖 pitch=90，继承 yaw；Derp 服务端旋转活跃时不提交（Client Only 不阻止）。控制窗口内移动包 pitch=90 修正仍独立执行，保留旧行为，不检查仲裁归属。 |
 | ChestArua Manual 待交互 | 1000 | 立即应用，保持 yaw 连续。 |
-| Derp | 900 | 立即应用，silent，无移动修正。 |
+| Derp | 900 | 立即应用，silent，无移动修正；Client Only 开启时不提交请求，仅通过 RenderRotationEvent 改变本地模型渲染。 |
 | AntiLava | 800 | 速度 180，移动修正跟随选项。 |
 | AutoBlockIn | 700 | 直接应用已平滑的角度，Silent 移动修正。 |
 | ScaffoldX | 600 | 速度、移动修正由模块提供。 |
