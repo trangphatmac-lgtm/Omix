@@ -10,6 +10,7 @@ import cn.omix.module.Module;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.TextValue;
+import cn.omix.util.network.GameConnectionContext;
 import net.minecraft.entity.player.PlayerEntity;
 
 import java.util.Iterator;
@@ -123,7 +124,7 @@ public final class AutoL extends Module {
 
     private String getTargetText() {
         return switch (targetSource.getValue()) {
-            case "Account Name" -> mc.getSession().getUsername();
+            case "Account Name" -> GameConnectionContext.username(mc);
             case "Custom" -> targetText.getValue();
             default -> Client.name;
         };

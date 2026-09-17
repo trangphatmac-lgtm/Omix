@@ -78,7 +78,7 @@
 
 ## NickHider
 
-本地名称渲染中替换自己的名称，不修改服务器账号名。
+本地名称渲染中替换自己的名称；进服后使用服务器确认的玩家名（含 FisProxy AutoNFA），离线时使用本地登录账号名，不修改服务器账号名。
 
 源码：`src/main/java/cn/omix/module/impl/render/NickHider.java`。
 

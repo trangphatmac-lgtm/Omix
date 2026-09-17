@@ -4,6 +4,7 @@ import cn.omix.Client;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
 import cn.omix.module.value.impl.TextValue;
+import cn.omix.util.network.GameConnectionContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
@@ -114,7 +115,7 @@ public final class NickHider extends Module {
         NickHider module = Client.instance.getModuleManager().getModule(NickHider.class);
         if (module == null || !module.isEnabled()) return null;
 
-        String accountName = minecraft.getSession().getUsername();
+        String accountName = GameConnectionContext.username(minecraft);
         String nickName = module.nickName.getValue();
         if (accountName == null || accountName.isEmpty() || nickName == null || accountName.equals(nickName)) {
             return null;

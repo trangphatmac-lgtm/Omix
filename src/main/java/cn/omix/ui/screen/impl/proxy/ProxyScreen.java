@@ -460,7 +460,7 @@ public class ProxyScreen extends AbstractScreen {
                 throw new IllegalStateException("No running FisProxy session address is available.");
             }
             String address = lastFisAddress;
-            FisProxyConnector.connect(mc, address);
+            FisProxyConnector.connect(mc, address, status);
             return List.of("Connecting to " + address);
         });
     }

@@ -221,7 +221,7 @@ public final class FisCommand extends Command {
         int entranceIndex = arguments.length == 3 ? parseInt(arguments[2], "entrance index") : -1;
         run("connection address", manager().status(), status -> {
             String address = selectAddress(status, entranceIndex);
-            FisProxyConnector.connect(MinecraftClient.getInstance(), address);
+            FisProxyConnector.connect(MinecraftClient.getInstance(), address, status);
             return List.of("Connecting to " + address);
         });
     }

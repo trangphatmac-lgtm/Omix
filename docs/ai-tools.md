@@ -2,6 +2,8 @@
 
 源码：`src/main/java/cn/omix/util/ai/MinecraftCommandToolExecutor.java`、`src/main/java/cn/omix/util/ai/AiContainerTools.java`。以下 19 个工具供 Agent 使用。工具参数是 JSON 对象，字段名称区分大小写；无参数工具传 `{}`，不要添加未声明字段。静态工具说明不代替每次请求提供的实时工具 schema 和可用命令列表。需要进入游戏、连接服务器或安装 Baritone 的工具，在条件不满足时返回错误信息。
 
+游戏上下文中的玩家名取自当前服务器确认的身份（支持 FisProxy AutoNFA），未进服时回退到本地登录账号。通过 FisProxy 连接按钮或 `.fis connect` 进服时，服务器地址优先展示会话目标，缺失时展示代理入口。
+
 工具由 Omix Harness 插件注册，Java 执行层提供实时 schema、游戏上下文和结果。每个 Agent 回合首次调用游戏工具时取得独占使用权；其他 Agent 返回 busy 错误，同一 Agent 的调用依次执行。容器快照随回合释放失效，不能跨 Agent 或世界使用。取消会阻止尚未提交的操作，但不会撤销已发送给服务器的命令、聊天或点击；已启动的 Baritone 任务需用 `#stop` 等对应命令停止。工具错误以 Harness 错误结果返回，`awaiting_sync`、`interaction_submitted`、`click_submitted` 等正常领域状态仍须按下文判断。
 
 ## run_minecraft_command

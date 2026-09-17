@@ -98,7 +98,7 @@
 | NameInFront | 文本前加被击杀玩家名。 | 布尔；默认 true |
 | SendL | 70% 概率在文本前加全角 Ｌ。 | 布尔；默认 false |
 | Content | 自定义文本，支持 <target>；空白时发送未设置提示。 | 文本；默认 空文本；显示条件：Word Pattern = Custom |
-| Target | <target> 使用客户端名、账号名或自定义文本。 | 模式；默认 Client Name；可选 Client Name / Account Name / Custom |
+| Target | <target> 使用客户端名、当前游戏账号名或自定义文本；Account Name 支持 FisProxy AutoNFA 身份。 | 模式；默认 Client Name；可选 Client Name / Account Name / Custom |
 | Target Text | 替换 <target> 的自定义内容。 | 文本；默认 空文本；显示条件：Target = Custom |
 
 ## AutoScreenshot

@@ -1,5 +1,6 @@
 package cn.omix.util.ai;
 
+import cn.omix.util.network.GameConnectionContext;
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -120,7 +121,7 @@ record AiGameContext(
             ServerInfo server = client.getCurrentServerEntry();
             if (server != null) {
                 connectionMode = "Multiplayer server";
-                serverAddress = server.address;
+                serverAddress = GameConnectionContext.serverAddress(server);
             }
         }
 
@@ -174,7 +175,7 @@ record AiGameContext(
                 + (runtime.maxMemory() / MEBIBYTE) + " MiB max";
 
         return new AiGameContext(
-                username,
+                GameConnectionContext.username(client),
                 connectionMode,
                 serverAddress,
                 Integer.toString(client.getCurrentFps()),

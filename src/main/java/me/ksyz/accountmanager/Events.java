@@ -1,10 +1,12 @@
 package me.ksyz.accountmanager;
 
 import cn.omix.module.impl.render.NickHider;
+import cn.omix.util.network.GameConnectionContext;
 import me.ksyz.accountmanager.auth.Account;
 import me.ksyz.accountmanager.auth.SessionService;
 import me.ksyz.accountmanager.gui.AccountManagerScreen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.client.MinecraftClient;
@@ -15,7 +17,6 @@ import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.world.SelectWorldScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.network.ServerInfo;
 import net.minecraft.network.DisconnectionInfo;
 import net.minecraft.text.Text;
 
@@ -28,6 +29,7 @@ public final class Events {
     private static final Pattern DURATION_PATTERN = Pattern.compile("(\\d+)\\s*([dhms])", Pattern.CASE_INSENSITIVE);
     private static boolean registered;
     private static Field disconnectionInfoField;
+    private static volatile String connectedUsername;
 
     private Events() {
     }
@@ -48,9 +50,10 @@ public final class Events {
             }
         });
 
+        ClientLoginConnectionEvents.INIT.register((handler, client) -> connectedUsername = null);
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            ServerInfo serverInfo = client.getCurrentServerEntry();
-            if (serverInfo == null || !isHypixel(serverInfo.address)) {
+            connectedUsername = handler.getProfile().name();
+            if (!isHypixel(GameConnectionContext.serverAddress(handler.getServerInfo()))) {
                 return;
             }
             updateCurrentAccountUnban(0L);
@@ -147,7 +150,7 @@ public final class Events {
     }
 
     private static void updateCurrentAccountUnban(long unban) {
-        String username = SessionService.current().getUsername();
+        String username = connectedUsername != null ? connectedUsername : SessionService.current().getUsername();
         AccountManager.load();
         boolean changed = false;
         for (Account account : AccountManager.accounts) {

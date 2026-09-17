@@ -550,7 +550,7 @@
     "settings": {}
   },
   "NickHider": {
-    "description": "本地名称渲染中替换自己的名称，不修改服务器账号名。",
+    "description": "本地名称渲染中替换自己的名称；进服后使用服务器确认的玩家名（含 FisProxy AutoNFA），离线时使用本地登录账号名，不修改服务器账号名。",
     "settings": {
       "NickName": "替换显示的昵称。"
     }
@@ -823,7 +823,7 @@
       "NameInFront": "文本前加被击杀玩家名。",
       "SendL": "70% 概率在文本前加全角 Ｌ。",
       "Content": "自定义文本，支持 <target>；空白时发送未设置提示。",
-      "Target": "<target> 使用客户端名、账号名或自定义文本。",
+      "Target": "<target> 使用客户端名、当前游戏账号名或自定义文本；Account Name 支持 FisProxy AutoNFA 身份。",
       "Target Text": "替换 <target> 的自定义内容。"
     }
   },
