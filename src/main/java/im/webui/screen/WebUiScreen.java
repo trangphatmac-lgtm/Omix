@@ -1,6 +1,7 @@
 package im.webui.screen;
 
 import im.webui.WebUiRuntime;
+import cn.omix.util.webui.WebPanelLayout;
 import im.webui.backend.BrowserPreparationProgress;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -40,17 +41,18 @@ public final class WebUiScreen extends Screen {
         WebUiRuntime runtime = WebUiRuntime.getInstance();
         boolean music = type.equals(WebScreenType.MUSIC);
         boolean ai = type.equals(WebScreenType.AI);
-        MusicPanelLayout musicLayout = music ? MusicPanelLayout.current() : null;
-        if (music) {
-            renderMusicBackdrop(context);
-            renderMusicPanelBase(context, musicLayout);
+        boolean panel = music || ai;
+        WebPanelLayout panelLayout = panel ? WebPanelLayout.current() : null;
+        if (panel) {
+            renderPanelBackdrop(context);
+            renderPanelBase(context, panelLayout);
         }
         if (runtime.isBrowserTextureReady()) {
             runtime.render(context);
             return;
         }
 
-        if (!music) {
+        if (!panel) {
             context.fill(0, 0, width, height, 0xFF101218);
         }
         boolean failed = runtime.getState() == im.webui.WebUiState.FAILED
@@ -64,8 +66,8 @@ public final class WebUiScreen extends Screen {
         context.drawCenteredTextWithShadow(
                 textRenderer,
                 Text.literal(status),
-                music ? panelCenterX(musicLayout) : width / 2,
-                (music ? panelCenterY(musicLayout) : height / 2) - 16,
+                panel ? panelCenterX(panelLayout) : width / 2,
+                (panel ? panelCenterY(panelLayout) : height / 2) - 16,
                 failed ? 0xFFFF7777 : 0xFFFFFFFF
         );
 
@@ -76,13 +78,22 @@ public final class WebUiScreen extends Screen {
             String detail = failure == null || failure.getMessage() == null
                     ? runtime.getState().name()
                     : failure.getMessage();
-            context.drawCenteredTextWithShadow(
-                    textRenderer,
-                    Text.literal(detail),
-                    music ? panelCenterX(musicLayout) : width / 2,
-                    (music ? panelCenterY(musicLayout) : height / 2) + 2,
-                    0xFFFFAAAA
-            );
+            int detailWidth = Math.max(1, (panel ? panelGuiWidth(panelLayout) : width) - 32);
+            int centerX = panel ? panelCenterX(panelLayout) : width / 2;
+            int detailY = (panel ? panelCenterY(panelLayout) : height / 2) + 2;
+            int bottom = panel
+                    ? (int) Math.round((panelLayout.y() + panelLayout.height()) / client.getWindow().getScaleFactor()) - 12
+                    : height - 12;
+            var lines = textRenderer.wrapLines(Text.literal(detail), detailWidth);
+            int limit = Math.max(1, Math.min(8, (bottom - detailY) / (textRenderer.fontHeight + 2)));
+            for (int i = 0; i < Math.min(lines.size(), limit); i++) {
+                if (i == limit - 1 && lines.size() > limit) {
+                    context.drawCenteredTextWithShadow(textRenderer, Text.literal("…"), centerX, detailY, 0xFFFFAAAA);
+                } else {
+                    context.drawCenteredTextWithShadow(textRenderer, lines.get(i), centerX, detailY, 0xFFFFAAAA);
+                }
+                detailY += textRenderer.fontHeight + 2;
+            }
             return;
         }
 
@@ -95,16 +106,16 @@ public final class WebUiScreen extends Screen {
         context.drawCenteredTextWithShadow(
                 textRenderer,
                 Text.literal(detail),
-                music ? panelCenterX(musicLayout) : width / 2,
-                (music ? panelCenterY(musicLayout) : height / 2) + 2,
+                panel ? panelCenterX(panelLayout) : width / 2,
+                (panel ? panelCenterY(panelLayout) : height / 2) + 2,
                 0xFFB8C0D9
         );
 
         if (progress.progress() >= 0.0F) {
-            int availableWidth = music ? panelGuiWidth(musicLayout) : width;
+            int availableWidth = panel ? panelGuiWidth(panelLayout) : width;
             int barWidth = Math.min(240, Math.max(120, availableWidth / 3));
-            int barX = (music ? panelCenterX(musicLayout) : width / 2) - barWidth / 2;
-            int barY = (music ? panelCenterY(musicLayout) : height / 2) + 20;
+            int barX = (panel ? panelCenterX(panelLayout) : width / 2) - barWidth / 2;
+            int barY = (panel ? panelCenterY(panelLayout) : height / 2) + 20;
             context.fill(barX, barY, barX + barWidth, barY + 4, 0xFF303541);
             context.fill(
                     barX,
@@ -187,13 +198,13 @@ public final class WebUiScreen extends Screen {
         options.sprintKey.setPressed(false);
     }
 
-    private void renderMusicBackdrop(DrawContext context) {
+    private void renderPanelBackdrop(DrawContext context) {
         // Minecraft invokes renderBackground before Screen.render. Calling it here
         // again crashes 1.21.11 with "Can only blur once per frame".
         context.fill(0, 0, width, height, 0x52000000);
     }
 
-    private void renderMusicPanelBase(DrawContext context, MusicPanelLayout layout) {
+    private void renderPanelBase(DrawContext context, WebPanelLayout layout) {
         double scale = client.getWindow().getScaleFactor();
         int panelX = (int) Math.round(layout.x() / scale);
         int panelY = (int) Math.round(layout.y() / scale);
@@ -246,17 +257,17 @@ public final class WebUiScreen extends Screen {
         }
     }
 
-    private int panelCenterX(MusicPanelLayout layout) {
+    private int panelCenterX(WebPanelLayout layout) {
         double scale = client.getWindow().getScaleFactor();
         return (int) Math.round((layout.x() + layout.width() / 2.0D) / scale);
     }
 
-    private int panelCenterY(MusicPanelLayout layout) {
+    private int panelCenterY(WebPanelLayout layout) {
         double scale = client.getWindow().getScaleFactor();
         return (int) Math.round((layout.y() + layout.height() / 2.0D) / scale);
     }
 
-    private int panelGuiWidth(MusicPanelLayout layout) {
+    private int panelGuiWidth(WebPanelLayout layout) {
         return (int) Math.round(layout.width() / client.getWindow().getScaleFactor());
     }
 

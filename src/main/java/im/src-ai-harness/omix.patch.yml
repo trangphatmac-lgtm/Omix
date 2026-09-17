@@ -1,3 +1,5 @@
 - insert:
     - id: omix-game-tools
       name: './plugin/omix.mjs'
+    - id: omix-workspace
+      name: './plugin/workspace/index.mjs'

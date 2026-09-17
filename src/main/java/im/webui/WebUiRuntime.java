@@ -17,7 +17,7 @@ import im.webui.interop.ClickGuiInteropBridge;
 import im.webui.interop.PersistentLocalStorage;
 import im.webui.render.BrowserRenderer;
 import im.webui.screen.WebUiScreen;
-import im.webui.screen.MusicPanelLayout;
+import cn.omix.util.webui.WebPanelLayout;
 import im.webui.screen.WebScreenManager;
 import im.webui.screen.WebScreenOpenResult;
 import im.webui.screen.WebScreenType;
@@ -138,7 +138,8 @@ public final class WebUiRuntime {
                     "music"
             ));
             aiRuntime = new HarnessRuntime(webUiDirectory.getParent().resolve("ai"),
-                    webUiDirectory.getParent().resolve("music"));
+                    webUiDirectory.getParent().resolve("music"),
+                    webUiDirectory.getParent().getParent().resolve("Workspace"));
             localStorage = new PersistentLocalStorage(
                     webUiDirectory.resolve("local-storage.json")
             );
@@ -283,7 +284,7 @@ public final class WebUiRuntime {
                 String launchUrl = aiRuntime.getUrl().toString();
                 if (aiBrowser == null || !launchUrl.equals(aiLaunchUrl)) {
                     if (aiBrowser != null) aiBrowser.close();
-                    aiBrowser = backendManager.getBackend().createBrowser(launchUrl, BrowserViewport.fullFrame(),
+                    aiBrowser = backendManager.getBackend().createBrowser(launchUrl, WebPanelLayout.current().browserViewport(),
                             BrowserSettings.DEFAULT, (short) 10, this::acceptsAiBrowserInput);
                     aiLaunchUrl = launchUrl;
                     aiBrowserFailure = null;
@@ -373,8 +374,8 @@ public final class WebUiRuntime {
 
     public void resize(int width, int height) {
         for (Browser browser : backendManager.getBrowsers()) {
-            if (browser == musicBrowser) {
-                browser.setViewport(MusicPanelLayout.current().browserViewport());
+            if (browser == musicBrowser || browser == aiBrowser) {
+                browser.setViewport(WebPanelLayout.current().browserViewport());
             } else {
                 browser.setViewport(browser.getViewport().resized(width, height));
             }
@@ -480,7 +481,7 @@ public final class WebUiRuntime {
         if (musicBrowser == null) {
             musicBrowser = backendManager.getBackend().createBrowser(
                     themeManager.getScreenUrl(WebScreenType.MUSIC),
-                    MusicPanelLayout.current().browserViewport(),
+                    WebPanelLayout.current().browserViewport(),
                     BrowserSettings.DEFAULT,
                     (short) 10,
                     this::acceptsMusicBrowserInput

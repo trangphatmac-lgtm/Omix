@@ -1,9 +1,10 @@
-package im.webui.screen;
+package cn.omix.util.webui;
 
 import im.webui.backend.BrowserViewport;
 import net.minecraft.client.MinecraftClient;
 
-public record MusicPanelLayout(
+/** Shared centered, rounded viewport for the Harness and music WebUI panels. */
+public record WebPanelLayout(
         int x,
         int y,
         int width,
@@ -16,7 +17,7 @@ public record MusicPanelLayout(
     private static final double COMPACT_WIDTH_RATIO = 0.92D;
     private static final double COMPACT_HEIGHT_RATIO = 0.90D;
 
-    public static MusicPanelLayout current() {
+    public static WebPanelLayout current() {
         var window = MinecraftClient.getInstance().getWindow();
         return calculate(
                 window.getFramebufferWidth(),
@@ -25,7 +26,7 @@ public record MusicPanelLayout(
         );
     }
 
-    public static MusicPanelLayout calculate(
+    public static WebPanelLayout calculate(
             int framebufferWidth,
             int framebufferHeight,
             double guiScale
@@ -53,7 +54,7 @@ public record MusicPanelLayout(
         );
         int x = Math.max(0, (safeWidth - panelWidth) / 2);
         int y = Math.max(0, (safeHeight - panelHeight) / 2);
-        return new MusicPanelLayout(
+        return new WebPanelLayout(
                 x,
                 y,
                 panelWidth,

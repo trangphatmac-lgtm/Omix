@@ -10,7 +10,7 @@
 
 ## .ai [open/status/restart]
 
-`.ai` 或 `.ai open` 打开游戏内 DeepSeek Harness 界面；`status` 显示运行状态和失败原因；`restart` 取消当前 AI 工作并重启独立服务。模型、API Key、会话与插件均在新 Harness 系统中管理，旧 baseurl/apikey/model/think/clear 子命令与 `.chat` 已移除。不读取或迁移旧 ai.json。
+`.ai` 或 `.ai open` 在本地聊天中输出可点击的 Harness 地址，点击后在系统浏览器打开；服务未就绪时会异步启动，准备好后自动发送链接，不切换游戏界面。链接的点击操作携带认证 token，聊天中只显示本机地址。游戏内面板仍通过 AIScreen 模块（默认句号键）打开。`status` 显示运行状态和失败原因；`restart` 取消当前 AI 工作并重启独立服务，重启后可再次输入 `.ai` 获取新链接。模型、API Key、会话与插件均在新 Harness 系统中管理，旧 baseurl/apikey/model/think/clear 子命令与 `.chat` 已移除。不读取或迁移旧 ai.json。
 
 AI 游戏工具禁止调用 `.ai`、`.chat`，防止自我循环或在调用过程中重启自身。
 

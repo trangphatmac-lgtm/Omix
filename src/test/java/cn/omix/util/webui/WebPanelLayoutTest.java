@@ -1,4 +1,4 @@
-package im.webui.screen;
+package cn.omix.util.webui;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class MusicPanelLayoutTest {
+class WebPanelLayoutTest {
     @Test
     void largeWindowUsesCenteredWindowedViewport() {
-        MusicPanelLayout layout = MusicPanelLayout.calculate(1920, 1080, 1.0D);
+        WebPanelLayout layout = WebPanelLayout.calculate(1920, 1080, 1.0D);
         var browser = layout.browserViewport();
 
         assertEquals(1536, layout.width());
@@ -27,7 +27,7 @@ class MusicPanelLayoutTest {
 
     @Test
     void compactWindowKeepsUsableMargins() {
-        MusicPanelLayout layout = MusicPanelLayout.calculate(854, 480, 1.0D);
+        WebPanelLayout layout = WebPanelLayout.calculate(854, 480, 1.0D);
         var browser = layout.browserViewport();
 
         assertTrue(layout.x() >= 8);
@@ -39,7 +39,7 @@ class MusicPanelLayoutTest {
 
     @Test
     void browserViewportFillsTheWholePanel() {
-        MusicPanelLayout layout = MusicPanelLayout.calculate(2560, 1440, 2.0D);
+        WebPanelLayout layout = WebPanelLayout.calculate(2560, 1440, 2.0D);
         var browser = layout.browserViewport();
 
         assertEquals(layout.x(), browser.x());
@@ -55,7 +55,7 @@ class MusicPanelLayoutTest {
 
     @Test
     void retinaWindowDoesNotUseCompactLayoutBecauseOfMinecraftGuiScale() {
-        MusicPanelLayout layout = MusicPanelLayout.calculate(3840, 2054, 4.0D);
+        WebPanelLayout layout = WebPanelLayout.calculate(3840, 2054, 4.0D);
 
         assertEquals(3072, layout.width());
         assertEquals(1684, layout.height());
@@ -66,7 +66,7 @@ class MusicPanelLayoutTest {
 
     @Test
     void roundedViewportDoesNotAcceptInputInClippedCorners() {
-        MusicPanelLayout layout = MusicPanelLayout.calculate(1920, 1080, 1.0D);
+        WebPanelLayout layout = WebPanelLayout.calculate(1920, 1080, 1.0D);
         var browser = layout.browserViewport();
 
         assertFalse(browser.contains(browser.x(), browser.y()));

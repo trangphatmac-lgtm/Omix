@@ -16,6 +16,7 @@ public final class HarnessRuntime implements AutoCloseable {
     public enum State { STOPPED, PREPARING, STARTING, READY, FAILED }
     private static final Pattern READY = Pattern.compile("dsh web: (http://127\\.0\\.0\\.1:[0-9]+/\\?token=[^\\s]+)");
     private final Path root;
+    private final Path workspace;
     private final NodeRuntimeManager node;
     private volatile State state = State.STOPPED;
     private volatile BrowserPreparationProgress progress = BrowserPreparationProgress.IDLE;
@@ -28,8 +29,9 @@ public final class HarnessRuntime implements AutoCloseable {
     private FileChannel ownershipChannel;
     private FileLock ownership;
 
-    public HarnessRuntime(Path root, Path existingNodeCache) {
+    public HarnessRuntime(Path root, Path existingNodeCache, Path workspace) {
         this.root = root.toAbsolutePath().normalize();
+        this.workspace = workspace.toAbsolutePath().normalize();
         node = new NodeRuntimeManager(existingNodeCache);
     }
     public State getState() { return state; }
@@ -55,6 +57,7 @@ public final class HarnessRuntime implements AutoCloseable {
     private void start(long attempt, CompletableFuture<URI> result) {
         try {
             Files.createDirectories(root);
+            Files.createDirectories(workspace);
             synchronized (this) {
                 checkAttempt(attempt);
                 ownershipChannel = FileChannel.open(root.resolve("runtime.lock"), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
@@ -75,6 +78,7 @@ public final class HarnessRuntime implements AutoCloseable {
                 builder.directory(home.toFile());
                 builder.redirectErrorStream(true);
                 builder.environment().put("DSH_HOME", home.toString());
+                builder.environment().put("OMIX_AI_WORKSPACE", workspace.toString());
                 builder.environment().put("OMIX_AI_BRIDGE", bridge.endpoint());
                 builder.environment().put("OMIX_AI_TOKEN", bridge.token());
                 builder.environment().put("NODE_ENV", "production");
@@ -100,28 +104,32 @@ public final class HarnessRuntime implements AutoCloseable {
     }
 
     private void readOutput(Process child, CompletableFuture<URI> ready) {
-        StringBuilder recent = new StringBuilder();
+        HarnessStartupLog log = new HarnessStartupLog();
         try (var reader = new BufferedReader(new InputStreamReader(child.getInputStream(), StandardCharsets.UTF_8))) {
             for (String line; (line = reader.readLine()) != null;) {
+                log.append(line);
                 var matcher = READY.matcher(line);
                 if (matcher.find()) ready.complete(URI.create(matcher.group(1)));
-                else {
-                    recent.append(redact(line)).append('\n');
-                    if (recent.length() > 3000) recent.delete(0, recent.length() - 3000);
-                }
             }
-            ready.completeExceptionally(new IOException("Harness startup failed: " + recent));
-        } catch (IOException error) { ready.completeExceptionally(error); }
+            ready.completeExceptionally(new IOException(log.summary() + "\nDetails: Omix/ai/harness.log"));
+        } catch (IOException error) {
+            log.append("IOException: " + error.getMessage());
+            ready.completeExceptionally(error);
+        } finally {
+            try { Files.writeString(root.resolve("harness.log"), log.content(), StandardCharsets.UTF_8); }
+            catch (IOException ignored) { }
+        }
     }
 
     static String redact(String text) {
-        return text.replaceAll("(?i)(token|api[_-]?key|authorization)([=:]\\s*)[^\\s&,]+", "$1$2[redacted]");
+        return HarnessStartupLog.redact(text);
     }
     private synchronized void checkAttempt(long attempt) {
         if (attempt != generation) throw new CancellationException("Harness startup cancelled");
     }
     private synchronized void fail(long attempt, Throwable error) {
         if (attempt != generation) return;
+        while (error.getCause() != null) error = error.getCause();
         cleanup();
         failure = new IOException(redact(error.getMessage() == null ? error.getClass().getSimpleName() : error.getMessage()));
         state = State.FAILED;

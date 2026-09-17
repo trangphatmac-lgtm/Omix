@@ -82,7 +82,9 @@ def main():
     with ThreadPoolExecutor(max_workers=6) as pool:
         for entries in pool.map(locked_package, platform_packages.items()):
             for name, data, mode, targets in entries: records[name] = (data, mode, targets)
-    for relative in ['launch.mjs', 'omix.patch.yml', 'plugin/omix.mjs', 'package.json', 'package-lock.json']:
+    own_files = ['launch.mjs', 'omix.patch.yml', 'package.json', 'package-lock.json']
+    own_files += [p.relative_to(ROOT).as_posix() for p in sorted((ROOT / 'plugin').rglob('*')) if p.is_file()]
+    for relative in own_files:
         records[relative] = ((ROOT / relative).read_bytes(), 0o644, None)
     # The published helper can lose its executable bit even before ZIP extraction.
     archives = {name: zipfile.ZipFile(OUT / (name+'.zip'), 'w', zipfile.ZIP_DEFLATED, compresslevel=6)

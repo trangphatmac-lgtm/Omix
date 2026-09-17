@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, stat } from 'node:fs/promises';
 import { dirname, join, delimiter } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,9 +17,16 @@ if (process.platform === 'win32') {
 }
 process.env.PATH = [bin, dirname(process.execPath), process.env.PATH ?? ''].join(delimiter);
 const pluginMode = process.argv[2] === 'plugin';
+// --from-default-profile is a one-time initializer; passing it for an existing
+// profile is an upstream error, not an idempotent "ensure profile" operation.
+const profileExists = await stat(join(home, 'profiles', 'omix')).then(() => true, error => {
+  if (error.code === 'ENOENT') return false;
+  throw error;
+});
 const args = pluginMode
   ? ['--profile', 'omix', 'plugin', ...process.argv.slice(3)]
-  : ['--profile', 'omix', '--from-default-profile', 'web', '--patch', join(root, 'omix.patch.yml'), '--no-open', '--host', '127.0.0.1', '--port', '0'];
+  : ['--profile', 'omix', ...(!profileExists ? ['--from-default-profile', 'web'] : []),
+    '--patch', join(root, 'omix.patch.yml'), '--no-open', '--host', '127.0.0.1', '--port', '0'];
 const child = spawn(process.execPath, [join(root, 'node_modules/@deepseek-ai/dsh/lib/bin.js'), ...args], {
   cwd: home, env: process.env, stdio: ['ignore', 'inherit', 'inherit'],
 });
