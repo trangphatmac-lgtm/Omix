@@ -40,6 +40,7 @@
     "MixinMinecraftClient",
     "MixinMouse",
     "MixinNetworkThreadUtils",
+    "MixinPacketApplyBatcherEntry",
     "MixinPlayerEntity",
     "MixinRenderTickCounterDynamic",
     "MixinSectionBuilder",

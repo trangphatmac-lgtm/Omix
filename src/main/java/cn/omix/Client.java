@@ -29,7 +29,7 @@ public class Client implements IMinecraft {
     public static Logger logger;
 
     public static String name = "Omix";
-    public static String version = "260917-SNAPSHOT";
+    public static String version = "260919-SNAPSHOT";
 
     private EventManager eventManager;
     private FisProxyManager fisProxyManager;

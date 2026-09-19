@@ -3,6 +3,8 @@ package injection;
 import cn.omix.util.ai.AiContainerTools;
 import cn.omix.Client;
 import cn.omix.event.impl.RotationAppliedEvent;
+import cn.omix.module.impl.move.NoSlowDown;
+import net.minecraft.entity.player.PlayerInventory;
 import cn.omix.event.impl.TickEvent;
 import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.impl.player.ChestArua;
@@ -72,6 +74,19 @@ public abstract class MixinMinecraftClient implements IMinecraft {
     private void beforeHandleInputEvents(CallbackInfo ci) {
         if (mc.player == null || mc.world == null) return;
         instance.getEventManager().call(new RotationAppliedEvent());
+    }
+
+    @Redirect(method = "handleInputEvents", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/entity/player/PlayerInventory;setSelectedSlot(I)V"))
+    private void omix$noSlowHotbar(PlayerInventory inventory, int slot) {
+        var grim = NoSlowDown.activeGrim();
+        if (grim == null || !grim.lockSlot()) inventory.setSelectedSlot(slot);
+    }
+
+    @Inject(method = "doItemUse", at = @At("HEAD"), cancellable = true)
+    private void omix$noSlowInventoryGuard(CallbackInfo ci) {
+        var grim = NoSlowDown.activeGrim();
+        if (grim != null && grim.blockUseThisTick()) ci.cancel();
     }
 
     @Inject(method = "doItemUse", at = @At("HEAD"), cancellable = true)

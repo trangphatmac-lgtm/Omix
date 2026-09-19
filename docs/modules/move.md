@@ -43,14 +43,14 @@
 
 ## NoSlowDown
 
-使用物品时取消移动减速，可保持疾跑。
+使用物品时取消移动减速，可保持疾跑。Grim 基于提供的 NoSlow 逆向模型，使用换手、接收包缓冲和移动包边界恢复；支持食物、饮用药水、弓及未蓄能弩。Grim 使用期间锁定快捷栏，双手均为消耗品、已蓄能弩、方块交互和不支持的物品保留原版减速。详见 [Grim 实现与验证说明](noslow-grim.md)。
 
 源码：`src/main/java/cn/omix/module/impl/move/NoSlowDown.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | 当前只有 Vanilla，直接取消物品使用减速。 | 模式；默认 Vanilla；可选 Vanilla |
-| Keep Sprint | 使用物品时保持疾跑状态。 | 布尔；默认 true |
+| Mode | Vanilla 直接取消物品使用减速；Grim 仅在物品使用状态机生效时取消减速，使用结束后恢复换手并回放缓冲包。默认仍为 Vanilla。 | 模式；默认 Vanilla；可选 Vanilla / Grim |
+| Keep Sprint | 使用物品时保持疾跑；Grim 仅在成功进入取消减速阶段时生效，并解除使用物品造成的原版疾跑阻止。 | 布尔；默认 true |
 
 ## Parkour
 

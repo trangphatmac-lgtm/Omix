@@ -4,6 +4,7 @@ import cn.omix.util.ai.AiContainerTools;
 import cn.omix.Client;
 import cn.omix.event.impl.*;
 import cn.omix.module.impl.player.Freecam;
+import cn.omix.module.impl.move.NoSlowDown;
 import cn.omix.util.player.chest.ChestScreenGuard;
 import cn.omix.module.impl.world.GhostHand;
 import cn.omix.util.IMinecraft;
@@ -197,6 +198,13 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
         if (throughWallTarget != null) {
             cir.setReturnValue(throughWallTarget);
         }
+    }
+
+    @Inject(method = "isBlockedFromSprinting", at = @At("RETURN"), cancellable = true)
+    private void omix$noSlowSprint(CallbackInfoReturnable<Boolean> cir) {
+        if (instance == null || instance.getModuleManager() == null) return;
+        NoSlowDown noSlow = instance.getModuleManager().getModule(NoSlowDown.class);
+        if (noSlow != null && noSlow.allowGrimSprint()) cir.setReturnValue(false);
     }
 
     @Redirect(method = "applyMovementSpeedFactors", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
