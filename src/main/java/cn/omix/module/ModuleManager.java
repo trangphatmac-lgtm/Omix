@@ -22,6 +22,7 @@ import cn.omix.module.impl.exploits.ChannelHider;
 import cn.omix.module.impl.exploits.Disabler;
 import cn.omix.module.impl.exploits.NoBan;
 import cn.omix.module.impl.exploits.PathFinder;
+import cn.omix.module.impl.exploits.PacketsLogger;
 import cn.omix.module.impl.exploits.Regen;
 import cn.omix.module.impl.exploits.ResourcepackSpoof;
 import cn.omix.module.impl.move.*;
@@ -76,6 +77,7 @@ public class ModuleManager implements IMinecraft {
                 new Disabler(),
                 new NoBan(),
                 new PathFinder(),
+                new PacketsLogger(),
                 new MCF(),
                 new GuiMove(),
                 new Jesus(),

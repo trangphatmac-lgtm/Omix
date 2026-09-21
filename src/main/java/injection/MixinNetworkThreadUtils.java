@@ -2,6 +2,7 @@ package injection;
 
 import cn.omix.event.impl.PacketEvent;
 import cn.omix.util.IMinecraft;
+import cn.omix.util.network.PacketLogHooks;
 import net.minecraft.network.NetworkThreadUtils;
 import net.minecraft.network.OffThreadException;
 import net.minecraft.network.PacketApplyBatcher;
@@ -20,6 +21,7 @@ public class MixinNetworkThreadUtils implements IMinecraft {
         if (!batcher.isOnThread()) {
             PacketEvent event = new PacketEvent(packet, PacketEvent.Type.Received);
             instance.getEventManager().call(event);
+            PacketLogHooks.receivedDecision(packet, event.isCancelled());
 
             if (event.isCancelled()) {
                 ci.cancel();

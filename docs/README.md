@@ -1,6 +1,6 @@
 # Omix Client 使用参考
 
-本参考依据仓库中实际注册和执行的源码编写，覆盖 14 个内置命令入口、通用模块命令、90 个模块、408 个配置/选项组条目（包括一个动态频道模板），以及 19 个 Agent 工具。命令拼写和模块名称保留源码原样，介绍使用中文。
+本参考依据仓库中实际注册和执行的源码编写，覆盖 14 个内置命令入口、通用模块命令、92 个模块、444 个配置/选项组条目（包括一个动态频道模板），以及 22 个 Agent 工具。命令拼写和模块名称保留源码原样，介绍使用中文。
 
 - [命令及每个选项](commands.md)
 - [Combat 战斗模块](modules/combat.md)
@@ -36,6 +36,7 @@ AI 应先区分说明中的默认值和当前状态；需要现况时调用读�
 | --- | --- |
 | `combat/` | `CriticalsLandingPredictor`、`CriticalsTiming`、`MeleeDamagePredictor`、`ReachServerRange`、`ReachTeleportState` |
 | `move/` | `PredictionTimerBalance` |
+| `network/` | `PacketLogHooks`、`PacketLogBuffer`、`PacketLogFormatter`、`PacketLogContent`、`PacketLogFilter`、`PacketLogRules`、`PacketLogHistory`（PacketsLogger 的观察桥接、有界内容快照、双向过滤与自定义名单） |
 | `player/blockin/` | `BlockInPlanner` |
 | `player/chest/` | `ChestScreenState`、`ChestScreenGuard`、`ChestInteractionState` |
 | `world/` | `ScaffoldMutex`、`VictorySignalMatcher` |

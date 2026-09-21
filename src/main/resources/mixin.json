@@ -61,7 +61,8 @@
     "accessor.LivingEntityAccessor",
     "accessor.MinecraftClientAccessor",
     "accessor.NativeImageAccessor",
-    "accessor.PlayerMoveC2SPacketAccessor"
+    "accessor.PlayerMoveC2SPacketAccessor",
+    "accessor.PlayerInteractEntityC2SPacketAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { apply, bridgeClient, identity } from '../plugin/omix.mjs';
 
-function fixture() {
+function fixture(extraTools = []) {
   const requests = [];
   const tools = new Map();
   const hooks = new Map();
@@ -20,6 +20,7 @@ function fixture() {
     const value = url.endsWith('/v1/reference') ? { text: 'module reference' }
       : url.endsWith('/v1/snapshot') ? { protocolVersion: 1, worldEpoch: epoch, gameContext: 'game '+epoch, toolContext: 'commands', tools: [
         { function: { name: 'getcommandsuggestion', description: 'suggestions', parameters: { type: 'object', properties: { perfix: { type: 'string' } }, required: ['perfix'], additionalProperties: false } } },
+        ...extraTools.map(schema => ({ function: schema })),
       ] } : url.endsWith('/v1/calls') ? failure ?? { ok: true, value: { status: 'awaiting_sync' } } : { ok: true };
     return new Response(JSON.stringify(value), { status: 200 });
   };
@@ -75,6 +76,44 @@ test('plugin refreshes schemas and context, maps domain results and releases own
     controller.abort();
     await assert.rejects(pending, { name: 'AbortError' });
     assert.equal(f.requests.filter(r => r.options.method === 'DELETE' && r.url.endsWith('/' + pendingId)).length, 1);
+  } finally {
+    globalThis.fetch = oldFetch;
+    if (oldEndpoint === undefined) delete process.env.OMIX_AI_BRIDGE; else process.env.OMIX_AI_BRIDGE = oldEndpoint;
+    if (oldToken === undefined) delete process.env.OMIX_AI_TOKEN; else process.env.OMIX_AI_TOKEN = oldToken;
+  }
+});
+
+
+test('packet tools use dynamic schemas, epoch-bound dispatch and preserve structured logs', async () => {
+  const schemas = ['configurepacketslogger', 'getpacketlogs', 'clearpacketlogs'].map(name => ({
+    name, description: 'packet tool', parameters: { type: 'object', properties: {}, additionalProperties: false },
+  }));
+  const f = fixture(schemas);
+  const oldFetch = globalThis.fetch;
+  const oldEndpoint = process.env.OMIX_AI_BRIDGE, oldToken = process.env.OMIX_AI_TOKEN;
+  globalThis.fetch = f.fetcher;
+  process.env.OMIX_AI_BRIDGE = 'http://127.0.0.1:8'; process.env.OMIX_AI_TOKEN = 'fixture';
+  try {
+    await apply(f.ctx);
+    for (const schema of schemas) assert.ok(f.tools.has(schema.name));
+    assert.ok(f.sections[0].text.includes('packet contents'));
+    const agent = { session: { id: 'packet-analysis' } };
+    const assembly = { tools: [...f.tools.values()], contexts: [] };
+    await f.hooks.get('system-prompt/assemble')(assembly, { agent }, async () => assembly);
+    const result = { sessionId: 'capture-1', nextCursor: 'capture-1:7', hasMore: false, missed: 2,
+      logs: [{ packet: 'minecraft:system_chat', details: 'untrusted packet content', direction: 'RECEIVED' }] };
+    f.fail({ ok: true, value: result });
+    const args = { limit: 20, includeDetails: true };
+    assert.deepEqual(await f.tools.get('getpacketlogs').execute(args, {
+      agent, token: Symbol('packet-read'), signal: new AbortController().signal,
+    }), result);
+    const call = JSON.parse(f.requests.find(r => r.url.endsWith('/v1/calls')).options.body);
+    assert.equal(call.name, 'getpacketlogs');
+    assert.equal(call.worldEpoch, 2);
+    assert.deepEqual(call.arguments, args);
+    assert.equal(call.agentId, identity('packet-analysis'));
+    await f.hooks.get('agent/turn-stopping')({ agent });
+    assert.ok(f.requests.some(r => r.url.endsWith('/release')));
   } finally {
     globalThis.fetch = oldFetch;
     if (oldEndpoint === undefined) delete process.env.OMIX_AI_BRIDGE; else process.env.OMIX_AI_BRIDGE = oldEndpoint;

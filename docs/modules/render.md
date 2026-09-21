@@ -54,7 +54,7 @@
 
 ## AIScreen
 
-在与音乐 WebUI 一致的居中圆角面板中打开独立的 DeepSeek Harness 完整 WebUI，四周保留游戏背景，随窗口大小自适应；支持通用 Agent 和 19 个游戏工具。自动创建游戏根目录下的 Workspace 文件夹并默认选中为工作区。默认句号键，打开后自动关闭模块。首次使用准备运行时，Esc 关闭界面不停止 Agent；失败时按 R 重试，模型和会话在 Harness 中管理。
+在与音乐 WebUI 一致的居中圆角面板中打开独立的 DeepSeek Harness 完整 WebUI，四周保留游戏背景，随窗口大小自适应；支持通用 Agent 和 22 个游戏工具。自动创建游戏根目录下的 Workspace 文件夹并默认选中为工作区。默认句号键，打开后自动关闭模块。首次使用准备运行时，Esc 关闭界面不停止 Agent；失败时按 R 重试，模型和会话在 Harness 中管理。
 
 源码：`src/main/java/cn/omix/module/impl/render/AIScreen.java`。
 

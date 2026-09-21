@@ -24,7 +24,7 @@ CEF 直接访问 Harness 独立的本机动态端口。启动 token 通过上游
 
 `.ai` 的浏览器链接采用同一认证流程：可见聊天文本只包含本机地址，完整认证 URL 放在链接点击事件中；命令不依赖 CEF 页面就绪，也不会自动打开浏览器。服务重启后重新执行 `.ai` 获取新链接。
 
-`cn.omix.util.ai` 管理运行时、独立 Java HTTP 桥接、游戏工具及容器状态。`cn.omix.util.node` 管理共享 Node 下载与平台识别。Node 插件位于 `src/main/java/im/src-ai-harness/plugin/omix.mjs`，通过 Cordis 注册现有 19 个工具和每步游戏上下文；详见 [AI Tools](ai-tools.md)。`plugin/workspace/` 是独立的 Host/Client 双端插件，使用上游 workspaceRegistry 注册目录、uiWorkspace 选择工作区，不修改 Harness 核心。游戏工具在 Minecraft 主线程执行，模型与网络请求在进程/工作线程中运行。
+`cn.omix.util.ai` 管理运行时、独立 Java HTTP 桥接、游戏工具及容器状态。`cn.omix.util.node` 管理共享 Node 下载与平台识别。Node 插件位于 `src/main/java/im/src-ai-harness/plugin/omix.mjs`，通过 Cordis 注册现有 22 个工具和每步游戏上下文；详见 [AI Tools](ai-tools.md)。`plugin/workspace/` 是独立的 Host/Client 双端插件，使用上游 workspaceRegistry 注册目录、uiWorkspace 选择工作区，不修改 Harness 核心。游戏工具在 Minecraft 主线程执行，模型与网络请求在进程/工作线程中运行。
 
 桥接仅监听 127.0.0.1，要求启动时生成的 bearer token、精确 Host，拒绝浏览器 Origin，不提供 CORS。凭据仅通过子进程环境传入插件。
 
@@ -39,6 +39,14 @@ CEF 直接访问 Harness 独立的本机动态端口。启动 token 通过上游
 调用 ID 不重复执行；最近 256 次之外的已完成结果可过期，但执行标识继续保留。单次服务生命周期最多 4096 个调用，达到后需 `.ai restart`；这是防止重复提交与无界内存增长的边界。单次 HTTP 工具等待 30 秒；插件网络超时也会发送取消请求。多会话可使用通用能力，但同时只能一个 Agent 回合调用游戏工具。世界/玩家实例变化后拒绝旧 worldEpoch。
 
 ## 专用插件开发
+
+### PacketsLogger 管线
+
+`AiPacketTools` 将 `configurepacketslogger`、`getpacketlogs`、`clearpacketlogs` 注册到现有 Java schema；Harness 插件通过 snapshot 自动发现，并沿用 POST /v1/calls 的鉴权、worldEpoch、调用去重、Agent 独占与主线程执行，不新增网络端口或工具传输协议。系统上下文提供工具使用说明，包正文仅在显式读取工具结果中返回，不自动注入每一步上下文。
+
+捕获仍通过 PacketsLogger 的收发观察、方向过滤、名单和移动包精简；`PacketLogBuffer` 同时写入聊天队列与 `PacketLogHistory` 的 512 条环形历史。Chat Output 可关闭，聊天排队/消费不影响 AI 历史。每条只保留有界文本快照，不把 Packet、世界或 ByteBuf 对象留在历史中；日志模块的会话身份使用弱引用，停止采集不会强持有旧世界。
+
+历史读取是非消费式分页，游标包含独立会话标识与序号，返回溢出及缺失计数；关闭模块保留历史，重启捕获、显式清空或世界/玩家/连接变化使历史和游标失效。模块关闭期间的会话变化在工具读取前复核。配置操作只应用通过完整校验的部分更新，立即发布过滤快照；工具回合结束保持用户模块设置，Agent 临时诊断需自行恢复本次更改。返回的包内容始终作为不可信游戏数据处理，不保证服务器已接受发送。
 
 第一版直接使用 Harness 插件体系，没有另建 MCP 服务。Java 提供游戏 schema 与参数校验；插件返回 canonical JSON value，让工具显示为 Harness 通用卡片。未来可以增加游戏服务封装、独立工具包或 Client 插件卡片。安装其他插件应保持与锁定的 Harness 版本兼容。
 

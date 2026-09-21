@@ -1,4 +1,37 @@
 {
+  "PacketsLogger": {
+    "description": "在本地聊天中记录 Minecraft 1.21.11 游戏连接的 C2S/S2C 数据包，悬停协议标识查看字段和客户端 tick；Detail 开启后聊天正文直接显示字段与内容快照，默认记录发送方向。基于 Raven-bS ViewPackets 的功能重新适配现代协议，使用稳定的 minecraft:* 协议标识而非旧版 Cxx/Sxx 编号或运行时混淆类名。发送记录取 PacketEvent 处理后的最终取消状态与替换包；绕过事件发送也可记录，替换重发不重复记录。接收观察点覆盖不切主线程的 KeepAlive，Bundle 展开为标有 [bundle] 的成员（取消状态继承整个 Bundle）；不记录集成服务器端的镜像流量。记录表示客户端观察或发送尝试，不保证已写入网络或已被服务端接受；不包括登录前数据包、手动 receivePacket 回放，以及接收后主线程模块的后续暂存决策。只读观察，不修改、取消或重发包。Detail 关闭时保留现代字段摘要；开启时额外只读采集数据包及负载对象的实例字段，包含聊天文本、字段值和嵌套内容；未专门适配的包也会显示字段快照。快照限制为 2048 字符、4 层嵌套、每对象 16 字段、每集合 8 项、每字符串 256 字符、ByteBuf 前 32 字节；省略标记为 …，不可访问字段标记 unavailable，空包显示 {}。ByteBuf 仅按索引读取，不移动读写位置。成品 JAR 的原始字段名可能为 intermediary 名称，已适配的摘要仍保留可读标签；只能展示解码后仍保留的内容，不重建原始网络字节。发送和接收的过滤独立；原有无方向前缀的 Include/Ignore 项现在只控制 Sent，Received 使用新增独立选项。内置过滤先执行，然后白名单限制范围，黑名单优先排除；白名单不会重新包含已 Ignore 或未 Include 的记录。文本名单可在 ClickGUI/WebUI 中编辑并随配置保存，下一客户端 tick 生效，已入队记录保留捕获时的格式和设置。聊天队列与 AI 历史分别最多保留 512 条文本快照；历史独立于聊天输出，队列满时仍记录到历史，历史满时淘汰最旧项。Chat Output 关闭后继续记录历史但不向聊天输出。关闭模块只停止采集并清空待显示聊天，保留本次历史供 AI 分析；重新开启、清空日志、切世界/玩家或换连接会清空历史和 tick，并使旧会话游标失效。AI 可通过 configurepacketslogger 配置、getpacketlogs 分页读取、clearpacketlogs 清空日志；读取不会消费历史，详情取自捕获时的 Detail 设置。过滤或精简掉的包不进入历史，不能恢复。",
+    "settings": {
+      "Sent": "记录客户端到服务器的发送尝试，默认开启。",
+      "Received": "记录服务器到客户端的接收包，默认关闭。",
+      "Include Cancelled": "仅发送方向：包含 PacketEvent 事件链最终已取消的包，并标记 [cancelled]。接收使用 Received Include Cancelled。",
+      "Include No Event": "包含 PacketUtil 的 NoEvent/runWithoutEvents 发送，并标记 [no event]。",
+      "Singleplayer": "允许记录单人游戏的客户端连接；默认关闭。始终排除集成服务器的镜像流量。",
+      "Ignore KeepAlive": "仅发送方向：过滤 KeepAliveC2SPacket（现代长整型 ID）。",
+      "Ignore Movement": "过滤 PlayerMoveC2SPacket 的全部四种变体。",
+      "Compact Movement": "连续选中的发送移动包仅显示首条；接收包不打断连续性，其他选中的发送包打断。取消或绕过事件状态变化时仍显示新记录。开启 Ignore Movement 时隐藏。",
+      "Ignore Ping/Pong": "仅发送方向：过滤 CommonPongC2SPacket；接收的 CommonPing 使用 Received Ignore Ping。现代 Ping/Pong 并非旧版 C0F 窗口事务确认。",
+      "Ignore Tick End": "过滤现代 ClientTickEndC2SPacket，默认开启，避免每 tick 的结束标记刷屏并打断移动包精简。",
+      "Messages Per Tick": "每客户端 tick 最多输出的包记录数；默认 30，范围 1–100。队列溢出提示不计入此上限，不限制 AI 历史采集。",
+      "Chat Output": "将记录输出到本地聊天，默认开启；关闭后仍采集到有界历史供 AI 读取，已排队聊天会在下一 tick 丢弃。",
+      "Detail": "在聊天正文直接显示现代协议字段，并附加实例字段内容快照；关闭时正文只有包名、tick 和状态，摘要仍可悬停查看。默认关闭；超大、过深内容明确截断。",
+      "Ignore Custom Payload": "仅发送方向：过滤 CustomPayloadC2SPacket。",
+      "Received Include Cancelled": "接收方向：包含 PacketEvent 最终已取消的包；Bundle 成员继承外层包的取消状态。默认开启，与发送独立。",
+      "Received Include Bundle": "接收方向：记录 Bundle 内的成员，逐个应用接收过滤及名单；关闭后不记录 Bundle 及其成员。默认开启。",
+      "Received Ignore KeepAlive": "接收方向：过滤 KeepAliveS2CPacket，与发送心跳设置独立。",
+      "Received Ignore Ping": "接收方向：过滤 CommonPingS2CPacket，与发送 Pong 设置独立。",
+      "Received Ignore Entity Movement": "接收方向：过滤实体相对移动/旋转、头部旋转、实体位置同步/传送和矿车轨道移动；保留玩家位置修正 player_position 和击退 set_entity_motion。",
+      "Received Ignore Chunks": "接收方向：过滤区块数据（含整块光照）、区块生物群系、卸载、批次开始/结束与区块增量方块更新。",
+      "Received Ignore Light": "接收方向：仅过滤独立 light_update；整块数据内的光照随 Received Ignore Chunks 过滤。",
+      "Received Ignore Particles": "接收方向：过滤 level_particles 粒子包。",
+      "Received Ignore Sounds": "接收方向：过滤 sound、sound_entity、stop_sound。",
+      "Received Ignore Custom Payload": "接收方向：过滤 CustomPayloadS2CPacket。",
+      "Sent Whitelist": "发送方向自定义白名单；空白表示不限制，非空仅记录匹配的协议 ID。支持完整 ID 或省略 minecraft:，大小写不敏感，* 匹配任意长度、? 匹配一个字符。用逗号、分号或空白分隔，例如 keep_alive, move_*；非 minecraft 命名空间须明确写出，*:* 可匹配所有命名空间。黑名单与内置过滤仍优先。",
+      "Sent Blacklist": "发送方向自定义黑名单；空白表示不排除，匹配的协议 ID 不记录，即使同时命中白名单。语法同白名单，例如 minecraft:keep_alive, minecraft:custom_payload。只过滤日志，不拦截实际网络包。",
+      "Received Whitelist": "接收方向自定义白名单；空白表示不限制，非空仅记录匹配的协议 ID。支持完整 ID 或省略 minecraft:，大小写不敏感，* 匹配任意长度、? 匹配一个字符。用逗号、分号或空白分隔，例如 keep_alive, move_*；非 minecraft 命名空间须明确写出，*:* 可匹配所有命名空间。黑名单与内置过滤仍优先。",
+      "Received Blacklist": "接收方向自定义黑名单；空白表示不排除，匹配的协议 ID 不记录，即使同时命中白名单。语法同白名单，例如 minecraft:keep_alive, minecraft:custom_payload。只过滤日志，不拦截实际网络包。"
+    }
+  },
   "AntiAim": {
     "description": "结合 TargetHUD 中的玩家目标和武器冷却暂存移动包；要求 Aura 的 Combat Mode 为 1.9+ 且 TargetHUD 开启。",
     "settings": {
@@ -538,7 +571,7 @@
     "settings": {}
   },
   "AIScreen": {
-    "description": "在与音乐 WebUI 一致的居中圆角面板中打开独立的 DeepSeek Harness 完整 WebUI，四周保留游戏背景，随窗口大小自适应；支持通用 Agent 和 19 个游戏工具。自动创建游戏根目录下的 Workspace 文件夹并默认选中为工作区。默认句号键，打开后自动关闭模块。首次使用准备运行时，Esc 关闭界面不停止 Agent；失败时按 R 重试，模型和会话在 Harness 中管理。",
+    "description": "在与音乐 WebUI 一致的居中圆角面板中打开独立的 DeepSeek Harness 完整 WebUI，四周保留游戏背景，随窗口大小自适应；支持通用 Agent 和 22 个游戏工具。自动创建游戏根目录下的 Workspace 文件夹并默认选中为工作区。默认句号键，打开后自动关闭模块。首次使用准备运行时，Esc 关闭界面不停止 Agent；失败时按 R 重试，模型和会话在 Harness 中管理。",
     "settings": {}
   },
   "MusicPlayer": {

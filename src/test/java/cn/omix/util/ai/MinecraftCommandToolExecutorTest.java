@@ -45,7 +45,10 @@ class MinecraftCommandToolExecutorTest {
                 "opencontainer",
                 "getcontainer",
                 "clickcontainerslot",
-                "closecontainer"
+                "closecontainer",
+                "configurepacketslogger",
+                "getpacketlogs",
+                "clearpacketlogs"
         ), names);
 
         JsonObject nearby = findTool(snapshot.definitions(), "getnearbyblock");
