@@ -118,6 +118,7 @@ public final class TPAura extends Module {
         if (targetMode.is("Multi")) {
             List<LivingEntity> candidates = getCandidates();
             target = candidates.isEmpty() ? null : candidates.getFirst();
+            prepareWeaponTarget(target);
             switchTarget = null;
             switchIndex = 0;
             setSuffix(target == null ? "" : "Multi");
@@ -134,6 +135,7 @@ public final class TPAura extends Module {
         }
 
         target = selectTarget();
+        prepareWeaponTarget(target);
         setSuffix(target == null ? "" : targetMode.getValue());
         if (target == null
                 || !attackTimer.hasTimeElapsed(delay.getValue())
@@ -763,9 +765,19 @@ public final class TPAura extends Module {
     }
 
     private void attack(LivingEntity entity) {
+        AutoWeapon autoWeapon = getModule(AutoWeapon.class);
+        if (autoWeapon != null) {
+            autoWeapon.onTarget(entity);
+            autoWeapon.beforeAttack(entity);
+        }
         PacketUtil.sendPacket(PlayerInteractEntityC2SPacket.attack(entity, mc.player.isSneaking()));
         mc.player.swingHand(Hand.MAIN_HAND);
         mc.player.resetTicksSinceLastAttack();
+    }
+
+    private void prepareWeaponTarget(LivingEntity entity) {
+        AutoWeapon autoWeapon = getModule(AutoWeapon.class);
+        if (autoWeapon != null) autoWeapon.onTarget(entity);
     }
 
     private boolean canRun() {

@@ -54,6 +54,7 @@
     "MixinWindow",
     "accessor.BlockItemAccessor",
     "accessor.ClientPlayerEntityAccessor",
+    "accessor.ClientPlayerInteractionManagerAccessor",
     "accessor.ChatHudAccessor",
     "accessor.ClientWorldAccessor",
     "accessor.EntityAccessor",

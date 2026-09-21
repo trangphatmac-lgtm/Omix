@@ -29,7 +29,7 @@ import net.minecraft.util.Hand;
 import static cn.omix.util.player.noslow.GrimNoSlowPackets.describe;
 
 public class NoSlowDown extends Module implements GrimNoSlowState.Host {
-    private final ModeValue mode = new ModeValue("Mode", "Vanilla", "Vanilla", "Grim");
+    private final ModeValue mode = new ModeValue("Mode", "Vanilla", "Vanilla", "Grim Full");
     private final BoolValue keepSprint = new BoolValue("Keep Sprint", true);
     private static final int MAX_BUFFERED_PACKETS = 4096;
     private final GrimNoSlowState flow = new GrimNoSlowState(this);
@@ -51,13 +51,13 @@ public class NoSlowDown extends Module implements GrimNoSlowState.Host {
         if (instance == null || instance.getModuleManager() == null) return null;
         NoSlowDown module = instance.getModuleManager().getModule(NoSlowDown.class);
         if (module == null || !module.isEnabled()) return null;
-        if (module.mode.is("Grim")) return module;
+        if (module.mode.is("Grim Full")) return module;
         module.reset();
         return null;
     }
 
     public boolean allowGrimSprint() {
-        return isEnabled() && mode.is("Grim") && keepSprint.getValue() && cancelSlowdown();
+        return isEnabled() && mode.is("Grim Full") && keepSprint.getValue() && cancelSlowdown();
     }
 
     @Override
@@ -80,20 +80,20 @@ public class NoSlowDown extends Module implements GrimNoSlowState.Host {
     @EventPriority(0)
     public void onTick(TickEvent event) {
         setSuffix(mode.getValue());
-        if (mode.is("Grim")) tick();
+        if (mode.is("Grim Full")) tick();
         else reset();
     }
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
-        if (mode.is("Grim")) update();
+        if (mode.is("Grim Full")) update();
     }
 
     @EventTarget
     @EventPriority(1000)
     public void onPacket(PacketEvent event) {
         if (event.getType() != PacketEvent.Type.Send || !mc.isOnThread() || event.isCancelled()) return;
-        if (!mode.is("Grim")) {
+        if (!mode.is("Grim Full")) {
             reset();
             return;
         }
@@ -102,7 +102,7 @@ public class NoSlowDown extends Module implements GrimNoSlowState.Host {
 
     @EventTarget
     public void onScroll(MouseScrollEvent event) {
-        if (mc.currentScreen == null && mode.is("Grim") && lockSlot()) event.setCancelled(true);
+        if (mc.currentScreen == null && mode.is("Grim Full") && lockSlot()) event.setCancelled(true);
     }
 
     @EventTarget

@@ -17,6 +17,7 @@ import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
 import cn.omix.util.combat.MeleeDamagePredictor;
+import cn.omix.util.combat.MaceSmashTiming;
 import cn.omix.util.misc.MathUtil;
 import cn.omix.util.misc.TimerUtil;
 import cn.omix.util.network.PacketUtil;
@@ -27,6 +28,8 @@ import lombok.Getter;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.MaceItem;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
@@ -124,6 +127,9 @@ public class Aura extends Module {
 
         selectTarget();
 
+        AutoWeapon autoWeapon = getModule(AutoWeapon.class);
+        if (autoWeapon != null) autoWeapon.onTarget(target);
+
         if (target != null) {
             if (canAttack(target)) {
                 if (keepSwing.getValue() && !noSwing.getValue()) {
@@ -132,7 +138,7 @@ public class Aura extends Module {
 
                 if (attackMode.is("1.9+")
                         && mc.player.getAttackCooldownProgress(.5f) < 1
-                        && (!cooldownBypass.getValue() || !MeleeDamagePredictor.canKill(mc.player, target))) {
+                        && !canBypassCooldown(target)) {
                     return;
                 }
 
@@ -245,7 +251,7 @@ public class Aura extends Module {
             return true;
         }
 
-        if (cooldownBypass.getValue() && MeleeDamagePredictor.canKill(mc.player, target)) {
+        if (canBypassCooldown(target)) {
             return true;
         }
 
@@ -253,6 +259,15 @@ public class Aura extends Module {
         float cooldownProgress = mc.player.getAttackCooldownProgress(.5f);
         float ticksUntilAttack = (1.0f - cooldownProgress) * cooldownTicks;
         return ticksUntilAttack <= aimBeforeAttackTicks.getValue() + 1.0e-3f;
+    }
+
+    private boolean canBypassCooldown(LivingEntity target) {
+        if (!cooldownBypass.getValue() || mc.player == null || target == null) return false;
+        AutoWeapon autoWeapon = getModule(AutoWeapon.class);
+        ItemStack weapon = autoWeapon == null ? mc.player.getMainHandStack() : autoWeapon.getAttackWeapon(target);
+        return MaceSmashTiming.canBypassCooldown(weapon.getItem() instanceof MaceItem,
+                MaceItem.shouldDealAdditionalDamage(mc.player), mc.player.isOnGround(), mc.player.getVelocity().y)
+                || MeleeDamagePredictor.canKill(mc.player, target);
     }
 
     public boolean canBlock(LivingEntity target) {

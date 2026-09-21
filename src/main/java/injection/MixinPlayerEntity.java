@@ -2,10 +2,12 @@ package injection;
 
 import cn.omix.module.impl.move.KeepSprint;
 import cn.omix.module.impl.combat.Reach;
+import cn.omix.module.impl.combat.AutoWeapon;
 import cn.omix.module.impl.world.GhostHand;
 import cn.omix.util.IMinecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,6 +17,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerEntity.class)
 public class MixinPlayerEntity implements IMinecraft {
+
+    @Inject(method = "getAttackCooldownProgressPerTick", at = @At("HEAD"), cancellable = true)
+    private void omix$autoWeaponCooldown(CallbackInfoReturnable<Float> cir) {
+        if (mc.player == null || (Object) this != mc.player
+                || instance == null || instance.getModuleManager() == null) return;
+        AutoWeapon autoWeapon = instance.getModuleManager().getModule(AutoWeapon.class);
+        if (autoWeapon == null || !autoWeapon.isEnabled()) return;
+        double original = mc.player.getAttributeValue(EntityAttributes.ATTACK_SPEED);
+        double speed = autoWeapon.getAttackSpeed(original);
+        if (speed != original) cir.setReturnValue((float) (20.0 / speed));
+    }
 
     @Inject(method = "getEntityInteractionRange", at = @At("RETURN"), cancellable = true)
     private void omix$reachDistance(CallbackInfoReturnable<Double> cir) {

@@ -31,7 +31,7 @@
 | Min CPS | 旧版攻击频率的随机下限，每秒次数。 | 数值；默认 7；1–20；步长 1；显示条件：Combat Mode = 1.8 |
 | No swing | 仅隐藏 Aura 的本地挥手动画，攻击后仍发送主手挥手包，保持 1.21.11 的攻击→挥手包顺序，避免因缺失挥手包触发 PacketOrderB；其他玩家仍可能看到挥手。适用于两种 Combat Mode，开启时优先于 Keep Swing；Combat Mode 的 1.8 仅表示 CPS 攻击模式，不改变协议包顺序。 | 布尔；默认 false |
 | Keep Swing | 新版攻击尚未冷却时仍保留挥手动作；No swing 开启时不生效。 | 布尔；默认 false；显示条件：Combat Mode = 1.9+ |
-| Cooldown Bypass | 预测这一击足以击杀时允许跳过完整冷却等待。 | 布尔；默认 false；显示条件：Combat Mode = 1.9+ |
+| Cooldown Bypass | 预测这一击足以击杀，或将使用重锤进行下落重击时，允许跳过完整攻击冷却。重锤分支不要求可击杀：须离地、竖直速度 < 0，且满足原版重击条件（下落距离 > 1.5 格、非鞘翅滑翔）；识别 AutoWeapon 在本次攻击前准备切换的重锤。仅影响 1.9+，不绕过攻击距离、射线、Criticals 等其他条件或攻击间隔；Only Rot In Essential 使用相同判断提前转向。 | 布尔；默认 false；显示条件：Combat Mode = 1.9+ |
 | Only Rot In Essential | 仅在攻击前后的必要时间段转向目标。 | 布尔；默认 false；显示条件：Combat Mode = 1.9+ |
 | Aim Before Attack Ticks | 攻击前提前开始瞄准的 tick 数。 | 数值；默认 2；0–20；步长 1；显示条件：Combat Mode = 1.9+ 且 Only Rot In Essential 开启 |
 | Aim After Attack Ticks | 攻击后继续保持瞄准的 tick 数。 | 数值；默认 2；0–20；步长 1；显示条件：Combat Mode = 1.9+ 且 Only Rot In Essential 开启 |
@@ -86,6 +86,32 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 源码：`src/main/java/cn/omix/module/impl/combat/AutoTotem.java`。
 
 没有额外 Value 配置；通用开关、快捷键和列表可见性见总览。
+
+## Auto Weapon
+
+攻击活体目标时自动选择快捷栏武器，参考 LiquidBounce AutoWeapon 的偏好、破盾、重锤与延时切回行为。按攻击伤害（含锋利）× 攻击速度评分，火焰附加和击退提供少量加分，同分优先剩余耐久，再保留当前槽位。特殊条件优先级为重锤 > 正面举盾目标的斧 > Preferred；特殊条件成立但无对应武器时保持当前槽位。使用本客户端的可见快捷栏切换，通过原版槽位缓存同步服务器，不实现 LiquidBounce 的 SilentHotbar 隐藏切槽。支持手动攻击、Aura 和 TPAura，并按预计使用武器修正本地攻击冷却。主手消耗品使用、打开界面、Grim NoSlow 锁槽、LongJump 使用物品及 AutoBlockIn 放置期间暂停；玩家或其他模块改选槽位后放弃旧切回记录，切换世界或玩家实体后清空记录，关闭时仅恢复仍由本模块占用的槽位。
+
+源码：`src/main/java/cn/omix/module/impl/combat/AutoWeapon.java`。
+
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| Preferred | 允许多选武器类别，默认仅 Sword；Any 接受所有非空快捷栏物品，Knockback / FireAspect 按附魔筛选。全部关闭时仅执行破盾或重锤特殊选择。 | 布尔选项组 |
+| Any | 允许所有非空快捷栏物品参与评分。 | 布尔；默认 false；属于 Preferred |
+| Sword | 允许剑，默认开启。 | 布尔；默认 true；属于 Preferred |
+| Axe | 允许斧。 | 布尔；默认 false；属于 Preferred |
+| Mace | 允许重锤参与普通武器选择。 | 布尔；默认 false；属于 Preferred |
+| Spear | 允许长矛。 | 布尔；默认 false；属于 Preferred |
+| Pickaxe | 允许镐。 | 布尔；默认 false；属于 Preferred |
+| Shovel | 允许锹。 | 布尔；默认 false；属于 Preferred |
+| Hoe | 允许锄。 | 布尔；默认 false；属于 Preferred |
+| Knockback | 允许带击退附魔的物品。 | 布尔；默认 false；属于 Preferred |
+| FireAspect | 允许带火焰附加附魔的物品。 | 布尔；默认 false；属于 Preferred |
+| AutoShieldBreak | 目标已完成举盾延迟且面朝玩家时优先选择斧，默认开启。只决定武器，不保证服务端破盾结果。 | 布尔；默认 true |
+| AutoMace | 满足原版重锤下落重击条件，或 Mace Exploit 已开启时优先选择重锤，默认开启；优先于破盾。 | 布尔；默认 true |
+| SwitchBack | 最后一次选武器后等待多少游戏 tick 切回原槽位，默认 20（正常速度约 1 秒）；重复攻击或持续 OnTarget 会刷新倒计时。暂停期间延后恢复。 | 数值；默认 20；1–300；步长 1 |
+| ChangeOn | OnAttack 在攻击前切换，默认开启；OnTarget 在准星指向活体目标或 Aura / TPAura 选定目标后提前切换，默认关闭。可同时开启。 | 布尔选项组 |
+| OnAttack | 攻击前选武器并刷新切回倒计时。 | 布尔；默认 true；属于 ChangeOn |
+| OnTarget | 准星指向活体目标或 Aura / TPAura 选定目标时提前选武器。 | 布尔；默认 false；属于 ChangeOn |
 
 ## Backtrack
 
