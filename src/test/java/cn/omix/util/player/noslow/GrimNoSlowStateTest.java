@@ -1,14 +1,13 @@
-package cn.omix.module.impl.move;
+package cn.omix.util.player.noslow;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
-import cn.omix.module.impl.move.NoSlowDown.GrimNoSlowState;
-
-import static cn.omix.module.impl.move.NoSlowDown.GrimNoSlowState.*;
+import static cn.omix.util.player.noslow.GrimNoSlowState.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GrimNoSlowStateTest {
@@ -30,29 +29,49 @@ class GrimNoSlowStateTest {
     private void start(Hand hand) {
         flow.onUseItem(hand, hand == Hand.MAIN_HAND ? host.main : host.off);
         flow.onPacket(Direction.SEND, use(hand));
+        host.activeHand = hand;
         host.using = true;
     }
 
     @Test
-    void foodSwapsOnlyServerHandsAndPreservesSequenceAndView() {
+    void mainHandFoodKeepsItsOriginalUseAndInventory() {
         start(Hand.MAIN_HAND);
         assertEquals(State.USING, flow.state);
-        assertTrue(flow.handsSwapped);
+        assertEquals(Hand.MAIN_HAND, flow.getUseHand());
         assertTrue(flow.shouldLockHotbar());
         assertTrue(flow.buffering);
         assertEquals(3, flow.lockedSlot);
-        assertEquals(List.of("slot:3", "cancel", "clear", "swap", "use:OFF_HAND:37:123.5:-42.25"), host.effects);
+        assertEquals(List.of("slot:3", "clear"), host.effects);
         flow.onSlowdown();
         assertTrue(host.noSlow);
         assertEquals(FOOD, host.main);
     }
 
     @Test
-    void offhandFoodRewritesToMainHand() {
+    void offhandFoodAndPotionKeepTheirOriginalUseEvenWithABowInMainHand() {
+        host.main = BOW;
+        for (Item consumable : List.of(FOOD, POTION)) {
+            flow.discardState();
+            host.effects.clear();
+            host.noSlow = false;
+            host.off = consumable;
+            start(Hand.OFF_HAND);
+            assertEquals(Hand.OFF_HAND, flow.getUseHand());
+            assertFalse(host.effects.contains("cancel"));
+            flow.onSlowdown();
+            assertTrue(host.noSlow);
+            assertEquals(BOW, host.main);
+            assertEquals(consumable, host.off);
+        }
+    }
+
+    @Test
+    void offhandFoodStillWorksWithEmptyMainHand() {
         host.main = EMPTY;
-        host.off = POTION;
+        host.off = FOOD;
         start(Hand.OFF_HAND);
-        assertTrue(host.effects.contains("use:MAIN_HAND:37:123.5:-42.25"));
+        assertEquals(Hand.OFF_HAND, flow.getUseHand());
+        assertFalse(host.effects.contains("cancel"));
     }
 
     @Test
@@ -63,9 +82,8 @@ class GrimNoSlowStateTest {
             host.effects.clear();
             start(Hand.MAIN_HAND);
             assertEquals(State.USING, flow.state);
-            assertFalse(flow.handsSwapped);
+            assertEquals(Hand.MAIN_HAND, flow.getUseHand());
             assertFalse(host.effects.contains("cancel"));
-            assertFalse(host.effects.contains("swap"));
             assertTrue(flow.buffering);
         }
     }
@@ -80,103 +98,100 @@ class GrimNoSlowStateTest {
             flow.onSlowdown();
             assertEquals(State.NONE, flow.state);
             assertFalse(host.noSlow);
-            assertFalse(host.effects.contains("swap"));
+            assertNull(flow.getUseHand());
         }
     }
 
     @Test
-    void releaseWaitsForTwoMovementBoundariesBeforeFlushing() {
+    void releaseStopsNoSlowAndFlushesAfterOneMovementBoundary() {
         start(Hand.MAIN_HAND);
         host.effects.clear();
         flow.onPacket(Direction.SEND, packet(PacketType.RELEASE_USE));
         assertEquals(State.WAIT_RELEASE_BOUNDARY, flow.state);
         assertFalse(flow.activeNoSlow);
         flow.onPacket(Direction.SEND, packet(PacketType.MOVE));
-        assertEquals(State.WAIT_RESTORE_MOVEMENT, flow.state);
-        assertTrue(flow.handsSwapped);
-        assertFalse(host.effects.contains("swap"));
-        flow.onPacket(Direction.SEND, packet(PacketType.MOVE));
         assertEquals(State.FINISH_AFTER_MOVEMENT, flow.state);
-        assertEquals(List.of("swap"), host.effects);
+        assertTrue(host.effects.isEmpty());
         flow.onClientTick(true);
         assertEquals(State.NONE, flow.state);
-        assertTrue(host.effects.indexOf("flush") > host.effects.indexOf("swap"));
+        assertEquals(1, host.effects.stream().filter("flush"::equals).count());
         assertFalse(flow.shouldLockHotbar());
     }
 
     @Test
-    void naturalCompletionReleasesKeyAndNeedsOneBoundary() {
+    void naturalCompletionPreservesHeldUseKeyAndNeedsOneBoundary() {
         start(Hand.MAIN_HAND);
         host.using = false;
         flow.onClientTick(true);
-        assertEquals(State.WAIT_RESTORE_MOVEMENT, flow.state);
-        assertTrue(host.effects.contains("key:false"));
+        assertEquals(State.WAIT_STOP_MOVEMENT, flow.state);
+        assertTrue(host.useKeyPressed);
         flow.onPacket(Direction.SEND, packet(PacketType.MOVE));
         flow.onClientTick(true);
         assertEquals(State.NONE, flow.state);
     }
 
     @Test
-    void timeoutIsStrictlyGreaterThanTwoAndMovementDoesNotResetAge() {
+    void stationaryReleaseTimeoutIsStrictlyGreaterThanTwo() {
         start(Hand.MAIN_HAND);
         flow.onPacket(Direction.SEND, packet(PacketType.RELEASE_USE));
         host.age = 20; flow.onClientTick(true);
         host.age = 22; flow.onClientTick(true);
         assertEquals(State.WAIT_RELEASE_BOUNDARY, flow.state);
-        flow.onPacket(Direction.SEND, packet(PacketType.MOVE));
         assertEquals(20, flow.waitStartAge);
         host.age = 23; flow.onClientTick(true);
         assertEquals(State.FINISH_AFTER_MOVEMENT, flow.state);
         assertEquals(-1, flow.waitStartAge);
     }
 
-    @Test
-    void consecutiveFoodUseInheritsSwapWithoutSwappingTwice() {
-        start(Hand.MAIN_HAND);
-        flow.onPacket(Direction.SEND, packet(PacketType.RELEASE_USE));
+    @ParameterizedTest
+    @EnumSource(Hand.class)
+    void heldUseFinishesOneAppleBeforeStartingTheNextInTheSameHand(Hand hand) {
+        host.main = hand == Hand.MAIN_HAND ? FOOD : BOW;
+        host.off = hand == Hand.OFF_HAND ? FOOD : EMPTY;
+        start(hand);
+        // Vanilla clears local use in response to the server's CONSUME_ITEM status.
+        host.using = false;
+        flow.onClientTick(true);
         host.effects.clear();
-        start(Hand.MAIN_HAND);
-        assertEquals(State.USING, flow.state);
-        assertTrue(flow.handsSwapped);
-        assertFalse(host.effects.contains("swap"));
-        assertTrue(host.effects.contains("use:OFF_HAND:37:123.5:-42.25"));
-    }
-
-    @Test
-    void abandonedConsecutiveUseRestoresInheritedSwap() {
-        start(Hand.MAIN_HAND);
-        flow.onPacket(Direction.SEND, packet(PacketType.RELEASE_USE));
-        flow.onUseItem(Hand.MAIN_HAND, FOOD);
-        assertEquals(State.PREPARING, flow.state);
-        assertTrue(flow.handsSwapped);
-        host.effects.clear();
+        flow.onUseItem(hand, FOOD);
+        assertEquals(List.of("cancel"), host.effects);
+        assertEquals(State.WAIT_STOP_MOVEMENT, flow.state);
+        assertTrue(host.useKeyPressed);
+        flow.onPacket(Direction.SEND, packet(PacketType.MOVE));
+        assertEquals(State.FINISH_AFTER_MOVEMENT, flow.state);
         flow.onClientTick(true);
         assertEquals(State.NONE, flow.state);
-        assertEquals(1, host.effects.stream().filter("swap"::equals).count());
+        host.effects.clear();
+        start(hand);
+        assertEquals(State.USING, flow.state);
+        assertTrue(host.useKeyPressed);
+        assertFalse(host.effects.contains("cancel"));
+        assertEquals(hand, flow.getUseHand());
     }
 
     @Test
-    void rejectedConsecutiveUseCannotLoseServerSwap() {
+    void repeatedUseDuringReleaseNeitherFlushesNorDiscardsPendingAcknowledgements() {
         start(Hand.MAIN_HAND);
         flow.onPacket(Direction.SEND, packet(PacketType.RELEASE_USE));
-        flow.onUseItem(Hand.MAIN_HAND, FOOD);
-        host.off = POTION;
         host.effects.clear();
-        flow.onPacket(Direction.SEND, use(Hand.MAIN_HAND));
-        assertEquals(State.NONE, flow.state);
-        assertEquals(1, host.effects.stream().filter("swap"::equals).count());
+        for (int i = 0; i < 3; i++) flow.onUseItem(Hand.MAIN_HAND, FOOD);
+        assertEquals(List.of("cancel", "cancel", "cancel"), host.effects);
+        assertEquals(State.WAIT_RELEASE_BOUNDARY, flow.state);
+        assertEquals(Hand.MAIN_HAND, flow.getUseHand());
+        assertTrue(flow.buffering);
     }
 
     @Test
-    void consecutiveUseOnBlockRestoresBeforeKeepingVanillaInteraction() {
+    void bowReleaseNeedsNoSwapAndKeepsNormalInventoryUpdates() {
+        host.main = BOW;
         start(Hand.MAIN_HAND);
         flow.onPacket(Direction.SEND, packet(PacketType.RELEASE_USE));
-        host.hit = Hit.BLOCK;
+        host.using = false;
         host.effects.clear();
-        start(Hand.MAIN_HAND);
+        flow.onPacket(Direction.SEND, packet(PacketType.MOVE));
+        flow.onClientTick(true);
         assertEquals(State.NONE, flow.state);
-        assertFalse(flow.handsSwapped);
-        assertEquals(1, host.effects.stream().filter("swap"::equals).count());
+        assertTrue(host.effects.contains("flush"));
     }
 
     @Test
@@ -232,32 +247,31 @@ class GrimNoSlowStateTest {
     }
 
     @Test
-    void ordinaryResetFlushesBeforeRestoreAndAbortFiltersStaleSlotUpdates() {
-        start(Hand.MAIN_HAND); host.effects.clear();
-        flow.onDisable();
-        assertTrue(host.effects.indexOf("flush") < host.effects.indexOf("swap"));
-        assertTrue(host.filter.test(packet(PacketType.SET_PLAYER_INVENTORY)));
-        start(Hand.MAIN_HAND); host.effects.clear();
-        flow.resetState(true, true);
-        assertTrue(host.effects.indexOf("swap") < host.effects.indexOf("flush"));
-        assertFalse(host.filter.test(packet(PacketType.SET_PLAYER_INVENTORY)));
-        assertFalse(host.filter.test(packet(PacketType.SET_SCREEN_SLOT)));
-        assertTrue(host.filter.test(packet(PacketType.OTHER)));
+    void disableAndAbortFlushExactlyOnceBeforeClearingTheQueue() {
+        for (boolean disable : List.of(true, false)) {
+            start(Hand.MAIN_HAND); host.effects.clear();
+            if (disable) flow.onDisable();
+            else flow.abortActive();
+            assertTrue(host.effects.indexOf("flush") < host.effects.indexOf("clear"));
+            assertEquals(1, host.effects.stream().filter("flush"::equals).count());
+            assertEquals(State.NONE, flow.state);
+            assertNull(flow.getUseHand());
+        }
     }
 
     @Test
-    void blockedAndSuspendedSessionsRestoreOnceAndStopCancellingSlowdown() {
+    void blockedAndSuspendedSessionsFlushOnceAndStopCancellingSlowdown() {
         start(Hand.MAIN_HAND); host.effects.clear();
         host.blocked = true;
         flow.onClientTick(true);
         flow.onSlowdown();
         assertEquals(State.NONE, flow.state);
         assertFalse(host.noSlow);
-        assertEquals(1, host.effects.stream().filter("swap"::equals).count());
+        assertEquals(1, host.effects.stream().filter("flush"::equals).count());
         host.blocked = false;
         start(Hand.MAIN_HAND); host.effects.clear();
         flow.setSuspended(true); flow.setSuspended(true);
-        assertEquals(1, host.effects.stream().filter("swap"::equals).count());
+        assertEquals(1, host.effects.stream().filter("flush"::equals).count());
     }
 
     @Test
@@ -271,13 +285,14 @@ class GrimNoSlowStateTest {
         assertEquals(-1, flow.lockedSlot);
     }
 
-    private static final class FakeHost implements GrimNoSlowHost {
+    private static final class FakeHost implements Host {
         final List<String> effects = new ArrayList<>();
         Item main = FOOD, off = EMPTY;
         Hit hit = Hit.MISS;
         int age = 10;
         boolean using, blocked, noSlow;
-        Predicate<Packet> filter;
+        boolean useKeyPressed = true;
+        Hand activeHand = Hand.MAIN_HAND;
         public boolean playerPresent() { return true; }
         public boolean worldPresent() { return true; }
         public int age() { return age; }
@@ -286,9 +301,8 @@ class GrimNoSlowStateTest {
         public boolean isUsingItem() { return using; }
         public Item mainHand() { return main; }
         public Item offHand() { return off; }
-        public Item activeItem() { return main; }
+        public Item activeItem() { return activeHand == Hand.MAIN_HAND ? main : off; }
         public Hit crosshair() { return hit; }
-        public boolean targetedEntityPresent() { return false; }
         public double fallDistance() { return 0; }
         public boolean blocked() { return blocked; }
         public boolean playerUpdateBlocked() { return false; }
@@ -296,15 +310,10 @@ class GrimNoSlowStateTest {
         public boolean requestSlot(Object owner, int slot) { effects.add("slot:" + slot); return true; }
         public void releaseSlot(Object owner) { effects.add("release"); }
         public void clearReceiveQueue(Object owner) { effects.add("clear"); }
-        public void flushReceiveQueue(Object owner, Predicate<Packet> filter) { effects.add("flush"); this.filter = filter; }
+        public void flushReceiveQueue(Object owner) { effects.add("flush"); }
         public void queueIncoming(Object owner) { effects.add("queue"); }
-        public void sendSwap() { effects.add("swap"); }
-        public void sendUseItem(Hand hand, int sequence, float yaw, float pitch) {
-            effects.add("use:" + hand + ":" + sequence + ":" + yaw + ":" + pitch);
-        }
         public boolean useCopy(Item item, Hand hand) { return false; }
         public void cancelEvent() { effects.add("cancel"); }
         public void disableSlowdown() { noSlow = true; }
-        public void setUseKeyPressed(boolean pressed) { effects.add("key:" + pressed); }
     }
 }
