@@ -87,6 +87,7 @@
 - `cn.omix.script.api.ScriptApi` — `public final Modules modules`
 - `cn.omix.script.api.ScriptApi` — `public final Modes modes`
 - `cn.omix.script.api.ScriptApi` — `public final Commands commands`
+- `cn.omix.script.api.ScriptApi` — `public final Tools tools`
 - `cn.omix.script.api.ScriptApi` — `public final Events events`
 - `cn.omix.script.api.ScriptApi` — `public final Tasks tasks`
 - `cn.omix.script.api.ScriptApi` — `public final Packets packets`
@@ -128,12 +129,29 @@
 - `cn.omix.script.api.ScriptApi.Modules` — `public ModuleHandle register(String id, String name, Category category)`
 - `cn.omix.script.api.ScriptApi.Modules` — `public Module get(String idOrName)`
 - `cn.omix.script.api.ScriptApi.Modules` — `public List<Module> list()`
+- `cn.omix.script.api.ScriptApi.Modules` — `public boolean isEnabled(String name)`
+- `cn.omix.script.api.ScriptApi.Modules` — `public void setEnabled(String name, boolean enabled)`
+- `cn.omix.script.api.ScriptApi.Modules` — `public void enable(String name)`
+- `cn.omix.script.api.ScriptApi.Modules` — `public void disable(String name)`
+- `cn.omix.script.api.ScriptApi.Modules` — `public void toggle(String name)`
+- `cn.omix.script.api.ScriptApi.Modules` — `public int getKey(String name)`
+- `cn.omix.script.api.ScriptApi.Modules` — `public void setKey(String name, int key)`
+- `cn.omix.script.api.ScriptApi.Modules` — `public JsonArray settings(String name)`
+- `cn.omix.script.api.ScriptApi.Modules` — `public JsonElement getSetting(String module, String setting)`
+- `cn.omix.script.api.ScriptApi.Modules` — `public void setSetting(String module, String setting, Object value)`
+- `cn.omix.script.api.ScriptApi.Modules` — `public boolean getButton(String module, String setting)`
+- `cn.omix.script.api.ScriptApi.Modules` — `public void setButton(String module, String setting, boolean value)`
+- `cn.omix.script.api.ScriptApi.Modules` — `public double getSlider(String module, String setting)`
+- `cn.omix.script.api.ScriptApi.Modules` — `public void setSlider(String module, String setting, double value)`
 - `cn.omix.script.api.ScriptApi` — `public final class Modes`
 - `cn.omix.script.api.ScriptApi.Modes` — `public ModeHandle register(String id, String module, String name)`
 - `cn.omix.script.api.ScriptApi` — `public final class Commands`
 - `cn.omix.script.api.ScriptApi.Commands` — `public CommandHandle register(String usage, Consumer<String[]> action, String... aliases)`
 - `cn.omix.script.api.ScriptApi.Commands` — `public void run(String command)`
 - `cn.omix.script.api.ScriptApi.Commands` — `public List<String> complete(String prefix)`
+- `cn.omix.script.api.ScriptApi` — `public final class Tools`
+- `cn.omix.script.api.ScriptApi.Tools` — `public ToolHandle register(String id, String description, JsonObject parameters, Function<JsonObject, JsonElement> callback)`
+- `cn.omix.script.api.ScriptApi.Tools` — `public ToolHandle register(String id, String description, String parameters, Function<JsonObject, JsonElement> callback)`
 - `cn.omix.script.api.ScriptApi` — `public final class Events`
 - `cn.omix.script.api.ScriptApi.Events` — `public <E extends Event> Registration on(Class<E> type, Consumer<E> callback)`
 - `cn.omix.script.api.ScriptApi.Events` — `public <E extends Event> Registration on(Class<E> type, int priority, Consumer<E> callback)`
@@ -145,6 +163,19 @@
 - `cn.omix.script.api.ScriptApi` — `public final class Packets`
 - `cn.omix.script.api.ScriptApi.Packets` — `public void send(Packet<?> packet)`
 - `cn.omix.script.api.ScriptApi.Packets` — `public void sendWithoutEvents(Packet<?> packet)`
+- `cn.omix.script.api.ScriptApi.Packets` — `public boolean connected()`
+- `cn.omix.script.api.ScriptApi.Packets` — `public void sendSequenced(net.minecraft.client.network.SequencedPacketCreator creator)`
+- `cn.omix.script.api.ScriptApi.Packets` — `public void sendSequencedWithoutEvents(net.minecraft.client.network.SequencedPacketCreator creator)`
+- `cn.omix.script.api.ScriptApi.Packets` — `public Registration onSend(Consumer<PacketEvent> callback)`
+- `cn.omix.script.api.ScriptApi.Packets` — `public Registration onSend(int priority, Consumer<PacketEvent> callback)`
+- `cn.omix.script.api.ScriptApi.Packets` — `public Registration onSend(FeatureHandle owner, Consumer<PacketEvent> callback)`
+- `cn.omix.script.api.ScriptApi.Packets` — `public Registration onSend(FeatureHandle owner, int priority, Consumer<PacketEvent> callback)`
+- `cn.omix.script.api.ScriptApi.Packets` — `public Registration onReceive(Consumer<PacketEvent> callback)`
+- `cn.omix.script.api.ScriptApi.Packets` — `public Registration onReceive(int priority, Consumer<PacketEvent> callback)`
+- `cn.omix.script.api.ScriptApi.Packets` — `public Registration onReceive(FeatureHandle owner, Consumer<PacketEvent> callback)`
+- `cn.omix.script.api.ScriptApi.Packets` — `public Registration onReceive(FeatureHandle owner, int priority, Consumer<PacketEvent> callback)`
+- `cn.omix.script.api.ScriptApi.Packets` — `public void cancel(PacketEvent event)`
+- `cn.omix.script.api.ScriptApi.Packets` — `public void replace(PacketEvent event, Packet<?> packet)`
 - `cn.omix.script.api.ScriptApi.Packets` — `public Registration blink(FeatureHandle owner)`
 - `cn.omix.script.api.ScriptApi.Packets` — `public Registration delay(FeatureHandle owner)`
 - `cn.omix.script.api.ScriptApi` — `public Registration timer(FeatureHandle owner, float speed)`
@@ -191,6 +222,8 @@
 - `cn.omix.script.api.ScriptContext` — `public void afterCommit(Runnable starter)`
 - `cn.omix.script.api.ScriptContext` — `public void add(ModuleHandle module)`
 - `cn.omix.script.api.ScriptContext` — `public void add(ModeHandle mode)`
+- `cn.omix.script.api.ScriptContext` — `public void add(ToolHandle tool)`
+- `cn.omix.script.api.ScriptContext` — `public List<ToolHandle> tools()`
 - `cn.omix.script.api.ScriptContext` — `public void add(CommandHandle command)`
 - `cn.omix.script.api.ScriptContext` — `public List<ModuleHandle> modules()`
 - `cn.omix.script.api.ScriptContext` — `public List<ModeHandle> modes()`
@@ -205,6 +238,15 @@
 - `cn.omix.script.api.ScriptContext` — `public void assertHealthy()`
 - `cn.omix.script.api.ScriptContext` — `public void error(String callback, Throwable error)`
 - `cn.omix.script.api.ScriptContext` — `public void close()`
+- `cn.omix.script.api.ToolHandle` — `cn.omix.script.api.ToolHandle`
+- `cn.omix.script.api.ToolHandle` — `public final class ToolHandle`
+- `cn.omix.script.api.ToolHandle` — `public ToolHandle(ScriptContext context, String id, String description, JsonObject parameters, Function<JsonObject, JsonElement> callback)`
+- `cn.omix.script.api.ToolHandle` — `public String name()`
+- `cn.omix.script.api.ToolHandle` — `public boolean requiresWorld()`
+- `cn.omix.script.api.ToolHandle` — `public ToolHandle requiresWorld(boolean value)`
+- `cn.omix.script.api.ToolHandle` — `public boolean available()`
+- `cn.omix.script.api.ToolHandle` — `public JsonObject definition()`
+- `cn.omix.script.api.ToolHandle` — `public JsonObject invoke(JsonObject arguments, boolean inWorld)`
 - `cn.omix.script.api.WebPageHandle` — `cn.omix.script.api.WebPageHandle`
 - `cn.omix.script.api.WebPageHandle` — `public final class WebPageHandle`
 - `cn.omix.script.api.WebPageHandle` — `public WebPageHandle(ScriptContext context, String id, String html, Function<JsonElement, JsonElement> handler)`
@@ -562,6 +604,9 @@
 - `cn.omix.util.ai.AiContainerTools` — `public static void clientTick(MinecraftClient client)`
 - `cn.omix.util.ai.AiContainerTools` — `public static void inventorySynchronized(MinecraftClient client, int syncId)`
 - `cn.omix.util.ai.AiGameContext` — `cn.omix.util.ai.AiGameContext`
+- `cn.omix.util.ai.AiGameToolReference` — `cn.omix.util.ai.AiGameToolReference`
+- `cn.omix.util.ai.AiGameToolReference` — `public final class AiGameToolReference`
+- `cn.omix.util.ai.AiGameToolReference` — `public static void main(String[] args)`
 - `cn.omix.util.ai.AiPacketTools` — `cn.omix.util.ai.AiPacketTools`
 - `cn.omix.util.ai.AiToolCall` — `cn.omix.util.ai.AiToolCall`
 - `cn.omix.util.ai.AiToolExecutor` — `cn.omix.util.ai.AiToolExecutor`

@@ -32,6 +32,7 @@ public final class MinecraftGameBridge implements AutoCloseable {
         instanceLock = acquired;
         var sessions = new GameToolSessions(client::execute, this::epoch, new GameToolSessions.Tools() {
             @Override public CompletableFuture<JsonElement> execute(String name, JsonObject arguments) {
+                if (name.startsWith("custom_")) return CompletableFuture.completedFuture(cn.omix.util.script.ScriptToolRegistry.INSTANCE.execute(name, arguments, client.world != null && client.player != null));
                 if (name.startsWith("script_")) return cn.omix.util.script.ScriptTools.execute(name, arguments);
                 CompletableFuture<String> execution = tools.execute(new AiToolCall("bridge", name, arguments.toString()));
                 CompletableFuture<JsonElement> value = execution.thenApply(text -> {
@@ -41,7 +42,7 @@ public final class MinecraftGameBridge implements AutoCloseable {
                 value.whenComplete((ignored, error) -> { if (value.isCancelled()) execution.cancel(false); });
                 return value;
             }
-            @Override public boolean requiresWorld(String name) { return !name.startsWith("script_"); }
+            @Override public boolean requiresWorld(String name) { return name.startsWith("custom_") ? cn.omix.util.script.ScriptToolRegistry.INSTANCE.requiresWorld(name) : !name.startsWith("script_"); }
             @Override public boolean independent(String name, JsonObject args) {
                 if (name.equals("script_action") && args.has("action") && args.get("action").getAsString().equals("check")) return true;
                 return java.util.Set.of("script_status", "script_read", "script_write", "script_delete", "script_templates", "script_create", "script_job", "script_cancel", "script_logs", "script_api", "script_reference").contains(name);
@@ -80,6 +81,7 @@ public final class MinecraftGameBridge implements AutoCloseable {
             AiToolSnapshot snapshot = tools.snapshot();
             var definitions = snapshot.definitions().deepCopy();
             definitions.addAll(cn.omix.util.script.ScriptReference.tools());
+            definitions.addAll(cn.omix.util.script.ScriptToolRegistry.INSTANCE.definitions());
             result.add("tools", definitions);
             result.addProperty("toolContext", snapshot.promptContext());
             // capture completes inline on the client thread.

@@ -11,7 +11,7 @@
 5. 编辑、保存后点击「重载」。查看磁盘 hash、运行 hash 和日志，确认运行的是新版本。
 6. 「卸载」释放该脚本受管资源，源码仍保留。删除源码是单独操作。
 
-脚本只写字段、方法、内部类与 import，不写 package 或外层类。`void onLoad()` 注册功能；每个模块拥有独立开关与回调。一份文件可以注册多个模块、模式、命令、HUD。不要在 onLoad 中发包、移动或启用模块；需要提交后的动作使用 `script.afterCommit(...)`。
+脚本只写字段、方法、内部类与 import，不写 package 或外层类。`void onLoad()` 注册功能；每个模块拥有独立开关与回调。一份文件可以注册多个模块、模式、命令、HUD 和 AI Tools。不要在 onLoad 中发包、移动或启用模块；需要提交后的动作使用 `script.afterCommit(...)`。
 
 ```java
 void onLoad() {
@@ -28,6 +28,8 @@ Category 的实际成员以 api.json/编译器为准；最稳妥的入门代码�
 - api-guide.md / api.json / sdk.md：API 分组、实际声明与原生 util
 - common-knowledge.md：现代 Minecraft 开发知识与线程
 - modes.md / mode-hosts.json：整模块接管、返回值 hook
+- packet-module-control.md：发包拦截、取消/替换、序列号发包与其它模块设置读写
+- custom-tools.md：注册可被游戏内 AI／外部 MCP 调用的自定义工具
 - tools.md / tools.json：开发工具及参数 schema
 - mcp.md：外部 Agent、离线工具、会话管理
 - examples/：可编译模板；omix-script/SKILL.md：Agent 入口

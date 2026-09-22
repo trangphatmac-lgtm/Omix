@@ -11,6 +11,9 @@
 - [World 世界交互模块](modules/world.md)
 - [AI Tools 及每个参数](ai-tools.md)
 - [Java 脚本、开发面板与 MCP](script/README.md)
+- [脚本数据包与模块控制](script/packet-module-control.md)
+- [脚本自定义 AI 工具](script/custom-tools.md)
+- [外部 MCP 完整游戏工具与连接](script/mcp.md)
 - [Agent 脚本开发技能](script/omix-script/SKILL.md)
 - [RotationManager 开发说明](rotation-manager.md)
 

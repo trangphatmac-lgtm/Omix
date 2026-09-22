@@ -19,7 +19,7 @@
     let disposed = false, tab: 'logs' | 'api' | 'diagnostics' = 'logs';
     let completions: Array<{label: string; type: string; detail: string; owner: string}> = [];
     const apiOwners: Record<string, string> = Object.fromEntries(
-        ['game', 'movement', 'inventory', 'modules', 'modes', 'commands', 'events', 'tasks', 'packets', 'render', 'ui', 'storage', 'managers', 'nativeAccess']
+        ['game', 'movement', 'inventory', 'modules', 'modes', 'commands', 'tools', 'events', 'tasks', 'packets', 'render', 'ui', 'storage', 'managers', 'nativeAccess']
             .map(name => [name, `cn.omix.script.api.ScriptApi.${name[0].toUpperCase()}${name.slice(1)}`]));
     apiOwners.script = 'cn.omix.script.api.ScriptContext';
     apiOwners.fisproxy = 'cn.omix.fisproxy.FisProxyManager';

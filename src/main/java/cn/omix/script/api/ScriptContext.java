@@ -19,6 +19,7 @@ public final class ScriptContext implements Registration {
     private final List<ModuleHandle> modules = new ArrayList<>();
     private final List<ModeHandle> modes = new ArrayList<>();
     private final List<CommandHandle> commands = new ArrayList<>();
+    private final List<ToolHandle> tools = new ArrayList<>();
     private final List<Registration> installed = new ArrayList<>();
     private final List<java.util.function.Supplier<Registration>> installers = new ArrayList<>();
     public void installWith(java.util.function.Supplier<Registration> installer) { ensurePreparing(); installers.add(installer); }
@@ -43,12 +44,15 @@ public final class ScriptContext implements Registration {
     public void afterCommit(Runnable starter) { ensurePreparing(); starters.add(starter); }
     public void add(ModuleHandle module) { ensurePreparing(); modules.add(module); }
     public void add(ModeHandle mode) { ensurePreparing(); modes.add(mode); }
+    public void add(ToolHandle tool) { ensurePreparing(); tools.add(tool); }
+    public List<ToolHandle> tools() { return List.copyOf(tools); }
     public void add(CommandHandle command) { ensurePreparing(); commands.add(command); }
     public List<ModuleHandle> modules() { return List.copyOf(modules); }
     public List<ModeHandle> modes() { return List.copyOf(modes); }
     public List<CommandHandle> commands() { return List.copyOf(commands); }
     public void prepared() { preparing = false; }
     public void validate(ScriptContext old) {
+        ScriptToolRegistry.INSTANCE.validate(tools, old == null ? List.of() : old.tools);
         var replacedModules = new HashSet<cn.omix.module.Module>(); var replacedCommands = new HashSet<cn.omix.command.Command>();
         var replacedModes = new HashSet<ModeHandle>();
         if (old != null) {
@@ -83,6 +87,7 @@ public final class ScriptContext implements Registration {
             for (var module : modules) installed.add(Client.instance.getModuleManager().register(module.nativeModule()));
             for (var mode : modes) installed.add(ModeHost.install(mode));
             for (var command : commands) installed.add(Client.instance.getCommandManager().register(command.nativeCommand()));
+            for (var tool : tools) installed.add(ScriptToolRegistry.INSTANCE.install(tool));
             for (var installer : installers) installed.add(installer.get());
             scope.activate();
 

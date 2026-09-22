@@ -82,6 +82,8 @@ public abstract class SubCore implements IMinecraft {
         }
 
         if (shouldIgnore(packet)) return;
+        // A cancelled packet must not be resurrected when Blink/Delay flushes later.
+        if (event.isCancelled()) return;
 
         if (active) {
             event.setCancelled(true);

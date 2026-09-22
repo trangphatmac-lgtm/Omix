@@ -74,3 +74,9 @@ Gradle 的 installAiHarness、bundleAiHarness、testAiHarness 接入构建流程
 ### 会话激活并发修复（2026-09-22）
 
 锁定的 Harness 0.1.6-alpha.1 对创建／接管会话与历史读取触发的恢复使用独立的去重表，两条路径并发时可能发生 `SessionAlreadyOwnedError`。Omix 的 `plugin/session-activation.mjs` 在 sessionController 内按会话 ID 串行执行激活，保留原来的工作区、预设和子代理校验；不同会话和已经开始的模型运行仍可并发。失败不堵塞后续重试，插件卸载时拒绝尚未开始的激活并恢复原方法。此适配器依赖锁定版本的内部接口，升级 Harness 必须运行 `session-activation.test.mjs` 并复核接口；不删除历史记录或绕过持久化写锁。
+
+### 外部 MCP 游戏能力对齐
+
+外部 MCP 与 Harness 共用 `MinecraftGameBridge` 和 `MinecraftCommandToolExecutor`，22 个游戏工具在 MCP 初始化时即可发现，另有 14 个脚本工具和 3 个连接／参考辅助工具。静态游戏 schema 由 Java 声明自动导出，连接后同步实时描述和参数并发出列表更新通知；`omix_status` 返回游戏内 AI 相同的上下文，`omix_reference` 返回相同文档。参见 [MCP 完整能力](script/mcp.md)。
+
+脚本通过 `tools.register` 扩展 AI 能力，所有运行时 schema 由同一桥接快照提供。Harness 每次组装发现变化后更新真实工具注册器并重新组装，保留 scope 过滤、排序和 PTC 呈现；MCP 在加载任务轮询和后台发现中同步工具列表。回调执行在客户端线程，绑定脚本代次；参见 [自定义工具](script/custom-tools.md)。

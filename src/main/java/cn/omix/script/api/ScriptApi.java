@@ -32,6 +32,7 @@ public abstract class ScriptApi {
     public final Modules modules = new Modules();
     public final Modes modes = new Modes();
     public final Commands commands = new Commands();
+    public final Tools tools = new Tools();
     public final Events events = new Events();
     public final Tasks tasks = new Tasks();
     public final Packets packets = new Packets();
@@ -97,6 +98,36 @@ public abstract class ScriptApi {
         }
         public Module get(String idOrName) { return client.getModuleManager().find(idOrName); }
         public List<Module> list() { return List.copyOf(client.getModuleManager().getModuleMap().values()); }
+        private Module require(String name) {
+            requireClientThread(); Module module = get(name);
+            if (module == null) throw new IllegalArgumentException("Unknown module: " + name);
+            return module;
+        }
+        public boolean isEnabled(String name) { return require(name).isEnabled(); }
+        public void setEnabled(String name, boolean enabled) { require(name).setEnabled(enabled); changed(); }
+        public void enable(String name) { setEnabled(name, true); }
+        public void disable(String name) { setEnabled(name, false); }
+        public void toggle(String name) { require(name).toggle(); changed(); }
+        public int getKey(String name) { return require(name).getKey(); }
+        public void setKey(String name, int key) { require(name).setKey(key); changed(); }
+        public JsonArray settings(String name) {
+            var result = new JsonArray(); require(name).getValues().forEach(value -> result.add(ScriptModuleSettings.describe(value))); return result;
+        }
+        public JsonElement getSetting(String module, String setting) { return ScriptModuleSettings.read(ScriptModuleSettings.find(require(module).getValues(), setting)); }
+        public void setSetting(String module, String setting, Object value) {
+            ScriptModuleSettings.write(ScriptModuleSettings.find(require(module).getValues(), setting), value); changed();
+        }
+        public boolean getButton(String module, String setting) { return typed(module, setting, cn.omix.module.value.impl.BoolValue.class).getValue(); }
+        public void setButton(String module, String setting, boolean value) { typed(module, setting, cn.omix.module.value.impl.BoolValue.class); setSetting(module, setting, value); }
+        public double getSlider(String module, String setting) { return typed(module, setting, cn.omix.module.value.impl.NumberValue.class).getValue(); }
+        public void setSlider(String module, String setting, double value) { typed(module, setting, cn.omix.module.value.impl.NumberValue.class); setSetting(module, setting, value); }
+        private <T extends cn.omix.module.value.Value> T typed(String module, String setting, Class<T> type) {
+            var value = ScriptModuleSettings.find(require(module).getValues(), setting);
+            if (!type.isInstance(value)) throw new IllegalArgumentException("Setting " + setting + " is not a " + type.getSimpleName());
+            return type.cast(value);
+        }
+        private void changed() { im.webui.WebUiRuntime.getInstance().notifyModulesChanged(); }
+
     }
     public final class Modes {
         public ModeHandle register(String id, String module, String name) {
@@ -111,6 +142,15 @@ public abstract class ScriptApi {
         }
         public void run(String command) { requireClientThread(); client.getCommandManager().executeClientCommand(command); }
         public List<String> complete(String prefix) { return client.getCommandManager().getCompletions(prefix); }
+    }
+    public final class Tools {
+        /** Register a short client-thread callback; results must be bounded JSON values. */
+        public ToolHandle register(String id, String description, JsonObject parameters, Function<JsonObject, JsonElement> callback) {
+            script.ensurePreparing(); var handle = new ToolHandle(script, id, description, parameters, callback); script.add(handle); return handle;
+        }
+        public ToolHandle register(String id, String description, String parameters, Function<JsonObject, JsonElement> callback) {
+            return register(id, description, JsonParser.parseString(parameters).getAsJsonObject(), callback);
+        }
     }
     public final class Events {
         public <E extends Event> Registration on(Class<E> type, Consumer<E> callback) { return on(type, 10, callback); }
@@ -153,8 +193,42 @@ public abstract class ScriptApi {
         }
     }
     public final class Packets {
-        public void send(Packet<?> packet) { requireClientThread(); PacketUtil.sendPacket(packet); }
-        public void sendWithoutEvents(Packet<?> packet) { requireClientThread(); PacketUtil.runWithoutEvents(() -> { PacketUtil.sendPacket(packet); return null; }); }
+        public void send(Packet<?> packet) { requireConnection(); PacketUtil.sendPacket(Objects.requireNonNull(packet)); }
+        public void sendWithoutEvents(Packet<?> packet) { requireConnection(); Objects.requireNonNull(packet); PacketUtil.runWithoutEvents(() -> { PacketUtil.sendPacket(packet); return null; }); }
+        public boolean connected() { requireClientThread(); return mc.getNetworkHandler() != null && mc.getNetworkHandler().getConnection().isOpen(); }
+        private void requireConnection() { if (!connected()) throw new IllegalStateException("No active play connection"); }
+        public void sendSequenced(net.minecraft.client.network.SequencedPacketCreator creator) {
+            requireWorld(); requireConnection(); PacketUtil.sendSequencedPacket(Objects.requireNonNull(creator));
+        }
+        public void sendSequencedWithoutEvents(net.minecraft.client.network.SequencedPacketCreator creator) {
+            requireWorld(); requireConnection(); Objects.requireNonNull(creator);
+            PacketUtil.runWithoutEvents(() -> { PacketUtil.sendSequencedPacket(creator); return null; });
+        }
+        public Registration onSend(Consumer<PacketEvent> callback) { return onSend(0, callback); }
+        public Registration onSend(int priority, Consumer<PacketEvent> callback) { return listen(null, PacketEvent.Type.Send, priority, callback); }
+        public Registration onSend(FeatureHandle owner, Consumer<PacketEvent> callback) { return onSend(owner, 0, callback); }
+        public Registration onSend(FeatureHandle owner, int priority, Consumer<PacketEvent> callback) { Objects.requireNonNull(owner); return listen(owner, PacketEvent.Type.Send, priority, callback); }
+        public Registration onReceive(Consumer<PacketEvent> callback) { return onReceive(0, callback); }
+        public Registration onReceive(int priority, Consumer<PacketEvent> callback) { return listen(null, PacketEvent.Type.Received, priority, callback); }
+        public Registration onReceive(FeatureHandle owner, Consumer<PacketEvent> callback) { return onReceive(owner, 0, callback); }
+        public Registration onReceive(FeatureHandle owner, int priority, Consumer<PacketEvent> callback) { Objects.requireNonNull(owner); return listen(owner, PacketEvent.Type.Received, priority, callback); }
+        private Registration listen(FeatureHandle owner, PacketEvent.Type direction, int priority, Consumer<PacketEvent> callback) {
+            script.ensurePreparing(); Objects.requireNonNull(callback);
+            if (owner != null && owner.context != script) throw new IllegalArgumentException("Packet listener owner belongs to another script generation");
+            return events.on(PacketEvent.class, priority, event -> {
+                if (event.getType() != direction) return;
+                if (owner == null) callback.accept(event);
+                else if (owner.active()) owner.invoke("packet:" + direction, () -> callback.accept(event));
+            });
+        }
+        /** Call synchronously inside a packet callback; no client-thread hop. */
+        public void cancel(PacketEvent event) { script.requireActive(); Objects.requireNonNull(event).setCancelled(); }
+        /** Outbound replacement preserves connection listeners/flush and does not repost the event. */
+        public void replace(PacketEvent event, Packet<?> packet) {
+            script.requireActive(); Objects.requireNonNull(event); Objects.requireNonNull(packet);
+            if (event.getType() != PacketEvent.Type.Send) throw new IllegalArgumentException("Only outbound packet replacement is supported");
+            event.setPacket(packet);
+        }
         public Registration blink(FeatureHandle owner) { requireOwner(owner); var core = client.getPacketManager().getBlink(); Object token = new Object(); core.start(token); return owner.own((Registration) () -> core.dispatch(token)); }
         public Registration delay(FeatureHandle owner) { requireOwner(owner); var core = client.getPacketManager().getDelay(); Object token = new Object(); core.start(token); return owner.own((Registration) () -> core.dispatch(token)); }
     }

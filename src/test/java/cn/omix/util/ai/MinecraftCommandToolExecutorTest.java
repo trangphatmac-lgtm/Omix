@@ -15,6 +15,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MinecraftCommandToolExecutorTest {
     @Test
+    void offlineMcpCatalogMatchesTheActualExecutorDeclarations() throws Exception {
+        var path = java.nio.file.Path.of(System.getProperty("omix.test.root", "."), "docs/script/game-tools.json");
+        var exported = com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(path));
+        assertEquals(MinecraftCommandToolExecutor.buildSnapshot(List.of(), List.of()).definitions(), exported);
+    }
+
+    @Test
     void exposesAllCommandInspectionAndContainerTools() {
         AiToolSnapshot snapshot = MinecraftCommandToolExecutor.buildSnapshot(
                 List.of("/help"),

@@ -188,6 +188,12 @@ public final class ScriptManager implements AutoCloseable {
             Running value = running.get(id); item.addProperty("sourceHash", disk); item.addProperty("loaded", value != null);
             item.addProperty("runningHash", value == null ? "" : value.hash); item.addProperty("generation", value == null ? 0 : value.generation);
             item.addProperty("changed", value != null && !disk.equals(value.hash));
+            JsonArray toolStates = new JsonArray();
+            if (value != null) for (var tool : value.context.tools()) {
+                JsonObject state = new JsonObject(); state.addProperty("name", tool.name());
+                state.addProperty("available", tool.available()); state.addProperty("requiresWorld", tool.requiresWorld()); toolStates.add(state);
+            }
+            item.add("tools", toolStates);
             jobs.values().stream().filter(job -> job.script.equals(id)).max(Comparator.comparingLong(job -> job.generation)).ifPresent(job -> {
                 item.addProperty("latestJobId", job.id); item.addProperty("latestJobState", job.state); item.addProperty("latestCompileHash", job.sourceHash);
             });

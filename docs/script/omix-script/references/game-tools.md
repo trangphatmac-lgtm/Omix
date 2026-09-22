@@ -4,7 +4,13 @@
 
 游戏上下文中的玩家名取自当前服务器确认的身份（支持 FisProxy AutoNFA），未进服时回退到本地登录账号。通过 FisProxy 连接按钮或 `.fis connect` 进服时，服务器地址优先展示会话目标，缺失时展示代理入口。
 
+外部 MCP 首次发现即公开本页全部 22 个工具，直接使用相同名称和 JSON 参数调用；不必通过 Java 求值或先打开 AIScreen。`omix_status` 提供同一实时游戏／工具上下文，`omix_reference` 提供游戏内 AI 使用的模块和命令参考。连接说明见 [客户端 MCP](script/mcp.md)。
+
 工具由 Omix Harness 插件和独立 stdio MCP 注册，Java 执行层提供实时 schema、游戏上下文和结果。每个 Agent 回合首次调用游戏工具时取得独占使用权；其他 Agent 返回 busy 错误，同一 Agent 的调用依次执行。容器快照随回合释放失效，不能跨 Agent 或世界使用。取消会阻止尚未提交的操作，但不会撤销已发送给服务器的命令、聊天或点击；已启动的 Baritone 任务需用 `#stop` 等对应命令停止。工具错误以 Harness 错误结果返回，`awaiting_sync`、`interaction_submitted`、`click_submitted` 等正常领域状态仍须按下文判断。
+
+## 脚本扩展工具
+
+脚本可通过 `tools.register` 注册 `custom_<id>` 工具，与内置工具共用桥接、主线程和 Agent 会话所有权。加载后 Harness 和 MCP 动态发现，重载同步描述与参数，卸载移除；回调成功返回 script、generation、value。异常停用该工具并写入源码日志。见 [自定义工具 API、示例与 Agent 自扩展流程](script/custom-tools.md)。
 
 ## run_minecraft_command
 

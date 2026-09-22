@@ -672,11 +672,19 @@
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
+    "name": "tools",
+    "signature": "public final Tools tools",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 35
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi",
     "name": "events",
     "signature": "public final Events events",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 35
+    "line": 36
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -684,7 +692,7 @@
     "signature": "public final Tasks tasks",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 36
+    "line": 37
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -692,7 +700,7 @@
     "signature": "public final Packets packets",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 37
+    "line": 38
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -700,7 +708,7 @@
     "signature": "public final Render render",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 38
+    "line": 39
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -708,7 +716,7 @@
     "signature": "public final Ui ui",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 39
+    "line": 40
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -716,7 +724,7 @@
     "signature": "public final Storage storage",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 40
+    "line": 41
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -724,7 +732,7 @@
     "signature": "public final Managers managers",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 41
+    "line": 42
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -732,7 +740,7 @@
     "signature": "public final cn.omix.fisproxy.FisProxyManager fisproxy",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 42
+    "line": 43
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -740,7 +748,7 @@
     "signature": "public final NativeAccess nativeAccess",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 43
+    "line": 44
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -748,7 +756,7 @@
     "signature": "public void log(Object message)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 45
+    "line": 46
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -756,7 +764,7 @@
     "signature": "public boolean inWorld()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 46
+    "line": 47
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -764,7 +772,7 @@
     "signature": "public void requireClientThread()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 47
+    "line": 48
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -772,7 +780,7 @@
     "signature": "public final class Game",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 48
+    "line": 49
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Game",
@@ -780,7 +788,7 @@
     "signature": "public net.minecraft.client.network.ClientPlayerEntity player()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 49
+    "line": 50
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Game",
@@ -788,7 +796,7 @@
     "signature": "public net.minecraft.client.world.ClientWorld world()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 50
+    "line": 51
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Game",
@@ -796,7 +804,7 @@
     "signature": "public List<net.minecraft.entity.Entity> entities(double range)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 51
+    "line": 52
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Game",
@@ -804,7 +812,7 @@
     "signature": "public net.minecraft.block.BlockState block(BlockPos position)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 57
+    "line": 58
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Game",
@@ -812,7 +820,7 @@
     "signature": "public net.minecraft.util.hit.HitResult crosshair()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 58
+    "line": 59
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Game",
@@ -820,7 +828,7 @@
     "signature": "public List<net.minecraft.entity.LivingEntity> targets()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 59
+    "line": 60
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Game",
@@ -828,7 +836,7 @@
     "signature": "public boolean friend(String name)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 60
+    "line": 61
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Game",
@@ -836,7 +844,7 @@
     "signature": "public float[] rotationTo(Vec3d position)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 61
+    "line": 62
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Game",
@@ -844,7 +852,7 @@
     "signature": "public List<Vec3d> path(Vec3d from, Vec3d to)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 62
+    "line": 63
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Game",
@@ -852,7 +860,7 @@
     "signature": "public net.minecraft.util.ActionResult useItem(net.minecraft.util.Hand hand)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 63
+    "line": 64
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Game",
@@ -860,7 +868,7 @@
     "signature": "public net.minecraft.util.ActionResult useBlock(net.minecraft.util.Hand hand, net.minecraft.util.hit.BlockHitResult hit)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 64
+    "line": 65
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Game",
@@ -868,7 +876,7 @@
     "signature": "public void attack(net.minecraft.entity.Entity entity)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 65
+    "line": 66
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -876,7 +884,7 @@
     "signature": "public final class Movement",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 67
+    "line": 68
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Movement",
@@ -884,7 +892,7 @@
     "signature": "public boolean moving()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 68
+    "line": 69
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Movement",
@@ -892,7 +900,7 @@
     "signature": "public double speed()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 69
+    "line": 70
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Movement",
@@ -900,7 +908,7 @@
     "signature": "public double blocksPerSecond()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 70
+    "line": 71
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Movement",
@@ -908,7 +916,7 @@
     "signature": "public void strafe(double speed)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 71
+    "line": 72
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Movement",
@@ -916,7 +924,7 @@
     "signature": "public void stop()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 72
+    "line": 73
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Movement",
@@ -924,7 +932,7 @@
     "signature": "public void velocity(Vec3d velocity)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 73
+    "line": 74
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -932,7 +940,7 @@
     "signature": "public final class Inventory",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 75
+    "line": 76
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Inventory",
@@ -940,7 +948,7 @@
     "signature": "public List<net.minecraft.item.ItemStack> snapshot()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 77
+    "line": 78
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Inventory",
@@ -948,7 +956,7 @@
     "signature": "public int find(net.minecraft.item.Item item, boolean hotbarOnly)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 81
+    "line": 82
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Inventory",
@@ -956,7 +964,7 @@
     "signature": "public void select(int slot)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 86
+    "line": 87
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Inventory",
@@ -964,7 +972,7 @@
     "signature": "public void click(int slot, int button, net.minecraft.screen.slot.SlotActionType action)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 87
+    "line": 88
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -972,7 +980,7 @@
     "signature": "public final class Modules",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 94
+    "line": 95
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Modules",
@@ -980,7 +988,7 @@
     "signature": "public ModuleHandle register(String id, String name, Category category)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 95
+    "line": 96
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Modules",
@@ -988,7 +996,7 @@
     "signature": "public Module get(String idOrName)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 98
+    "line": 99
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Modules",
@@ -996,7 +1004,119 @@
     "signature": "public List<Module> list()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 99
+    "line": 100
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Modules",
+    "name": "isEnabled",
+    "signature": "public boolean isEnabled(String name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 106
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Modules",
+    "name": "setEnabled",
+    "signature": "public void setEnabled(String name, boolean enabled)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 107
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Modules",
+    "name": "enable",
+    "signature": "public void enable(String name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 108
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Modules",
+    "name": "disable",
+    "signature": "public void disable(String name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 109
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Modules",
+    "name": "toggle",
+    "signature": "public void toggle(String name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 110
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Modules",
+    "name": "getKey",
+    "signature": "public int getKey(String name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 111
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Modules",
+    "name": "setKey",
+    "signature": "public void setKey(String name, int key)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 112
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Modules",
+    "name": "settings",
+    "signature": "public JsonArray settings(String name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 113
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Modules",
+    "name": "getSetting",
+    "signature": "public JsonElement getSetting(String module, String setting)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 116
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Modules",
+    "name": "setSetting",
+    "signature": "public void setSetting(String module, String setting, Object value)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 117
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Modules",
+    "name": "getButton",
+    "signature": "public boolean getButton(String module, String setting)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 120
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Modules",
+    "name": "setButton",
+    "signature": "public void setButton(String module, String setting, boolean value)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 121
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Modules",
+    "name": "getSlider",
+    "signature": "public double getSlider(String module, String setting)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 122
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Modules",
+    "name": "setSlider",
+    "signature": "public void setSlider(String module, String setting, double value)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 123
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -1004,7 +1124,7 @@
     "signature": "public final class Modes",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 101
+    "line": 132
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Modes",
@@ -1012,7 +1132,7 @@
     "signature": "public ModeHandle register(String id, String module, String name)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 102
+    "line": 133
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -1020,7 +1140,7 @@
     "signature": "public final class Commands",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 108
+    "line": 139
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Commands",
@@ -1028,7 +1148,7 @@
     "signature": "public CommandHandle register(String usage, Consumer<String[]> action, String... aliases)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 109
+    "line": 140
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Commands",
@@ -1036,7 +1156,7 @@
     "signature": "public void run(String command)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 112
+    "line": 143
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Commands",
@@ -1044,7 +1164,31 @@
     "signature": "public List<String> complete(String prefix)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 113
+    "line": 144
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi",
+    "name": "Tools",
+    "signature": "public final class Tools",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 146
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Tools",
+    "name": "register",
+    "signature": "public ToolHandle register(String id, String description, JsonObject parameters, Function<JsonObject, JsonElement> callback)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 148
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Tools",
+    "name": "register",
+    "signature": "public ToolHandle register(String id, String description, String parameters, Function<JsonObject, JsonElement> callback)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 151
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -1052,7 +1196,7 @@
     "signature": "public final class Events",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 115
+    "line": 155
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Events",
@@ -1060,7 +1204,7 @@
     "signature": "public <E extends Event> Registration on(Class<E> type, Consumer<E> callback)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 116
+    "line": 156
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Events",
@@ -1068,7 +1212,7 @@
     "signature": "public <E extends Event> Registration on(Class<E> type, int priority, Consumer<E> callback)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 117
+    "line": 157
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Events",
@@ -1076,7 +1220,7 @@
     "signature": "public <E extends Event, T> Registration observe(Class<E> type, Function<E, T> snapshot, Consumer<T> observer)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 127
+    "line": 167
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -1084,7 +1228,7 @@
     "signature": "public final class Tasks",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 131
+    "line": 171
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Tasks",
@@ -1092,7 +1236,7 @@
     "signature": "public void client(Runnable action)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 132
+    "line": 172
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Tasks",
@@ -1100,7 +1244,7 @@
     "signature": "public Registration afterTicks(int ticks, Runnable action)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 136
+    "line": 176
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Tasks",
@@ -1108,7 +1252,7 @@
     "signature": "public <T> CompletableFuture<T> async(Callable<T> action)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 144
+    "line": 184
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -1116,7 +1260,7 @@
     "signature": "public final class Packets",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 155
+    "line": 195
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Packets",
@@ -1124,7 +1268,7 @@
     "signature": "public void send(Packet<?> packet)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 156
+    "line": 196
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Packets",
@@ -1132,7 +1276,111 @@
     "signature": "public void sendWithoutEvents(Packet<?> packet)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 157
+    "line": 197
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Packets",
+    "name": "connected",
+    "signature": "public boolean connected()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 198
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Packets",
+    "name": "sendSequenced",
+    "signature": "public void sendSequenced(net.minecraft.client.network.SequencedPacketCreator creator)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 200
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Packets",
+    "name": "sendSequencedWithoutEvents",
+    "signature": "public void sendSequencedWithoutEvents(net.minecraft.client.network.SequencedPacketCreator creator)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 203
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Packets",
+    "name": "onSend",
+    "signature": "public Registration onSend(Consumer<PacketEvent> callback)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 207
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Packets",
+    "name": "onSend",
+    "signature": "public Registration onSend(int priority, Consumer<PacketEvent> callback)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 208
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Packets",
+    "name": "onSend",
+    "signature": "public Registration onSend(FeatureHandle owner, Consumer<PacketEvent> callback)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 209
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Packets",
+    "name": "onSend",
+    "signature": "public Registration onSend(FeatureHandle owner, int priority, Consumer<PacketEvent> callback)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 210
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Packets",
+    "name": "onReceive",
+    "signature": "public Registration onReceive(Consumer<PacketEvent> callback)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 211
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Packets",
+    "name": "onReceive",
+    "signature": "public Registration onReceive(int priority, Consumer<PacketEvent> callback)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 212
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Packets",
+    "name": "onReceive",
+    "signature": "public Registration onReceive(FeatureHandle owner, Consumer<PacketEvent> callback)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 213
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Packets",
+    "name": "onReceive",
+    "signature": "public Registration onReceive(FeatureHandle owner, int priority, Consumer<PacketEvent> callback)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 214
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Packets",
+    "name": "cancel",
+    "signature": "public void cancel(PacketEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 225
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptApi.Packets",
+    "name": "replace",
+    "signature": "public void replace(PacketEvent event, Packet<?> packet)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
+    "line": 227
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Packets",
@@ -1140,7 +1388,7 @@
     "signature": "public Registration blink(FeatureHandle owner)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 158
+    "line": 232
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Packets",
@@ -1148,7 +1396,7 @@
     "signature": "public Registration delay(FeatureHandle owner)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 159
+    "line": 233
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -1156,7 +1404,7 @@
     "signature": "public Registration timer(FeatureHandle owner, float speed)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 162
+    "line": 236
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -1164,7 +1412,7 @@
     "signature": "public void rotate(RotationRequestEvent event, RotationRequest request)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 167
+    "line": 241
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -1172,7 +1420,7 @@
     "signature": "public final class Render",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 168
+    "line": 242
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Render",
@@ -1180,7 +1428,7 @@
     "signature": "public void text(DrawContext context, String text, int x, int y, int argb)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 169
+    "line": 243
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Render",
@@ -1188,7 +1436,7 @@
     "signature": "public void rect(DrawContext context, int x, int y, int width, int height, int argb)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 170
+    "line": 244
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Render",
@@ -1196,7 +1444,7 @@
     "signature": "public void box(Render3DEvent event, Box box, java.awt.Color color, boolean fill, boolean outline)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 171
+    "line": 245
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -1204,7 +1452,7 @@
     "signature": "public final class Ui",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 173
+    "line": 247
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Ui",
@@ -1212,7 +1460,7 @@
     "signature": "public HudHandle hud(String id, String name, BiConsumer<DrawContext, HudHandle> draw)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 174
+    "line": 248
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Ui",
@@ -1220,7 +1468,7 @@
     "signature": "public WebPageHandle page(String id, String html, Function<JsonElement, JsonElement> messages)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 177
+    "line": 251
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Ui",
@@ -1228,7 +1476,7 @@
     "signature": "public void screen(Screen screen)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 180
+    "line": 254
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Ui",
@@ -1236,7 +1484,7 @@
     "signature": "public void notify(String message)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 184
+    "line": 258
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Ui",
@@ -1244,7 +1492,7 @@
     "signature": "public void open(String route)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 185
+    "line": 259
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -1252,7 +1500,7 @@
     "signature": "public final class Storage",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 187
+    "line": 261
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Storage",
@@ -1260,7 +1508,7 @@
     "signature": "public JsonElement read(String key)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 193
+    "line": 267
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Storage",
@@ -1268,7 +1516,7 @@
     "signature": "public void write(String key, JsonElement value)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 194
+    "line": 268
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -1276,7 +1524,7 @@
     "signature": "public final class Managers",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 196
+    "line": 270
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Managers",
@@ -1284,7 +1532,7 @@
     "signature": "public cn.omix.management.RotationManager rotation()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 197
+    "line": 271
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Managers",
@@ -1292,7 +1540,7 @@
     "signature": "public cn.omix.management.PacketManager packets()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 198
+    "line": 272
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Managers",
@@ -1300,7 +1548,7 @@
     "signature": "public cn.omix.management.TargetManager targets()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 199
+    "line": 273
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Managers",
@@ -1308,7 +1556,7 @@
     "signature": "public cn.omix.management.FriendManager friends()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 200
+    "line": 274
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Managers",
@@ -1316,7 +1564,7 @@
     "signature": "public cn.omix.config.ConfigManager config()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 201
+    "line": 275
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Managers",
@@ -1324,7 +1572,7 @@
     "signature": "public cn.omix.command.CommandManager commands()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 202
+    "line": 276
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.Managers",
@@ -1332,7 +1580,7 @@
     "signature": "public cn.omix.ui.font.FontManager fonts()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 203
+    "line": 277
   },
   {
     "owner": "cn.omix.script.api.ScriptApi",
@@ -1340,7 +1588,7 @@
     "signature": "public final class NativeAccess",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 205
+    "line": 279
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.NativeAccess",
@@ -1348,7 +1596,7 @@
     "signature": "public String method(String owner, String name, String descriptor)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 206
+    "line": 280
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.NativeAccess",
@@ -1356,7 +1604,7 @@
     "signature": "public String field(String owner, String name, String descriptor)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 207
+    "line": 281
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.NativeAccess",
@@ -1364,7 +1612,7 @@
     "signature": "public String descriptor(String descriptor)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 208
+    "line": 282
   },
   {
     "owner": "cn.omix.script.api.ScriptApi.NativeAccess",
@@ -1372,7 +1620,7 @@
     "signature": "public Class<?> type(String yarnName)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptApi.java",
-    "line": 209
+    "line": 283
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1395,7 +1643,7 @@
     "signature": "public void installWith(java.util.function.Supplier<Registration> installer)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 24
+    "line": 25
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1403,7 +1651,7 @@
     "signature": "public ScriptContext(String id, long generation, Path data, ScriptLog log, ScriptSource source)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 26
+    "line": 27
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1411,7 +1659,7 @@
     "signature": "public String id()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 29
+    "line": 30
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1419,7 +1667,7 @@
     "signature": "public long generation()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 30
+    "line": 31
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1427,7 +1675,7 @@
     "signature": "public Path dataDirectory()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 31
+    "line": 32
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1435,7 +1683,7 @@
     "signature": "public boolean active()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 32
+    "line": 33
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1443,7 +1691,7 @@
     "signature": "public void requireActive()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 33
+    "line": 34
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1451,7 +1699,7 @@
     "signature": "public void ensurePreparing()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 34
+    "line": 35
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1459,7 +1707,7 @@
     "signature": "public String qualify(String localId)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 35
+    "line": 36
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1467,7 +1715,7 @@
     "signature": "public <T extends AutoCloseable> T own(T resource)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 41
+    "line": 42
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1475,7 +1723,7 @@
     "signature": "public void release(AutoCloseable resource)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 42
+    "line": 43
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1483,7 +1731,7 @@
     "signature": "public void afterCommit(Runnable starter)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 43
+    "line": 44
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1491,7 +1739,7 @@
     "signature": "public void add(ModuleHandle module)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 44
+    "line": 45
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1499,7 +1747,23 @@
     "signature": "public void add(ModeHandle mode)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 45
+    "line": 46
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptContext",
+    "name": "add",
+    "signature": "public void add(ToolHandle tool)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
+    "line": 47
+  },
+  {
+    "owner": "cn.omix.script.api.ScriptContext",
+    "name": "tools",
+    "signature": "public List<ToolHandle> tools()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
+    "line": 48
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1507,7 +1771,7 @@
     "signature": "public void add(CommandHandle command)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 46
+    "line": 49
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1515,7 +1779,7 @@
     "signature": "public List<ModuleHandle> modules()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 47
+    "line": 50
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1523,7 +1787,7 @@
     "signature": "public List<ModeHandle> modes()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 48
+    "line": 51
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1531,7 +1795,7 @@
     "signature": "public List<CommandHandle> commands()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 49
+    "line": 52
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1539,7 +1803,7 @@
     "signature": "public void prepared()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 50
+    "line": 53
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1547,7 +1811,7 @@
     "signature": "public void validate(ScriptContext old)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 51
+    "line": 54
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1555,7 +1819,7 @@
     "signature": "public void install()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 81
+    "line": 85
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1563,7 +1827,7 @@
     "signature": "public void committed()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 91
+    "line": 96
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1571,7 +1835,7 @@
     "signature": "public void detach()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 92
+    "line": 97
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1579,7 +1843,7 @@
     "signature": "public void invoke(String callback, Runnable action)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 99
+    "line": 104
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1587,7 +1851,7 @@
     "signature": "public void log(Object message)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 102
+    "line": 107
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1595,7 +1859,7 @@
     "signature": "public void assertHealthy()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 103
+    "line": 108
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1603,7 +1867,7 @@
     "signature": "public void error(String callback, Throwable error)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 104
+    "line": 109
   },
   {
     "owner": "cn.omix.script.api.ScriptContext",
@@ -1611,7 +1875,78 @@
     "signature": "public void close()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/script/api/ScriptContext.java",
-    "line": 113
+    "line": 118
+  },
+  {
+    "owner": "cn.omix.script.api.ToolHandle",
+    "name": "ToolHandle",
+    "signature": "cn.omix.script.api.ToolHandle",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/script/api/ToolHandle.java"
+  },
+  {
+    "owner": "cn.omix.script.api.ToolHandle",
+    "name": "ToolHandle",
+    "signature": "public final class ToolHandle",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ToolHandle.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.script.api.ToolHandle",
+    "name": "ToolHandle",
+    "signature": "public ToolHandle(ScriptContext context, String id, String description, JsonObject parameters, Function<JsonObject, JsonElement> callback)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ToolHandle.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.script.api.ToolHandle",
+    "name": "name",
+    "signature": "public String name()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ToolHandle.java",
+    "line": 30
+  },
+  {
+    "owner": "cn.omix.script.api.ToolHandle",
+    "name": "requiresWorld",
+    "signature": "public boolean requiresWorld()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ToolHandle.java",
+    "line": 31
+  },
+  {
+    "owner": "cn.omix.script.api.ToolHandle",
+    "name": "requiresWorld",
+    "signature": "public ToolHandle requiresWorld(boolean value)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ToolHandle.java",
+    "line": 32
+  },
+  {
+    "owner": "cn.omix.script.api.ToolHandle",
+    "name": "available",
+    "signature": "public boolean available()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ToolHandle.java",
+    "line": 33
+  },
+  {
+    "owner": "cn.omix.script.api.ToolHandle",
+    "name": "definition",
+    "signature": "public JsonObject definition()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ToolHandle.java",
+    "line": 34
+  },
+  {
+    "owner": "cn.omix.script.api.ToolHandle",
+    "name": "invoke",
+    "signature": "public JsonObject invoke(JsonObject arguments, boolean inWorld)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/script/api/ToolHandle.java",
+    "line": 44
   },
   {
     "owner": "cn.omix.script.api.WebPageHandle",
@@ -4339,6 +4674,29 @@
     "source": "src/main/java/cn/omix/util/ai/AiGameContext.java"
   },
   {
+    "owner": "cn.omix.util.ai.AiGameToolReference",
+    "name": "AiGameToolReference",
+    "signature": "cn.omix.util.ai.AiGameToolReference",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/ai/AiGameToolReference.java"
+  },
+  {
+    "owner": "cn.omix.util.ai.AiGameToolReference",
+    "name": "AiGameToolReference",
+    "signature": "public final class AiGameToolReference",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/ai/AiGameToolReference.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.ai.AiGameToolReference",
+    "name": "main",
+    "signature": "public static void main(String[] args)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/ai/AiGameToolReference.java",
+    "line": 13
+  },
+  {
     "owner": "cn.omix.util.ai.AiPacketTools",
     "name": "AiPacketTools",
     "signature": "cn.omix.util.ai.AiPacketTools",
@@ -4542,7 +4900,7 @@
     "signature": "public boolean requiresWorld(String name)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/ai/MinecraftGameBridge.java",
-    "line": 44
+    "line": 45
   },
   {
     "owner": "cn.omix.util.ai.MinecraftGameBridge",
@@ -4550,7 +4908,7 @@
     "signature": "public boolean independent(String name, JsonObject args)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/ai/MinecraftGameBridge.java",
-    "line": 45
+    "line": 46
   },
   {
     "owner": "cn.omix.util.ai.MinecraftGameBridge",
@@ -4558,7 +4916,7 @@
     "signature": "public void reset()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/ai/MinecraftGameBridge.java",
-    "line": 49
+    "line": 50
   },
   {
     "owner": "cn.omix.util.ai.MinecraftGameBridge",
@@ -4566,7 +4924,7 @@
     "signature": "public String endpoint()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/ai/MinecraftGameBridge.java",
-    "line": 91
+    "line": 93
   },
   {
     "owner": "cn.omix.util.ai.MinecraftGameBridge",
@@ -4574,7 +4932,7 @@
     "signature": "public String token()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/ai/MinecraftGameBridge.java",
-    "line": 92
+    "line": 94
   },
   {
     "owner": "cn.omix.util.ai.MinecraftGameBridge",
@@ -4582,7 +4940,7 @@
     "signature": "public void close()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/ai/MinecraftGameBridge.java",
-    "line": 93
+    "line": 95
   },
   {
     "owner": "cn.omix.util.animation.Easing",

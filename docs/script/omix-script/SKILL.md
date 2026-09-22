@@ -1,6 +1,6 @@
 ---
 name: omix-script
-description: Develop and debug trusted Java 21 source scripts for the Omix Minecraft 1.21.11 client, using its live MCP or in-game Agent tools. Use for new modules, module modes, commands, HUDs, and client modifications; includes API discovery, source version checks, compile/apply jobs, logs, and screenshots.
+description: Develop and debug trusted Java 21 source scripts for the Omix Minecraft 1.21.11 client, using its live MCP or in-game Agent tools. Use for new modules, module modes, commands, HUDs, custom AI tools, and client modifications; includes API discovery, source version checks, compile/apply jobs, logs, and screenshots.
 ---
 
 # Omix script development
@@ -18,9 +18,13 @@ Read [client knowledge](references/common-knowledge.md) and [API guide](referenc
 7. Inspect script_logs, game state, and script_screenshot. Test the requested behavior and unload/reload cleanup. Report tested behavior and any untested game/platform cases accurately.
 8. Call `release_game_session` when finished using exclusive game tools.
 
+## Custom tools
+
+If the authorized task lacks a suitable tool, read [custom tool rules](references/custom-tools.md) and [CustomTools.java](examples/CustomTools.java). Register `tools.register` in onLoad, check, load, and poll to loaded. Harness discovers it for the next model step; MCP publishes a tool-list change after job polling, so refresh tools/list (or call omix_status first). Call the actual `custom_<id>` tool and verify its returned generation. Registration does not authorize work outside the user's task.
+
 ## Implementation rules
 
-- Register stable local IDs; one source may own multiple modules, modes, commands and HUDs.
+- Register stable local IDs; one source may own multiple modules, modes, commands, HUDs and AI tools.
 - Use feature-owned resources for enable/disable cycles and script-owned resources for a whole generation.
 - Network callbacks remain on their emitting thread; synchronous cancel must happen there. Copy immutable data and schedule world/UI operations through tasks.client.
 - Submit rotations through RotationRequestEvent with a unique owner; preserve movement correction. Use owner-scoped Blink/Delay/Timer; never globally reset another module's resources.

@@ -24,7 +24,7 @@ function fixture(extraTools = []) {
       ] } : url.endsWith('/v1/calls') ? failure ?? { ok: true, value: { status: 'awaiting_sync' } } : { ok: true };
     return new Response(JSON.stringify(value), { status: 200 });
   };
-  const ctx = { tools: { register: tool => tools.set(tool.name, tool) }, systemPrompt: { section: section => sections.push(section) }, on: (key, fn) => hooks.set(key, fn), effect: () => {} };
+  const ctx = { tools: { register: tool => { tools.set(tool.name, tool); return () => { if (tools.get(tool.name) === tool) tools.delete(tool.name); }; } }, systemPrompt: { section: section => sections.push(section) }, on: (key, fn) => hooks.set(key, fn), effect: () => {} };
   return { requests, tools, hooks, sections, ctx, fetcher, setEpoch: n => epoch = n, fail: e => failure = e, holdCalls: () => holdCalls = true };
 }
 
@@ -124,7 +124,7 @@ test('packet tools use dynamic schemas, epoch-bound dispatch and preserve struct
 test('v2 Harness shares one lease across concurrent tools, attaches screenshots and releases it', async () => {
   const requests = [], tools = new Map(), hooks = new Map(), attachments = [];
   const oldFetch = globalThis.fetch, oldEndpoint = process.env.OMIX_AI_BRIDGE, oldToken = process.env.OMIX_AI_TOKEN;
-  const ctx = {tools:{register:tool=>tools.set(tool.name,tool)}, systemPrompt:{section:()=>{}},
+  const ctx = {tools:{register:tool=>{tools.set(tool.name,tool);return ()=>{if(tools.get(tool.name)===tool)tools.delete(tool.name);};}}, systemPrompt:{section:()=>{}},
     on:(name,callback)=>hooks.set(name,callback), effect:()=>{},
     attachments:{saveImage:async image=>{attachments.push(image);return {id:'image-'+attachments.length};}}};
   globalThis.fetch = async (url, options) => {
@@ -152,5 +152,47 @@ test('v2 Harness shares one lease across concurrent tools, attaches screenshots 
     await hooks.get('agent/turn-stopping')?.({agent});globalThis.fetch=oldFetch;
     if(oldEndpoint===undefined)delete process.env.OMIX_AI_BRIDGE;else process.env.OMIX_AI_BRIDGE=oldEndpoint;
     if(oldToken===undefined)delete process.env.OMIX_AI_TOKEN;else process.env.OMIX_AI_TOKEN=oldToken;
+  }
+});
+
+test('new, replaced and unloaded script tools reach the current real Harness prompt and registry', async () => {
+  const {Context} = await import('@deepseek-ai/cordis');
+  const {SystemPrompt} = await import('@deepseek-ai/dsh-system-prompt');
+  const {ToolRuntime} = await import('@deepseek-ai/dsh-tools');
+  const {createScope} = await import('@deepseek-ai/dsh-scope');
+  const ctx = new Context();
+  new SystemPrompt(ctx, {}); new ToolRuntime(ctx);
+  const extra = [], f = fixture(extra);
+  const previous = {fetch:globalThis.fetch, endpoint:process.env.OMIX_AI_BRIDGE, token:process.env.OMIX_AI_TOKEN};
+  globalThis.fetch=f.fetcher; process.env.OMIX_AI_BRIDGE='http://127.0.0.1:8'; process.env.OMIX_AI_TOKEN='fixture';
+  const agent = {session:{id:'dynamic'}};
+  try {
+    await apply(ctx);
+    assert.ok(!(await ctx.systemPrompt.assemble({agent})).tools.some(t=>t.name==='custom_test'));
+    const restrictedKey = {};
+    const restricted = createScope(ctx, restrictedKey);
+    restricted.ctx.tools.restrict({allow:['getcommandsuggestion']});
+    extra.push({name:'custom_test',description:'v1',parameters:{type:'object',properties:{value:{type:'integer',minimum:1}},required:['value'],additionalProperties:false}});
+    const filtered = await ctx.systemPrompt.assemble({agent, scope:restrictedKey});
+    assert.ok(!filtered.tools.some(tool=>tool.name==='custom_test'), 'dynamic registration respects agent restrictions');
+    await restricted.dispose();
+    let assembled = await ctx.systemPrompt.assemble({agent});
+    assert.equal(assembled.tools.find(t=>t.name==='custom_test').description,'v1');
+    assert.ok(ctx.tools.get('custom_test'));
+    const execution = await ctx.tools.execute({name:'custom_test',arguments:{value:2},callId:'custom-dispatch',agent,signal:new AbortController().signal});
+    assert.equal(execution.isError, false, JSON.stringify(execution));
+    assert.deepEqual(execution.value, {status:'awaiting_sync'});
+    extra[0] = {...extra[0],description:'v2',parameters:{type:'object',properties:{text:{type:'string'}},required:['text'],additionalProperties:false}};
+    assembled = await ctx.systemPrompt.assemble({agent});
+    assert.equal(assembled.tools.find(t=>t.name==='custom_test').description,'v2');
+    assert.deepEqual(ctx.tools.get('custom_test').parameters.required,['text']);
+    extra.length=0;
+    assembled = await ctx.systemPrompt.assemble({agent});
+    assert.ok(!assembled.tools.some(t=>t.name==='custom_test'));
+    assert.equal(ctx.tools.get('custom_test'),undefined);
+  } finally {
+    globalThis.fetch=previous.fetch;
+    if(previous.endpoint===undefined)delete process.env.OMIX_AI_BRIDGE;else process.env.OMIX_AI_BRIDGE=previous.endpoint;
+    if(previous.token===undefined)delete process.env.OMIX_AI_TOKEN;else process.env.OMIX_AI_TOKEN=previous.token;
   }
 });

@@ -20,4 +20,13 @@ class ScriptPacketOwnershipTest {
         core.dispatch(old);assertTrue(core.active);core.dispatch(next);assertFalse(core.active);
         core.start();core.start(old);core.dispatch(old);assertTrue(core.active);core.dispatch();assertFalse(core.active);
     }
+    @Test void alreadyCancelledPacketsAreNotReplayedByBuffering() {
+        var core = core(); core.start(new Object());
+        Packet<?> packet = (Packet<?>) java.lang.reflect.Proxy.newProxyInstance(Packet.class.getClassLoader(), new Class<?>[]{Packet.class}, (proxy, method, args) -> null);
+        var cancelled = new cn.omix.event.impl.PacketEvent(packet, cn.omix.event.impl.PacketEvent.Type.Send);
+        cancelled.setCancelled(); core.handle(cancelled); assertTrue(core.packets.isEmpty());
+        var allowed = new cn.omix.event.impl.PacketEvent(packet, cn.omix.event.impl.PacketEvent.Type.Send);
+        core.handle(allowed); assertTrue(allowed.isCancelled()); assertEquals(1, core.packets.size());
+        core.clear();
+    }
 }

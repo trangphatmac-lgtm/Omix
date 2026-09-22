@@ -299,11 +299,25 @@ def installScriptMcp = tasks.register("installScriptMcp", NpmTask) {
     outputs.dir("src/main/java/im/src-script-mcp/node_modules")
 }
 
+def generateGameToolReference = tasks.register("generateGameToolReference", JavaExec) {
+    group = "documentation"
+    description = "Export the shared Minecraft tool schemas for offline MCP discovery."
+    dependsOn tasks.named("compileJava")
+    // Do not use runtimeClasspath/output.resourcesDir: processResources consumes this export.
+    classpath = files(sourceSets.main.output.classesDirs, sourceSets.main.compileClasspath)
+    mainClass = "cn.omix.util.ai.AiGameToolReference"
+    args file("docs/script").absolutePath
+    inputs.files(sourceSets.main.output.classesDirs)
+    outputs.file("docs/script/game-tools.json")
+}
+
 def generateScriptReference = tasks.register("generateScriptReference", Exec) {
+    dependsOn generateGameToolReference, generateClientReference
     commandLine providers.gradleProperty("pythonExecutable").getOrElse(System.getProperty("os.name").toLowerCase().contains("win") ? "python" : "python3"), "tools/generate_script_reference.py"
     inputs.files(fileTree("src/main/java/cn/omix") { include "script/api/**/*.java", "util/**/*.java", "event/impl/*.java", "module/**/*.java", "management/**/*.java", "fisproxy/**/*.java" })
     inputs.file("tools/generate_script_reference.py")
-    inputs.files("docs/rotation-manager.md", "docs/ai-tools.md")
+    inputs.files("docs/rotation-manager.md", "docs/ai-tools.md", "docs/README.md", "docs/commands.md")
+    inputs.files(fileTree("docs/modules") { include "**/*.md" })
     inputs.dir("docs/script")
     outputs.dir("build/generated/script-docs")
 }
@@ -446,7 +460,7 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
             }
             if (zip.getEntry("assets/omix/ai/harness/manifest.json") == null)
                 throw new GradleException("Harness manifest missing")
-            ["developer-kit.zip", "mappings/mappings.tiny", "reference/README.md", "reference/api.json", "reference/tools.json", "reference/omix-script/SKILL.md"].each { resource ->
+            ["developer-kit.zip", "mappings/mappings.tiny", "reference/README.md", "reference/api.json", "reference/tools.json", "reference/game-tools.json", "reference/client-reference.md", "reference/omix-script/SKILL.md"].each { resource ->
                 if (zip.getEntry("assets/omix/script/${resource}") == null) throw new GradleException("Script distribution missing: ${resource}")
             }
             if (zip.getEntry("org/fisproxy/Client.class") == null) {
@@ -482,7 +496,7 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
             }
             def scriptKitFiles = []
             inspectNestedZip("assets/omix/script/developer-kit.zip") { entry -> scriptKitFiles.add(entry.name) }
-            ["mcp/server.mjs", "mcp/reference/tools.json", "skills/omix-script/SKILL.md", "mcp/node_modules/@modelcontextprotocol/server/package.json"].each { name ->
+            ["mcp/server.mjs", "mcp/reference/tools.json", "mcp/reference/game-tools.json", "mcp/reference/client-reference.md", "skills/omix-script/SKILL.md", "mcp/node_modules/@modelcontextprotocol/server/package.json"].each { name ->
                 if (!scriptKitFiles.contains(name)) throw new GradleException("Incomplete developer kit: ${name}")
             }
             def hasScriptDocs = false

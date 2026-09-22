@@ -48,7 +48,7 @@ export async function apply(ctx) {
   }
   const epochs = new Map();
   const owners = new Set();
-  const registered = new Set();
+  const registered = new Map();
   const callIds = new WeakMap();
   const report = error => console.error(`Omix bridge: ${error.message}`);
   const release = async agentId => {
@@ -60,60 +60,79 @@ export async function apply(ctx) {
     owners.delete(agentId);
     leases.delete(agentId);
   };
-  for (const { function: schema } of initial.tools) {
-    registered.add(schema.name);
-    ctx.tools.register({
-      ...schema,
-      output: {
-        schema: {},
-        render: (_args, value) => value?.attachment ? [{type:'image', attachment:value.attachment}, {type:'text',text:value.path}] : [{ type: 'text', text: typeof value === 'string' ? value : JSON.stringify(value) }],
-      },
-      async execute(args, exec) {
-        exec.signal.throwIfAborted();
-        if (!exec.agent) throw new Error('Game tools require an owning Agent');
-        const agentId = identity(exec.agent.session.id);
-        const worldEpoch = epochs.get(agentId);
-        if (worldEpoch === undefined) throw new Error('Game context has not been assembled');
-        // Provider callId values may repeat in later requests. The registry token
-        // identifies this dispatch; retries of the same dispatch keep one bridge ID.
-        let id = exec.token ? callIds.get(exec.token) : undefined;
-        if (!id) {
-          id = randomUUID();
-          if (exec.token) callIds.set(exec.token, id);
-        }
-        const bridgeAgent = prefix === '/v1' ? agentId : await lease(agentId);
-        owners.add(agentId);
-        const heartbeat = prefix === '/v2' ? setInterval(() => {
-          void request(`/v2/agents/${bridgeAgent}/heartbeat`, { method: 'POST' }).catch(report);
-        }, 20000) : null;
-        let cancellation;
-        const cancel = () => {
-          cancellation ??= request(`${prefix}/calls/${id}`, { method: 'DELETE' }).catch(report);
-        };
-        exec.signal.addEventListener('abort', cancel, { once: true });
-        try {
+  const refreshedSnapshot = Symbol("omix refreshed tool snapshot");
+  function syncTools(definitions) {
+    let changed = false;
+    const live = new Set(definitions.map(tool => tool.function.name));
+    for (const [name, entry] of registered) if (!live.has(name)) {
+      entry.dispose(); registered.delete(name); changed = true;
+    }
+    for (const { function: schema } of definitions) {
+      const fingerprint = JSON.stringify(schema);
+      const previous = registered.get(schema.name);
+      if (previous?.fingerprint === fingerprint) continue;
+      changed = true;
+      previous?.dispose(); registered.delete(schema.name);
+      const dispose = ctx.tools.register({
+        ...schema,
+        output: {
+          schema: {},
+          render: (_args, value) => value?.attachment ? [{type:'image', attachment:value.attachment}, {type:'text',text:value.path}] : [{ type: 'text', text: typeof value === 'string' ? value : JSON.stringify(value) }],
+        },
+        async execute(args, exec) {
           exec.signal.throwIfAborted();
-          const result = await request(`${prefix}/calls`, {
-            method: 'POST', signal: exec.signal,
-            body: { id, agentId: bridgeAgent, worldEpoch, name: schema.name, arguments: args },
-          });
-          if (result.value?.mimeType === 'image/png' && result.value.data) {
-            const attachment = await ctx.attachments.saveImage({data:Buffer.from(result.value.data,'base64'),mediaType:'image/png',name:'Minecraft screenshot'});
-            return {path:result.value.path,attachment};
+          if (!exec.agent) throw new Error('Game tools require an owning Agent');
+          const agentId = identity(exec.agent.session.id);
+          const worldEpoch = epochs.get(agentId);
+          if (worldEpoch === undefined) throw new Error('Game context has not been assembled');
+          // Provider callId values may repeat in later requests. The registry token
+          // identifies this dispatch; retries of the same dispatch keep one bridge ID.
+          let id = exec.token ? callIds.get(exec.token) : undefined;
+          if (!id) {
+            id = randomUUID();
+            if (exec.token) callIds.set(exec.token, id);
           }
-          return result.value;
-        } catch (error) {
-          // A network timeout must not leave a queued action behind.
-          cancel();
-          throw error;
-        } finally {
-          if (heartbeat) clearInterval(heartbeat);
-          exec.signal.removeEventListener('abort', cancel);
-          if (cancellation) await cancellation;
-        }
-      },
-    });
+          const bridgeAgent = prefix === '/v1' ? agentId : await lease(agentId);
+          owners.add(agentId);
+          const heartbeat = prefix === '/v2' ? setInterval(() => {
+            void request(`/v2/agents/${bridgeAgent}/heartbeat`, { method: 'POST' }).catch(report);
+          }, 20000) : null;
+          let cancellation;
+          const cancel = () => {
+            cancellation ??= request(`${prefix}/calls/${id}`, { method: 'DELETE' }).catch(report);
+          };
+          exec.signal.addEventListener('abort', cancel, { once: true });
+          try {
+            exec.signal.throwIfAborted();
+            const result = await request(`${prefix}/calls`, {
+              method: 'POST', signal: exec.signal,
+              body: { id, agentId: bridgeAgent, worldEpoch, name: schema.name, arguments: args },
+            });
+            if (result.value?.mimeType === 'image/png' && result.value.data) {
+              const attachment = await ctx.attachments.saveImage({data:Buffer.from(result.value.data,'base64'),mediaType:'image/png',name:'Minecraft screenshot'});
+              return {path:result.value.path,attachment};
+            }
+            return result.value;
+          } catch (error) {
+            // A network timeout must not leave a queued action behind.
+            cancel();
+            throw error;
+          } finally {
+            if (heartbeat) clearInterval(heartbeat);
+            exec.signal.removeEventListener('abort', cancel);
+            if (cancellation) await cancellation;
+          }
+        },
+      });
+      registered.set(schema.name, {fingerprint, dispose});
+    }
+    return changed;
   }
+  syncTools(initial.tools);
+  ctx.effect(() => () => {
+    for (const entry of registered.values()) entry.dispose();
+    registered.clear();
+  });
   ctx.systemPrompt.section({
     name: 'omix-reference', order: 9500, interpolate: false,
     text: 'You are also integrated with Omix Minecraft Client. Reply in the user\'s language. '
@@ -121,14 +140,17 @@ export async function apply(ctx) {
       + 'Use getpacketlogs for packet evidence; do not infer complete traffic from game chat. '
       + 'Server submission does not prove completion. Never reuse container snapshots after an action.\n'
       + 'For in-game development use script_reference, script_api and script_templates before writing Java fragments. Saving is not reloading; inspect script_job until loaded and verify runtime behavior.\n'
+      + 'When an authorized task needs a missing capability, read script_reference custom-tools.md and examples/CustomTools.java; register tools in onLoad, check and load, then call the newly discovered custom_ tool on the next step. Verify the returned generation.\n'
       + reference.text,
   });
   ctx.on('system-prompt/assemble', async (assembly, context, next) => {
+    const snapshot = context[refreshedSnapshot] ?? await request('/v1/snapshot', { signal: context.signal });
+    // Harness collects providers before this waterfall. Reassemble once after a
+    // registry change so ordering, agent restrictions and PTC presentation all apply.
+    if (!context[refreshedSnapshot] && syncTools(snapshot.tools))
+      return ctx.systemPrompt.assemble({...context, [refreshedSnapshot]: snapshot});
     const result = await next();
-    const snapshot = await request('/v1/snapshot', { signal: context.signal });
     if (context.agent) epochs.set(identity(context.agent.session.id), snapshot.worldEpoch);
-    const schemas = new Map(snapshot.tools.map(tool => [tool.function.name, tool.function]));
-    result.tools = result.tools.map(tool => registered.has(tool.name) ? schemas.get(tool.name) ?? tool : tool);
     result.contexts.push({ name: 'omix-game', text: snapshot.gameContext + '\n' + snapshot.toolContext });
     return result;
   });

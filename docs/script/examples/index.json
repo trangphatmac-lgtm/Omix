@@ -1,9 +1,12 @@
 [
   "BehaviorMode",
   "Command",
+  "CustomTools",
   "FisProxyQuery",
   "Hud",
+  "ModuleControl",
   "NativeJava",
+  "PacketControl",
   "PacketObserver",
   "Rotation",
   "SpeedMode",
