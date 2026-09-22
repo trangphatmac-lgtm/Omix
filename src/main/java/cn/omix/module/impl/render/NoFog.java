@@ -14,6 +14,7 @@ public final class NoFog extends Module {
         if (client == null || client.getModuleManager() == null) return false;
 
         NoFog module = client.getModuleManager().getModule(NoFog.class);
-        return module != null && module.isEnabled();
+        if (module != null && module.getScriptMode() != null) return cn.omix.util.script.ModeHost.query(module, cn.omix.script.api.ModeHooks.INTERCEPT, "fog", false);
+        return module != null && module.isNativeBehaviorActive();
     }
 }

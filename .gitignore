@@ -30,3 +30,6 @@ src/main/java/im/src-music-sidecar/node_modules/
 latest.log
 src/main/java/im/src-ai-harness/node_modules/
 src/main/java/im/src-ai-harness/dist/
+
+# Script MCP dependencies
+src/main/java/im/src-script-mcp/node_modules/

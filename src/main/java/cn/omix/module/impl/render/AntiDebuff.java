@@ -24,6 +24,6 @@ public final class AntiDebuff extends Module {
         if (client == null || client.getModuleManager() == null) return false;
 
         AntiDebuff module = client.getModuleManager().getModule(AntiDebuff.class);
-        return module != null && module.isEnabled();
+        return module != null && module.isNativeBehaviorActive();
     }
 }

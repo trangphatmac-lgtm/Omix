@@ -42,7 +42,7 @@ public abstract class MixinCamera {
         }
 
         ViewClip viewClip = client.getModuleManager().getModule(ViewClip.class);
-        if ((viewClip != null && viewClip.isEnabled()) || Freecam.isActive()) {
+        if ((viewClip != null && viewClip.isNativeBehaviorActive()) || Freecam.isActive()) {
             cir.setReturnValue(desiredCameraDistance);
         }
     }

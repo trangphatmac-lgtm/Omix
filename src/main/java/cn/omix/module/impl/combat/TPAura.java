@@ -501,7 +501,7 @@ public final class TPAura extends Module {
     }
 
     public boolean isBlinkAttackActive() {
-        return isEnabled() && blinkAttackActive;
+        return isNativeBehaviorActive() && blinkAttackActive;
     }
 
     private void lockClientPosition() {

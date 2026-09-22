@@ -12,6 +12,9 @@ final class GameToolSessions implements AutoCloseable {
     interface Tools {
         CompletableFuture<JsonElement> execute(String name, JsonObject arguments);
         void reset();
+        default boolean independent(String name) { return false; }
+        default boolean independent(String name, JsonObject args) { return independent(name); }
+        default boolean requiresWorld(String name) { return true; }
     }
     private record Key(String agent, String name, String arguments, long epoch) {}
     private static final class Call {
@@ -51,16 +54,16 @@ final class GameToolSessions implements AutoCloseable {
         }
         if (closed) return failed("Game bridge is stopped.");
         // Never evict execution identities and accidentally repeat a submitted action.
-        if (calls.size() >= 4096) return failed("Game call limit reached; restart the AI service.");
-        if (owner != null && !owner.equals(agent)) return failed("Game tools are busy in another Agent turn.");
-        owner = agent;
+        if (calls.values().stream().filter(call -> call.key.agent.equals(agent)).count() >= 2048 || calls.size() >= 16384) return failed("Game call limit reached; release this Agent session.");
+        if (!tools.independent(name, args) && owner != null && !owner.equals(agent)) return failed("Game tools are busy in another Agent turn.");
+        if (!tools.independent(name, args)) owner = agent;
         Call call = new Call(key);
         calls.put(id, call);
         JsonObject detached = args.deepCopy();
         tail = tail.handle((ignored, error) -> null).thenComposeAsync(ignored -> {
             if (call.result.isDone()) return CompletableFuture.completedFuture(null);
             try {
-                if (epoch.getAsLong() != generation) throw new IllegalStateException("World changed; refresh game context before calling tools.");
+                if (tools.requiresWorld(name) && epoch.getAsLong() != generation) throw new IllegalStateException("World changed; refresh game context before calling tools.");
                 call.running = tools.execute(name, detached);
                 if (call.result.isCancelled()) call.running.cancel(false);
                 return call.running.handle((value, error) -> {
@@ -94,15 +97,21 @@ final class GameToolSessions implements AutoCloseable {
     }
 
     synchronized void release(String agent) {
-        if (!agent.equals(owner)) return;
         for (Call call : calls.values()) if (call.key.agent.equals(agent) && !call.result.isDone()) call.cancel();
+        if (!agent.equals(owner)) return;
         owner = null;
         tail = tail.handleAsync((ignored, error) -> { tools.reset(); return null; }, executor);
+    }
+
+    synchronized void forget(String agent) {
+        release(agent);
+        calls.entrySet().removeIf(entry -> entry.getValue().key.agent.equals(agent) && entry.getValue().result.isDone());
     }
 
     @Override public synchronized void close() {
         closed = true;
         if (owner != null) release(owner);
+        for (Call call : calls.values()) if (!call.result.isDone()) call.cancel();
     }
 
     private static <T> CompletableFuture<T> failed(String message) {

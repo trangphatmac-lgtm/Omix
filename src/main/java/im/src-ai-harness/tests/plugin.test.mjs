@@ -120,3 +120,37 @@ test('packet tools use dynamic schemas, epoch-bound dispatch and preserve struct
     if (oldToken === undefined) delete process.env.OMIX_AI_TOKEN; else process.env.OMIX_AI_TOKEN = oldToken;
   }
 });
+
+test('v2 Harness shares one lease across concurrent tools, attaches screenshots and releases it', async () => {
+  const requests = [], tools = new Map(), hooks = new Map(), attachments = [];
+  const oldFetch = globalThis.fetch, oldEndpoint = process.env.OMIX_AI_BRIDGE, oldToken = process.env.OMIX_AI_TOKEN;
+  const ctx = {tools:{register:tool=>tools.set(tool.name,tool)}, systemPrompt:{section:()=>{}},
+    on:(name,callback)=>hooks.set(name,callback), effect:()=>{},
+    attachments:{saveImage:async image=>{attachments.push(image);return {id:'image-'+attachments.length};}}};
+  globalThis.fetch = async (url, options) => {
+    requests.push({url,options});
+    const value = url.endsWith('/snapshot') ? {protocolVersion:2,worldEpoch:4,gameContext:'menu',tools:[{function:{name:'script_screenshot',description:'screenshot',parameters:{type:'object',properties:{}}}}]}
+      : url.endsWith('/reference') ? {text:'reference'} : url.endsWith('/sessions') ? {agentId:'leased-agent'}
+      : url.endsWith('/calls') ? {ok:true,value:{path:'/screenshot.png',mimeType:'image/png',data:Buffer.from('png bytes').toString('base64')}} : {ok:true};
+    await Promise.resolve(); return new Response(JSON.stringify(value));
+  };
+  process.env.OMIX_AI_BRIDGE='http://127.0.0.1:8';process.env.OMIX_AI_TOKEN='fixture';
+  const agent={session:{id:'studio'}};
+  try {
+    await apply(ctx);
+    const assembly={tools:[...tools.values()],contexts:[]};
+    await hooks.get('system-prompt/assemble')(assembly,{agent},async()=>assembly);
+    const tool=tools.get('script_screenshot');
+    const results=await Promise.all([1,2].map(n=>tool.execute({}, {agent,token:Symbol('call-'+n),signal:new AbortController().signal})));
+    assert.equal(requests.filter(r=>r.url.endsWith('/v2/sessions')).length,1);
+    assert.equal(attachments.length,2);assert.equal(attachments[0].mediaType,'image/png');assert.ok(Buffer.isBuffer(attachments[0].data));
+    assert.equal(tool.output.render({},results[0])[0].type,'image');assert.equal(results[0].data,undefined);
+    for(const request of requests.filter(r=>r.url.endsWith('/v2/calls'))) assert.equal(JSON.parse(request.options.body).agentId,'leased-agent');
+    await hooks.get('agent/turn-stopping')({agent});
+    assert.ok(requests.some(r=>r.url.endsWith('/v2/agents/leased-agent/release')));
+  } finally {
+    await hooks.get('agent/turn-stopping')?.({agent});globalThis.fetch=oldFetch;
+    if(oldEndpoint===undefined)delete process.env.OMIX_AI_BRIDGE;else process.env.OMIX_AI_BRIDGE=oldEndpoint;
+    if(oldToken===undefined)delete process.env.OMIX_AI_TOKEN;else process.env.OMIX_AI_TOKEN=oldToken;
+  }
+});

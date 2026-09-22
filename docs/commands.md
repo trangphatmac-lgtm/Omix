@@ -14,6 +14,12 @@
 
 AI 游戏工具禁止调用 `.ai`、`.chat`，防止自我循环或在调用过程中重启自身。
 
+## .script [open/list/create/check/load/reload/unload/status/logs/mcp]
+
+别名 `.scripts`。`open` 在聊天框提交结束后打开 Render 分类的 Script Studio（`.script` 不带参数同样打开）。`list` 列出磁盘和运行状态；`create <id> [template]` 从模板创建 Java 片段，默认 Sprint；`check/load/reload <id>` 提交后台任务并显示 job ID；`unload <id>` 注销运行版本并保留源码；`status` 显示状态；`logs [id]` 查看结构化日志；`mcp` 准备外部 Node 启动配置并显示文件位置。
+
+保存和 check 都不会运行代码。需要在面板或 script_job 查询任务终态；load/reload 成功后以 generation 和 runningHash 为准。首次映射准备可能较慢，不要连续重复提交。外部 Agent 应优先使用版本校验的脚本工具。完整文档见 [Java 脚本](script/README.md)。动态命令也会进入 `.help`、聊天补全和 AI 客户端命令发现。
+
 ## .toggle <module>
 
 别名 `.t`。反转指定模块开关；`module` 为模块名，空格可省略。没有显式 true/false 参数。

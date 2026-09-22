@@ -1,5 +1,7 @@
 <script lang="ts">
     import {onMount} from "svelte";
+    import ScriptPage from "./ScriptPage.svelte";
+    import ScriptScreen from "./ScriptScreen.svelte";
     import ClickGuiScreen from "./ClickGuiScreen.svelte";
 
     function currentRoute() {
@@ -17,6 +19,10 @@
 
 {#if route === "clickgui"}
     <ClickGuiScreen />
+{:else if route === "script-page"}
+    <ScriptPage />
+{:else if route === "scripts"}
+    <ScriptScreen />
 {:else}
     <p>AI 已迁移到独立的 DeepSeek Harness 界面。请在游戏内打开 AIScreen。</p>
 {/if}

@@ -29,7 +29,7 @@ public abstract class MixinClientCommonNetworkHandler {
         if (Client.instance == null || Client.instance.getModuleManager() == null) return;
 
         NoBan module = Client.instance.getModuleManager().getModule(NoBan.class);
-        if (module != null && module.isEnabled()) {
+        if (module != null && module.isNativeBehaviorActive()) {
             module.handleServerDisconnect(packet.reason());
             ci.cancel();
         }
@@ -40,7 +40,7 @@ public abstract class MixinClientCommonNetworkHandler {
         if (Client.instance == null || Client.instance.getModuleManager() == null) return;
 
         NoBan module = Client.instance.getModuleManager().getModule(NoBan.class);
-        if (module != null && module.isEnabled() && module.shouldSuppressDisconnect(info)) {
+        if (module != null && module.isNativeBehaviorActive() && module.shouldSuppressDisconnect(info)) {
             ci.cancel();
         }
     }
@@ -50,7 +50,7 @@ public abstract class MixinClientCommonNetworkHandler {
         if (Client.instance == null || Client.instance.getModuleManager() == null) return;
 
         ResourcepackSpoof module = Client.instance.getModuleManager().getModule(ResourcepackSpoof.class);
-        if (module == null || !module.isEnabled()) return;
+        if (module == null || !module.isNativeBehaviorActive()) return;
 
         module.spoofed();
         UUID id = packet.id();

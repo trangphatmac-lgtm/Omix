@@ -43,14 +43,10 @@ public abstract class MixinMinecraftClient implements IMinecraft {
         Client.instance.init();
     }
 
-    @Inject(method = "stop", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;close()V", shift = At.Shift.AFTER))
-    private void stop(CallbackInfo ci) {
-        instance.shutdown();
-    }
-
     @Inject(method = "stop", at = @At("HEAD"))
-    private void omix$stopWebUiBeforeGraphics(CallbackInfo ci) {
-        WebUiRuntime.getInstance().stop();
+    private void omix$shutdownBeforeGraphics(CallbackInfo ci) {
+        // Save enabled states, then release scripts while the world and renderer still exist.
+        if (Client.instance != null) Client.instance.shutdown();
     }
 
     @Inject(method = "tick", at = @At("HEAD"))

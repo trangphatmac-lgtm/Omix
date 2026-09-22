@@ -1,6 +1,6 @@
 # Omix Client 使用参考
 
-本参考依据仓库中实际注册和执行的源码编写，覆盖 14 个内置命令入口、通用模块命令、92 个模块、444 个配置/选项组条目（包括一个动态频道模板），以及 22 个 Agent 工具。命令拼写和模块名称保留源码原样，介绍使用中文。
+本参考依据仓库中实际注册和执行的源码编写，覆盖内置命令、通用模块命令、94 个内置模块，以及 22 个游戏工具和 14 个脚本开发工具。脚本运行时还可动态增加模块、模式与命令。命令拼写和模块名称保留源码原样，介绍使用中文。
 
 - [命令及每个选项](commands.md)
 - [Combat 战斗模块](modules/combat.md)
@@ -10,6 +10,8 @@
 - [Render 画面与界面模块](modules/render.md)
 - [World 世界交互模块](modules/world.md)
 - [AI Tools 及每个参数](ai-tools.md)
+- [Java 脚本、开发面板与 MCP](script/README.md)
+- [Agent 脚本开发技能](script/omix-script/SKILL.md)
 - [RotationManager 开发说明](rotation-manager.md)
 
 ## 配置共通规则
@@ -50,3 +52,5 @@ AI 应先区分说明中的默认值和当前状态；需要现况时调用读�
 命令和 AI 工具介绍直接维护 `docs/commands.md`、`docs/ai-tools.md`。修改注册、子命令或工具参数时同步更新说明和覆盖测试。Agent 直接加载这些 Markdown 文件，没有单独维护的 Prompt 文档副本。
 
 AI 架构、运行时和插件开发见 [DeepSeek Harness AI](ai-system.md)。
+
+脚本 SDK 使用 `generateScriptReference` 从实际声明生成 API、模式入口、schema 校验和离线 HTML，随 JAR 导出统一 Agent 技能包。详见 [脚本验证记录](script/validation.md)。

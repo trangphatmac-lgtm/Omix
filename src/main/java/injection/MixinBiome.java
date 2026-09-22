@@ -16,7 +16,7 @@ public class MixinBiome implements IMinecraft {
     private void hasPrecipitation(CallbackInfoReturnable<Boolean> cir) {
         WorldTweaks module = instance.getModuleManager().getModule(WorldTweaks.class);
         
-        if (module.isEnabled()) {
+        if (module.isNativeBehaviorActive()) {
             if (module.weather.is("Rain") || module.weather.is("Snow")) {
                 cir.setReturnValue(true);
             }
@@ -27,7 +27,7 @@ public class MixinBiome implements IMinecraft {
     private void isCold(BlockPos pos, int seaLevel, CallbackInfoReturnable<Boolean> cir) {
         WorldTweaks module = instance.getModuleManager().getModule(WorldTweaks.class);
         
-        if (module.isEnabled()) {
+        if (module.isNativeBehaviorActive()) {
             if (module.weather.is("Snow")) {
                 cir.setReturnValue(true);
             }

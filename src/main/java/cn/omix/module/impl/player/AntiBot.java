@@ -25,6 +25,7 @@ public class AntiBot extends Module {
     }
 
     public boolean isBot(LivingEntity entity) {
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.IS_BOT, entity, false);
         if (entity instanceof PlayerEntity player) {
             if (sleep.getValue() && player.isSleeping()) {
                 return true;

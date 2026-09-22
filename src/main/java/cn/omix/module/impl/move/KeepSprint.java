@@ -62,6 +62,7 @@ public class KeepSprint extends Module {
     }
 
     public boolean shouldKeepSprint() {
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.INTERCEPT, "shouldKeepSprint", false);
         if (mc.player == null) return false;
 
         return switch (mode.getValue()) {
@@ -75,16 +76,18 @@ public class KeepSprint extends Module {
     }
 
     public boolean isAttackNoSlow() {
-        return isEnabled() && shouldKeepSprint();
+        return isNativeBehaviorActive() && shouldKeepSprint();
     }
 
     public boolean shouldOverrideHitSlowdown() {
-        return isEnabled()
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.INTERCEPT, "shouldOverrideHitSlowdown", false);
+        return isNativeBehaviorActive()
                 && (mode.is("Vanilla") || mode.is("Grim") || mode.is("Universal"))
                 && shouldKeepSprint();
     }
 
     public double getSlowFactor() {
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.SLOWDOWN, 0.6, 0.6);
         return switch (mode.getValue()) {
             case "Legit" -> 0.6;
             case "Grim" -> getGrimFactor();
@@ -98,7 +101,7 @@ public class KeepSprint extends Module {
      * calls this before it emits AttackEvent or sends the attack packet.
      */
     public boolean tryBufferAttack(Entity target) {
-        if (!isEnabled() || !isBufferMode() || replayingBufferedAttack || target == null) {
+        if (!isNativeBehaviorActive() || !isBufferMode() || replayingBufferedAttack || target == null) {
             return false;
         }
 
@@ -129,7 +132,7 @@ public class KeepSprint extends Module {
 
     /** Returns true when the caller should defer this attack to stop sprinting first. */
     public boolean prepareAttack() {
-        if (!isEnabled() || !mode.is("Universal") || mc.player == null || velocityTicks < 8) {
+        if (!isNativeBehaviorActive() || !mode.is("Universal") || mc.player == null || velocityTicks < 8) {
             return false;
         }
         if (groundTicks == 1) return true;
@@ -142,7 +145,8 @@ public class KeepSprint extends Module {
     }
 
     public boolean shouldCancelJump() {
-        return isEnabled() && mode.is("Universal") && sprintCancelled
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.INTERCEPT, "shouldCancelJump", false);
+        return isNativeBehaviorActive() && mode.is("Universal") && sprintCancelled
                 && mc.player != null && !mc.player.isSprinting();
     }
 

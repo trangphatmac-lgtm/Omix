@@ -123,7 +123,7 @@ public final class Freecam extends Module {
         if (client == null || client.getModuleManager() == null) return false;
 
         Freecam freecam = client.getModuleManager().getModule(Freecam.class);
-        return freecam != null && freecam.isEnabled() && canFly;
+        return freecam != null && freecam.isNativeBehaviorActive() && canFly;
     }
 
     public static Vec3d getCameraPosition(float tickDelta) {

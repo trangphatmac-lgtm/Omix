@@ -56,7 +56,7 @@ public final class Backtrack extends Module {
     }
 
     public boolean isBacktracking() {
-        return isEnabled() && freezing;
+        return isNativeBehaviorActive() && freezing;
     }
 
     @Override

@@ -54,7 +54,7 @@ public abstract class MixinGameRenderer implements IMinecraft {
 
     @Inject(at = @At("HEAD"), method = "tiltViewWhenHurt(Lnet/minecraft/client/util/math/MatrixStack;F)V", cancellable = true)
     private void tiltViewWhenHurt(MatrixStack matrices, float tickProgress, CallbackInfo ci) {
-        if (instance.getModuleManager().getModule(NoHurtCam.class).isEnabled()) {
+        if (instance.getModuleManager().getModule(NoHurtCam.class).isNativeBehaviorActive()) {
             ci.cancel();
         }
     }

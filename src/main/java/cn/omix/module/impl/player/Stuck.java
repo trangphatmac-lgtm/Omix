@@ -106,7 +106,7 @@ public final class Stuck extends Module {
             return;
         }
 
-        if (!isEnabled()) return;
+        if (!isNativeBehaviorActive()) return;
 
         if (!mode.is("Delay")
                 || mc.player == null
@@ -315,14 +315,14 @@ public final class Stuck extends Module {
         endCriticalsFreeze(true);
         if (!clutchFreezeOverride) {
             clutchFreezeOverride = true;
-            clutchWasEnabled = isEnabled();
+            clutchWasEnabled = isNativeBehaviorActive();
             clutchPreviousMode = mode.getValue();
             clutchPreviousStuckTick = stuckTick;
             stuckTick = 0;
         }
 
         mode.setValue("Freeze");
-        if (isEnabled()) {
+        if (isNativeBehaviorActive()) {
             syncMode();
         } else {
             setEnabled(true);
@@ -334,14 +334,14 @@ public final class Stuck extends Module {
         if (mc.player == null || clutchFreezeOverride) return;
         if (!criticalsFreezeOverride) {
             criticalsFreezeOverride = true;
-            criticalsWasEnabled = isEnabled();
+            criticalsWasEnabled = isNativeBehaviorActive();
             criticalsPreviousMode = mode.getValue();
             criticalsPreviousStuckTick = stuckTick;
             stuckTick = 0;
         }
         criticalsWaitTicks = ticks;
         mode.setValue("Freeze");
-        if (isEnabled()) syncMode();
+        if (isNativeBehaviorActive()) syncMode();
         else setEnabled(true);
     }
 
@@ -357,14 +357,14 @@ public final class Stuck extends Module {
         criticalsPreviousMode = null;
         criticalsPreviousStuckTick = 0;
 
-        if (!remainEnabled && isEnabled()) {
+        if (!remainEnabled && isNativeBehaviorActive()) {
             // An override may have been edited to Delay in the GUI; cleanup
             // must still finish immediately, without Delay's deferred disable.
             super.setEnabled(false);
         }
         mode.setValue(previousMode);
         if (remainEnabled) {
-            if (isEnabled()) syncMode();
+            if (isNativeBehaviorActive()) syncMode();
             else setEnabled(true);
             if (mode.is("Freeze") || mode.is("Cancel")) stuckTick = previousTick;
         }
@@ -378,7 +378,7 @@ public final class Stuck extends Module {
         if (!clutchFreezeOverride) return;
 
         boolean shouldRemainEnabled = restoreEnabledState && clutchWasEnabled;
-        if (!shouldRemainEnabled && isEnabled()) {
+        if (!shouldRemainEnabled && isNativeBehaviorActive()) {
             setEnabled(false);
         }
 
@@ -389,7 +389,7 @@ public final class Stuck extends Module {
         clutchFreezeOverride = false;
 
         if (shouldRemainEnabled) {
-            if (isEnabled()) {
+            if (isNativeBehaviorActive()) {
                 syncMode();
             } else {
                 setEnabled(true);

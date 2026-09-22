@@ -20,7 +20,10 @@ public final class WebUiScreen extends Screen {
 
     public WebUiScreen(Screen parent, WebScreenType type) {
         super(Text.literal("Omix WebUI — " + type.routeName()));
-        this.parent = parent;
+        // Web panels share a runtime: navigating between them replaces the panel.
+        // Returning to a retired WebUiScreen would leave its browser hidden forever.
+        this.parent = parent instanceof WebUiScreen web ? web.parent
+                : parent instanceof net.minecraft.client.gui.screen.ChatScreen ? null : parent;
         this.type = type;
     }
 
@@ -180,9 +183,10 @@ public final class WebUiScreen extends Screen {
     }
 
     private void finishClose() {
-        WebUiRuntime.getInstance().closeScreen();
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.currentScreen == this) {
+            // An old ClickGUI animation must not close a newer panel.
+            WebUiRuntime.getInstance().closeScreen();
             client.setScreen(parent);
         }
     }

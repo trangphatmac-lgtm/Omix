@@ -20,6 +20,10 @@ public final class MainPathFinder implements IMinecraft {
     private MainPathFinder() {}
 
     public static ArrayList<Vec3d> computePath(Vec3d from, Vec3d to) {
+        var host = instance.getModuleManager().getModule(cn.omix.module.impl.exploits.PathFinder.class);
+        if (host.getScriptMode() != null) return new ArrayList<>(cn.omix.util.script.ModeHost.query(host,
+                cn.omix.script.api.ModeHooks.COMPUTE_PATH, new cn.omix.script.api.ModeHooks.PathQuery(from, to),
+                new cn.omix.script.api.ModeHooks.PathResult(java.util.List.of())).points());
         if (!isFinite(from) || !isFinite(to) || mc.world == null) return new ArrayList<>();
 
         if (cn.omix.module.impl.exploits.PathFinder.mode.is("Linear")) {

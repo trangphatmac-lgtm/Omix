@@ -48,7 +48,7 @@ public final class Reach extends Module {
 
     @EventTarget
     public void onPacket(PacketEvent event) {
-        if (!isEnabled() || event.getType() != PacketEvent.Type.Send) return;
+        if (!isNativeBehaviorActive() || event.getType() != PacketEvent.Type.Send) return;
 
         if (!mode.is("Grim")) {
             if (event.getPacket() instanceof TeleportConfirmC2SPacket) {
@@ -112,15 +112,16 @@ public final class Reach extends Module {
     }
 
     public double getRange(double vanillaRange) {
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.ENTITY_REACH, vanillaRange, vanillaRange);
         // Both client range mixins use this method. Grim must leave both vanilla values intact.
-        if (!isEnabled() || !mode.is("Normal") || mc.player == null || mc.world == null || mc.player.isSpectator()) {
+        if (!isNativeBehaviorActive() || !mode.is("Normal") || mc.player == null || mc.world == null || mc.player.isSpectator()) {
             return vanillaRange;
         }
         return getSampledRange(vanillaRange);
     }
 
     public boolean shouldBlockAttack(Entity target) {
-        if (!isEnabled() || !mode.is("Grim") || mc.player == null || mc.world == null
+        if (!isNativeBehaviorActive() || !mode.is("Grim") || mc.player == null || mc.world == null
                 || mc.player.isSpectator() || target == null) return false;
 
         var pending = teleports.peek(mc.getNetworkHandler(), mc.world, mc.player);

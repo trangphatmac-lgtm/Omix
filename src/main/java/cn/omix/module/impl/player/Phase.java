@@ -115,7 +115,7 @@ public final class Phase extends Module {
         // changes own the state; a new lifecycle invalidates queued signals.
         Object receivedSession = heypixelSession;
         mc.execute(() -> {
-            if (!isEnabled() || !mode.is("Heypixel") || receivedSession != heypixelSession) return;
+            if (!isNativeBehaviorActive() || !mode.is("Heypixel") || receivedSession != heypixelSession) return;
             syncMode();
             if (subtitle) heypixelState.onSubtitle(text);
             else heypixelState.onTitle(text);
@@ -143,7 +143,7 @@ public final class Phase extends Module {
     public void onMotion(MotionEvent event) {
         if (!event.isPre()) return;
         syncMode();
-        if (!isEnabled()) return;
+        if (!isNativeBehaviorActive()) return;
         var player = mc.player;
         var level = mc.world;
         if (player == null || level == null) return;
@@ -216,7 +216,7 @@ public final class Phase extends Module {
     @EventTarget
     public void onUpdate(UpdateEvent event) {
         syncMode();
-        if (!isEnabled()) return;
+        if (!isNativeBehaviorActive()) return;
         var player = mc.player;
         if (player == null || mc.world == null) {
             resetState();

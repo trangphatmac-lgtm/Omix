@@ -1,0 +1,299 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "script_status",
+      "description": "List scripts, disk hashes, running hashes and generations. Does not imply new source is running.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "script_read",
+      "description": "Read one Java source fragment and its expectedHash for conflict-free writes.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": ""
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "script_write",
+      "description": "Save a Java source fragment. Does NOT load/reload it. expectedHash must match the read hash, or empty for a new file.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": ""
+          },
+          "source": {
+            "type": "string",
+            "description": ""
+          },
+          "expectedHash": {
+            "type": "string",
+            "description": ""
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "expectedHash"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "script_delete",
+      "description": "Delete source only; does not unload a running generation.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": ""
+          },
+          "expectedHash": {
+            "type": "string",
+            "description": ""
+          }
+        },
+        "required": [
+          "id",
+          "expectedHash"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "script_templates",
+      "description": "List built-in compilable examples and templates.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "script_create",
+      "description": "Create a new script from a template, without loading it.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": ""
+          },
+          "template": {
+            "type": "string",
+            "description": ""
+          }
+        },
+        "required": [
+          "id",
+          "template"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "script_action",
+      "description": "Manually check, load, reload or unload a script. Compilation returns a job; poll script_job and inspect state/diagnostics.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": ""
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "check",
+              "load",
+              "reload",
+              "unload"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "action"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "script_job",
+      "description": "Read background compilation/application status. loaded identifies an actually applied generation.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "description": ""
+          }
+        },
+        "required": [
+          "jobId"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "script_cancel",
+      "description": "Cancel a queued/compiling job before application. Cannot undo already applied actions.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "description": ""
+          }
+        },
+        "required": [
+          "jobId"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "script_logs",
+      "description": "Read bounded structured script logs using a non-consuming cursor.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": ""
+          },
+          "after": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "script_api",
+      "description": "Search actual API declarations, events, utilities and mode hooks. Read results before writing scripts.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": ""
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "script_reference",
+      "description": "Read one bundled Markdown/JSON reference. Call without path for the documentation index.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": ""
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "script_evaluate",
+      "description": "Compile and execute a temporary Java method body on the client thread; must return an Object (or null). Trusted code; side effects are real. Poll script_job.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": ""
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "script_screenshot",
+      "description": "Capture the current game frame for visual verification. Returns a PNG path and base64 image.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    }
+  }
+]

@@ -29,8 +29,10 @@ public class Client implements IMinecraft {
     public static Logger logger;
 
     public static String name = "Omix";
-    public static String version = "260921-SNAPSHOT";
+    public static String version = "260922-SNAPSHOT";
 
+    private cn.omix.script.ScriptManager scriptManager;
+    private cn.omix.util.ai.MinecraftGameBridge gameBridge;
     private EventManager eventManager;
     private FisProxyManager fisProxyManager;
     private ModuleManager moduleManager;
@@ -64,13 +66,23 @@ public class Client implements IMinecraft {
         packetManager = new PacketManager();
         clickGuiScreen = new ClickGuiScreen();
         AccountManager.init();
+        try {
+            scriptManager = new cn.omix.script.ScriptManager(mc.runDirectory.toPath().resolve("Omix/scripts"));
+            scriptManager.start();
+            gameBridge = new cn.omix.util.ai.MinecraftGameBridge();
+        } catch (Exception error) { logger.error("Script/development service failed", error); }
         WebUiRuntime.getInstance().start();
     }
 
+    private boolean shuttingDown;
     public void shutdown() {
+        if (shuttingDown) return;
+        shuttingDown = true;
+        if (configManager != null) configManager.saveAll();
+        if (gameBridge != null) gameBridge.close();
+        if (scriptManager != null) scriptManager.close();
         WebUiRuntime.getInstance().stop();
-        configManager.saveAll();
-        fisProxyManager.close();
+        if (fisProxyManager != null) fisProxyManager.close();
         AccountManager.save();
     }
 }

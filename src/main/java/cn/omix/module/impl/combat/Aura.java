@@ -105,7 +105,7 @@ public class Aura extends Module {
 
     @EventTarget
     public void onRotationRequest(RotationRequestEvent event) {
-        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (!isNativeBehaviorActive() || mc.player == null || mc.world == null) return;
         if (target == null || rotations == null) return;
         event.submit(RotationRequest.builder(getName(), rotations, 400)
                 .speed(rotationSpeed.getValue())

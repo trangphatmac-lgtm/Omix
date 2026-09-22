@@ -22,7 +22,7 @@ public class Util implements IMinecraft{
     public void log(String message) {
         if (Client.instance != null && Client.instance.getModuleManager() != null) {
             Notify notify = Client.instance.getModuleManager().getModule(Notify.class);
-            if (notify != null && notify.isEnabled()) {
+            if (notify != null && notify.isNativeBehaviorActive()) {
                 notify.post(message);
                 return;
             }

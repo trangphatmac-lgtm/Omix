@@ -1,0 +1,472 @@
+[
+  {
+    "module": "AntiAim",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/combat/AntiAim.java"
+  },
+  {
+    "module": "Aura",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/combat/Aura.java"
+  },
+  {
+    "module": "AutoTotem",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/combat/AutoTotem.java"
+  },
+  {
+    "module": "AutoWeapon",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/combat/AutoWeapon.java"
+  },
+  {
+    "module": "Backtrack",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/combat/Backtrack.java"
+  },
+  {
+    "module": "Criticals",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/combat/Criticals.java"
+  },
+  {
+    "module": "CrossbowExploit",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/combat/CrossbowExploit.java"
+  },
+  {
+    "module": "FastBow",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/combat/FastBow.java"
+  },
+  {
+    "module": "FastEat",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/combat/FastEat.java"
+  },
+  {
+    "module": "MaceDamageBooster",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/combat/MaceDamageBooster.java"
+  },
+  {
+    "module": "Reach",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/combat/Reach.java"
+  },
+  {
+    "module": "TPAura",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/combat/TPAura.java"
+  },
+  {
+    "module": "TargetStrafe",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/combat/TargetStrafe.java"
+  },
+  {
+    "module": "Velocity",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/combat/Velocity.java"
+  },
+  {
+    "module": "Blink",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/exploits/Blink.java"
+  },
+  {
+    "module": "BrandSpoofer",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/exploits/BrandSpoofer.java"
+  },
+  {
+    "module": "ChannelHider",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/exploits/ChannelHider.java"
+  },
+  {
+    "module": "Disabler",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/exploits/Disabler.java"
+  },
+  {
+    "module": "NoBan",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/exploits/NoBan.java"
+  },
+  {
+    "module": "PacketsLogger",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/exploits/PacketsLogger.java"
+  },
+  {
+    "module": "PathFinder",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/exploits/PathFinder.java"
+  },
+  {
+    "module": "Regen",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/exploits/Regen.java"
+  },
+  {
+    "module": "ResourcepackSpoof",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/exploits/ResourcepackSpoof.java"
+  },
+  {
+    "module": "AntiVoid",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/move/AntiVoid.java"
+  },
+  {
+    "module": "Derp",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/move/Derp.java"
+  },
+  {
+    "module": "FastWeb",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/move/FastWeb.java"
+  },
+  {
+    "module": "Fly",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/move/Fly.java"
+  },
+  {
+    "module": "GuiMove",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/move/GuiMove.java"
+  },
+  {
+    "module": "Jesus",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/move/Jesus.java"
+  },
+  {
+    "module": "KeepSprint",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/move/KeepSprint.java"
+  },
+  {
+    "module": "LongJump",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/move/LongJump.java"
+  },
+  {
+    "module": "NoFall",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/move/NoFall.java"
+  },
+  {
+    "module": "NoJumpDelay",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/move/NoJumpDelay.java"
+  },
+  {
+    "module": "NoSlowDown",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/move/NoSlowDown.java"
+  },
+  {
+    "module": "Parkour",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/move/Parkour.java"
+  },
+  {
+    "module": "Speed",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/move/Speed.java"
+  },
+  {
+    "module": "Spider",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/move/Spider.java"
+  },
+  {
+    "module": "Sprint",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/move/Sprint.java"
+  },
+  {
+    "module": "Step",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/move/Step.java"
+  },
+  {
+    "module": "Strafe",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/move/Strafe.java"
+  },
+  {
+    "module": "Timer",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/move/Timer.java"
+  },
+  {
+    "module": "AntiBot",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/player/AntiBot.java"
+  },
+  {
+    "module": "AntiHunger",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/player/AntiHunger.java"
+  },
+  {
+    "module": "AntiLava",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/player/AntiLava.java"
+  },
+  {
+    "module": "AutoArmor",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/player/AutoArmor.java"
+  },
+  {
+    "module": "AutoBlockIn",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/player/AutoBlockIn.java"
+  },
+  {
+    "module": "AutoTool",
+    "selector": "Implementation",
+    "source": "src/main/java/cn/omix/module/impl/player/AutoTool.java"
+  },
+  {
+    "module": "ChestArua",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/player/ChestArua.java"
+  },
+  {
+    "module": "ChestStealer",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/player/ChestStealer.java"
+  },
+  {
+    "module": "Freecam",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/player/Freecam.java"
+  },
+  {
+    "module": "InventoryManager",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/player/InventoryManager.java"
+  },
+  {
+    "module": "LightningTracker",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/player/LightningTracker.java"
+  },
+  {
+    "module": "LookTP",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/player/LookTP.java"
+  },
+  {
+    "module": "MCF",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/player/MCF.java"
+  },
+  {
+    "module": "Phase",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/player/Phase.java"
+  },
+  {
+    "module": "Stuck",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/player/Stuck.java"
+  },
+  {
+    "module": "Targets",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/player/Targets.java"
+  },
+  {
+    "module": "Teams",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/player/Teams.java"
+  },
+  {
+    "module": "AIScreen",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/AIScreen.java"
+  },
+  {
+    "module": "Animation",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/Animation.java"
+  },
+  {
+    "module": "AntiDebuff",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/AntiDebuff.java"
+  },
+  {
+    "module": "BedESP",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/render/BedESP.java"
+  },
+  {
+    "module": "Brightness",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/render/Brightness.java"
+  },
+  {
+    "module": "Chams",
+    "selector": "Render Mode",
+    "source": "src/main/java/cn/omix/module/impl/render/Chams.java"
+  },
+  {
+    "module": "ChestESP",
+    "selector": "Implementation",
+    "source": "src/main/java/cn/omix/module/impl/render/ChestESP.java"
+  },
+  {
+    "module": "ClickGui",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/ClickGui.java"
+  },
+  {
+    "module": "DamageTint",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/DamageTint.java"
+  },
+  {
+    "module": "ESP",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/ESP.java"
+  },
+  {
+    "module": "HUD",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/render/HUD.java"
+  },
+  {
+    "module": "ItemPhysics",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/ItemPhysics.java"
+  },
+  {
+    "module": "KillEffect",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/KillEffect.java"
+  },
+  {
+    "module": "ModuleList",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/ModuleList.java"
+  },
+  {
+    "module": "MoreParticles",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/MoreParticles.java"
+  },
+  {
+    "module": "MusicPlayer",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/MusicPlayer.java"
+  },
+  {
+    "module": "NickHider",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/NickHider.java"
+  },
+  {
+    "module": "NoFog",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/NoFog.java"
+  },
+  {
+    "module": "NoHurtCam",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/NoHurtCam.java"
+  },
+  {
+    "module": "Notify",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/render/Notify.java"
+  },
+  {
+    "module": "Scripts",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/Scripts.java"
+  },
+  {
+    "module": "TargetHUD",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/render/TargetHUD.java"
+  },
+  {
+    "module": "Tracers",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/Tracers.java"
+  },
+  {
+    "module": "Trajectories",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/Trajectories.java"
+  },
+  {
+    "module": "ViewClip",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/ViewClip.java"
+  },
+  {
+    "module": "Xray",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/render/Xray.java"
+  },
+  {
+    "module": "Zoom",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/Zoom.java"
+  },
+  {
+    "module": "AutoGG",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/world/AutoGG.java"
+  },
+  {
+    "module": "AutoL",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/world/AutoL.java"
+  },
+  {
+    "module": "AutoPlay",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/world/AutoPlay.java"
+  },
+  {
+    "module": "AutoScreenshot",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/world/AutoScreenshot.java"
+  },
+  {
+    "module": "GhostHand",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/world/GhostHand.java"
+  },
+  {
+    "module": "QuickMacro",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/world/QuickMacro.java"
+  },
+  {
+    "module": "Scaffold",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/world/Scaffold.java"
+  },
+  {
+    "module": "ScaffoldX",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/world/ScaffoldX.java"
+  },
+  {
+    "module": "WorldTweaks",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/world/WorldTweaks.java"
+  }
+]

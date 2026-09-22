@@ -44,6 +44,8 @@ public final class ModuleButton implements IMinecraft {
     }
 
     private void syncComponents() {
+        components.removeIf(component -> !module.getValues().contains(component.getValue()));
+        componentValues.retainAll(module.getValues());
         for (Value value : module.getValues()) {
             if (componentValues.contains(value)) continue;
 

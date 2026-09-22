@@ -3,3 +3,5 @@
       name: './plugin/omix.mjs'
     - id: omix-workspace
       name: './plugin/workspace/index.mjs'
+    - id: omix-session-activation
+      name: './plugin/session-activation.mjs'

@@ -57,7 +57,7 @@ public abstract class MixinHeldItemRenderer implements IMinecraft {
         if (mc.player == null) return;
         Animation animation = instance.getModuleManager().getModule(Animation.class);
 
-        if (animation.isEnabled() && !animation.equipProgress.getValue()) {
+        if (animation.isNativeBehaviorActive() && !animation.equipProgress.getValue()) {
             ItemStack mainStack = mc.player.getMainHandStack();
             ItemStack offStack = mc.player.getOffHandStack();
             this.mainHand = mainStack;
@@ -75,7 +75,7 @@ public abstract class MixinHeldItemRenderer implements IMinecraft {
         Animation animation = instance.getModuleManager().getModule(Animation.class);
         Aura aura = instance.getModuleManager().getModule(Aura.class);
 
-        if (!animation.isEnabled()) {
+        if (!animation.isNativeBehaviorActive()) {
             return;
         }
 
@@ -341,7 +341,7 @@ public abstract class MixinHeldItemRenderer implements IMinecraft {
     private void swingArm(float swingProgress, float equipProgress, MatrixStack matrices, int armX, Arm arm) {
         Animation animation = instance.getModuleManager().getModule(Animation.class);
 
-        if (!animation.isEnabled() || animation.swingMode.is("Vanilla")) {
+        if (!animation.isNativeBehaviorActive() || animation.swingMode.is("Vanilla")) {
             float f = -0.4F * MathHelper.sin(MathHelper.sqrt(swingProgress) * (float) Math.PI);
             float g = 0.2F * MathHelper.sin(MathHelper.sqrt(swingProgress) * ((float) Math.PI * 2F));
             float h = -0.2F * MathHelper.sin(swingProgress * (float) Math.PI);

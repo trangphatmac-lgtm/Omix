@@ -50,14 +50,14 @@ public class NoSlowDown extends Module implements GrimNoSlowState.Host {
     public static NoSlowDown activeGrim() {
         if (instance == null || instance.getModuleManager() == null) return null;
         NoSlowDown module = instance.getModuleManager().getModule(NoSlowDown.class);
-        if (module == null || !module.isEnabled()) return null;
+        if (module == null || !module.isNativeBehaviorActive()) return null;
         if (module.mode.is("Grim Full")) return module;
         module.reset();
         return null;
     }
 
     public boolean allowGrimSprint() {
-        return isEnabled() && mode.is("Grim Full") && keepSprint.getValue() && cancelSlowdown();
+        return isNativeBehaviorActive() && mode.is("Grim Full") && keepSprint.getValue() && cancelSlowdown();
     }
 
     @Override

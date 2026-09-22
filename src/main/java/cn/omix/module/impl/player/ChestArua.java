@@ -94,7 +94,7 @@ public final class ChestArua extends Module {
 
     @EventTarget
     public void onRotationRequest(RotationRequestEvent event) {
-        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (!isNativeBehaviorActive() || mc.player == null || mc.world == null) return;
         if (!isRotationActive()) return;
         boolean manual = isManualRotationActive();
         event.submit(RotationRequest.builder(getName(), rotations, manual ? 1000 : 300)
@@ -208,8 +208,9 @@ public final class ChestArua extends Module {
      * when this method returns {@code true}.
      */
     public boolean handleManualUse() {
-        if (isEnabled() && (interactions.suppressOtherUse() || isSprintSuppressed())) return true;
-        if (!isEnabled() || !mode.is("Manual") || !canSearch()) return false;
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.INTERCEPT, "handleManualUse", false);
+        if (isNativeBehaviorActive() && (interactions.suppressOtherUse() || isSprintSuppressed())) return true;
+        if (!isNativeBehaviorActive() || !mode.is("Manual") || !canSearch()) return false;
         if (manualPending) return true;
 
         ChestTarget closest = findClosestChest();
@@ -225,10 +226,12 @@ public final class ChestArua extends Module {
     }
 
     public boolean isRotationActive() {
-        return isEnabled() && canSearch() && shouldRotate() && target != null && rotations != null;
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.INTERCEPT, "isRotationActive", false);
+        return isNativeBehaviorActive() && canSearch() && shouldRotate() && target != null && rotations != null;
     }
 
     public boolean isManualRotationActive() {
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.INTERCEPT, "isManualRotationActive", false);
         return isRotationActive() && mode.is("Manual") && manualPending;
     }
 
@@ -244,6 +247,7 @@ public final class ChestArua extends Module {
     }
 
     public boolean isSprintSuppressed() {
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.INTERCEPT, "isSprintSuppressed", false);
         return sprintPlayer != null && sprintPlayer == mc.player;
     }
 
@@ -269,7 +273,8 @@ public final class ChestArua extends Module {
     }
 
     public boolean shouldBlockOtherInteraction() {
-        return isEnabled() && !performingInteraction && interactions.suppressOtherUse();
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.INTERCEPT, "shouldBlockOtherInteraction", false);
+        return isNativeBehaviorActive() && !performingInteraction && interactions.suppressOtherUse();
     }
 
     @EventTarget

@@ -50,7 +50,7 @@ public class AntiLava extends Module {
 
     @EventTarget
     public void onRotationRequest(RotationRequestEvent event) {
-        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (!isNativeBehaviorActive() || mc.player == null || mc.world == null) return;
         if (rotations == null) return;
         event.submit(RotationRequest.builder(getName(), rotations, 800)
                 .movementCorrection(movementFix.getValue() ? MovementCorrection.Silent : MovementCorrection.None)

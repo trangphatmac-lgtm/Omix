@@ -41,7 +41,7 @@ import java.util.*;
 
 @Getter
 public class ModuleManager implements IMinecraft {
-    private final Map<String, Module> moduleMap = new LinkedHashMap<>();
+    private final Map<String, Module> moduleMap = new java.util.concurrent.ConcurrentSkipListMap<>();
 
     public ModuleManager() {
         instance.getEventManager().register(this);
@@ -50,6 +50,7 @@ public class ModuleManager implements IMinecraft {
                 new HUD(),
                 new ClickGui(),
                 new AIScreen(),
+                new Scripts(),
                 new MusicPlayer(),
                 new ScaffoldX(),
                 new Scaffold(),
@@ -148,7 +149,7 @@ public class ModuleManager implements IMinecraft {
     public void addModules(Module... modulesArray) {
         for (Module module : modulesArray) {
             reflectModuleValues(module);
-            moduleMap.put(module.getClass().getSimpleName(), module);
+            moduleMap.put(module.getId(), module);
         }
     }
 
@@ -161,7 +162,7 @@ public class ModuleManager implements IMinecraft {
                         field.setAccessible(true);
                         Object valueObject = field.get(module);
                         if (valueObject != null) {
-                            module.getValues().add((Value) valueObject);
+                            if (!module.getValues().contains(valueObject)) module.getValues().add((Value) valueObject);
                         }
                     }
                 }
@@ -177,12 +178,30 @@ public class ModuleManager implements IMinecraft {
         moduleList.sort(Comparator.comparing(Module::getName));
         moduleMap.clear();
         for (Module module : moduleList) {
-            moduleMap.put(module.getClass().getSimpleName(), module);
+            moduleMap.put(module.getId(), module);
         }
     }
 
     public <T extends Module> T getModule(Class<T> clazz) {
         return clazz.cast(moduleMap.get(clazz.getSimpleName()));
+    }
+
+    public Module find(String idOrName) {
+        return moduleMap.values().stream().filter(module -> module.getId().equalsIgnoreCase(idOrName)
+                || module.getName().equalsIgnoreCase(idOrName)).findFirst().orElse(null);
+    }
+
+    public void validateRegistration(Module module, java.util.Set<Module> replacing) {
+        if (moduleMap.values().stream().anyMatch(old -> !replacing.contains(old)
+                && (old.getId().equalsIgnoreCase(module.getId()) || cn.omix.util.script.ScriptFailures.commandName(old.getName()).equals(cn.omix.util.script.ScriptFailures.commandName(module.getName())))))
+            throw new IllegalArgumentException("Module id or name already exists: " + module.getName());
+    }
+
+    public cn.omix.script.api.Registration register(Module module) {
+        validateRegistration(module, java.util.Set.of());
+        reflectModuleValues(module);
+        moduleMap.put(module.getId(), module);
+        return () -> { if (moduleMap.remove(module.getId(), module)) module.setEnabled(false); };
     }
 
     @EventTarget

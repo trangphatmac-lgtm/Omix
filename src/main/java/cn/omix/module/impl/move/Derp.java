@@ -78,7 +78,7 @@ public final class Derp extends Module {
     @EventTarget
     @EventPriority(1000)
     public void onRenderRotation(RenderRotationEvent event) {
-        if (!isEnabled() || !clientOnly.getValue() || mc.player == null || mc.world == null) return;
+        if (!isNativeBehaviorActive() || !clientOnly.getValue() || mc.player == null || mc.world == null) return;
         if (rotations == null) return;
         // Run after RotationManager; this event changes model rendering only.
         event.setRotation(rotations);
@@ -87,7 +87,7 @@ public final class Derp extends Module {
 
     @EventTarget
     public void onRotationRequest(RotationRequestEvent event) {
-        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (!isNativeBehaviorActive() || mc.player == null || mc.world == null) return;
         if (clientOnly.getValue() || rotations == null) return;
         event.submit(RotationRequest.builder(getName(), rotations, 900).speed(0).build());
     }

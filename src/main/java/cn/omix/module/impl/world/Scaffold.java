@@ -136,7 +136,7 @@ public class Scaffold extends Module {
 
     @EventTarget
     public void onRotationRequest(RotationRequestEvent event) {
-        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (!isNativeBehaviorActive() || mc.player == null || mc.world == null) return;
         if (rotationMode.is("On tick") || !isCanRotation() || rotations == null) return;
         event.submit(RotationRequest.builder(getName(), rotations, 500)
                 .speed(getRotationSpeed())

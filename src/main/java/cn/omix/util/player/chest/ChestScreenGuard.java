@@ -39,7 +39,7 @@ public final class ChestScreenGuard implements IMinecraft {
         if (instance == null || instance.getModuleManager() == null) return false;
         ChestArua aura = instance.getModuleManager().getModule(ChestArua.class);
         ChestStealer stealer = instance.getModuleManager().getModule(ChestStealer.class);
-        return aura != null && aura.isEnabled() || stealer != null && stealer.isEnabled();
+        return aura != null && aura.isNativeBehaviorActive() || stealer != null && stealer.isNativeBehaviorActive();
     }
 
     public static boolean suppressInput() {

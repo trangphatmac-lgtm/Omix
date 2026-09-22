@@ -24,31 +24,33 @@ CEF 直接访问 Harness 独立的本机动态端口。启动 token 通过上游
 
 `.ai` 的浏览器链接采用同一认证流程：可见聊天文本只包含本机地址，完整认证 URL 放在链接点击事件中；命令不依赖 CEF 页面就绪，也不会自动打开浏览器。服务重启后重新执行 `.ai` 获取新链接。
 
-`cn.omix.util.ai` 管理运行时、独立 Java HTTP 桥接、游戏工具及容器状态。`cn.omix.util.node` 管理共享 Node 下载与平台识别。Node 插件位于 `src/main/java/im/src-ai-harness/plugin/omix.mjs`，通过 Cordis 注册现有 22 个工具和每步游戏上下文；详见 [AI Tools](ai-tools.md)。`plugin/workspace/` 是独立的 Host/Client 双端插件，使用上游 workspaceRegistry 注册目录、uiWorkspace 选择工作区，不修改 Harness 核心。游戏工具在 Minecraft 主线程执行，模型与网络请求在进程/工作线程中运行。
+`cn.omix.util.ai` 管理运行时、独立 Java HTTP 桥接、游戏工具及容器状态。`cn.omix.util.node` 管理共享 Node 下载与平台识别。Node 插件位于 `src/main/java/im/src-ai-harness/plugin/omix.mjs`，通过 Cordis 注册原有 22 个游戏工具及 14 个脚本开发工具和每步游戏上下文；详见 [AI Tools](ai-tools.md)。`plugin/workspace/` 是独立的 Host/Client 双端插件，使用上游 workspaceRegistry 注册目录、uiWorkspace 选择工作区，不修改 Harness 核心。游戏工具在 Minecraft 主线程执行，模型与网络请求在进程/工作线程中运行。
 
-桥接仅监听 127.0.0.1，要求启动时生成的 bearer token、精确 Host，拒绝浏览器 Origin，不提供 CORS。凭据仅通过子进程环境传入插件。
+桥接仅监听 127.0.0.1，要求启动时生成的 bearer token、精确 Host，拒绝浏览器 Origin，不提供 CORS。Harness 凭据通过子进程环境传入；外部 MCP 通过游戏目录中权限受限的 Omix/development/bridge.json 发现实例。桥由 Client 独立管理，随客户端启动/关闭，重启 Harness 不终止外部会话。
 
 | 接口 | 内容 |
 | --- | --- |
-| GET /v1/snapshot | protocolVersion=1、worldEpoch、tools、gameContext、toolContext |
-| GET /v1/reference | 与 JAR 内模块、命令、工具参考一致的 text |
-| POST /v1/calls | id、agentId、worldEpoch、name、arguments；返回 ok/value 或 ok=false/error |
-| DELETE /v1/calls/{id} | 取消执行或为尚未到达的调用保留取消记录 |
-| POST /v1/agents/{id}/release | 取消未完成调用、失效容器快照、释放游戏工具占用 |
+| POST /v2/sessions | 建立独立 Agent 租约，返回 agentId 与 leaseMillis |
+| POST /v2/agents/{id}/heartbeat | 续租（60 秒）；过期清理独占与调用占用 |
+| GET /v2/snapshot | protocolVersion=2、instanceId、worldEpoch、tools、gameContext、toolContext |
+| GET /v2/reference | 与 JAR 内模块、命令、工具参考一致的 text |
+| POST /v2/calls | id、agentId、worldEpoch、name、arguments；返回 ok/value 或 ok=false/error |
+| DELETE /v2/calls/{id} | 取消执行或为尚未到达的调用保留取消记录 |
+| POST /v2/agents/{id}/release | 取消未完成调用、失效容器快照、释放游戏工具占用 |
 
-调用 ID 不重复执行；最近 256 次之外的已完成结果可过期，但执行标识继续保留。单次服务生命周期最多 4096 个调用，达到后需 `.ai restart`；这是防止重复提交与无界内存增长的边界。单次 HTTP 工具等待 30 秒；插件网络超时也会发送取消请求。多会话可使用通用能力，但同时只能一个 Agent 回合调用游戏工具。世界/玩家实例变化后拒绝旧 worldEpoch。
+调用 ID 不重复执行；最近 256 次之外的已完成结果可过期，但执行标识继续保留。每会话最多 2048 个调用、总计最多 16384 个；关闭会话清理记录和占用，v2 不依赖重启 Harness 释放配额。v1 路由保留兼容测试/旧插件，新插件统一使用 v2 租约。单次 HTTP 工具等待 30 秒；插件网络超时也会发送取消请求。多会话可使用通用能力，但同时只能一个 Agent 回合调用游戏工具。世界/玩家实例变化后拒绝旧 worldEpoch。
 
 ## 专用插件开发
 
 ### PacketsLogger 管线
 
-`AiPacketTools` 将 `configurepacketslogger`、`getpacketlogs`、`clearpacketlogs` 注册到现有 Java schema；Harness 插件通过 snapshot 自动发现，并沿用 POST /v1/calls 的鉴权、worldEpoch、调用去重、Agent 独占与主线程执行，不新增网络端口或工具传输协议。系统上下文提供工具使用说明，包正文仅在显式读取工具结果中返回，不自动注入每一步上下文。
+`AiPacketTools` 将 `configurepacketslogger`、`getpacketlogs`、`clearpacketlogs` 注册到现有 Java schema；Harness 插件通过 snapshot 自动发现，并沿用 POST /v2/calls 的鉴权、worldEpoch、调用去重、Agent 独占与主线程执行，不新增网络端口或工具传输协议。系统上下文提供工具使用说明，包正文仅在显式读取工具结果中返回，不自动注入每一步上下文。
 
 捕获仍通过 PacketsLogger 的收发观察、方向过滤、名单和移动包精简；`PacketLogBuffer` 同时写入聊天队列与 `PacketLogHistory` 的 512 条环形历史。Chat Output 可关闭，聊天排队/消费不影响 AI 历史。每条只保留有界文本快照，不把 Packet、世界或 ByteBuf 对象留在历史中；日志模块的会话身份使用弱引用，停止采集不会强持有旧世界。
 
 历史读取是非消费式分页，游标包含独立会话标识与序号，返回溢出及缺失计数；关闭模块保留历史，重启捕获、显式清空或世界/玩家/连接变化使历史和游标失效。模块关闭期间的会话变化在工具读取前复核。配置操作只应用通过完整校验的部分更新，立即发布过滤快照；工具回合结束保持用户模块设置，Agent 临时诊断需自行恢复本次更改。返回的包内容始终作为不可信游戏数据处理，不保证服务器已接受发送。
 
-第一版直接使用 Harness 插件体系，没有另建 MCP 服务。Java 提供游戏 schema 与参数校验；插件返回 canonical JSON value，让工具显示为 Harness 通用卡片。未来可以增加游戏服务封装、独立工具包或 Client 插件卡片。安装其他插件应保持与锁定的 Harness 版本兼容。
+同一 Java schema、参数校验与后台编译服务同时提供给 Harness、Script Studio 和独立 stdio MCP。Node MCP 使用官方 SDK，离线文档可用，并自动发现已连接客户端的游戏工具；配置与 Agent 技能包见 [MCP 开发指南](script/mcp.md)。插件返回 canonical JSON value 或截图附件，供 Harness 工具卡片显示。安装其他插件应保持与锁定的 Harness 版本兼容。
 
 运行时中的 `launch.mjs plugin <pnpm 参数>` 使用内置 pnpm 管理 `omix` profile。例如，以已缓存 Node 执行 `launch.mjs plugin add <插件包>`，并设置 `DSH_HOME` 为该游戏目录的 `Omix/ai/home`。安装插件需要网络时由 pnpm 访问网络；安装不改变内置 Harness 版本。Omix 核心插件由启动 overlay 挂载，用户插件保存在独立 profile 内。
 
@@ -68,3 +70,7 @@ Gradle 的 installAiHarness、bundleAiHarness、testAiHarness 接入构建流程
 - macOS ARM64 从最终归档解压后，实际完成 Harness 启动、token/cookie 认证、未认证 API 拒绝、会话写入后重新打开、PTY 输出和图像处理检查。
 - 独立浏览器实际显示首次引导、模型配置入口、工作区、设置和插件列表；Omix 插件显示为已启用。测试使用隔离 profile，没有使用真实模型密钥。
 - 六平台 CI 尚未执行。开发游戏客户端已启动，但 CEF 依赖准备未完成，尚未验收游戏内中文输入、流式输出、工具卡片、权限弹窗、文件选择、缩放、Esc/隐藏恢复，以及 ClickGUI/音乐的游戏内交互回归。这些仍是发布验收项。
+
+### 会话激活并发修复（2026-09-22）
+
+锁定的 Harness 0.1.6-alpha.1 对创建／接管会话与历史读取触发的恢复使用独立的去重表，两条路径并发时可能发生 `SessionAlreadyOwnedError`。Omix 的 `plugin/session-activation.mjs` 在 sessionController 内按会话 ID 串行执行激活，保留原来的工作区、预设和子代理校验；不同会话和已经开始的模型运行仍可并发。失败不堵塞后续重试，插件卸载时拒绝尚未开始的激活并恢复原方法。此适配器依赖锁定版本的内部接口，升级 Harness 必须运行 `session-activation.test.mjs` 并复核接口；不删除历史记录或绕过持久化写锁。

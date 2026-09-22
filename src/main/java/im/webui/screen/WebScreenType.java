@@ -6,6 +6,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public record WebScreenType(String routeName, boolean inGame) {
     private static final Map<String, WebScreenType> TYPES = new ConcurrentHashMap<>();
 
+    public static final WebScreenType SCRIPT_PAGE = register(new WebScreenType("script-page", true));
+    public static final WebScreenType SCRIPTS = register(new WebScreenType("scripts", true));
     public static final WebScreenType AI = register(new WebScreenType("ai", true));
     public static final WebScreenType CLICK_GUI = register(new WebScreenType("clickgui", true));
     public static final WebScreenType MUSIC = register(new WebScreenType("music", true));

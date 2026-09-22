@@ -114,8 +114,9 @@ public class HUD extends Module {
         float height = font20.getHeight();
 
         for (Module module : instance.getModuleManager().getModuleMap().values()) {
-            if (module instanceof Drag drag && drag.isEnabled()) {
-                drag.render(context);
+            if (module instanceof Drag drag && drag.isEnabled() && !(drag instanceof cn.omix.util.script.ScriptHud)) {
+                if (drag.getScriptMode() != null) cn.omix.util.script.ModeHost.query(drag, cn.omix.script.api.ModeHooks.RENDER_HUD, context, false);
+                else drag.render(context);
                 drag.updatePos();
             }
         }
@@ -254,7 +255,7 @@ public class HUD extends Module {
         if (mc.player == null || mc.world == null || hudMode.is("Classic")) return;
 
         for (Module module : instance.getModuleManager().getModuleMap().values()) {
-            if (module instanceof Drag drag && drag.isEnabled()) {
+            if (module instanceof Drag drag && drag.isEnabled() && !(drag instanceof cn.omix.util.script.ScriptHud)) {
                 drag.onChatGUI(event.getMouseX(), event.getMouseY(), GLFW.glfwGetMouseButton(mc.getWindow().getHandle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS);
             }
         }

@@ -32,7 +32,7 @@ public abstract class MixinLivingEntity implements IMinecraft {
                 || instance == null || instance.getModuleManager() == null) return;
 
         Reach reach = instance.getModuleManager().getModule(Reach.class);
-        if (reach == null || !reach.isEnabled()) return;
+        if (reach == null || !reach.isNativeBehaviorActive()) return;
         AttackRangeComponent original = cir.getReturnValue();
         float maxRange = (float) reach.getRange(original.maxRange());
         float maxCreativeRange = (float) reach.getRange(original.maxCreativeRange());
@@ -65,7 +65,7 @@ public abstract class MixinLivingEntity implements IMinecraft {
     public void getHandSwingDuration(CallbackInfoReturnable<Integer> cir) {
         Animation animation = instance.getModuleManager().getModule(Animation.class);
 
-        if (animation.isEnabled()) {
+        if (animation.isNativeBehaviorActive()) {
             cir.setReturnValue(6 + animation.swingSpeed.getValue().intValue());
         }
     }

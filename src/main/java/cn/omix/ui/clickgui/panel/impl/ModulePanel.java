@@ -33,6 +33,10 @@ public final class ModulePanel extends Panel {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float globalAlpha) {
+        var current = instance.getModuleManager().getModuleMap().values().stream().filter(module -> module.getCategory() == category).toList();
+        buttons.removeIf(button -> !current.contains(button.getModule()));
+        for (var module : current) if (buttons.stream().noneMatch(button -> button.getModule() == module)) buttons.add(new ModuleButton(this, module));
+        buttons.sort(java.util.Comparator.comparing(button -> button.getModule().getName()));
         if (dragging) {
             x = mouseX - dragOffsetX;
             y = mouseY - dragOffsetY;

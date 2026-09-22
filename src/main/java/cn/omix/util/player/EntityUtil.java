@@ -30,6 +30,7 @@ public class EntityUtil implements IMinecraft {
         if (!(entity instanceof LivingEntity livingEntity)) return false;
 
         Targets targets = instance.getModuleManager().getModule(Targets.class);
+        if (targets.getScriptMode() != null) return cn.omix.util.script.ModeHost.query(targets, cn.omix.script.api.ModeHooks.SELECT_TARGET, new cn.omix.script.api.ModeHooks.TargetQuery(livingEntity, checkBot, checkTeams, checkFriend, checkSelf), false);
         Teams teams = instance.getModuleManager().getModule(Teams.class);
         AntiBot antiBot = instance.getModuleManager().getModule(AntiBot.class);
 

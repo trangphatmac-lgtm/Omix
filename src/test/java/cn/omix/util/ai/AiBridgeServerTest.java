@@ -34,6 +34,28 @@ class AiBridgeServerTest {
             http.send(request, HttpResponse.BodyHandlers.ofString()); assertEquals(1, calls.get());
         }
     }
+    @Test void v2RequiresIssuedLeasesAndSeparatesCompetingAgents() throws Exception {
+        var sessions = new GameToolSessions(Runnable::run, () -> 0, new GameToolSessions.Tools() {
+            public CompletableFuture<JsonElement> execute(String name, JsonObject args) { return CompletableFuture.completedFuture(new JsonPrimitive("done")); }
+            public void reset() { }
+        });
+        try (var server = new AiBridgeServer(sessions, () -> CompletableFuture.completedFuture(new JsonObject()), () -> "reference")) {
+            var http=HttpClient.newHttpClient();
+            java.util.function.BiFunction<String,String,JsonObject> post=(path,body)->{
+                try { return JsonParser.parseString(http.send(HttpRequest.newBuilder(URI.create(server.endpoint()+path)).header("Authorization","Bearer "+server.token()).POST(HttpRequest.BodyPublishers.ofString(body)).build(),HttpResponse.BodyHandlers.ofString()).body()).getAsJsonObject(); }
+                catch(Exception error){throw new RuntimeException(error);}
+            };
+            String a=post.apply("/v2/sessions","{}").get("agentId").getAsString(), b=post.apply("/v2/sessions","{}").get("agentId").getAsString();
+            java.util.function.BiFunction<String,String,String> body=(id,agent)->"{\"id\":\""+id+"\",\"agentId\":\""+agent+"\",\"worldEpoch\":0,\"name\":\"game\",\"arguments\":{}}";
+            assertFalse(post.apply("/v2/calls",body.apply("0","unissued")).get("ok").getAsBoolean());
+            assertTrue(post.apply("/v2/calls",body.apply("1",a)).get("ok").getAsBoolean());
+            assertFalse(post.apply("/v2/calls",body.apply("2",b)).get("ok").getAsBoolean());
+            assertTrue(post.apply("/v2/agents/"+a+"/heartbeat","{}").get("ok").getAsBoolean());
+            post.apply("/v2/agents/"+a+"/release","{}");
+            assertFalse(post.apply("/v2/calls",body.apply("3",a)).get("ok").getAsBoolean());
+            assertTrue(post.apply("/v2/calls",body.apply("2",b)).get("ok").getAsBoolean());
+        }
+    }
     @Test void archivePathsAndLogsRejectEscapesAndSecrets() throws Exception {
         var root = java.nio.file.Path.of("/tmp/harness");
         assertThrows(java.io.IOException.class, () -> HarnessBundle.safePath(root, "../outside"));

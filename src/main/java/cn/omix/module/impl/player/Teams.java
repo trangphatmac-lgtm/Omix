@@ -30,6 +30,7 @@ public class Teams extends Module {
     }
 
     public boolean isTeam(LivingEntity entity) {
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.IS_TEAM, entity, false);
         if (mc.player == null || mode.is("None")) return false;
 
         if (entity instanceof PlayerEntity player) {

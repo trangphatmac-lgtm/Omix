@@ -29,7 +29,7 @@ import java.util.Set;
 
 @Getter
 public final class CommandManager implements IMinecraft {
-    private final List<Command> commands = new ArrayList<>();
+    private final List<Command> commands = new java.util.concurrent.CopyOnWriteArrayList<>();
     private final ModuleCommand moduleCommand = new ModuleCommand();
 
     public CommandManager() {
@@ -37,6 +37,7 @@ public final class CommandManager implements IMinecraft {
 
         addCommands(
                 new HelpCommand(),
+                new cn.omix.command.impl.ScriptCommand(),
                 new AiCommand(),
                 new ToggleCommand(),
                 new BindCommand(),
@@ -54,6 +55,21 @@ public final class CommandManager implements IMinecraft {
 
     public void addCommands(Command... commandsArray) {
         this.commands.addAll(Arrays.asList(commandsArray));
+    }
+
+    public void validateRegistration(Command command, java.util.Set<Command> replacing) {
+        for (String alias : command.getAliases()) {
+            if (!alias.matches("[A-Za-z][A-Za-z0-9_-]*")) throw new IllegalArgumentException("Invalid command alias: " + alias);
+            if (commands.stream().filter(old -> !replacing.contains(old)).flatMap(old -> Arrays.stream(old.getAliases()))
+                    .anyMatch(alias::equalsIgnoreCase) || moduleCommand.getModuleCompletions().stream().anyMatch(alias::equalsIgnoreCase))
+                throw new IllegalArgumentException("Command alias already exists: " + alias);
+        }
+    }
+
+    public cn.omix.script.api.Registration register(Command command) {
+        validateRegistration(command, java.util.Set.of());
+        commands.add(command);
+        return () -> commands.remove(command);
     }
 
     public List<String> getAiToolCommandNames() {

@@ -103,7 +103,7 @@ public final class Criticals extends Module {
 
     /** Called by Aura before consuming its attack timer or sending an attack. */
     public boolean shouldDeferAttack(Entity target) {
-        if (!isEnabled() || mc.player == null || !(target instanceof LivingEntity living) || !usesAttackTiming()) return false;
+        if (!isNativeBehaviorActive() || mc.player == null || !(target instanceof LivingEntity living) || !usesAttackTiming()) return false;
         if (mc.player.isGliding() || mc.player.hasVehicle()
                 || mc.player.isTouchingWater() || mc.player.isClimbing()) return false;
 

@@ -79,6 +79,10 @@ public final class WebUiRuntime {
         return interopServer;
     }
 
+    public void notifyModulesChanged() {
+        if (interopServer != null) interopServer.broadcast("modulesChanged", new com.google.gson.JsonObject());
+    }
+
     public WebThemeManager getThemeManager() {
         return themeManager;
     }
@@ -154,6 +158,7 @@ public final class WebUiRuntime {
             );
             interopServer.start();
             clickGuiInteropBridge = new ClickGuiInteropBridge(interopServer);
+            new cn.omix.util.script.ScriptInteropBridge(interopServer);
             registerStorageRoutes();
             registerMusicRoutes();
             themeManager.useBundled(interopServer.getAuthenticatedBaseUrl());

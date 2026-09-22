@@ -12,15 +12,12 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public abstract class SubCore implements IMinecraft {
     public final ConcurrentLinkedDeque<Packet<?>> packets = new ConcurrentLinkedDeque<>();
     private final List<Object> holders = new ArrayList<>();
-    public boolean active;
+    private static final Object LEGACY_OWNER = new Object();
+    public volatile boolean active;
 
-    public void start() {
-        if (!active) {
-            active = true;
-        }
-    }
+    public void start() { start(LEGACY_OWNER); }
 
-    public void start(Object holder) {
+    public synchronized void start(Object holder) {
         if (!holders.contains(holder)) {
             holders.add(holder);
         }
@@ -29,7 +26,7 @@ public abstract class SubCore implements IMinecraft {
         }
     }
 
-    public void release(boolean clear) {
+    public synchronized void release(boolean clear) {
         if (!packets.isEmpty()) {
             packets.forEach(packet -> {
                 if (mc.getNetworkHandler() != null && mc.player != null) {
@@ -43,7 +40,7 @@ public abstract class SubCore implements IMinecraft {
         }
     }
 
-    public void dispatch(boolean releasePackets) {
+    public synchronized void dispatch(boolean releasePackets) {
         if (releasePackets) {
             release(true);
         }
@@ -51,8 +48,8 @@ public abstract class SubCore implements IMinecraft {
         active = false;
     }
 
-    public void dispatch(Object holder, boolean releasePackets) {
-        holders.remove(holder);
+    public synchronized void dispatch(Object holder, boolean releasePackets) {
+        if (!holders.remove(holder)) return;
 
         if (holders.isEmpty()) {
             if (releasePackets) {
@@ -70,13 +67,13 @@ public abstract class SubCore implements IMinecraft {
         dispatch(true);
     }
 
-    public void clear() {
+    public synchronized void clear() {
         packets.clear();
         holders.clear();
         active = false;
     }
 
-    public void handle(PacketEvent event) {
+    public synchronized void handle(PacketEvent event) {
         Packet<?> packet = event.getPacket();
 
         if (PacketUtil.getPackets().contains(packet)) {

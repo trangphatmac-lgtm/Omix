@@ -87,6 +87,7 @@
     let stateRevision = 0;
     let disposed = false;
     let acknowledging = false;
+    let modulesInvalidated = false;
 
     $: navigation = {
         view, activeCategory, selectedModuleName, search, selectedConfig,
@@ -166,10 +167,14 @@
         void loadTheme();
         // Fetch both concurrently, but validate selections only after restoration.
         void loadState();
+        const moduleRefreshTimer = window.setInterval(() => {
+            if (modulesInvalidated && !pendingAction) void loadState(true);
+        }, 300);
 
         return () => {
             persistNavigation();
             disposed = true;
+            window.clearInterval(moduleRefreshTimer);
             cancelAnimationFrame(firstFrame);
             window.removeEventListener("keydown", onKeyDown, true);
             window.removeEventListener("pointerdown", onPointerDown);
@@ -200,7 +205,7 @@
         }
         const scheme = location.protocol === "https:" ? "wss" : "ws";
         socket = new WebSocket(`${scheme}://${location.host}/ws`);
-        socket.addEventListener("open", () => connectionState = "ready");
+        socket.addEventListener("open", () => { connectionState = "ready"; modulesInvalidated = true; });
         socket.addEventListener("close", () => connectionState = "offline");
         socket.addEventListener("error", () => connectionState = "offline");
         socket.addEventListener("message", event => {
@@ -214,6 +219,11 @@
                 }
                 if (packet.name === "mouseBindingInput" && typeof packet.event?.button === "number") {
                     void finishMouseBinding(packet.event.button);
+                }
+                if (packet.name === "modulesChanged") {
+                    bindingTarget = null;
+                    openModeSetting = "";
+                    modulesInvalidated = true;
                 }
             } catch {
                 // Ignore unrelated or malformed socket packets.
@@ -241,6 +251,7 @@
 
     async function loadState(silent = false) {
         if (pendingAction) return;
+        modulesInvalidated = false;
         const revision = ++stateRevision;
         try {
             const [nextState] = await Promise.all([

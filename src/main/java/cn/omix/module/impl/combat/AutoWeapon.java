@@ -70,7 +70,7 @@ public final class AutoWeapon extends Module {
     /** Predict the actual attack item without changing slots or refreshing the return timer. */
     public ItemStack getAttackWeapon(LivingEntity target) {
         if (mc.player == null) return ItemStack.EMPTY;
-        if (isEnabled() && changeOn.isEnabled("OnAttack") && target != null
+        if (isNativeBehaviorActive() && changeOn.isEnabled("OnAttack") && target != null
                 && target.isAlive() && target != mc.player && canSwitch()) {
             int slot = determineSlot(target);
             if (slot >= 0) return mc.player.getInventory().getStack(slot);
@@ -112,7 +112,7 @@ public final class AutoWeapon extends Module {
 
     /** Avoid using the previous item's stale attack-speed attribute on the switching tick. */
     public double getAttackSpeed(double original) {
-        if (!isEnabled() || !canSwitch()) return original;
+        if (!isNativeBehaviorActive() || !canSwitch()) return original;
         validateOwner();
         int slot = changeOn.isEnabled("OnAttack") ? determineSlot(currentTarget()) : -1;
         if (slot < 0 && slots.owns(mc.player.getInventory().getSelectedSlot())) {
@@ -122,7 +122,7 @@ public final class AutoWeapon extends Module {
     }
 
     private void select(Entity entity) {
-        if (!isEnabled() || !(entity instanceof LivingEntity target) || !target.isAlive()
+        if (!isNativeBehaviorActive() || !(entity instanceof LivingEntity target) || !target.isAlive()
                 || entity == mc.player || !canSwitch()) return;
         validateOwner();
         int slot = determineSlot(target);

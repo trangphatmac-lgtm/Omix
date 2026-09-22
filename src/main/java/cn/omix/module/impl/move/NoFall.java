@@ -152,7 +152,7 @@ public final class NoFall extends Module {
 
     @EventTarget
     public void onRotationRequest(RotationRequestEvent event) {
-        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (!isNativeBehaviorActive() || mc.player == null || mc.world == null) return;
         if (!isGrimSilentRotationActive()) return;
         Derp derp = getModule(Derp.class);
         if (derp.isEnabled() && !derp.getClientOnly().getValue() && derp.getRotations() != null) return;
@@ -781,7 +781,7 @@ public final class NoFall extends Module {
     }
 
     public boolean isGrimSilentRotationActive() {
-        return isEnabled() && mode.is("Grim") && isGrimControlWindowActive();
+        return isNativeBehaviorActive() && mode.is("Grim") && isGrimControlWindowActive();
     }
 
     private GrimCollision getGrimCollision() {

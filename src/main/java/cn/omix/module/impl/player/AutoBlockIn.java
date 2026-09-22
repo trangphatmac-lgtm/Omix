@@ -87,7 +87,7 @@ public final class AutoBlockIn extends Module {
 
     @EventTarget
     public void onRotationRequest(RotationRequestEvent event) {
-        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (!isNativeBehaviorActive() || mc.player == null || mc.world == null) return;
         if (!isPlacing() || rotations == null) return;
         // The planner has already applied the speed/randomization curve.
         event.submit(RotationRequest.builder(getName(), rotations, 700)
@@ -196,7 +196,7 @@ public final class AutoBlockIn extends Module {
     }
 
     public boolean isPlacing() {
-        return isEnabled() && placing && canRun();
+        return isNativeBehaviorActive() && placing && canRun();
     }
 
     public static boolean blocksMouseInput() {
@@ -207,7 +207,7 @@ public final class AutoBlockIn extends Module {
     }
 
     private boolean canRun() {
-        if (!isEnabled() || mc.player == null || mc.world == null || mc.interactionManager == null
+        if (!isNativeBehaviorActive() || mc.player == null || mc.world == null || mc.interactionManager == null
                 || !mc.player.isAlive() || mc.player.isSpectator() || mc.currentScreen != null
                 || !mc.isWindowFocused() || !selectPressed() || Freecam.isActive()) return false;
         // These modules also own the hotbar or have higher-priority rotation requests.

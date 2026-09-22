@@ -251,7 +251,7 @@ public final class TargetHUD extends Drag {
     }
 
     public LivingEntity getDisplayedTarget() {
-        if (!isEnabled() || mc.player == null || mc.world == null) return null;
+        if (!isNativeBehaviorActive() || mc.player == null || mc.world == null) return null;
 
         LivingEntity target = mode.is("Classic") ? resolveClassicTarget() : getStyleTarget();
         return isValid(target) ? target : null;

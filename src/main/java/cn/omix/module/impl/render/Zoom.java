@@ -64,12 +64,12 @@ public final class Zoom extends Module {
     public float applyFov(float original) {
         baseFov = original;
 
-        if (isEnabled() && currentFov == null) {
+        if (isNativeBehaviorActive() && currentFov == null) {
             currentFov = original;
             lastFrameTime = System.nanoTime();
         }
 
-        if (!isEnabled() && !zoomed) {
+        if (!isNativeBehaviorActive() && !zoomed) {
             return original;
         }
 
@@ -81,11 +81,11 @@ public final class Zoom extends Module {
         float deltaTime = Math.min((now - lastFrameTime) / 1_000_000_000.0F, 0.1F);
         lastFrameTime = now;
 
-        float destination = isEnabled() ? targetFov : baseFov;
+        float destination = isNativeBehaviorActive() ? targetFov : baseFov;
         float progress = MathHelper.clamp(ANIMATION_SPEED * deltaTime, 0.0F, 1.0F);
         currentFov = MathHelper.lerp(progress, currentFov, destination);
 
-        if (!isEnabled() && Math.abs(currentFov - baseFov) <= 0.1F) {
+        if (!isNativeBehaviorActive() && Math.abs(currentFov - baseFov) <= 0.1F) {
             finishZoomOut();
             return original;
         }
@@ -94,7 +94,7 @@ public final class Zoom extends Module {
     }
 
     public boolean shouldHideHand() {
-        return isEnabled();
+        return isNativeBehaviorActive();
     }
 
     private void finishZoomOut() {

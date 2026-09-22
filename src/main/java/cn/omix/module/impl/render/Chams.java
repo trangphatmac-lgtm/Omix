@@ -67,10 +67,12 @@ public final class Chams extends Module {
     }
 
     public boolean shouldRender(LivingEntity entity) {
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.RENDER_ENTITY, entity, false);
         return entity != null && EntityUtil.isSelected(entity);
     }
 
     public RenderLayer getRenderLayer(Identifier texture) {
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.ENTITY_LAYER, texture, net.minecraft.client.render.RenderLayers.entityTranslucent(texture, false));
         if (renderMode.is("Flat")) {
             return throughWalls.getValue() ? FLAT_THROUGH_WALLS_LAYER : FLAT_LAYER;
         }
@@ -83,6 +85,7 @@ public final class Chams extends Module {
     }
 
     public int getEntityColor(LivingEntity entity) {
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.ENTITY_COLOR, entity, -1);
         Color color = customColor.getValue();
         if (colorMode.is("Aura")) {
             Aura aura = getModule(Aura.class);

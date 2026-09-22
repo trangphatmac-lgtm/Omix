@@ -21,6 +21,7 @@ public final class ModuleConfig extends Config {
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private ConfigStorageMode storageMode = ConfigStorageMode.NONE;
     private boolean storageModeKnown;
+    private JsonObject retained = new JsonObject();
 
     public ModuleConfig() {
         this("Default");
@@ -82,13 +83,14 @@ public final class ModuleConfig extends Config {
                 return;
             }
             final JsonObject jsonObject = jsonElement.getAsJsonObject();
+            retained = jsonObject.deepCopy();
 
             for (final Module module : instance.getModuleManager().getModuleMap().values()) {
-                if (!jsonObject.has(module.getName())) {
+                if (!jsonObject.has(configKey(module))) {
                     continue;
                 }
 
-                final JsonObject moduleObject = jsonObject.getAsJsonObject(module.getName());
+                final JsonObject moduleObject = jsonObject.getAsJsonObject(configKey(module));
                 this.deserializeModule(module, moduleObject);
             }
         } catch (final Exception exception) {
@@ -134,7 +136,7 @@ public final class ModuleConfig extends Config {
     }
 
     private JsonObject serializeCurrentState(boolean redactSensitive) {
-        final JsonObject jsonObject = new JsonObject();
+        final JsonObject jsonObject = retained.deepCopy();
         for (Module module : instance.getModuleManager().getModuleMap().values()) {
             final JsonObject moduleObject = new JsonObject();
             moduleObject.addProperty("enabled", !module.isHoldToUse() && module.isEnabled());
@@ -150,10 +152,19 @@ public final class ModuleConfig extends Config {
             if (!valuesObject.isEmpty()) {
                 moduleObject.add("values", valuesObject);
             }
-            jsonObject.add(module.getName(), moduleObject);
+            JsonObject previous = jsonObject.has(configKey(module)) ? jsonObject.getAsJsonObject(configKey(module)) : null;
+            if (previous != null && previous.has("values")) {
+                JsonObject merged = previous.getAsJsonObject("values").deepCopy();
+                valuesObject.entrySet().forEach(entry -> merged.add(entry.getKey(), entry.getValue()));
+                moduleObject.add("values", merged);
+            }
+            jsonObject.add(configKey(module), moduleObject);
         }
         return jsonObject;
     }
+
+    /** Preserve dynamic modules and mode settings before their registrations disappear. */
+    public void retainCurrentState() { retained = serializeCurrentState(false); }
 
     private JsonObject serializeValues(
             final Module module,
@@ -210,13 +221,6 @@ public final class ModuleConfig extends Config {
     }
 
     private void deserializeModule(final Module module, final JsonObject moduleObject) {
-        if (moduleObject.has("enabled")) {
-            final boolean shouldEnable = !module.isHoldToUse() && moduleObject.get("enabled").getAsBoolean();
-            if (shouldEnable != module.isEnabled()) {
-                module.toggle();
-            }
-        }
-
         if (moduleObject.has("key")) {
             module.setKey(moduleObject.get("key").getAsInt());
         }
@@ -258,6 +262,20 @@ public final class ModuleConfig extends Config {
                 }
             }
         }
+        if (moduleObject.has("enabled")) {
+            final boolean shouldEnable = !module.isHoldToUse() && moduleObject.get("enabled").getAsBoolean();
+            if (shouldEnable != module.isEnabled()) {
+                module.toggle();
+            }
+        }
+
+    }
+
+    private static String configKey(Module module) { return module.getId().startsWith("script:") ? module.getId() : module.getName(); }
+
+    public void applyRetained(Module module) {
+        JsonElement state = retained.get(configKey(module));
+        if (state != null && state.isJsonObject()) deserializeModule(module, state.getAsJsonObject());
     }
 
     private void deserializeValue(Value value, JsonElement element) {

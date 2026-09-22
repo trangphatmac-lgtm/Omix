@@ -73,7 +73,8 @@ public final class HarnessRuntime implements AutoCloseable {
             Process launched;
             synchronized (this) {
                 checkAttempt(attempt);
-                bridge = new MinecraftGameBridge();
+                bridge = cn.omix.Client.instance.getGameBridge();
+                if (bridge == null) throw new IOException("Omix development bridge is unavailable");
                 ProcessBuilder builder = new ProcessBuilder(executable.toString(), runtime.resolve("launch.mjs").toString());
                 builder.directory(home.toFile());
                 builder.redirectErrorStream(true);
@@ -149,7 +150,7 @@ public final class HarnessRuntime implements AutoCloseable {
         progress = BrowserPreparationProgress.IDLE;
     }
     private void cleanup() {
-        if (bridge != null) { bridge.close(); bridge = null; }
+        bridge = null;
         if (process != null) {
             var descendants = process.descendants().toList();
             descendants.reversed().forEach(ProcessHandle::destroy);

@@ -113,7 +113,7 @@ public final class NickHider extends Module {
         }
 
         NickHider module = Client.instance.getModuleManager().getModule(NickHider.class);
-        if (module == null || !module.isEnabled()) return null;
+        if (module == null || !module.isNativeBehaviorActive()) return null;
 
         String accountName = GameConnectionContext.username(minecraft);
         String nickName = module.nickName.getValue();

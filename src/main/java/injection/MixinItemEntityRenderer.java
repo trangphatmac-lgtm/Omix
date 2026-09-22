@@ -35,7 +35,7 @@ public abstract class MixinItemEntityRenderer extends EntityRenderer<ItemEntity,
     @Inject(method = "render(Lnet/minecraft/client/render/entity/state/ItemEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;Lnet/minecraft/client/render/state/CameraRenderState;)V", at = @At("HEAD"), cancellable = true)
     private void onRender(ItemEntityRenderState state, MatrixStack matrices, OrderedRenderCommandQueue orderedRenderCommandQueue, CameraRenderState cameraRenderState, CallbackInfo ci) {
         ItemPhysics itemPhysics = instance.getModuleManager().getModule(ItemPhysics.class);
-        if (!itemPhysics.isEnabled()) return;
+        if (!itemPhysics.isNativeBehaviorActive()) return;
         ci.cancel();
 
         if (!state.itemRenderState.isEmpty()) {

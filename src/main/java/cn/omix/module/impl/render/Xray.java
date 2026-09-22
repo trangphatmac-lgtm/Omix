@@ -211,18 +211,22 @@ public final class Xray extends Module {
     }
 
     public boolean shouldRenderSide(Block block) {
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.XRAY_BLOCK, block, false);
         return XRAY_BLOCKS.contains(block);
     }
 
     public boolean isFullMode() {
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.INTERCEPT, "fullMode", false);
         return mode.is("Full");
     }
 
     public boolean shouldMakeTranslucent(Block block) {
+        if (getScriptMode() != null) return !isXrayBlock(block);
         return !shouldRenderSide(block) || mode.is("Soft") && !isXrayBlock(block);
     }
 
     public boolean isXrayBlock(Block block) {
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.XRAY_BLOCK, block, false);
         if (DIAMOND_BLOCKS.contains(block)) return diamonds.getValue();
         if (GOLD_BLOCKS.contains(block)) return gold.getValue();
         if (IRON_BLOCKS.contains(block)) return iron.getValue();
@@ -237,6 +241,7 @@ public final class Xray extends Module {
     }
 
     public boolean checkBlock(BlockRenderView world, BlockPos pos) {
+        if (getScriptMode() != null) return isXrayBlock(world.getBlockState(pos).getBlock());
         if (!cavesOnly.getValue()) return true;
 
         List<BlockPos> offsets = caveRadius.getValue() >= 2.0F ? CAVE_OFFSETS_LARGE : CAVE_OFFSETS_SMALL;
@@ -251,6 +256,7 @@ public final class Xray extends Module {
     }
 
     public void trackBlock(BlockRenderView world, BlockPos pos, BlockState state) {
+        if (getScriptMode() != null) return;
         if (!isXrayBlock(state.getBlock())) return;
 
         BlockPos immutablePos = pos.toImmutable();
@@ -262,6 +268,7 @@ public final class Xray extends Module {
     }
 
     public float getTerrainOpacity() {
+        if (getScriptMode() != null) return Math.clamp(cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.TERRAIN_OPACITY, 1.0, 1.0).floatValue(), 0, 1);
         return opacity.getValue() / 100.0F;
     }
 

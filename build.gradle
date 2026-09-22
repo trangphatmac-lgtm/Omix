@@ -84,7 +84,19 @@ repositories {
     mavenCentral()
 }
 
+configurations { scriptMappings }
+
 dependencies {
+    scriptMappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+}
+
+dependencies {
+    implementation 'org.eclipse.jdt:ecj:3.39.0'
+    include 'org.eclipse.jdt:ecj:3.39.0'
+    implementation 'net.fabricmc:tiny-remapper:0.12.3'
+    include 'net.fabricmc:tiny-remapper:0.12.3'
+    implementation 'net.fabricmc:mapping-io:0.8.0'
+    include 'net.fabricmc:mapping-io:0.8.0'
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
@@ -126,6 +138,7 @@ sourceSets {
             exclude "im/src-music-webui/**"
             exclude "im/src-music-sidecar/**"
             exclude "im/src-ai-harness/**"
+            exclude "im/src-script-mcp/**"
         }
     }
 }
@@ -253,6 +266,8 @@ def testMusicSidecar = tasks.register("testMusicSidecar", NpmTask) {
 def bundleWebUi = tasks.register("bundleWebUi", Zip) {
     dependsOn buildWebUi
     dependsOn buildMusicWebUi
+    dependsOn "generateScriptReference"
+    from("build/generated/script-docs") { into "script-docs" }
     from("src/main/java/im/src-webui/dist")
     from("src/main/java/im/src-music-webui/dist") {
         into "music"
@@ -278,7 +293,52 @@ def generateClientReference = tasks.register("generateClientReference", Exec) {
     })
 }
 
+def installScriptMcp = tasks.register("installScriptMcp", NpmTask) {
+    args = ["--prefix", file("src/main/java/im/src-script-mcp").absolutePath, "ci", "--no-audit", "--no-fund"]
+    inputs.files("src/main/java/im/src-script-mcp/package.json", "src/main/java/im/src-script-mcp/package-lock.json")
+    outputs.dir("src/main/java/im/src-script-mcp/node_modules")
+}
+
+def generateScriptReference = tasks.register("generateScriptReference", Exec) {
+    commandLine providers.gradleProperty("pythonExecutable").getOrElse(System.getProperty("os.name").toLowerCase().contains("win") ? "python" : "python3"), "tools/generate_script_reference.py"
+    inputs.files(fileTree("src/main/java/cn/omix") { include "script/api/**/*.java", "util/**/*.java", "event/impl/*.java", "module/**/*.java", "management/**/*.java", "fisproxy/**/*.java" })
+    inputs.file("tools/generate_script_reference.py")
+    inputs.files("docs/rotation-manager.md", "docs/ai-tools.md")
+    inputs.dir("docs/script")
+    outputs.dir("build/generated/script-docs")
+}
+
+def bundleScriptKit = tasks.register("bundleScriptKit", Zip) {
+    dependsOn installScriptMcp, generateScriptReference
+    from("src/main/java/im/src-script-mcp") {
+        include "server.mjs", "package.json", "package-lock.json", "node_modules/**"
+        exclude "**/*.map", "node_modules/@modelcontextprotocol/client/**"
+        into "mcp"
+    }
+    from("docs/script") { into "mcp/reference" }
+    from("docs/script/omix-script") { into "skills/omix-script" }
+    archiveFileName = "developer-kit.zip"
+    destinationDirectory = layout.buildDirectory.dir("generated/script")
+}
+
+def checkWebUi = tasks.register("checkWebUi", NpmTask) {
+    dependsOn tasks.named("npmInstall")
+    args = ["run", "check"]
+}
+
+def testScriptMcp = tasks.register("testScriptMcp", NpmTask) {
+    dependsOn installScriptMcp, generateScriptReference
+    args = ["--prefix", file("src/main/java/im/src-script-mcp").absolutePath, "test"]
+}
+
 processResources {
+    dependsOn bundleScriptKit
+    from(bundleScriptKit.flatMap { it.archiveFile }) { into "assets/omix/script" }
+    from("docs/script") { into "assets/omix/script/reference" }
+    from(configurations.scriptMappings.collect { zipTree(it) }) {
+        include 'mappings/mappings.tiny'
+        into 'assets/omix/script'
+    }
     dependsOn generateClientReference
     dependsOn syncModVersion
     dependsOn bundleWebUi
@@ -330,6 +390,8 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.named("test") {
     useJUnitPlatform()
+    systemProperty "omix.test.classpath", sourceSets.main.runtimeClasspath.asPath
+    systemProperty "omix.test.root", projectDir.absolutePath
 }
 
 java {
@@ -360,7 +422,8 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
                 "okio-jvm-3.6.0.jar",
                 "kotlin-stdlib-1.9.10.jar",
                 "kotlin-stdlib-jdk7-1.9.10.jar",
-                "kotlin-stdlib-jdk8-1.9.10.jar"
+                "kotlin-stdlib-jdk8-1.9.10.jar",
+                "ecj-3.39.0.jar", "tiny-remapper-0.12.3.jar", "mapping-io-0.8.0.jar"
         ]
         def archive = tasks.named("remapJar").get().archiveFile.get().asFile
         def zip = new ZipFile(archive)
@@ -383,6 +446,9 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
             }
             if (zip.getEntry("assets/omix/ai/harness/manifest.json") == null)
                 throw new GradleException("Harness manifest missing")
+            ["developer-kit.zip", "mappings/mappings.tiny", "reference/README.md", "reference/api.json", "reference/tools.json", "reference/omix-script/SKILL.md"].each { resource ->
+                if (zip.getEntry("assets/omix/script/${resource}") == null) throw new GradleException("Script distribution missing: ${resource}")
+            }
             if (zip.getEntry("org/fisproxy/Client.class") == null) {
                 throw new GradleException("FisProxy SDK classes missing from ${archive.name}")
             }
@@ -414,13 +480,21 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
                         throw new GradleException("Node runtime leaked into Harness bundle: ${entry.name}")
                 }
             }
+            def scriptKitFiles = []
+            inspectNestedZip("assets/omix/script/developer-kit.zip") { entry -> scriptKitFiles.add(entry.name) }
+            ["mcp/server.mjs", "mcp/reference/tools.json", "skills/omix-script/SKILL.md", "mcp/node_modules/@modelcontextprotocol/server/package.json"].each { name ->
+                if (!scriptKitFiles.contains(name)) throw new GradleException("Incomplete developer kit: ${name}")
+            }
+            def hasScriptDocs = false
             def hasMusicIndex = false
             inspectNestedZip("assets/omix/webui/webui.zip") { entry ->
+                if (entry.name == "script-docs/index.html") hasScriptDocs = true
                 if (entry.name == "music/index.html") hasMusicIndex = true
                 if (!entry.directory && forbiddenName(entry.name)) {
                     throw new GradleException("Node runtime leaked into WebUI bundle: ${entry.name}")
                 }
             }
+            if (!hasScriptDocs) throw new GradleException("Offline script HTML missing")
             if (!hasMusicIndex) {
                 throw new GradleException("Music WebUI index missing from combined WebUI bundle")
             }
@@ -436,6 +510,7 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
 }
 
 tasks.named("check") {
+    dependsOn testScriptMcp, checkWebUi
     dependsOn verifyWebUiRuntimeBundle
     dependsOn testMusicSidecar
     dependsOn testAiHarness

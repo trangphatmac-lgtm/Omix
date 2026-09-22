@@ -35,14 +35,17 @@ public final class GhostHand extends Module {
     }
 
     public boolean canReachThroughWalls() {
-        return isEnabled() && throughWall.getValue();
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.INTERCEPT, "throughWalls", false);
+        return isNativeBehaviorActive() && throughWall.getValue();
     }
 
     public double getInteractionDistance(double vanillaDistance) {
-        return isEnabled() ? Math.max(vanillaDistance, distance.getValue()) : vanillaDistance;
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.BLOCK_REACH, vanillaDistance, vanillaDistance);
+        return isNativeBehaviorActive() ? Math.max(vanillaDistance, distance.getValue()) : vanillaDistance;
     }
 
     public BlockHitResult findThroughWallTarget(Entity cameraEntity, float tickProgress) {
+        if (getScriptMode() != null) return cn.omix.util.script.ModeHost.query(this, cn.omix.script.api.ModeHooks.BLOCK_TARGET, new cn.omix.script.api.ModeHooks.BlockTarget(cameraEntity, tickProgress), null);
         if (!canReachThroughWalls() || mc.world == null) return null;
 
         Vec3d start = cameraEntity.getCameraPosVec(tickProgress);

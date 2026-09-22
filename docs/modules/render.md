@@ -60,6 +60,14 @@
 
 没有额外 Value 配置；通用开关、快捷键和列表可见性见总览。
 
+## Scripts
+
+打开 Java Script Studio：源码编辑、模板、编译诊断、手动热加载、日志、API 查询和 AI 开发。保存不会运行脚本。ESC 关闭整个 WebUI 并返回原非 WebUI 界面；从 ClickGUI 切入也不会返回已关闭的旧面板。
+
+源码：`src/main/java/cn/omix/module/impl/render/Scripts.java`。
+
+没有额外 Value 配置；通用开关、快捷键和列表可见性见总览。
+
 ## MusicPlayer
 
 打开客户端音乐播放器界面，打开后自动关闭模块。

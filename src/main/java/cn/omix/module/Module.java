@@ -20,14 +20,17 @@ public abstract class Module implements IMinecraft {
     private final List<Value> values = new CopyOnWriteArrayList<>();
     private final String name;
     private final Category category;
+    private String id;
+    private volatile cn.omix.script.api.ModeHandle scriptMode;
     private String suffix = "";
-    private boolean enabled;
+    private volatile boolean enabled;
     private boolean hidden;
     private int key = -1;
 
     public Module(String name, Category category) {
         this.name = name;
         this.category = category;
+        this.id = getClass().getSimpleName();
     }
 
     public void toggle() {
@@ -58,6 +61,7 @@ public abstract class Module implements IMinecraft {
     }
 
     protected void enable() {
+        if (scriptMode != null) { scriptMode.activate(); return; }
         instance.getEventManager().register(this);
 
         try {
@@ -68,6 +72,7 @@ public abstract class Module implements IMinecraft {
     }
 
     protected void disable() {
+        if (scriptMode != null) { scriptMode.deactivate(); return; }
         instance.getEventManager().unregister(this);
 
         try {
@@ -79,6 +84,16 @@ public abstract class Module implements IMinecraft {
 
     public void onEnable() {}
     public void onDisable() {}
+
+    /** UI enabled state is independent from which implementation owns behavior. */
+    public boolean isNativeBehaviorActive() { return enabled && scriptMode == null; }
+
+    public void setScriptMode(cn.omix.script.api.ModeHandle next) {
+        if (scriptMode == next) return;
+        if (enabled) disable();
+        scriptMode = next;
+        if (enabled) enable();
+    }
 
     public boolean isHoldToUse() {
         return false;

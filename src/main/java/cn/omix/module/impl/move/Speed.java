@@ -101,7 +101,7 @@ public class Speed extends Module {
 
     @EventTarget
     public void onRotationRequest(RotationRequestEvent event) {
-        if (!isEnabled() || mc.player == null || mc.world == null) return;
+        if (!isNativeBehaviorActive() || mc.player == null || mc.world == null) return;
         if (!isPredictionRotationActive()) return;
         // Prediction and movement correction must use exactly the same yaw this tick.
         event.submit(RotationRequest.builder(getName(),
@@ -524,7 +524,7 @@ public class Speed extends Module {
     }
 
     public boolean isPredictionRotationActive() {
-        return isEnabled() && isPredictionMode() && rotated;
+        return isNativeBehaviorActive() && isPredictionMode() && rotated;
     }
 
     public float getPredictionRotationYaw() {

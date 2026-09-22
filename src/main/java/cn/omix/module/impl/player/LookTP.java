@@ -161,7 +161,7 @@ public final class LookTP extends Module {
     }
 
     public boolean shouldStopClientInput() {
-        return isEnabled() && (isMovingServerSide() || waitingForClientsideTeleport);
+        return isNativeBehaviorActive() && (isMovingServerSide() || waitingForClientsideTeleport);
     }
 
     public boolean isClientsideTeleporting() {
@@ -212,7 +212,7 @@ public final class LookTP extends Module {
 
         renderedPath = withEndpoints(mc.player.getEntityPos(), path, targetPosition);
 
-        if (clientsideTeleport.getValue() && isEnabled()) {
+        if (clientsideTeleport.getValue() && isNativeBehaviorActive()) {
             beginClientsideTeleport(path, targetPosition);
             return true;
         }

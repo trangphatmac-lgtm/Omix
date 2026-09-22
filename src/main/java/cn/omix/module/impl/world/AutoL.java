@@ -56,7 +56,7 @@ public final class AutoL extends Module {
 
     @EventTarget
     public void onAttack(AttackEvent event) {
-        if (!isEnabled() || event.isCancelled() || mc.player == null || mc.world == null) return;
+        if (!isNativeBehaviorActive() || event.isCancelled() || mc.player == null || mc.world == null) return;
         if (event.getEntity() instanceof PlayerEntity player
                 && player != mc.player && player.isAlive() && !player.isRemoved()) {
             enemies.add(player);
@@ -65,7 +65,7 @@ public final class AutoL extends Module {
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
-        if (!isEnabled() || mc.player == null || mc.world == null) {
+        if (!isNativeBehaviorActive() || mc.player == null || mc.world == null) {
             enemies.clear();
             return;
         }

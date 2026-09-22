@@ -1,0 +1,1064 @@
+# SDK 声明索引
+
+此文件由实际 Java 声明生成。`api.json` 为相同索引的机器格式；Lombok 事件字段的访问器单独标记。完整原生类型继承关系请以当前依赖和编译检查为准。
+
+- `cn.omix.script.api.CommandHandle` — `cn.omix.script.api.CommandHandle`
+- `cn.omix.script.api.CommandHandle` — `public final class CommandHandle`
+- `cn.omix.script.api.CommandHandle` — `public CommandHandle(ScriptContext context, String usage, Consumer<String[]> execute, String... aliases)`
+- `cn.omix.script.api.CommandHandle` — `public void execute(String[] arguments)`
+- `cn.omix.script.api.CommandHandle` — `public List<String> getCompletions(String[] arguments)`
+- `cn.omix.script.api.CommandHandle` — `public CommandHandle completions(Function<String[], List<String>> callback)`
+- `cn.omix.script.api.CommandHandle` — `public Command nativeCommand()`
+- `cn.omix.script.api.FeatureHandle` — `cn.omix.script.api.FeatureHandle`
+- `cn.omix.script.api.FeatureHandle` — `public abstract class FeatureHandle`
+- `cn.omix.script.api.FeatureHandle` — `public String id()`
+- `cn.omix.script.api.FeatureHandle` — `public boolean active()`
+- `cn.omix.script.api.FeatureHandle` — `public FeatureHandle onEnable(Runnable callback)`
+- `cn.omix.script.api.FeatureHandle` — `public FeatureHandle onDisable(Runnable callback)`
+- `cn.omix.script.api.FeatureHandle` — `public <E extends Event> FeatureHandle on(Class<E> event, Consumer<E> callback)`
+- `cn.omix.script.api.FeatureHandle` — `public <E extends Event> FeatureHandle on(Class<E> event, int priority, Consumer<E> callback)`
+- `cn.omix.script.api.FeatureHandle` — `public synchronized <T extends AutoCloseable> T own(T resource)`
+- `cn.omix.script.api.FeatureHandle` — `public void activate()`
+- `cn.omix.script.api.FeatureHandle` — `public void deactivate()`
+- `cn.omix.script.api.FeatureHandle` — `public void invoke(String callback, Runnable action)`
+- `cn.omix.script.api.FeatureHandle` — `public abstract <T extends Value> T setting(T value)`
+- `cn.omix.script.api.HudHandle` — `cn.omix.script.api.HudHandle`
+- `cn.omix.script.api.HudHandle` — `public final class HudHandle extends ModuleHandle`
+- `cn.omix.script.api.HudHandle` — `public HudHandle(ScriptContext context, String id, String name, BiConsumer<DrawContext, HudHandle> draw)`
+- `cn.omix.script.api.HudHandle` — `public float x()`
+- `cn.omix.script.api.HudHandle` — `public float y()`
+- `cn.omix.script.api.HudHandle` — `public void size(float width, float height)`
+- `cn.omix.script.api.HudHandle` — `public void position(float x, float y)`
+- `cn.omix.script.api.ModeHandle` — `cn.omix.script.api.ModeHandle`
+- `cn.omix.script.api.ModeHandle` — `public final class ModeHandle extends FeatureHandle`
+- `cn.omix.script.api.ModeHandle` — `public ModeHandle(ScriptContext context, String id, Module module, String name)`
+- `cn.omix.script.api.ModeHandle` — `public Module module()`
+- `cn.omix.script.api.ModeHandle` — `public String name()`
+- `cn.omix.script.api.ModeHandle` — `public List<Value> settings()`
+- `cn.omix.script.api.ModeHandle` — `public <T extends Value> T setting(T value)`
+- `cn.omix.script.api.ModeHandle` — `public <I, O> ModeHandle hook(ModeHook<I, O> hook, Function<I, O> callback)`
+- `cn.omix.script.api.ModeHandle` — `public <I, O> O query(ModeHook<I, O> hook, I input, O fallback)`
+- `cn.omix.script.api.ModeHandle` — `public ModeHandle onEnable(Runnable callback)`
+- `cn.omix.script.api.ModeHandle` — `public ModeHandle onDisable(Runnable callback)`
+- `cn.omix.script.api.ModeHook` — `cn.omix.script.api.ModeHook`
+- `cn.omix.script.api.ModeHooks` — `cn.omix.script.api.ModeHooks`
+- `cn.omix.script.api.ModeHooks` — `public final class ModeHooks`
+- `cn.omix.script.api.ModeHooks` — `public record PathQuery(Vec3d from, Vec3d to)`
+- `cn.omix.script.api.ModeHooks` — `public record PathResult(List<Vec3d> points)`
+- `cn.omix.script.api.ModeHooks.PathResult` — `public PathResult`
+- `cn.omix.script.api.ModeHooks` — `public record TargetQuery(LivingEntity entity, boolean checkBot, boolean checkTeams, boolean checkFriend, boolean checkSelf)`
+- `cn.omix.script.api.ModeHooks` — `public static final ModeHook<TargetQuery, Boolean> SELECT_TARGET`
+- `cn.omix.script.api.ModeHooks` — `public record BlockTarget(net.minecraft.entity.Entity camera, float tickProgress)`
+- `cn.omix.script.api.ModeHooks` — `public static final ModeHook<LivingEntity, Boolean> IS_BOT`
+- `cn.omix.script.api.ModeHooks` — `public static final ModeHook<Double, Double> BLOCK_REACH`
+- `cn.omix.script.api.ModeHooks` — `public static final ModeHook<BlockTarget, net.minecraft.util.hit.BlockHitResult> BLOCK_TARGET`
+- `cn.omix.script.api.ModeHooks` — `public static final ModeHook<LivingEntity, Boolean> RENDER_ENTITY`
+- `cn.omix.script.api.ModeHooks` — `public static final ModeHook<LivingEntity, Integer> ENTITY_COLOR`
+- `cn.omix.script.api.ModeHooks` — `public static final ModeHook<net.minecraft.util.Identifier, net.minecraft.client.render.RenderLayer> ENTITY_LAYER`
+- `cn.omix.script.api.ModeHooks` — `public static final ModeHook<Double, Double> TERRAIN_OPACITY`
+- `cn.omix.script.api.ModeHooks` — `public static final ModeHook<LivingEntity, Boolean> IS_TEAM`
+- `cn.omix.script.api.ModeHooks` — `public static final ModeHook<PathQuery, PathResult> COMPUTE_PATH`
+- `cn.omix.script.api.ModeHooks` — `public static final ModeHook<Double, Double> ENTITY_REACH`
+- `cn.omix.script.api.ModeHooks` — `public static final ModeHook<Block, Boolean> XRAY_BLOCK`
+- `cn.omix.script.api.ModeHooks` — `public static final ModeHook<DrawContext, Boolean> RENDER_HUD`
+- `cn.omix.script.api.ModeHooks` — `public static final ModeHook<String, Boolean> INTERCEPT`
+- `cn.omix.script.api.ModeHooks` — `public static final ModeHook<Double, Double> SLOWDOWN`
+- `cn.omix.script.api.ModuleHandle` — `cn.omix.script.api.ModuleHandle`
+- `cn.omix.script.api.ModuleHandle` — `public class ModuleHandle extends FeatureHandle`
+- `cn.omix.script.api.ModuleHandle` — `public ModuleHandle(ScriptContext context, String id, String name, Category category)`
+- `cn.omix.script.api.ModuleHandle` — `public Module nativeModule()`
+- `cn.omix.script.api.ModuleHandle` — `public boolean enabled()`
+- `cn.omix.script.api.ModuleHandle` — `public void enabled(boolean enabled)`
+- `cn.omix.script.api.ModuleHandle` — `public void suffix(String suffix)`
+- `cn.omix.script.api.ModuleHandle` — `public <T extends Value> T setting(T value)`
+- `cn.omix.script.api.ModuleHandle` — `public ModuleHandle onEnable(Runnable callback)`
+- `cn.omix.script.api.ModuleHandle` — `public ModuleHandle onDisable(Runnable callback)`
+- `cn.omix.script.api.Registration` — `cn.omix.script.api.Registration`
+- `cn.omix.script.api.Registration` — `public interface Registration extends AutoCloseable`
+- `cn.omix.script.api.ScriptApi` — `cn.omix.script.api.ScriptApi`
+- `cn.omix.script.api.ScriptApi` — `public abstract class ScriptApi`
+- `cn.omix.script.api.ScriptApi` — `public static final int API_VERSION`
+- `cn.omix.script.api.ScriptApi` — `public final MinecraftClient mc`
+- `cn.omix.script.api.ScriptApi` — `public final Client client`
+- `cn.omix.script.api.ScriptApi` — `public final ScriptContext script`
+- `cn.omix.script.api.ScriptApi` — `public final Game game`
+- `cn.omix.script.api.ScriptApi` — `public final Movement movement`
+- `cn.omix.script.api.ScriptApi` — `public final Inventory inventory`
+- `cn.omix.script.api.ScriptApi` — `public final Modules modules`
+- `cn.omix.script.api.ScriptApi` — `public final Modes modes`
+- `cn.omix.script.api.ScriptApi` — `public final Commands commands`
+- `cn.omix.script.api.ScriptApi` — `public final Events events`
+- `cn.omix.script.api.ScriptApi` — `public final Tasks tasks`
+- `cn.omix.script.api.ScriptApi` — `public final Packets packets`
+- `cn.omix.script.api.ScriptApi` — `public final Render render`
+- `cn.omix.script.api.ScriptApi` — `public final Ui ui`
+- `cn.omix.script.api.ScriptApi` — `public final Storage storage`
+- `cn.omix.script.api.ScriptApi` — `public final Managers managers`
+- `cn.omix.script.api.ScriptApi` — `public final cn.omix.fisproxy.FisProxyManager fisproxy`
+- `cn.omix.script.api.ScriptApi` — `public final NativeAccess nativeAccess`
+- `cn.omix.script.api.ScriptApi` — `public void log(Object message)`
+- `cn.omix.script.api.ScriptApi` — `public boolean inWorld()`
+- `cn.omix.script.api.ScriptApi` — `public void requireClientThread()`
+- `cn.omix.script.api.ScriptApi` — `public final class Game`
+- `cn.omix.script.api.ScriptApi.Game` — `public net.minecraft.client.network.ClientPlayerEntity player()`
+- `cn.omix.script.api.ScriptApi.Game` — `public net.minecraft.client.world.ClientWorld world()`
+- `cn.omix.script.api.ScriptApi.Game` — `public List<net.minecraft.entity.Entity> entities(double range)`
+- `cn.omix.script.api.ScriptApi.Game` — `public net.minecraft.block.BlockState block(BlockPos position)`
+- `cn.omix.script.api.ScriptApi.Game` — `public net.minecraft.util.hit.HitResult crosshair()`
+- `cn.omix.script.api.ScriptApi.Game` — `public List<net.minecraft.entity.LivingEntity> targets()`
+- `cn.omix.script.api.ScriptApi.Game` — `public boolean friend(String name)`
+- `cn.omix.script.api.ScriptApi.Game` — `public float[] rotationTo(Vec3d position)`
+- `cn.omix.script.api.ScriptApi.Game` — `public List<Vec3d> path(Vec3d from, Vec3d to)`
+- `cn.omix.script.api.ScriptApi.Game` — `public net.minecraft.util.ActionResult useItem(net.minecraft.util.Hand hand)`
+- `cn.omix.script.api.ScriptApi.Game` — `public net.minecraft.util.ActionResult useBlock(net.minecraft.util.Hand hand, net.minecraft.util.hit.BlockHitResult hit)`
+- `cn.omix.script.api.ScriptApi.Game` — `public void attack(net.minecraft.entity.Entity entity)`
+- `cn.omix.script.api.ScriptApi` — `public final class Movement`
+- `cn.omix.script.api.ScriptApi.Movement` — `public boolean moving()`
+- `cn.omix.script.api.ScriptApi.Movement` — `public double speed()`
+- `cn.omix.script.api.ScriptApi.Movement` — `public double blocksPerSecond()`
+- `cn.omix.script.api.ScriptApi.Movement` — `public void strafe(double speed)`
+- `cn.omix.script.api.ScriptApi.Movement` — `public void stop()`
+- `cn.omix.script.api.ScriptApi.Movement` — `public void velocity(Vec3d velocity)`
+- `cn.omix.script.api.ScriptApi` — `public final class Inventory`
+- `cn.omix.script.api.ScriptApi.Inventory` — `public List<net.minecraft.item.ItemStack> snapshot()`
+- `cn.omix.script.api.ScriptApi.Inventory` — `public int find(net.minecraft.item.Item item, boolean hotbarOnly)`
+- `cn.omix.script.api.ScriptApi.Inventory` — `public void select(int slot)`
+- `cn.omix.script.api.ScriptApi.Inventory` — `public void click(int slot, int button, net.minecraft.screen.slot.SlotActionType action)`
+- `cn.omix.script.api.ScriptApi` — `public final class Modules`
+- `cn.omix.script.api.ScriptApi.Modules` — `public ModuleHandle register(String id, String name, Category category)`
+- `cn.omix.script.api.ScriptApi.Modules` — `public Module get(String idOrName)`
+- `cn.omix.script.api.ScriptApi.Modules` — `public List<Module> list()`
+- `cn.omix.script.api.ScriptApi` — `public final class Modes`
+- `cn.omix.script.api.ScriptApi.Modes` — `public ModeHandle register(String id, String module, String name)`
+- `cn.omix.script.api.ScriptApi` — `public final class Commands`
+- `cn.omix.script.api.ScriptApi.Commands` — `public CommandHandle register(String usage, Consumer<String[]> action, String... aliases)`
+- `cn.omix.script.api.ScriptApi.Commands` — `public void run(String command)`
+- `cn.omix.script.api.ScriptApi.Commands` — `public List<String> complete(String prefix)`
+- `cn.omix.script.api.ScriptApi` — `public final class Events`
+- `cn.omix.script.api.ScriptApi.Events` — `public <E extends Event> Registration on(Class<E> type, Consumer<E> callback)`
+- `cn.omix.script.api.ScriptApi.Events` — `public <E extends Event> Registration on(Class<E> type, int priority, Consumer<E> callback)`
+- `cn.omix.script.api.ScriptApi.Events` — `public <E extends Event, T> Registration observe(Class<E> type, Function<E, T> snapshot, Consumer<T> observer)`
+- `cn.omix.script.api.ScriptApi` — `public final class Tasks`
+- `cn.omix.script.api.ScriptApi.Tasks` — `public void client(Runnable action)`
+- `cn.omix.script.api.ScriptApi.Tasks` — `public Registration afterTicks(int ticks, Runnable action)`
+- `cn.omix.script.api.ScriptApi.Tasks` — `public <T> CompletableFuture<T> async(Callable<T> action)`
+- `cn.omix.script.api.ScriptApi` — `public final class Packets`
+- `cn.omix.script.api.ScriptApi.Packets` — `public void send(Packet<?> packet)`
+- `cn.omix.script.api.ScriptApi.Packets` — `public void sendWithoutEvents(Packet<?> packet)`
+- `cn.omix.script.api.ScriptApi.Packets` — `public Registration blink(FeatureHandle owner)`
+- `cn.omix.script.api.ScriptApi.Packets` — `public Registration delay(FeatureHandle owner)`
+- `cn.omix.script.api.ScriptApi` — `public Registration timer(FeatureHandle owner, float speed)`
+- `cn.omix.script.api.ScriptApi` — `public void rotate(RotationRequestEvent event, RotationRequest request)`
+- `cn.omix.script.api.ScriptApi` — `public final class Render`
+- `cn.omix.script.api.ScriptApi.Render` — `public void text(DrawContext context, String text, int x, int y, int argb)`
+- `cn.omix.script.api.ScriptApi.Render` — `public void rect(DrawContext context, int x, int y, int width, int height, int argb)`
+- `cn.omix.script.api.ScriptApi.Render` — `public void box(Render3DEvent event, Box box, java.awt.Color color, boolean fill, boolean outline)`
+- `cn.omix.script.api.ScriptApi` — `public final class Ui`
+- `cn.omix.script.api.ScriptApi.Ui` — `public HudHandle hud(String id, String name, BiConsumer<DrawContext, HudHandle> draw)`
+- `cn.omix.script.api.ScriptApi.Ui` — `public WebPageHandle page(String id, String html, Function<JsonElement, JsonElement> messages)`
+- `cn.omix.script.api.ScriptApi.Ui` — `public void screen(Screen screen)`
+- `cn.omix.script.api.ScriptApi.Ui` — `public void notify(String message)`
+- `cn.omix.script.api.ScriptApi.Ui` — `public void open(String route)`
+- `cn.omix.script.api.ScriptApi` — `public final class Storage`
+- `cn.omix.script.api.ScriptApi.Storage` — `public JsonElement read(String key)`
+- `cn.omix.script.api.ScriptApi.Storage` — `public void write(String key, JsonElement value)`
+- `cn.omix.script.api.ScriptApi` — `public final class Managers`
+- `cn.omix.script.api.ScriptApi.Managers` — `public cn.omix.management.RotationManager rotation()`
+- `cn.omix.script.api.ScriptApi.Managers` — `public cn.omix.management.PacketManager packets()`
+- `cn.omix.script.api.ScriptApi.Managers` — `public cn.omix.management.TargetManager targets()`
+- `cn.omix.script.api.ScriptApi.Managers` — `public cn.omix.management.FriendManager friends()`
+- `cn.omix.script.api.ScriptApi.Managers` — `public cn.omix.config.ConfigManager config()`
+- `cn.omix.script.api.ScriptApi.Managers` — `public cn.omix.command.CommandManager commands()`
+- `cn.omix.script.api.ScriptApi.Managers` — `public cn.omix.ui.font.FontManager fonts()`
+- `cn.omix.script.api.ScriptApi` — `public final class NativeAccess`
+- `cn.omix.script.api.ScriptApi.NativeAccess` — `public String method(String owner, String name, String descriptor)`
+- `cn.omix.script.api.ScriptApi.NativeAccess` — `public String field(String owner, String name, String descriptor)`
+- `cn.omix.script.api.ScriptApi.NativeAccess` — `public String descriptor(String descriptor)`
+- `cn.omix.script.api.ScriptApi.NativeAccess` — `public Class<?> type(String yarnName)`
+- `cn.omix.script.api.ScriptContext` — `cn.omix.script.api.ScriptContext`
+- `cn.omix.script.api.ScriptContext` — `public final class ScriptContext implements Registration`
+- `cn.omix.script.api.ScriptContext` — `public void installWith(java.util.function.Supplier<Registration> installer)`
+- `cn.omix.script.api.ScriptContext` — `public ScriptContext(String id, long generation, Path data, ScriptLog log, ScriptSource source)`
+- `cn.omix.script.api.ScriptContext` — `public String id()`
+- `cn.omix.script.api.ScriptContext` — `public long generation()`
+- `cn.omix.script.api.ScriptContext` — `public Path dataDirectory()`
+- `cn.omix.script.api.ScriptContext` — `public boolean active()`
+- `cn.omix.script.api.ScriptContext` — `public void requireActive()`
+- `cn.omix.script.api.ScriptContext` — `public void ensurePreparing()`
+- `cn.omix.script.api.ScriptContext` — `public String qualify(String localId)`
+- `cn.omix.script.api.ScriptContext` — `public <T extends AutoCloseable> T own(T resource)`
+- `cn.omix.script.api.ScriptContext` — `public void release(AutoCloseable resource)`
+- `cn.omix.script.api.ScriptContext` — `public void afterCommit(Runnable starter)`
+- `cn.omix.script.api.ScriptContext` — `public void add(ModuleHandle module)`
+- `cn.omix.script.api.ScriptContext` — `public void add(ModeHandle mode)`
+- `cn.omix.script.api.ScriptContext` — `public void add(CommandHandle command)`
+- `cn.omix.script.api.ScriptContext` — `public List<ModuleHandle> modules()`
+- `cn.omix.script.api.ScriptContext` — `public List<ModeHandle> modes()`
+- `cn.omix.script.api.ScriptContext` — `public List<CommandHandle> commands()`
+- `cn.omix.script.api.ScriptContext` — `public void prepared()`
+- `cn.omix.script.api.ScriptContext` — `public void validate(ScriptContext old)`
+- `cn.omix.script.api.ScriptContext` — `public void install()`
+- `cn.omix.script.api.ScriptContext` — `public void committed()`
+- `cn.omix.script.api.ScriptContext` — `public void detach()`
+- `cn.omix.script.api.ScriptContext` — `public void invoke(String callback, Runnable action)`
+- `cn.omix.script.api.ScriptContext` — `public void log(Object message)`
+- `cn.omix.script.api.ScriptContext` — `public void assertHealthy()`
+- `cn.omix.script.api.ScriptContext` — `public void error(String callback, Throwable error)`
+- `cn.omix.script.api.ScriptContext` — `public void close()`
+- `cn.omix.script.api.WebPageHandle` — `cn.omix.script.api.WebPageHandle`
+- `cn.omix.script.api.WebPageHandle` — `public final class WebPageHandle`
+- `cn.omix.script.api.WebPageHandle` — `public WebPageHandle(ScriptContext context, String id, String html, Function<JsonElement, JsonElement> handler)`
+- `cn.omix.script.api.WebPageHandle` — `public String id()`
+- `cn.omix.script.api.WebPageHandle` — `public long generation()`
+- `cn.omix.script.api.WebPageHandle` — `public boolean active()`
+- `cn.omix.script.api.WebPageHandle` — `public String html()`
+- `cn.omix.script.api.WebPageHandle` — `public void open()`
+- `cn.omix.script.api.WebPageHandle` — `public JsonElement message(JsonElement message)`
+- `cn.omix.event.impl.AttackEvent` — `cn.omix.event.impl.AttackEvent`
+- `cn.omix.event.impl.AttackEvent` — `public class AttackEvent extends Event`
+- `cn.omix.event.impl.AttackEvent` — `public Entity getEntity()`
+- `cn.omix.event.impl.BlockCollisionEvent` — `cn.omix.event.impl.BlockCollisionEvent`
+- `cn.omix.event.impl.BlockCollisionEvent` — `public final class BlockCollisionEvent extends Event`
+- `cn.omix.event.impl.BlockCollisionEvent` — `public BlockState getState()`
+- `cn.omix.event.impl.BlockCollisionEvent` — `public BlockPos getPos()`
+- `cn.omix.event.impl.BlockCollisionEvent` — `public VoxelShape getShape()`
+- `cn.omix.event.impl.BlockCollisionEvent` — `public void setShape(VoxelShape shape)`
+- `cn.omix.event.impl.ChatScreenEvent` — `cn.omix.event.impl.ChatScreenEvent`
+- `cn.omix.event.impl.ChatScreenEvent` — `public class ChatScreenEvent extends Event`
+- `cn.omix.event.impl.ChatScreenEvent` — `public DrawContext getContext()`
+- `cn.omix.event.impl.ChatScreenEvent` — `public void setContext(DrawContext context)`
+- `cn.omix.event.impl.CobwebEvent` — `cn.omix.event.impl.CobwebEvent`
+- `cn.omix.event.impl.CobwebEvent` — `public class CobwebEvent extends Event`
+- `cn.omix.event.impl.CobwebEvent` — `public BlockState getState()`
+- `cn.omix.event.impl.CobwebEvent` — `public BlockPos getPos()`
+- `cn.omix.event.impl.JumpEvent` — `cn.omix.event.impl.JumpEvent`
+- `cn.omix.event.impl.JumpEvent` — `public class JumpEvent extends Event`
+- `cn.omix.event.impl.JumpEvent` — `public float getYaw()`
+- `cn.omix.event.impl.JumpEvent` — `public void setYaw(float yaw)`
+- `cn.omix.event.impl.KeyInputEvent` — `cn.omix.event.impl.KeyInputEvent`
+- `cn.omix.event.impl.KeyInputEvent` — `public class KeyInputEvent extends Event`
+- `cn.omix.event.impl.KeyInputEvent` — `public int getKey()`
+- `cn.omix.event.impl.KeyInputEvent` — `public void setKey(int key)`
+- `cn.omix.event.impl.KeyInputEvent` — `public int getAction()`
+- `cn.omix.event.impl.KeyInputEvent` — `public void setAction(int action)`
+- `cn.omix.event.impl.LivingUpdateEvent` — `cn.omix.event.impl.LivingUpdateEvent`
+- `cn.omix.event.impl.LivingUpdateEvent` — `public class LivingUpdateEvent extends Event`
+- `cn.omix.event.impl.LookEvent` — `cn.omix.event.impl.LookEvent`
+- `cn.omix.event.impl.LookEvent` — `public class LookEvent extends Event`
+- `cn.omix.event.impl.LookEvent` — `public float[] getRotation()`
+- `cn.omix.event.impl.LookEvent` — `public void setRotation(float[] rotation)`
+- `cn.omix.event.impl.LookEvent` — `public float[] getLastRotation()`
+- `cn.omix.event.impl.LookEvent` — `public void setLastRotation(float[] lastRotation)`
+- `cn.omix.event.impl.MotionEvent` — `cn.omix.event.impl.MotionEvent`
+- `cn.omix.event.impl.MotionEvent` — `public class MotionEvent extends Event.StateEvent`
+- `cn.omix.event.impl.MotionEvent` — `public double getX()`
+- `cn.omix.event.impl.MotionEvent` — `public void setX(double x)`
+- `cn.omix.event.impl.MotionEvent` — `public double getY()`
+- `cn.omix.event.impl.MotionEvent` — `public void setY(double y)`
+- `cn.omix.event.impl.MotionEvent` — `public double getZ()`
+- `cn.omix.event.impl.MotionEvent` — `public void setZ(double z)`
+- `cn.omix.event.impl.MotionEvent` — `public float getYaw()`
+- `cn.omix.event.impl.MotionEvent` — `public void setYaw(float yaw)`
+- `cn.omix.event.impl.MotionEvent` — `public float getPitch()`
+- `cn.omix.event.impl.MotionEvent` — `public void setPitch(float pitch)`
+- `cn.omix.event.impl.MotionEvent` — `public boolean isOnGround()`
+- `cn.omix.event.impl.MotionEvent` — `public void setOnGround(boolean onGround)`
+- `cn.omix.event.impl.MotionEvent` — `public boolean isHorizontalCollision()`
+- `cn.omix.event.impl.MotionEvent` — `public void setHorizontalCollision(boolean horizontalCollision)`
+- `cn.omix.event.impl.MouseScrollEvent` — `cn.omix.event.impl.MouseScrollEvent`
+- `cn.omix.event.impl.MouseScrollEvent` — `public class MouseScrollEvent extends Event`
+- `cn.omix.event.impl.MouseScrollEvent` — `public double getHorizontal()`
+- `cn.omix.event.impl.MouseScrollEvent` — `public double getVertical()`
+- `cn.omix.event.impl.MoveEvent` — `cn.omix.event.impl.MoveEvent`
+- `cn.omix.event.impl.MoveEvent` — `public class MoveEvent extends Event`
+- `cn.omix.event.impl.MoveInputEvent` — `cn.omix.event.impl.MoveInputEvent`
+- `cn.omix.event.impl.MoveInputEvent` — `public class MoveInputEvent extends Event`
+- `cn.omix.event.impl.MoveInputEvent` — `public float getForward()`
+- `cn.omix.event.impl.MoveInputEvent` — `public void setForward(float forward)`
+- `cn.omix.event.impl.MoveInputEvent` — `public float getStrafe()`
+- `cn.omix.event.impl.MoveInputEvent` — `public void setStrafe(float strafe)`
+- `cn.omix.event.impl.MoveInputEvent` — `public boolean isJumping()`
+- `cn.omix.event.impl.MoveInputEvent` — `public void setJumping(boolean jumping)`
+- `cn.omix.event.impl.MoveInputEvent` — `public boolean isSneaking()`
+- `cn.omix.event.impl.MoveInputEvent` — `public void setSneaking(boolean sneaking)`
+- `cn.omix.event.impl.MoveMathEvent` — `cn.omix.event.impl.MoveMathEvent`
+- `cn.omix.event.impl.MoveMathEvent` — `public class MoveMathEvent extends Event`
+- `cn.omix.event.impl.PacketEvent` — `cn.omix.event.impl.PacketEvent`
+- `cn.omix.event.impl.PacketEvent` — `public class PacketEvent extends Event`
+- `cn.omix.event.impl.PacketEvent` — `public enum Type`
+- `cn.omix.event.impl.PacketEvent` — `public Packet<?> getPacket()`
+- `cn.omix.event.impl.PacketEvent` — `public void setPacket(Packet<?> packet)`
+- `cn.omix.event.impl.PacketEvent` — `public Type getType()`
+- `cn.omix.event.impl.PacketLogEvent` — `cn.omix.event.impl.PacketLogEvent`
+- `cn.omix.event.impl.PacketLogEvent` — `public final class PacketLogEvent extends Event`
+- `cn.omix.event.impl.PacketLogEvent` — `public ClientConnection getConnection()`
+- `cn.omix.event.impl.PacketLogEvent` — `public Packet<?> getPacket()`
+- `cn.omix.event.impl.PacketLogEvent` — `public PacketEvent.Type getDirection()`
+- `cn.omix.event.impl.PacketLogEvent` — `public boolean isPacketCancelled()`
+- `cn.omix.event.impl.PacketLogEvent` — `public boolean isBypassedEvents()`
+- `cn.omix.event.impl.PlayerPositionLookEvent` — `cn.omix.event.impl.PlayerPositionLookEvent`
+- `cn.omix.event.impl.PlayerPositionLookEvent` — `public final class PlayerPositionLookEvent extends Event`
+- `cn.omix.event.impl.PlayerPositionLookEvent` — `public Vec3d getPosition()`
+- `cn.omix.event.impl.Render2DEvent` — `cn.omix.event.impl.Render2DEvent`
+- `cn.omix.event.impl.Render2DEvent` — `public class Render2DEvent extends Event`
+- `cn.omix.event.impl.Render2DEvent` — `public DrawContext getContext()`
+- `cn.omix.event.impl.Render2DEvent` — `public float getPartialTicks()`
+- `cn.omix.event.impl.Render3DEvent` — `cn.omix.event.impl.Render3DEvent`
+- `cn.omix.event.impl.Render3DEvent` — `public class Render3DEvent extends Event`
+- `cn.omix.event.impl.Render3DEvent` — `public MatrixStack getMatrixStack()`
+- `cn.omix.event.impl.Render3DEvent` — `public VertexConsumerProvider getConsumers()`
+- `cn.omix.event.impl.Render3DEvent` — `public float getTickDelta()`
+- `cn.omix.event.impl.Render3DEvent` — `public Matrix4f getProjectionMatrix()`
+- `cn.omix.event.impl.Render3DEvent` — `public Matrix4f getModelViewMatrix()`
+- `cn.omix.event.impl.RenderFrameEvent` — `cn.omix.event.impl.RenderFrameEvent`
+- `cn.omix.event.impl.RenderFrameEvent` — `public final class RenderFrameEvent extends Event`
+- `cn.omix.event.impl.RenderRotationEvent` — `cn.omix.event.impl.RenderRotationEvent`
+- `cn.omix.event.impl.RenderRotationEvent` — `public class RenderRotationEvent extends Event`
+- `cn.omix.event.impl.RenderRotationEvent` — `public static Entity currentEntity`
+- `cn.omix.event.impl.RenderRotationEvent` — `public float[] getRotation()`
+- `cn.omix.event.impl.RenderRotationEvent` — `public void setRotation(float[] rotation)`
+- `cn.omix.event.impl.RenderRotationEvent` — `public float[] getLastRotation()`
+- `cn.omix.event.impl.RenderRotationEvent` — `public void setLastRotation(float[] lastRotation)`
+- `cn.omix.event.impl.RotationAppliedEvent` — `cn.omix.event.impl.RotationAppliedEvent`
+- `cn.omix.event.impl.RotationAppliedEvent` — `public final class RotationAppliedEvent extends Event`
+- `cn.omix.event.impl.RotationRequestEvent` — `cn.omix.event.impl.RotationRequestEvent`
+- `cn.omix.event.impl.RotationRequestEvent` — `public final class RotationRequestEvent extends Event`
+- `cn.omix.event.impl.RotationRequestEvent` — `public void submit(RotationRequest request)`
+- `cn.omix.event.impl.RotationRequestEvent` — `public Selection resolve(float cameraYaw, float cameraPitch)`
+- `cn.omix.event.impl.RotationRequestEvent` — `public record Selection(RotationRequest request, float yaw, float pitch, boolean continuousYaw)`
+- `cn.omix.event.impl.RotationRequestEvent.Selection` — `public float[] rotations()`
+- `cn.omix.event.impl.SlowEvent` — `cn.omix.event.impl.SlowEvent`
+- `cn.omix.event.impl.SlowEvent` — `public class SlowEvent extends Event`
+- `cn.omix.event.impl.SlowEvent` — `public float getSideways()`
+- `cn.omix.event.impl.SlowEvent` — `public void setSideways(float sideways)`
+- `cn.omix.event.impl.SlowEvent` — `public float getForward()`
+- `cn.omix.event.impl.SlowEvent` — `public void setForward(float forward)`
+- `cn.omix.event.impl.StrafeEvent` — `cn.omix.event.impl.StrafeEvent`
+- `cn.omix.event.impl.StrafeEvent` — `public class StrafeEvent extends Event`
+- `cn.omix.event.impl.StrafeEvent` — `public StrafeEvent(float yaw, float friction)`
+- `cn.omix.event.impl.StrafeEvent` — `public float getYaw()`
+- `cn.omix.event.impl.StrafeEvent` — `public void setYaw(float yaw)`
+- `cn.omix.event.impl.StrafeEvent` — `public float getFriction()`
+- `cn.omix.event.impl.StrafeEvent` — `public void setFriction(float friction)`
+- `cn.omix.event.impl.TickEvent` — `cn.omix.event.impl.TickEvent`
+- `cn.omix.event.impl.TickEvent` — `public class TickEvent extends Event`
+- `cn.omix.event.impl.UpdateEvent` — `cn.omix.event.impl.UpdateEvent`
+- `cn.omix.event.impl.UpdateEvent` — `public class UpdateEvent extends Event`
+- `cn.omix.event.impl.WorldEvent` — `cn.omix.event.impl.WorldEvent`
+- `cn.omix.event.impl.WorldEvent` — `public class WorldEvent extends Event`
+- `cn.omix.event.impl.WorldEvent` — `public final ClientWorld world`
+- `cn.omix.module.value.impl.BoolValue` — `cn.omix.module.value.impl.BoolValue`
+- `cn.omix.module.value.impl.BoolValue` — `public final class BoolValue extends Value`
+- `cn.omix.module.value.impl.BoolValue` — `public BoolValue(String name, boolean value, Supplier<Boolean> visible)`
+- `cn.omix.module.value.impl.BoolValue` — `public BoolValue(String name, boolean value)`
+- `cn.omix.module.value.impl.BoolValue` — `public boolean getValue()`
+- `cn.omix.module.value.impl.BoolValue` — `public void toggle()`
+- `cn.omix.module.value.impl.ColorValue` — `cn.omix.module.value.impl.ColorValue`
+- `cn.omix.module.value.impl.ColorValue` — `public final class ColorValue extends Value`
+- `cn.omix.module.value.impl.ColorValue` — `public ColorValue(String name, Color color, Supplier<Boolean> visible)`
+- `cn.omix.module.value.impl.ColorValue` — `public ColorValue(String name, Color color)`
+- `cn.omix.module.value.impl.ColorValue` — `public Color getValue()`
+- `cn.omix.module.value.impl.ColorValue` — `public void setValue(Color color)`
+- `cn.omix.module.value.impl.ColorValue` — `public void setHSB(float h, float s, float b)`
+- `cn.omix.module.value.impl.KeyValue` — `cn.omix.module.value.impl.KeyValue`
+- `cn.omix.module.value.impl.KeyValue` — `public final class KeyValue extends Value`
+- `cn.omix.module.value.impl.KeyValue` — `public KeyValue(String name, int value, boolean mouseAllowed)`
+- `cn.omix.module.value.impl.KeyValue` — `public KeyValue(String name, int value, Supplier<Boolean> visible)`
+- `cn.omix.module.value.impl.KeyValue` — `public KeyValue(String name, int value)`
+- `cn.omix.module.value.impl.KeyValue` — `public void setValue(int value)`
+- `cn.omix.module.value.impl.ModeValue` — `cn.omix.module.value.impl.ModeValue`
+- `cn.omix.module.value.impl.ModeValue` — `public final class ModeValue extends Value`
+- `cn.omix.module.value.impl.ModeValue` — `public ModeValue(String name, String defaultValue, Supplier<Boolean> visible, String... modes)`
+- `cn.omix.module.value.impl.ModeValue` — `public ModeValue(String name, String defaultValue, String... modes)`
+- `cn.omix.module.value.impl.ModeValue` — `public String[] getModes()`
+- `cn.omix.module.value.impl.ModeValue` — `public String getValue()`
+- `cn.omix.module.value.impl.ModeValue` — `public boolean is(String mode)`
+- `cn.omix.module.value.impl.ModeValue` — `public void setValue(String mode)`
+- `cn.omix.module.value.impl.ModeValue` — `public Registration onChange(BiConsumer<String, String> listener)`
+- `cn.omix.module.value.impl.ModeValue` — `public Registration addMode(String mode)`
+- `cn.omix.module.value.impl.MultiBoolValue` — `cn.omix.module.value.impl.MultiBoolValue`
+- `cn.omix.module.value.impl.MultiBoolValue` — `public final class MultiBoolValue extends Value`
+- `cn.omix.module.value.impl.MultiBoolValue` — `public MultiBoolValue(String name, Supplier<Boolean> visible, BoolValue... values)`
+- `cn.omix.module.value.impl.MultiBoolValue` — `public MultiBoolValue(String name, BoolValue... values)`
+- `cn.omix.module.value.impl.MultiBoolValue` — `public boolean isEnabled(String name)`
+- `cn.omix.module.value.impl.MultiBoolValue` — `public void setValue(String name, boolean state)`
+- `cn.omix.module.value.impl.NumberValue` — `cn.omix.module.value.impl.NumberValue`
+- `cn.omix.module.value.impl.NumberValue` — `public final class NumberValue extends Value`
+- `cn.omix.module.value.impl.NumberValue` — `public NumberValue(String name, float value, float min, float max, float inc, Supplier<Boolean> visible)`
+- `cn.omix.module.value.impl.NumberValue` — `public NumberValue(String name, float value, float min, float max, float inc)`
+- `cn.omix.module.value.impl.NumberValue` — `public NumberValue(String name, float value, float min, float max)`
+- `cn.omix.module.value.impl.NumberValue` — `public NumberValue(String name, double value, double min, double max, double inc)`
+- `cn.omix.module.value.impl.NumberValue` — `public NumberValue(String name, double value, double min, double max)`
+- `cn.omix.module.value.impl.NumberValue` — `public Float getValue()`
+- `cn.omix.module.value.impl.NumberValue` — `public void setValue(float value)`
+- `cn.omix.module.value.impl.NumberValue` — `public void setValue(double value)`
+- `cn.omix.module.value.impl.TextValue` — `cn.omix.module.value.impl.TextValue`
+- `cn.omix.module.value.impl.TextValue` — `public final class TextValue extends Value`
+- `cn.omix.module.value.impl.TextValue` — `public TextValue(String name, String value, Supplier<Boolean> visible)`
+- `cn.omix.module.value.impl.TextValue` — `public TextValue(String name, String value, Supplier<Boolean> visible, boolean sensitive)`
+- `cn.omix.module.value.impl.TextValue` — `public TextValue(String name, String value)`
+- `cn.omix.module.value.impl.TextValue` — `public void setValue(String value)`
+- `cn.omix.module.value.impl.TextValue` — `public boolean isSensitive()`
+- `cn.omix.management.FriendManager` — `cn.omix.management.FriendManager`
+- `cn.omix.management.FriendManager` — `public class FriendManager implements IMinecraft`
+- `cn.omix.management.FriendManager` — `public FriendManager()`
+- `cn.omix.management.FriendManager` — `public void addFriend(String name)`
+- `cn.omix.management.FriendManager` — `public void removeFriend(String name)`
+- `cn.omix.management.FriendManager` — `public boolean isFriend(String name)`
+- `cn.omix.management.PacketManager` — `cn.omix.management.PacketManager`
+- `cn.omix.management.PacketManager` — `public class PacketManager implements IMinecraft`
+- `cn.omix.management.PacketManager` — `public PacketManager()`
+- `cn.omix.management.PacketManager` — `public void onPacket(PacketEvent event)`
+- `cn.omix.management.PacketManager` — `public void onWorld(WorldEvent event)`
+- `cn.omix.management.RotationManager` — `cn.omix.management.RotationManager`
+- `cn.omix.management.RotationManager` — `public class RotationManager implements IMinecraft`
+- `cn.omix.management.RotationManager` — `public static float[] currentRotations`
+- `cn.omix.management.RotationManager` — `public static float[] targetRotations`
+- `cn.omix.management.RotationManager` — `public static float[] lastRotations`
+- `cn.omix.management.RotationManager` — `public static MovementCorrection correctMovement`
+- `cn.omix.management.RotationManager` — `public RotationManager()`
+- `cn.omix.management.RotationManager` — `public void onLivingUpdate(LivingUpdateEvent event)`
+- `cn.omix.management.RotationManager` — `public void onLook(LookEvent e)`
+- `cn.omix.management.RotationManager` — `public void onStrafe(StrafeEvent e)`
+- `cn.omix.management.RotationManager` — `public void onJump(JumpEvent e)`
+- `cn.omix.management.RotationManager` — `public void onMotion(MotionEvent e)`
+- `cn.omix.management.RotationManager` — `public void onWorld(WorldEvent event)`
+- `cn.omix.management.RotationManager` — `public void onMoveInput(MoveInputEvent e)`
+- `cn.omix.management.RotationManager` — `public void onRotation(RenderRotationEvent e)`
+- `cn.omix.management.RotationManager` — `public static RotationRequest getActiveRequest()`
+- `cn.omix.management.RotationManager` — `public static boolean isOwner(String owner)`
+- `cn.omix.management.RotationManager` — `public static boolean isRotating()`
+- `cn.omix.management.RotationManager` — `public static float getAppliedYaw(float fallback)`
+- `cn.omix.management.TargetManager` — `cn.omix.management.TargetManager`
+- `cn.omix.management.TargetManager` — `public class TargetManager implements IMinecraft`
+- `cn.omix.management.TargetManager` — `public TargetManager()`
+- `cn.omix.management.TargetManager` — `public void onUpdate(UpdateEvent event)`
+- `cn.omix.management.movement.MovementCorrection` — `cn.omix.management.movement.MovementCorrection`
+- `cn.omix.management.movement.MovementCorrection` — `public enum MovementCorrection`
+- `cn.omix.management.packet.SubCore` — `cn.omix.management.packet.SubCore`
+- `cn.omix.management.packet.SubCore` — `public abstract class SubCore implements IMinecraft`
+- `cn.omix.management.packet.SubCore` — `public final ConcurrentLinkedDeque<Packet<?>> packets`
+- `cn.omix.management.packet.SubCore` — `public volatile boolean active`
+- `cn.omix.management.packet.SubCore` — `public void start()`
+- `cn.omix.management.packet.SubCore` — `public synchronized void start(Object holder)`
+- `cn.omix.management.packet.SubCore` — `public synchronized void release(boolean clear)`
+- `cn.omix.management.packet.SubCore` — `public synchronized void dispatch(boolean releasePackets)`
+- `cn.omix.management.packet.SubCore` — `public synchronized void dispatch(Object holder, boolean releasePackets)`
+- `cn.omix.management.packet.SubCore` — `public void dispatch(Object holder)`
+- `cn.omix.management.packet.SubCore` — `public void dispatch()`
+- `cn.omix.management.packet.SubCore` — `public synchronized void clear()`
+- `cn.omix.management.packet.SubCore` — `public synchronized void handle(PacketEvent event)`
+- `cn.omix.management.packet.impl.Blink` — `cn.omix.management.packet.impl.Blink`
+- `cn.omix.management.packet.impl.Blink` — `public final class Blink extends SubCore`
+- `cn.omix.management.packet.impl.Blink` — `public void start()`
+- `cn.omix.management.packet.impl.Blink` — `public void start(Object holder)`
+- `cn.omix.management.packet.impl.Blink` — `public void dispatch(boolean releasePackets)`
+- `cn.omix.management.packet.impl.Blink` — `public void dispatch(Object holder, boolean releasePackets)`
+- `cn.omix.management.packet.impl.Blink` — `public void clear()`
+- `cn.omix.management.packet.impl.Blink` — `public void renderRealPosition(Render3DEvent event)`
+- `cn.omix.management.packet.impl.Delay` — `cn.omix.management.packet.impl.Delay`
+- `cn.omix.management.packet.impl.Delay` — `public final class Delay extends SubCore`
+- `cn.omix.management.rotation.RotationRequest` — `cn.omix.management.rotation.RotationRequest`
+- `cn.omix.management.rotation.RotationRequest` — `public record RotationRequest(String owner, float yaw, float pitch, double speed, int priority, boolean silent, MovementCorrection movementCorrection, Axes axes, boolean continuousYaw, boolean instant)`
+- `cn.omix.management.rotation.RotationRequest` — `public enum Axes`
+- `cn.omix.management.rotation.RotationRequest` — `public RotationRequest`
+- `cn.omix.management.rotation.RotationRequest` — `public static Builder builder(String owner, float[] rotations, int priority)`
+- `cn.omix.management.rotation.RotationRequest` — `public static final class Builder`
+- `cn.omix.management.rotation.RotationRequest.Builder` — `public Builder speed(double speed)`
+- `cn.omix.management.rotation.RotationRequest.Builder` — `public Builder silent(boolean silent)`
+- `cn.omix.management.rotation.RotationRequest.Builder` — `public Builder instant(boolean instant)`
+- `cn.omix.management.rotation.RotationRequest.Builder` — `public Builder movementCorrection(MovementCorrection correction)`
+- `cn.omix.management.rotation.RotationRequest.Builder` — `public Builder axes(Axes axes)`
+- `cn.omix.management.rotation.RotationRequest.Builder` — `public Builder continuousYaw(boolean continuousYaw)`
+- `cn.omix.management.rotation.RotationRequest.Builder` — `public RotationRequest build()`
+- `cn.omix.fisproxy.FisProxyConfig` — `cn.omix.fisproxy.FisProxyConfig`
+- `cn.omix.fisproxy.FisProxyConnector` — `cn.omix.fisproxy.FisProxyConnector`
+- `cn.omix.fisproxy.FisProxyConnector` — `public final class FisProxyConnector`
+- `cn.omix.fisproxy.FisProxyConnector` — `public static void connect(MinecraftClient client, String address, SessionStatus status)`
+- `cn.omix.fisproxy.FisProxyFormatter` — `cn.omix.fisproxy.FisProxyFormatter`
+- `cn.omix.fisproxy.FisProxyFormatter` — `public final class FisProxyFormatter`
+- `cn.omix.fisproxy.FisProxyFormatter` — `public static List<String> profile(UserProfile profile)`
+- `cn.omix.fisproxy.FisProxyFormatter` — `public static List<String> services(List<Map<String, Object>> services)`
+- `cn.omix.fisproxy.FisProxyFormatter` — `public static List<String> status(SessionStatus status)`
+- `cn.omix.fisproxy.FisProxyFormatter` — `public static List<String> entrances(List<Map<String, Object>> entrances)`
+- `cn.omix.fisproxy.FisProxyFormatter` — `public static List<String> operation(Operation operation)`
+- `cn.omix.fisproxy.FisProxyFormatter` — `public static List<String> operations(List<Operation> operations)`
+- `cn.omix.fisproxy.FisProxyFormatter` — `public static List<String> stopped(StopResult result)`
+- `cn.omix.fisproxy.FisProxyFormatter` — `public static List<String> raw(Map<String, Object> response)`
+- `cn.omix.fisproxy.FisProxyManager` — `cn.omix.fisproxy.FisProxyManager`
+- `cn.omix.fisproxy.FisProxyManager` — `public final class FisProxyManager implements AutoCloseable`
+- `cn.omix.fisproxy.FisProxyManager` — `public FisProxyManager(Path configFile)`
+- `cn.omix.fisproxy.FisProxyManager` — `public boolean hasApiKey()`
+- `cn.omix.fisproxy.FisProxyManager` — `public String getBaseUrl()`
+- `cn.omix.fisproxy.FisProxyManager` — `public String getClientId()`
+- `cn.omix.fisproxy.FisProxyManager` — `public int getTimeoutSeconds()`
+- `cn.omix.fisproxy.FisProxyManager` — `public void updateSettings(String apiKeyOrNull, String baseUrl, String clientId, int timeoutSeconds)`
+- `cn.omix.fisproxy.FisProxyManager` — `public void setApiKey(String apiKey)`
+- `cn.omix.fisproxy.FisProxyManager` — `public void setBaseUrl(String baseUrl)`
+- `cn.omix.fisproxy.FisProxyManager` — `public void setClientId(String clientId)`
+- `cn.omix.fisproxy.FisProxyManager` — `public void setTimeoutSeconds(int timeoutSeconds)`
+- `cn.omix.fisproxy.FisProxyManager` — `public CompletableFuture<UserProfile> me()`
+- `cn.omix.fisproxy.FisProxyManager` — `public CompletableFuture<List<Map<String, Object>>> services()`
+- `cn.omix.fisproxy.FisProxyManager` — `public CompletableFuture<SessionStatus> status()`
+- `cn.omix.fisproxy.FisProxyManager` — `public CompletableFuture<List<Map<String, Object>>> entrances(String serviceId)`
+- `cn.omix.fisproxy.FisProxyManager` — `public CompletableFuture<Operation> start(StartOptions options)`
+- `cn.omix.fisproxy.FisProxyManager` — `public CompletableFuture<Operation> changeIp(ChangeIpOptions options)`
+- `cn.omix.fisproxy.FisProxyManager` — `public CompletableFuture<StopResult> stop()`
+- `cn.omix.fisproxy.FisProxyManager` — `public CompletableFuture<Operation> getOperation(String operationId)`
+- `cn.omix.fisproxy.FisProxyManager` — `public CompletableFuture<List<Operation>> listOperations(ListOperationsOptions options)`
+- `cn.omix.fisproxy.FisProxyManager` — `public CompletableFuture<Operation> waitOperation(String operationId, WaitOptions options)`
+- `cn.omix.fisproxy.FisProxyManager` — `public CompletableFuture<Operation> cancelOperation(String operationId)`
+- `cn.omix.fisproxy.FisProxyManager` — `public CompletableFuture<Map<String, Object>> request(String method, String path, RequestOptions options)`
+- `cn.omix.fisproxy.FisProxyManager` — `public void close()`
+- `cn.omix.util.IMinecraft` — `cn.omix.util.IMinecraft`
+- `cn.omix.util.IMinecraft` — `public interface IMinecraft`
+- `cn.omix.util.LongJumpAim` — `cn.omix.util.LongJumpAim`
+- `cn.omix.util.LongJumpAim` — `public record LongJumpAim(float yaw, float pitch)`
+- `cn.omix.util.LongJumpAim` — `public static LongJumpAim behind(float takeoffYaw, float targetPitch)`
+- `cn.omix.util.LongJumpMotionQueue` — `cn.omix.util.LongJumpMotionQueue`
+- `cn.omix.util.LongJumpMotionQueue` — `public LongJumpMotionQueue(int total)`
+- `cn.omix.util.LongJumpMotionQueue` — `public synchronized boolean awaitMotion()`
+- `cn.omix.util.LongJumpMotionQueue` — `public synchronized boolean capture(T motion)`
+- `cn.omix.util.LongJumpMotionQueue` — `public synchronized boolean isComplete()`
+- `cn.omix.util.LongJumpMotionQueue` — `public synchronized T startFlight(int tick)`
+- `cn.omix.util.LongJumpMotionQueue` — `public synchronized T releaseAtApex(boolean onGround, double vy, int tick)`
+- `cn.omix.util.LongJumpMotionQueue` — `public synchronized void close()`
+- `cn.omix.util.LongJumpMotionQueue` — `public static boolean hasLanded(boolean onGround, double vy)`
+- `cn.omix.util.LongJumpUseSchedule` — `cn.omix.util.LongJumpUseSchedule`
+- `cn.omix.util.LongJumpUseSchedule` — `public final class LongJumpUseSchedule`
+- `cn.omix.util.LongJumpUseSchedule` — `public void beginTick()`
+- `cn.omix.util.LongJumpUseSchedule` — `public void endTick()`
+- `cn.omix.util.LongJumpUseSchedule` — `public void requestNextUse()`
+- `cn.omix.util.LongJumpUseSchedule` — `public boolean beginUse(boolean coolingDown, LongJumpAim aim)`
+- `cn.omix.util.LongJumpUseSchedule` — `public boolean canContinue(long now)`
+- `cn.omix.util.LongJumpUseSchedule` — `public boolean beginContinuation(long now)`
+- `cn.omix.util.LongJumpUseSchedule` — `public void setCooldown(long now, int ticks)`
+- `cn.omix.util.LongJumpUseSchedule` — `public LongJumpAim getLastAim()`
+- `cn.omix.util.LongJumpUseSchedule` — `public LongJumpAim getAim()`
+- `cn.omix.util.LongJumpUseSchedule` — `public boolean isPending()`
+- `cn.omix.util.LongJumpUseSchedule` — `public boolean isUsedThisTick()`
+- `cn.omix.util.LongJumpUseSchedule` — `public void close()`
+- `cn.omix.util.Util` — `cn.omix.util.Util`
+- `cn.omix.util.Util` — `public class Util implements IMinecraft`
+- `cn.omix.util.Util` — `public static int offGroundTicks, onGroundTicks`
+- `cn.omix.util.Util` — `public static void log(String message)`
+- `cn.omix.util.Util` — `public static void logToChat(String message)`
+- `cn.omix.util.Util` — `public static void logToChat(Text message)`
+- `cn.omix.util.Util` — `public static void logRaw(String message)`
+- `cn.omix.util.Util` — `public static void logRaw(Text message)`
+- `cn.omix.util.Util` — `public static String formatCodes(String message)`
+- `cn.omix.util.Util` — `public static void debug(String message)`
+- `cn.omix.util.ai.AiBridgeServer` — `cn.omix.util.ai.AiBridgeServer`
+- `cn.omix.util.ai.AiBridgeServer` — `public void close()`
+- `cn.omix.util.ai.AiChatCapture` — `cn.omix.util.ai.AiChatCapture`
+- `cn.omix.util.ai.AiChatCapture` — `public final class AiChatCapture`
+- `cn.omix.util.ai.AiChatCapture` — `public static synchronized void record(Text text)`
+- `cn.omix.util.ai.AiClientReference` — `cn.omix.util.ai.AiClientReference`
+- `cn.omix.util.ai.AiContainerRotation` — `cn.omix.util.ai.AiContainerRotation`
+- `cn.omix.util.ai.AiContainerSnapshot` — `cn.omix.util.ai.AiContainerSnapshot`
+- `cn.omix.util.ai.AiContainerTools` — `cn.omix.util.ai.AiContainerTools`
+- `cn.omix.util.ai.AiContainerTools` — `public final class AiContainerTools`
+- `cn.omix.util.ai.AiContainerTools` — `public static void playerMovementUpdated(MinecraftClient client)`
+- `cn.omix.util.ai.AiContainerTools` — `public static void clientTick(MinecraftClient client)`
+- `cn.omix.util.ai.AiContainerTools` — `public static void inventorySynchronized(MinecraftClient client, int syncId)`
+- `cn.omix.util.ai.AiGameContext` — `cn.omix.util.ai.AiGameContext`
+- `cn.omix.util.ai.AiPacketTools` — `cn.omix.util.ai.AiPacketTools`
+- `cn.omix.util.ai.AiToolCall` — `cn.omix.util.ai.AiToolCall`
+- `cn.omix.util.ai.AiToolExecutor` — `cn.omix.util.ai.AiToolExecutor`
+- `cn.omix.util.ai.AiToolSnapshot` — `cn.omix.util.ai.AiToolSnapshot`
+- `cn.omix.util.ai.GameToolSessions` — `cn.omix.util.ai.GameToolSessions`
+- `cn.omix.util.ai.GameToolSessions` — `public synchronized void close()`
+- `cn.omix.util.ai.HarnessBundle` — `cn.omix.util.ai.HarnessBundle`
+- `cn.omix.util.ai.HarnessRuntime` — `cn.omix.util.ai.HarnessRuntime`
+- `cn.omix.util.ai.HarnessRuntime` — `public final class HarnessRuntime implements AutoCloseable`
+- `cn.omix.util.ai.HarnessRuntime` — `public enum State`
+- `cn.omix.util.ai.HarnessRuntime` — `public HarnessRuntime(Path root, Path existingNodeCache, Path workspace)`
+- `cn.omix.util.ai.HarnessRuntime` — `public State getState()`
+- `cn.omix.util.ai.HarnessRuntime` — `public Throwable getFailure()`
+- `cn.omix.util.ai.HarnessRuntime` — `public BrowserPreparationProgress getProgress()`
+- `cn.omix.util.ai.HarnessRuntime` — `public URI getUrl()`
+- `cn.omix.util.ai.HarnessRuntime` — `public synchronized CompletableFuture<URI> startAsync()`
+- `cn.omix.util.ai.HarnessRuntime` — `public synchronized CompletableFuture<URI> restartAsync()`
+- `cn.omix.util.ai.HarnessRuntime` — `public synchronized void close()`
+- `cn.omix.util.ai.HarnessStartupLog` — `cn.omix.util.ai.HarnessStartupLog`
+- `cn.omix.util.ai.MinecraftCommandToolExecutor` — `cn.omix.util.ai.MinecraftCommandToolExecutor`
+- `cn.omix.util.ai.MinecraftCommandToolExecutor` — `public AiToolSnapshot snapshot()`
+- `cn.omix.util.ai.MinecraftCommandToolExecutor` — `public CompletableFuture<String> execute(AiToolCall call)`
+- `cn.omix.util.ai.MinecraftGameBridge` — `cn.omix.util.ai.MinecraftGameBridge`
+- `cn.omix.util.ai.MinecraftGameBridge` — `public final class MinecraftGameBridge implements AutoCloseable`
+- `cn.omix.util.ai.MinecraftGameBridge` — `public MinecraftGameBridge()`
+- `cn.omix.util.ai.MinecraftGameBridge` — `public CompletableFuture<JsonElement> execute(String name, JsonObject arguments)`
+- `cn.omix.util.ai.MinecraftGameBridge` — `public boolean requiresWorld(String name)`
+- `cn.omix.util.ai.MinecraftGameBridge` — `public boolean independent(String name, JsonObject args)`
+- `cn.omix.util.ai.MinecraftGameBridge` — `public void reset()`
+- `cn.omix.util.ai.MinecraftGameBridge` — `public String endpoint()`
+- `cn.omix.util.ai.MinecraftGameBridge` — `public String token()`
+- `cn.omix.util.ai.MinecraftGameBridge` — `public void close()`
+- `cn.omix.util.animation.Easing` — `cn.omix.util.animation.Easing`
+- `cn.omix.util.animation.Easing` — `public enum Easing`
+- `cn.omix.util.animation.Easing` — `public String toString()`
+- `cn.omix.util.animation.EasingAnimation` — `cn.omix.util.animation.EasingAnimation`
+- `cn.omix.util.animation.EasingAnimation` — `public class EasingAnimation`
+- `cn.omix.util.animation.EasingAnimation` — `public EasingAnimation(final Easing easing, final long duration)`
+- `cn.omix.util.animation.EasingAnimation` — `public void run(final double destinationValue)`
+- `cn.omix.util.animation.EasingAnimation` — `public double getProgress()`
+- `cn.omix.util.animation.EasingAnimation` — `public Double getValue()`
+- `cn.omix.util.animation.EasingAnimation` — `public void reset()`
+- `cn.omix.util.combat.AutoWeaponItems` — `cn.omix.util.combat.AutoWeaponItems`
+- `cn.omix.util.combat.AutoWeaponItems` — `public final class AutoWeaponItems`
+- `cn.omix.util.combat.AutoWeaponItems` — `public static AutoWeaponSelection.Kind kind(ItemStack stack)`
+- `cn.omix.util.combat.AutoWeaponItems` — `public static int enchantment(ItemStack stack, RegistryKey<Enchantment> key)`
+- `cn.omix.util.combat.AutoWeaponItems` — `public static double score(ItemStack stack)`
+- `cn.omix.util.combat.AutoWeaponItems` — `public static double attackSpeed(PlayerEntity player, ItemStack weapon)`
+- `cn.omix.util.combat.AutoWeaponItems` — `public static boolean wouldBlock(PlayerEntity player, LivingEntity target)`
+- `cn.omix.util.combat.AutoWeaponSelection` — `cn.omix.util.combat.AutoWeaponSelection`
+- `cn.omix.util.combat.AutoWeaponSelection` — `public final class AutoWeaponSelection`
+- `cn.omix.util.combat.AutoWeaponSelection` — `public enum Kind`
+- `cn.omix.util.combat.AutoWeaponSelection` — `public record Candidate(int slot, Kind kind, boolean preferred, double score, int durability)`
+- `cn.omix.util.combat.AutoWeaponSelection` — `public static int select(List<Candidate> candidates, boolean smash, boolean shield, int selectedSlot)`
+- `cn.omix.util.combat.AutoWeaponSlotState` — `cn.omix.util.combat.AutoWeaponSlotState`
+- `cn.omix.util.combat.AutoWeaponSlotState` — `public final class AutoWeaponSlotState`
+- `cn.omix.util.combat.AutoWeaponSlotState` — `public void select(int current, int next, int tick, int duration)`
+- `cn.omix.util.combat.AutoWeaponSlotState` — `public void observe(int current)`
+- `cn.omix.util.combat.AutoWeaponSlotState` — `public int expire(int current, int tick)`
+- `cn.omix.util.combat.AutoWeaponSlotState` — `public int restore(int current)`
+- `cn.omix.util.combat.AutoWeaponSlotState` — `public boolean owns(int current)`
+- `cn.omix.util.combat.AutoWeaponSlotState` — `public void clear()`
+- `cn.omix.util.combat.CriticalsLandingPredictor` — `cn.omix.util.combat.CriticalsLandingPredictor`
+- `cn.omix.util.combat.CriticalsLandingPredictor` — `public final class CriticalsLandingPredictor`
+- `cn.omix.util.combat.CriticalsLandingPredictor` — `public static boolean willLand(ClientPlayerEntity player, int ticks)`
+- `cn.omix.util.combat.CriticalsTiming` — `cn.omix.util.combat.CriticalsTiming`
+- `cn.omix.util.combat.CriticalsTiming` — `public final class CriticalsTiming`
+- `cn.omix.util.combat.CriticalsTiming` — `public boolean shouldDefer(boolean modern, int hurtTime, float damage, boolean cannotCrit, double vy, float cooldown, float cooldownPeriod, float targetTicks, IntPredicate predictsLanding)`
+- `cn.omix.util.combat.CriticalsTiming` — `public static float estimateDamage(float base, float cooldown, boolean cannotCrit, double vy)`
+- `cn.omix.util.combat.CriticalsTiming` — `public static boolean skipStuckFall(boolean useFallDistance, double fallDistance, double vy)`
+- `cn.omix.util.combat.MaceSmashTiming` — `cn.omix.util.combat.MaceSmashTiming`
+- `cn.omix.util.combat.MaceSmashTiming` — `public final class MaceSmashTiming`
+- `cn.omix.util.combat.MaceSmashTiming` — `public static boolean canBypassCooldown(boolean mace, boolean vanillaSmash, boolean onGround, double velocityY)`
+- `cn.omix.util.combat.MeleeDamagePredictor` — `cn.omix.util.combat.MeleeDamagePredictor`
+- `cn.omix.util.combat.MeleeDamagePredictor` — `public final class MeleeDamagePredictor`
+- `cn.omix.util.combat.MeleeDamagePredictor` — `public static boolean canKill(PlayerEntity player, LivingEntity target)`
+- `cn.omix.util.combat.ReachServerRange` — `cn.omix.util.combat.ReachServerRange`
+- `cn.omix.util.combat.ReachServerRange` — `public final class ReachServerRange`
+- `cn.omix.util.combat.ReachServerRange` — `public static boolean contains(Vec3d serverPosition, double eyeHeight, Box targetBox, double configuredRange)`
+- `cn.omix.util.combat.ReachTeleportState` — `cn.omix.util.combat.ReachTeleportState`
+- `cn.omix.util.combat.ReachTeleportState` — `public synchronized void remember(Object connection, Object world, Object player, int id, T position)`
+- `cn.omix.util.combat.ReachTeleportState` — `public synchronized Pending<T> peek(Object connection, Object world, Object player)`
+- `cn.omix.util.combat.ReachTeleportState` — `public synchronized Pending<T> take(Object connection, Object world, Object player)`
+- `cn.omix.util.combat.ReachTeleportState` — `public synchronized void clear()`
+- `cn.omix.util.misc.KeyUtil` — `cn.omix.util.misc.KeyUtil`
+- `cn.omix.util.misc.KeyUtil` — `public final class KeyUtil`
+- `cn.omix.util.misc.KeyUtil` — `public static int mouseKeyCode(int button)`
+- `cn.omix.util.misc.KeyUtil` — `public static int mouseButton(int keyCode)`
+- `cn.omix.util.misc.KeyUtil` — `public static boolean isPressed(int keyCode, IntPredicate keyboardPressed, IntPredicate mousePressed)`
+- `cn.omix.util.misc.KeyUtil` — `public static int getKeyCode(String keyName)`
+- `cn.omix.util.misc.KeyUtil` — `public static String getKeyName(int keyCode)`
+- `cn.omix.util.misc.MathUtil` — `cn.omix.util.misc.MathUtil`
+- `cn.omix.util.misc.MathUtil` — `public class MathUtil`
+- `cn.omix.util.misc.MathUtil` — `public static float getRandomInRange(float min, float max)`
+- `cn.omix.util.misc.MathUtil` — `public static long getRandomInRange(long min, long max)`
+- `cn.omix.util.misc.MouseUtil` — `cn.omix.util.misc.MouseUtil`
+- `cn.omix.util.misc.MouseUtil` — `public class MouseUtil`
+- `cn.omix.util.misc.MouseUtil` — `public static boolean isHovered(float mouseX, float mouseY, float x, float y, float width, float height)`
+- `cn.omix.util.misc.RomanNumeralUtil` — `cn.omix.util.misc.RomanNumeralUtil`
+- `cn.omix.util.misc.RomanNumeralUtil` — `public class RomanNumeralUtil`
+- `cn.omix.util.misc.RomanNumeralUtil` — `public static String generate(int number)`
+- `cn.omix.util.misc.StringUtil` — `cn.omix.util.misc.StringUtil`
+- `cn.omix.util.misc.StringUtil` — `public class StringUtil`
+- `cn.omix.util.misc.StringUtil` — `public static int parseColorCode(char codeChar, int fallbackColor)`
+- `cn.omix.util.misc.TimerSpeedUtil` — `cn.omix.util.misc.TimerSpeedUtil`
+- `cn.omix.util.misc.TimerSpeedUtil` — `public class TimerSpeedUtil`
+- `cn.omix.util.misc.TimerSpeedUtil` — `public static float getTimerSpeed()`
+- `cn.omix.util.misc.TimerSpeedUtil` — `public static void setTemporaryOverride(Object owner, float speed)`
+- `cn.omix.util.misc.TimerSpeedUtil` — `public static void clearTemporaryOverride(Object owner)`
+- `cn.omix.util.misc.TimerSpeedUtil` — `public static void setTimerSpeed(float speed)`
+- `cn.omix.util.misc.TimerSpeedUtil` — `public static void setTimerOverride(Supplier<Float> speed)`
+- `cn.omix.util.misc.TimerSpeedUtil` — `public static void clearTimerOverride()`
+- `cn.omix.util.misc.TimerSpeedUtil` — `public static void reset()`
+- `cn.omix.util.misc.TimerUtil` — `cn.omix.util.misc.TimerUtil`
+- `cn.omix.util.misc.TimerUtil` — `public class TimerUtil`
+- `cn.omix.util.misc.TimerUtil` — `public long time`
+- `cn.omix.util.misc.TimerUtil` — `public TimerUtil()`
+- `cn.omix.util.misc.TimerUtil` — `public void reset()`
+- `cn.omix.util.misc.TimerUtil` — `public boolean finished(long delay)`
+- `cn.omix.util.misc.TimerUtil` — `public boolean hasTimeElapsed(long time)`
+- `cn.omix.util.misc.TimerUtil` — `public boolean hasTimeElapsed(double time)`
+- `cn.omix.util.misc.TimerUtil` — `public long getTime()`
+- `cn.omix.util.move.PredictionTimerBalance` — `cn.omix.util.move.PredictionTimerBalance`
+- `cn.omix.util.move.PredictionTimerBalance` — `public final class PredictionTimerBalance`
+- `cn.omix.util.move.PredictionTimerBalance` — `public float boost()`
+- `cn.omix.util.move.PredictionTimerBalance` — `public float slow(float lowSpeed, int maxSlowTicks)`
+- `cn.omix.util.move.PredictionTimerBalance` — `public void prepareNextJump()`
+- `cn.omix.util.move.PredictionTimerBalance` — `public void reset()`
+- `cn.omix.util.move.PredictionTimerBalance` — `public static boolean isNormalSpeed(float speed)`
+- `cn.omix.util.network.GameConnectionContext` — `cn.omix.util.network.GameConnectionContext`
+- `cn.omix.util.network.GameConnectionContext` — `public final class GameConnectionContext`
+- `cn.omix.util.network.GameConnectionContext` — `public static String username(MinecraftClient client)`
+- `cn.omix.util.network.GameConnectionContext` — `public static String serverAddress(MinecraftClient client)`
+- `cn.omix.util.network.GameConnectionContext` — `public static String serverAddress(ServerInfo server)`
+- `cn.omix.util.network.GameConnectionContext` — `public static ServerInfo fisProxyServerInfo(String entrance, SessionStatus status)`
+- `cn.omix.util.network.PacketLogBuffer` — `cn.omix.util.network.PacketLogBuffer`
+- `cn.omix.util.network.PacketLogBuffer` — `public final class PacketLogBuffer`
+- `cn.omix.util.network.PacketLogBuffer` — `public static final int CAPACITY`
+- `cn.omix.util.network.PacketLogBuffer` — `public record Options(PacketLogFilter sent, PacketLogFilter received, boolean compactMovement, boolean detail, boolean chatOutput)`
+- `cn.omix.util.network.PacketLogBuffer` — `public record Entry(String name, String details, long tick, boolean sent, boolean cancelled, boolean bypass, boolean movement, boolean bundled, boolean detail)`
+- `cn.omix.util.network.PacketLogBuffer` — `public synchronized void offer(Packet<?> packet, boolean sent, boolean cancelled, boolean bypass, boolean bundled, long tick, Options options)`
+- `cn.omix.util.network.PacketLogBuffer` — `public synchronized List<Entry> drain(int limit)`
+- `cn.omix.util.network.PacketLogBuffer` — `public synchronized long takeDropped()`
+- `cn.omix.util.network.PacketLogBuffer` — `public synchronized void clear()`
+- `cn.omix.util.network.PacketLogBuffer` — `public synchronized void clearPending()`
+- `cn.omix.util.network.PacketLogBuffer` — `public synchronized PacketLogHistory.Stats historyStats()`
+- `cn.omix.util.network.PacketLogBuffer` — `public synchronized long totalChatDropped()`
+- `cn.omix.util.network.PacketLogBuffer` — `public synchronized PacketLogHistory.Page readHistory(String cursor, int limit, PacketLogHistory.Direction direction, PacketLogRules rules, boolean details)`
+- `cn.omix.util.network.PacketLogContent` — `cn.omix.util.network.PacketLogContent`
+- `cn.omix.util.network.PacketLogContent` — `public final class PacketLogContent`
+- `cn.omix.util.network.PacketLogContent` — `public static final int MAX_CHARS`
+- `cn.omix.util.network.PacketLogContent` — `public static String snapshot(Object value)`
+- `cn.omix.util.network.PacketLogFilter` — `cn.omix.util.network.PacketLogFilter`
+- `cn.omix.util.network.PacketLogFilter` — `public record PacketLogFilter(boolean enabled, boolean includeCancelled, boolean includeNoEvent, boolean includeBundle, Set<Kind> ignored, PacketLogRules rules)`
+- `cn.omix.util.network.PacketLogFilter` — `public PacketLogFilter`
+- `cn.omix.util.network.PacketLogFilter` — `public enum Kind`
+- `cn.omix.util.network.PacketLogFilter` — `public boolean allows(Packet<?> packet, boolean cancelled, boolean bypass, boolean bundled)`
+- `cn.omix.util.network.PacketLogFilter` — `public static Kind kind(Packet<?> packet)`
+- `cn.omix.util.network.PacketLogFormatter` — `cn.omix.util.network.PacketLogFormatter`
+- `cn.omix.util.network.PacketLogFormatter` — `public final class PacketLogFormatter`
+- `cn.omix.util.network.PacketLogFormatter` — `public static String name(Packet<?> packet)`
+- `cn.omix.util.network.PacketLogFormatter` — `public static String details(Packet<?> packet, boolean detail)`
+- `cn.omix.util.network.PacketLogFormatter` — `public static String inlineDetails(String details)`
+- `cn.omix.util.network.PacketLogFormatter` — `public static String details(Packet<?> packet)`
+- `cn.omix.util.network.PacketLogFormatter` — `public void interact(Hand hand)`
+- `cn.omix.util.network.PacketLogFormatter` — `public void interactAt(Hand hand, Vec3d pos)`
+- `cn.omix.util.network.PacketLogFormatter` — `public void attack()`
+- `cn.omix.util.network.PacketLogHistory` — `cn.omix.util.network.PacketLogHistory`
+- `cn.omix.util.network.PacketLogHistory` — `public final class PacketLogHistory`
+- `cn.omix.util.network.PacketLogHistory` — `public static final int CAPACITY`
+- `cn.omix.util.network.PacketLogHistory` — `public static final int PAGE_CONTENT_CHARS`
+- `cn.omix.util.network.PacketLogHistory` — `public enum Direction`
+- `cn.omix.util.network.PacketLogHistory` — `public record Logged(long sequence, long timestampMillis, PacketLogBuffer.Entry entry)`
+- `cn.omix.util.network.PacketLogHistory` — `public record Stats(String sessionId, int retained, long captured, long overwritten, String latestCursor)`
+- `cn.omix.util.network.PacketLogHistory` — `public record Page(Stats stats, List<Logged> entries, String nextCursor, boolean hasMore, long missed)`
+- `cn.omix.util.network.PacketLogHistory` — `public synchronized void append(PacketLogBuffer.Entry entry)`
+- `cn.omix.util.network.PacketLogHistory` — `public synchronized Stats stats()`
+- `cn.omix.util.network.PacketLogHistory` — `public synchronized Page read(String cursor, int limit, Direction direction, PacketLogRules rules, boolean details)`
+- `cn.omix.util.network.PacketLogHistory` — `public synchronized void clear()`
+- `cn.omix.util.network.PacketLogHooks` — `cn.omix.util.network.PacketLogHooks`
+- `cn.omix.util.network.PacketLogHooks` — `public final class PacketLogHooks`
+- `cn.omix.util.network.PacketLogHooks` — `public static void sent(ClientConnection connection, Packet<?> packet, boolean cancelled, boolean bypass)`
+- `cn.omix.util.network.PacketLogHooks` — `public static void replacement(Runnable send)`
+- `cn.omix.util.network.PacketLogHooks` — `public static void receive(ClientConnection connection, Packet<?> packet, Runnable apply)`
+- `cn.omix.util.network.PacketLogHooks` — `public static void receivedDecision(Packet<?> packet, boolean cancelled)`
+- `cn.omix.util.network.PacketLogRules` — `cn.omix.util.network.PacketLogRules`
+- `cn.omix.util.network.PacketLogRules` — `public record PacketLogRules(List<String> whitelist, List<String> blacklist)`
+- `cn.omix.util.network.PacketLogRules` — `public static final PacketLogRules ALL`
+- `cn.omix.util.network.PacketLogRules` — `public PacketLogRules`
+- `cn.omix.util.network.PacketLogRules` — `public static PacketLogRules parse(String whitelist, String blacklist)`
+- `cn.omix.util.network.PacketLogRules` — `public boolean allows(String id)`
+- `cn.omix.util.network.PacketUtil` — `cn.omix.util.network.PacketUtil`
+- `cn.omix.util.network.PacketUtil` — `public class PacketUtil implements IMinecraft`
+- `cn.omix.util.network.PacketUtil` — `public static boolean isBypassingEvents()`
+- `cn.omix.util.network.PacketUtil` — `public static <T> T runWithoutEvents(Supplier<T> action)`
+- `cn.omix.util.network.PacketUtil` — `public static void sendPacket(Packet<?> packet)`
+- `cn.omix.util.network.PacketUtil` — `public static void sendPacketNoEvent(Packet<?> packet)`
+- `cn.omix.util.network.PacketUtil` — `public static void sendSequencedPacket(SequencedPacketCreator packetCreator)`
+- `cn.omix.util.network.PacketUtil` — `public static void sendSequencedPacketNoEvent(SequencedPacketCreator packetCreator)`
+- `cn.omix.util.network.PacketUtil` — `public static void receivePacket(Packet<?> packet)`
+- `cn.omix.util.network.PacketUtil` — `public static void receivePacketNoEvent(Packet<?> packet)`
+- `cn.omix.util.node.NodePlatform` — `cn.omix.util.node.NodePlatform`
+- `cn.omix.util.node.NodePlatform` — `public enum NodePlatform`
+- `cn.omix.util.node.NodePlatform` — `public String id()`
+- `cn.omix.util.node.NodePlatform` — `public boolean windows()`
+- `cn.omix.util.node.NodePlatform` — `public static NodePlatform current()`
+- `cn.omix.util.node.NodePlatform` — `public static NodePlatform fromMcef(MCEFPlatform platform)`
+- `cn.omix.util.node.NodePlatform` — `public static NodePlatform detect(String osName, String architecture)`
+- `cn.omix.util.node.NodeRuntimeDescriptor` — `cn.omix.util.node.NodeRuntimeDescriptor`
+- `cn.omix.util.node.NodeRuntimeDescriptor` — `public record NodeRuntimeDescriptor( String version, NodePlatform platform, String distributionPath, String sha256, String archiveEntry )`
+- `cn.omix.util.node.NodeRuntimeDescriptor` — `public static final String VERSION`
+- `cn.omix.util.node.NodeRuntimeDescriptor` — `public URI downloadUri()`
+- `cn.omix.util.node.NodeRuntimeDescriptor` — `public List<URI> downloadUris()`
+- `cn.omix.util.node.NodeRuntimeDescriptor` — `public String executableName()`
+- `cn.omix.util.node.NodeRuntimeDescriptor` — `public static NodeRuntimeDescriptor current()`
+- `cn.omix.util.node.NodeRuntimeDescriptor` — `public static NodeRuntimeDescriptor forPlatform(NodePlatform platform)`
+- `cn.omix.util.node.NodeRuntimeDescriptor` — `public static Map<NodePlatform, NodeRuntimeDescriptor> all()`
+- `cn.omix.util.node.NodeRuntimeManager` — `cn.omix.util.node.NodeRuntimeManager`
+- `cn.omix.util.node.NodeRuntimeManager` — `public final class NodeRuntimeManager`
+- `cn.omix.util.node.NodeRuntimeManager` — `public NodeRuntimeManager(Path root)`
+- `cn.omix.util.node.NodeRuntimeManager` — `public CompletableFuture<Path> prepareAsync(Consumer<BrowserPreparationProgress> progress)`
+- `cn.omix.util.node.NodeRuntimeManager` — `public Path prepare(Consumer<BrowserPreparationProgress> progress)`
+- `cn.omix.util.node.NodeRuntimeManager` — `public boolean verify(Path runtimeDirectory, NodeRuntimeDescriptor descriptor)`
+- `cn.omix.util.node.NodeRuntimeManager` — `public synchronized void clearCurrent()`
+- `cn.omix.util.player.BlockUtil` — `cn.omix.util.player.BlockUtil`
+- `cn.omix.util.player.BlockUtil` — `public class BlockUtil implements IMinecraft`
+- `cn.omix.util.player.BlockUtil` — `public static int getBlockSlot(boolean maxStack)`
+- `cn.omix.util.player.BlockUtil` — `public static boolean isPlaceable(Block block)`
+- `cn.omix.util.player.ClickSlotUtil` — `cn.omix.util.player.ClickSlotUtil`
+- `cn.omix.util.player.ClickSlotUtil` — `public class ClickSlotUtil implements IMinecraft`
+- `cn.omix.util.player.ClickSlotUtil` — `public static void clickSlot(int slot, int button, SlotActionType action)`
+- `cn.omix.util.player.ClickSlotUtil` — `public static void click(int slot)`
+- `cn.omix.util.player.ClickSlotUtil` — `public static void shiftClick(int slot)`
+- `cn.omix.util.player.ClickSlotUtil` — `public static void drop(int slot)`
+- `cn.omix.util.player.ClickSlotUtil` — `public static void dropAll(int slot)`
+- `cn.omix.util.player.ClickSlotUtil` — `public static void swap(int slot, int hotbarSlot)`
+- `cn.omix.util.player.ClientRayTraceUtil` — `cn.omix.util.player.ClientRayTraceUtil`
+- `cn.omix.util.player.ClientRayTraceUtil` — `public final class ClientRayTraceUtil`
+- `cn.omix.util.player.ClientRayTraceUtil` — `public static BlockHitResult raycastBlock(float yaw, float pitch, double range)`
+- `cn.omix.util.player.EntityUtil` — `cn.omix.util.player.EntityUtil`
+- `cn.omix.util.player.EntityUtil` — `public class EntityUtil implements IMinecraft`
+- `cn.omix.util.player.EntityUtil` — `public static boolean isSelected(Entity entity)`
+- `cn.omix.util.player.EntityUtil` — `public static boolean isSelected(Entity entity, boolean checkBot, boolean checkTeams, boolean checkFriend, boolean checkSelf)`
+- `cn.omix.util.player.EntityUtil` — `public static boolean isAnimal(final Entity entity)`
+- `cn.omix.util.player.EntityUtil` — `public static boolean isMob(final Entity entity)`
+- `cn.omix.util.player.EntityUtil` — `public static boolean isOverVoid(double x, double y, double z)`
+- `cn.omix.util.player.FallingPlayer` — `cn.omix.util.player.FallingPlayer`
+- `cn.omix.util.player.FallingPlayer` — `public final class FallingPlayer`
+- `cn.omix.util.player.FallingPlayer` — `public FallingPlayer(ClientPlayerEntity player)`
+- `cn.omix.util.player.FallingPlayer` — `public void calculate(int ticks)`
+- `cn.omix.util.player.FallingPlayer` — `public BlockPos findCollision(int ticks)`
+- `cn.omix.util.player.FallingPlayer` — `public BlockHitResult findCollisionHit(int ticks)`
+- `cn.omix.util.player.FallingPlayer` — `public Vec3d getPos()`
+- `cn.omix.util.player.FallingPlayer` — `public Vec3d getEyePos()`
+- `cn.omix.util.player.FallingPlayer` — `public double getX()`
+- `cn.omix.util.player.FallingPlayer` — `public double getY()`
+- `cn.omix.util.player.FallingPlayer` — `public double getZ()`
+- `cn.omix.util.player.FallingPlayer` — `public void setPosition(double x, double y, double z)`
+- `cn.omix.util.player.FallingPlayer` — `public Vec3d getVelocity()`
+- `cn.omix.util.player.FallingPlayer` — `public void setVelocity(Vec3d velocity)`
+- `cn.omix.util.player.FallingPlayer` — `public float getYaw()`
+- `cn.omix.util.player.FallingPlayer` — `public void setYaw(float yaw)`
+- `cn.omix.util.player.FallingPlayer` — `public float getStrafe()`
+- `cn.omix.util.player.FallingPlayer` — `public void setStrafe(float strafe)`
+- `cn.omix.util.player.FallingPlayer` — `public float getForward()`
+- `cn.omix.util.player.FallingPlayer` — `public void setForward(float forward)`
+- `cn.omix.util.player.FallingPlayer` — `public float getAcceleration()`
+- `cn.omix.util.player.FallingPlayer` — `public void setAcceleration(float acceleration)`
+- `cn.omix.util.player.FallingPlayer` — `public boolean isOnGround()`
+- `cn.omix.util.player.FallingPlayer` — `public void setOnGround(boolean onGround)`
+- `cn.omix.util.player.ItemSpoofUtil` — `cn.omix.util.player.ItemSpoofUtil`
+- `cn.omix.util.player.ItemSpoofUtil` — `public class ItemSpoofUtil implements IMinecraft`
+- `cn.omix.util.player.ItemSpoofUtil` — `public static void startSpoof(int slot)`
+- `cn.omix.util.player.ItemSpoofUtil` — `public static void stopSpoof()`
+- `cn.omix.util.player.ItemSpoofUtil` — `public static ItemStack getStack()`
+- `cn.omix.util.player.ItemUtil` — `cn.omix.util.player.ItemUtil`
+- `cn.omix.util.player.ItemUtil` — `public class ItemUtil implements IMinecraft`
+- `cn.omix.util.player.ItemUtil` — `public static boolean isUseless(int slotIndex, ItemStack stack)`
+- `cn.omix.util.player.ItemUtil` — `public static float getArmorScore(ItemStack stack)`
+- `cn.omix.util.player.ItemUtil` — `public static float getWeaponScore(ItemStack stack)`
+- `cn.omix.util.player.ItemUtil` — `public static float getToolScore(ItemStack stack)`
+- `cn.omix.util.player.ItemUtil` — `public static int getBestArmorSlot(EquipmentSlot equipmentSlot)`
+- `cn.omix.util.player.ItemUtil` — `public static int getBestWeaponSlot(int targetSlot)`
+- `cn.omix.util.player.ItemUtil` — `public static int getBestWeaponSlot()`
+- `cn.omix.util.player.ItemUtil` — `public static int getBestToolSlot(TagKey<Item> toolTag, int targetSlot)`
+- `cn.omix.util.player.ItemUtil` — `public static int getBestToolSlot(TagKey<Item> toolTag)`
+- `cn.omix.util.player.ItemUtil` — `public static int getBestBlockSlot(int targetSlot)`
+- `cn.omix.util.player.ItemUtil` — `public static int getBestPearlSlot(int targetSlot)`
+- `cn.omix.util.player.ItemUtil` — `public static int getBestProjectileSlot(int targetSlot)`
+- `cn.omix.util.player.ItemUtil` — `public static int getBestFoodSlot(int targetSlot)`
+- `cn.omix.util.player.ItemUtil` — `public static boolean isArmor(ItemStack stack)`
+- `cn.omix.util.player.ItemUtil` — `public static boolean isSword(ItemStack stack)`
+- `cn.omix.util.player.ItemUtil` — `public static boolean isTool(ItemStack stack)`
+- `cn.omix.util.player.MovementUtil` — `cn.omix.util.player.MovementUtil`
+- `cn.omix.util.player.MovementUtil` — `public class MovementUtil implements IMinecraft`
+- `cn.omix.util.player.MovementUtil` — `public static void strafe()`
+- `cn.omix.util.player.MovementUtil` — `public static void strafe(double speed)`
+- `cn.omix.util.player.MovementUtil` — `public static void stop()`
+- `cn.omix.util.player.MovementUtil` — `public static boolean isMoving()`
+- `cn.omix.util.player.MovementUtil` — `public static boolean isForwardPressed()`
+- `cn.omix.util.player.MovementUtil` — `public static double getDirection()`
+- `cn.omix.util.player.MovementUtil` — `public static double getDirection(float rotationYaw, float moveForward, float moveStrafing)`
+- `cn.omix.util.player.MovementUtil` — `public static double getSpeed()`
+- `cn.omix.util.player.MovementUtil` — `public static double getJumpMotion()`
+- `cn.omix.util.player.MovementUtil` — `public static float getMoveYaw()`
+- `cn.omix.util.player.MovementUtil` — `public static float getDirectionYaw()`
+- `cn.omix.util.player.MovementUtil` — `public static void setSpeed(double speed, float yaw)`
+- `cn.omix.util.player.MovementUtil` — `public static void addSpeed(double speed, float yaw)`
+- `cn.omix.util.player.MovementUtil` — `public static void fixMovement(MoveInputEvent event, float yaw)`
+- `cn.omix.util.player.MovementUtil` — `public static Vec3d movementInputToVelocity(Vec3d movementInput, float speed, float yaw)`
+- `cn.omix.util.player.MovementUtil` — `public static boolean movementInput()`
+- `cn.omix.util.player.MovementUtil` — `public static double getBPS()`
+- `cn.omix.util.player.RayCastUtil` — `cn.omix.util.player.RayCastUtil`
+- `cn.omix.util.player.RayCastUtil` — `public class RayCastUtil implements IMinecraft`
+- `cn.omix.util.player.RayCastUtil` — `public static boolean overBlock(BlockPos pos, Direction side, boolean strict)`
+- `cn.omix.util.player.RayCastUtil` — `public static boolean overBlock(BlockPos pos, Direction side, boolean strict, float yaw, float pitch, double range)`
+- `cn.omix.util.player.RayCastUtil` — `public static BlockHitResult raycastBlock(float yaw, float pitch, double range)`
+- `cn.omix.util.player.RayCastUtil` — `public static boolean overEntity(Entity target)`
+- `cn.omix.util.player.RotationUtil` — `cn.omix.util.player.RotationUtil`
+- `cn.omix.util.player.RotationUtil` — `public class RotationUtil implements IMinecraft`
+- `cn.omix.util.player.RotationUtil` — `public static float[] nearestRotation(final Box box)`
+- `cn.omix.util.player.RotationUtil` — `public static Vec3d getNearestPointBB(Box box)`
+- `cn.omix.util.player.RotationUtil` — `public static boolean isVisible(Vec3d targetVec)`
+- `cn.omix.util.player.RotationUtil` — `public static float getDistanceToEntity(LivingEntity target)`
+- `cn.omix.util.player.RotationUtil` — `public static double getRotationDifference(LivingEntity entity)`
+- `cn.omix.util.player.RotationUtil` — `public static float[] getRotations(BlockPos pos)`
+- `cn.omix.util.player.RotationUtil` — `public static float[] getRotations(BlockPos pos, Direction facing)`
+- `cn.omix.util.player.RotationUtil` — `public static float[] getRotations(Vec3d target)`
+- `cn.omix.util.player.RotationUtil` — `public static float[] getRotations(Vec3d origin, Vec3d target)`
+- `cn.omix.util.player.RotationUtil` — `public static float[] getRotations(double rotX, double rotY, double rotZ, double startX, double startY, double startZ)`
+- `cn.omix.util.player.RotationUtil` — `public static float[] getNearestRotation(BlockPos pos, Direction facing, float[] currentRotation, double shrink)`
+- `cn.omix.util.player.RotationUtil` — `public static float[] getSmoothRotation(float[] lastRotation, float[] targetRotation, double speed)`
+- `cn.omix.util.player.RotationUtil` — `public static float[] applySensitivityPatch(float[] rotations)`
+- `cn.omix.util.player.RotationUtil` — `public static float[] applySensitivityPatch(float[] rotation, float[] previousRotation)`
+- `cn.omix.util.player.RotationUtil` — `public static Vec3d getVectorForRotation(float yaw, float pitch)`
+- `cn.omix.util.player.blockin.BlockInPlanner` — `cn.omix.util.player.blockin.BlockInPlanner`
+- `cn.omix.util.player.blockin.BlockInPlanner` — `public final class BlockInPlanner`
+- `cn.omix.util.player.blockin.BlockInPlanner` — `public interface Environment`
+- `cn.omix.util.player.blockin.BlockInPlanner` — `public record Aim(BlockHitResult hit, float yaw, float pitch)`
+- `cn.omix.util.player.blockin.BlockInPlanner.Aim` — `public BlockPos goal()`
+- `cn.omix.util.player.blockin.BlockInPlanner` — `public BlockInPlanner(Environment environment, BlockPos feet, Vec3d eye, float yaw, float pitch, double reach, DoubleSupplier random)`
+- `cn.omix.util.player.blockin.BlockInPlanner` — `public Aim find(Vec3d closestPlayer)`
+- `cn.omix.util.player.blockin.BlockInPlanner` — `public static List<BlockPos> enclosure(BlockPos feet)`
+- `cn.omix.util.player.blockin.BlockInPlanner` — `public static boolean isDirect(BlockPos feet, BlockPos pos)`
+- `cn.omix.util.player.blockin.BlockInPlanner` — `public static float[] smooth(float yaw, float pitch, float targetYaw, float targetPitch, float speed, float randomization, double random)`
+- `cn.omix.util.player.chest.ChestInteractionState` — `cn.omix.util.player.chest.ChestInteractionState`
+- `cn.omix.util.player.chest.ChestInteractionState` — `public final class ChestInteractionState`
+- `cn.omix.util.player.chest.ChestInteractionState` — `public void sprintChanged()`
+- `cn.omix.util.player.chest.ChestInteractionState` — `public void blockUsed()`
+- `cn.omix.util.player.chest.ChestInteractionState` — `public boolean canUse()`
+- `cn.omix.util.player.chest.ChestInteractionState` — `public boolean beginUse()`
+- `cn.omix.util.player.chest.ChestInteractionState` — `public boolean suppressOtherUse()`
+- `cn.omix.util.player.chest.ChestInteractionState` — `public boolean awaitingScreen()`
+- `cn.omix.util.player.chest.ChestInteractionState` — `public void finishUse()`
+- `cn.omix.util.player.chest.ChestInteractionState` — `public void tickEnded()`
+- `cn.omix.util.player.chest.ChestInteractionState` — `public void reset()`
+- `cn.omix.util.player.chest.ChestInteractionState` — `public static float nearestYaw(float reference, float yaw)`
+- `cn.omix.util.player.chest.ChestScreenGuard` — `cn.omix.util.player.chest.ChestScreenGuard`
+- `cn.omix.util.player.chest.ChestScreenGuard` — `public final class ChestScreenGuard implements IMinecraft`
+- `cn.omix.util.player.chest.ChestScreenGuard` — `public static void screenChanged()`
+- `cn.omix.util.player.chest.ChestScreenGuard` — `public static boolean suppressInput()`
+- `cn.omix.util.player.chest.ChestScreenGuard` — `public static void beforePlayerMovement()`
+- `cn.omix.util.player.chest.ChestScreenGuard` — `public static void playerTickCompleted()`
+- `cn.omix.util.player.chest.ChestScreenGuard` — `public static boolean canUseContainer()`
+- `cn.omix.util.player.chest.ChestScreenGuard` — `public static boolean deferClose()`
+- `cn.omix.util.player.chest.ChestScreenGuard` — `public static void clientTick()`
+- `cn.omix.util.player.chest.ChestScreenGuard` — `public static void clear()`
+- `cn.omix.util.player.chest.ChestScreenState` — `cn.omix.util.player.chest.ChestScreenState`
+- `cn.omix.util.player.chest.ChestScreenState` — `public final class ChestScreenState`
+- `cn.omix.util.player.chest.ChestScreenState` — `public void open(int syncId)`
+- `cn.omix.util.player.chest.ChestScreenState` — `public boolean active()`
+- `cn.omix.util.player.chest.ChestScreenState` — `public boolean ready(int syncId)`
+- `cn.omix.util.player.chest.ChestScreenState` — `public void completePlayerTick(int syncId, boolean neutralInput, boolean stoppedSprinting)`
+- `cn.omix.util.player.chest.ChestScreenState` — `public boolean deferClose(int syncId)`
+- `cn.omix.util.player.chest.ChestScreenState` — `public boolean shouldClose(int syncId)`
+- `cn.omix.util.player.chest.ChestScreenState` — `public void reset()`
+- `cn.omix.util.player.noslow.GrimNoSlowPackets` — `cn.omix.util.player.noslow.GrimNoSlowPackets`
+- `cn.omix.util.player.noslow.GrimNoSlowPackets` — `public final class GrimNoSlowPackets`
+- `cn.omix.util.player.noslow.GrimNoSlowPackets` — `public boolean allowsNoSlow()`
+- `cn.omix.util.player.noslow.GrimNoSlowPackets` — `public void clear()`
+- `cn.omix.util.player.noslow.GrimNoSlowPackets` — `public int size()`
+- `cn.omix.util.player.noslow.GrimNoSlowPackets` — `public void enqueue(Packet<?> packet)`
+- `cn.omix.util.player.noslow.GrimNoSlowPackets` — `public void flush(BooleanSupplier sameSession, Consumer<Packet<?>> apply)`
+- `cn.omix.util.player.noslow.GrimNoSlowPackets` — `public boolean bypassesBuffer(Packet<?> packet, int playerId, int livingFlagsId, GrimNoSlowState.Hand useHand)`
+- `cn.omix.util.player.noslow.GrimNoSlowPackets` — `public static boolean bypassesBuffer(Packet<?> packet)`
+- `cn.omix.util.player.noslow.GrimNoSlowPackets` — `public static GrimNoSlowState.Packet describe(Packet<?> packet)`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `cn.omix.util.player.noslow.GrimNoSlowState`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public final class GrimNoSlowState`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public enum State`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public enum Hand`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public enum Action`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public enum ItemType`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public enum Hit`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public enum Direction`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public enum PacketType`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public record Item(boolean empty, ItemType type, Action action, boolean food, boolean charged, boolean fireCharge, boolean waterBucket, boolean enderPearl)`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public record Packet(PacketType type, Hand hand, int sequence, float yaw, float pitch, int entityId)`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public GrimNoSlowState(Host host)`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public void onEnable()`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public void onDisable()`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public void onWorldEvent()`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public boolean isSuspended()`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public void setSuspended(boolean value)`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public void onClientTick(boolean pre)`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public void onPlayerUpdate()`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public void onSlowdown()`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public void onUseItem(Hand hand, Item stack)`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public void onPacket(Direction direction, Packet packet)`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public void claimLockedSlot()`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public void onQueueEvent(Direction direction, Packet packet)`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public void abortActive()`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public void discardSession()`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public boolean isBuffering()`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public Hand getUseHand()`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public boolean shouldLockHotbar()`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public boolean shouldBlockUseAfterInventoryClick()`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public interface Host`
+- `cn.omix.util.player.pathfinder.LinearPathFinder` — `cn.omix.util.player.pathfinder.LinearPathFinder`
+- `cn.omix.util.player.pathfinder.LinearPathFinder` — `public final class LinearPathFinder implements IMinecraft`
+- `cn.omix.util.player.pathfinder.LinearPathFinder` — `public static final LinearPathFinder INSTANCE`
+- `cn.omix.util.player.pathfinder.LinearPathFinder` — `public ArrayList<Vec3d> getPaths(BlockPos start, BlockPos end, int blocksPerStep, int maxSteps)`
+- `cn.omix.util.player.pathfinder.MainPathFinder` — `cn.omix.util.player.pathfinder.MainPathFinder`
+- `cn.omix.util.player.pathfinder.MainPathFinder` — `public final class MainPathFinder implements IMinecraft`
+- `cn.omix.util.player.pathfinder.MainPathFinder` — `public static ArrayList<Vec3d> computePath(Vec3d from, Vec3d to)`
+- `cn.omix.util.player.pathfinder.MainPathFinder` — `public static boolean canPassThrough(BlockPos pos)`
+- `cn.omix.util.player.pathfinder.PathFinder` — `cn.omix.util.player.pathfinder.PathFinder`
+- `cn.omix.util.player.pathfinder.PathFinder` — `public final class PathFinder implements IMinecraft`
+- `cn.omix.util.player.pathfinder.PathFinder` — `public PathFinder(Vec3d start, Vec3d end)`
+- `cn.omix.util.player.pathfinder.PathFinder` — `public ArrayList<Vec3d> getPath()`
+- `cn.omix.util.player.pathfinder.PathFinder` — `public void compute()`
+- `cn.omix.util.player.pathfinder.PathFinder` — `public void compute(int loops, int depth)`
+- `cn.omix.util.player.pathfinder.PathFinder` — `public static boolean isValid(Vec3d location, boolean checkGround)`
+- `cn.omix.util.player.pathfinder.PathFinder` — `public static boolean isValid(int x, int y, int z, boolean checkGround)`
+- `cn.omix.util.player.pathfinder.PathFinder.CompareHub` — `public int compare(PathHub first, PathHub second)`
+- `cn.omix.util.player.pathfinder.PathHub` — `cn.omix.util.player.pathfinder.PathHub`
+- `cn.omix.util.player.pathfinder.PathHub` — `public final class PathHub`
+- `cn.omix.util.player.pathfinder.PathHub` — `public PathHub(Vec3d location, PathHub parent, double squaredDistance, double currentCost, double maxCost, long sequence)`
+- `cn.omix.util.player.pathfinder.PathHub` — `public Vec3d getLocation()`
+- `cn.omix.util.player.pathfinder.PathHub` — `public ArrayList<Vec3d> getPathway()`
+- `cn.omix.util.player.pathfinder.PathHub` — `public double getSquaredDistance()`
+- `cn.omix.util.player.pathfinder.PathHub` — `public double getCurrentCost()`
+- `cn.omix.util.player.pathfinder.PathHub` — `public double getMaxCost()`
+- `cn.omix.util.player.pathfinder.PathHub` — `public long getSequence()`
+- `cn.omix.util.render.ColorUtil` — `cn.omix.util.render.ColorUtil`
+- `cn.omix.util.render.ColorUtil` — `public class ColorUtil implements IMinecraft`
+- `cn.omix.util.render.ColorUtil` — `public static int applyAlpha(int rgb, double alpha)`
+- `cn.omix.util.render.ColorUtil` — `public static int applyAlpha(int color, int alpha)`
+- `cn.omix.util.render.ColorUtil` — `public static Color applyAlpha(Color color, float alpha)`
+- `cn.omix.util.render.ColorUtil` — `public static int interpolate(int startColor, int endColor, float ratio)`
+- `cn.omix.util.render.ColorUtil` — `public static int getCustom(int alpha)`
+- `cn.omix.util.render.ColorUtil` — `public static int getFade(int counter, int alpha)`
+- `cn.omix.util.render.ColorUtil` — `public static int getFade(int firstColor, int secondColor, int counter, int alpha)`
+- `cn.omix.util.render.ColorUtil` — `public static int getRainbow(int counter, int alpha)`
+- `cn.omix.util.render.LivingEntityRenderStateExtension` — `cn.omix.util.render.LivingEntityRenderStateExtension`
+- `cn.omix.util.render.LivingEntityRenderStateExtension` — `public interface LivingEntityRenderStateExtension`
+- `cn.omix.util.render.Pipelines` — `cn.omix.util.render.Pipelines`
+- `cn.omix.util.render.Pipelines` — `public final class Pipelines`
+- `cn.omix.util.render.Pipelines` — `public static final RenderLayer box`
+- `cn.omix.util.render.ProjectUtil` — `cn.omix.util.render.ProjectUtil`
+- `cn.omix.util.render.ProjectUtil` — `public class ProjectUtil implements IMinecraft`
+- `cn.omix.util.render.Render2D` — `cn.omix.util.render.Render2D`
+- `cn.omix.util.render.Render2D` — `public final class Render2D implements IMinecraft`
+- `cn.omix.util.render.Render2D` — `public static void init()`
+- `cn.omix.util.render.Render2D` — `public static void drawRect(DrawContext context, float x, float y, float width, float height, int color)`
+- `cn.omix.util.render.Render2D` — `public static void drawGradient(DrawContext context, float x, float y, float width, float height, int startColor, int endColor, boolean horizontal)`
+- `cn.omix.util.render.Render2D` — `public static void drawOutline(DrawContext context, float x, float y, float width, float height, float thickness, int color)`
+- `cn.omix.util.render.Render2D` — `public static void drawTriangle(DrawContext context, float centerX, float centerY, float angle, float size, int color)`
+- `cn.omix.util.render.Render2D` — `public static void beginScissor(DrawContext context, float x, float y, float width, float height)`
+- `cn.omix.util.render.Render2D` — `public static void endScissor(DrawContext context)`
+- `cn.omix.util.render.Render2D` — `public static void drawItem(DrawContext context, ItemStack stack, float x, float y)`
+- `cn.omix.util.render.Render2D` — `public static void drawPlayerHead(DrawContext context, AbstractClientPlayerEntity player, float x, float y, float width, float height)`
+- `cn.omix.util.render.Render2D` — `public static void drawTexture(DrawContext context, Identifier texture, float x, float y, float width, float height)`
+- `cn.omix.util.render.Render2D` — `public static void drawTexture(DrawContext context, Identifier texture, float x, float y, float width, float height, int color)`
+- `cn.omix.util.render.Render2D` — `public static void drawTexture(DrawContext context, Identifier texture, float x, float y, float width, float height, float u0, float v0, float u1, float v1, int color)`
+- `cn.omix.util.render.Render2D` — `public static void drawRoundedTexture( DrawContext context, Identifier texture, float x, float y, float width, float height, float radius )`
+- `cn.omix.util.render.Render2D` — `public static void drawModel(DrawContext context, LivingEntity entity, float x, float y)`
+- `cn.omix.util.render.Render2D.FloatQuadTexturedGuiElementRenderState` — `public static void setupVertices(VertexConsumer v)`
+- `cn.omix.util.render.Render2D.FloatTrapezoidTexturedGuiElementRenderState` — `public static void setupVertices(VertexConsumer v)`
+- `cn.omix.util.render.Render2D.TriangleGuiElementRenderState` — `public static void setupVertices(VertexConsumer v)`
+- `cn.omix.util.render.Render2D.FloatQuadGuiElementRenderState` — `public static void setupVertices(VertexConsumer v)`
+- `cn.omix.util.render.Render3D` — `cn.omix.util.render.Render3D`
+- `cn.omix.util.render.Render3D` — `public final class Render3D implements IMinecraft`
+- `cn.omix.util.render.Render3D` — `public static void init()`
+- `cn.omix.util.render.Render3D` — `public static void drawBox(MatrixStack stack, BlockPos pos, int color)`
+- `cn.omix.util.render.Render3D` — `public static void drawBox(Render3DEvent event, Box box, Color color, boolean fill, boolean outline)`
+- `cn.omix.util.render.Render3D` — `public static void drawBox(Render3DEvent event, Box box, Color color, boolean fill, boolean outline, float lineWidth)`
+- `cn.omix.util.render.Render3D` — `public static void drawLine(Render3DEvent event, Vec3d start, Vec3d end, Color color)`
+- `cn.omix.util.render.Render3D` — `public static void drawLine(Render3DEvent event, Vec3d start, Vec3d end, Color color, float lineWidth)`
+- `cn.omix.util.webui.WebPanelLayout` — `cn.omix.util.webui.WebPanelLayout`
+- `cn.omix.util.webui.WebPanelLayout` — `public record WebPanelLayout( int x, int y, int width, int height, int cornerRadius )`
+- `cn.omix.util.webui.WebPanelLayout` — `public static WebPanelLayout current()`
+- `cn.omix.util.webui.WebPanelLayout` — `public static WebPanelLayout calculate( int framebufferWidth, int framebufferHeight, double guiScale )`
+- `cn.omix.util.webui.WebPanelLayout` — `public BrowserViewport browserViewport()`
+- `cn.omix.util.world.ScaffoldMutex` — `cn.omix.util.world.ScaffoldMutex`
+- `cn.omix.util.world.ScaffoldMutex` — `public final class ScaffoldMutex`
+- `cn.omix.util.world.ScaffoldMutex` — `public static synchronized void activate(Module other)`
+- `cn.omix.util.world.VictorySignalMatcher` — `cn.omix.util.world.VictorySignalMatcher`
+- `cn.omix.util.world.VictorySignalMatcher` — `public final class VictorySignalMatcher`
+- `cn.omix.util.world.VictorySignalMatcher` — `public static boolean matchesTitle(String text)`
+- `cn.omix.util.world.VictorySignalMatcher` — `public static boolean matchesChat(String text)`

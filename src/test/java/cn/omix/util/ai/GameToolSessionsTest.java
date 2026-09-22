@@ -63,6 +63,20 @@ class GameToolSessionsTest {
         f.epoch.incrementAndGet(); f.drain();
         assertThrows(CompletionException.class, call::join); assertTrue(f.dispatched.isEmpty());
     }
+    @Test void independentSourceOperationsDoNotAcquireOwnerAndLeaseCleanupCancelsThem() {
+        var pending = new CompletableFuture<JsonElement>();
+        var sessions = new GameToolSessions(Runnable::run, () -> 9, new GameToolSessions.Tools() {
+            public CompletableFuture<JsonElement> execute(String name, JsonObject args) { return name.equals("source") ? pending : CompletableFuture.completedFuture(new JsonPrimitive("ok")); }
+            public boolean independent(String name) { return name.equals("source"); }
+            public boolean requiresWorld(String name) { return !name.equals("source"); }
+            public void reset() { }
+        });
+        var source = sessions.submit("1", "reader", -1, "source", new JsonObject());
+        var game = sessions.submit("2", "player", 9, "game", new JsonObject());
+        sessions.forget("reader");
+        assertTrue(source.isCompletedExceptionally()); assertTrue(pending.isCancelled());
+        assertEquals("ok",game.join().getAsString()); sessions.close();
+    }
     @Test void failuresDoNotBlockQueueAndClosingCancelsWork() {
         var f = new Fixture(); f.call("1", "a", "read"); var next = f.call("2", "a", "read");
         f.drain(); f.operations.getFirst().completeExceptionally(new IllegalStateException("offline")); f.drain();

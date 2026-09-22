@@ -23,7 +23,7 @@ public class MixinPlayerEntity implements IMinecraft {
         if (mc.player == null || (Object) this != mc.player
                 || instance == null || instance.getModuleManager() == null) return;
         AutoWeapon autoWeapon = instance.getModuleManager().getModule(AutoWeapon.class);
-        if (autoWeapon == null || !autoWeapon.isEnabled()) return;
+        if (autoWeapon == null || !autoWeapon.isNativeBehaviorActive()) return;
         double original = mc.player.getAttributeValue(EntityAttributes.ATTACK_SPEED);
         double speed = autoWeapon.getAttackSpeed(original);
         if (speed != original) cir.setReturnValue((float) (20.0 / speed));
