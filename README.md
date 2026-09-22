@@ -169,6 +169,8 @@ gradlew.bat build
 
 `runClient` 启动开发客户端，`build` 构建并执行检查。产物位于 `build/libs/`，安装时选择不带 `-sources` 后缀的 Omix JAR。
 
+GitHub Actions 会在推送到 `master`、提交 Pull Request 或手动运行 `Gradle CI` 时执行完整构建和检查，并保存 JAR 与测试报告。创建 Release 时，检查通过后会使用该仓库的 `GITHUB_TOKEN` 发布 Maven 包到 GitHub Packages；普通构建不会发布包。
+
 ### 检查
 
 macOS / Linux：
