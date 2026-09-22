@@ -10,6 +10,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ScriptRemappingTest {
     @TempDir Path temp;
+    @Test void multiReleaseViewSelectsRuntimeClassesWithoutMultiplyingTheMappingGraph() throws Exception {
+        var manifest = new java.util.jar.Manifest();
+        manifest.getMainAttributes().putValue("Manifest-Version", "1.0");
+        manifest.getMainAttributes().putValue("Multi-Release", "true");
+        Path original = temp.resolve("multi.jar");
+        try (var jar = new java.util.jar.JarOutputStream(Files.newOutputStream(original), manifest)) {
+            for (var entry : Map.of("sample/Value.class", "base", "META-INF/versions/21/sample/Value.class", "java21",
+                    "META-INF/versions/99/sample/Value.class", "future", "module-info.class", "module", "assets/large.bin", "resource").entrySet()) {
+                jar.putNextEntry(new java.util.jar.JarEntry(entry.getKey())); jar.write(entry.getValue().getBytes(java.nio.charset.StandardCharsets.UTF_8)); jar.closeEntry();
+            }
+        }
+        var classpath = new ScriptClasspath(temp.resolve("views"));
+        Path view = classpath.runtimeView(original);
+        try (var jar = new java.util.jar.JarFile(view.toFile())) {
+            assertEquals(List.of("sample/Value.class"), jar.stream().map(java.util.jar.JarEntry::getName).toList());
+            assertEquals("java21", new String(jar.getInputStream(jar.getJarEntry("sample/Value.class")).readAllBytes(), java.nio.charset.StandardCharsets.UTF_8));
+        }
+        assertEquals(view, classpath.runtimeView(original));
+    }
     @Test void mappedArtifactsExecuteInheritedMethodsLambdasAndNestedClassesWithSharedParentIdentity() throws Exception {
         Path sources = temp.resolve("source"), classes = temp.resolve("classes"); Files.createDirectories(classes);
         Map<String,String> inputs=Map.of(

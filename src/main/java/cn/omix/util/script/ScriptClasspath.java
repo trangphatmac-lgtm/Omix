@@ -11,20 +11,26 @@ import java.util.jar.*;
 /** Creates a local named compilation view. No Minecraft binaries are redistributed. */
 public final class ScriptClasspath {
     private final Path cache;
+    /** Only paths and namespace cross the process boundary; the worker never starts Fabric/Minecraft. */
+    public record Environment(String namespace, List<String> entries, String mappings) {}
+    private Environment environment;
     private List<Path> named;
     private Path mappings;
     private String namespace;
     public ScriptClasspath(Path cache) { this.cache = cache; }
-    public synchronized List<Path> prepare() throws IOException {
-        if (named != null) return named;
+    ScriptClasspath(Path cache, Environment environment) { this.cache = cache; this.environment = environment; }
+    public synchronized Environment environment() throws IOException {
+        if (environment != null) return environment;
         Files.createDirectories(cache);
-        mappings = cache.resolve("yarn.tiny");
-        try (InputStream input = ScriptClasspath.class.getResourceAsStream("/assets/omix/script/mappings/mappings.tiny")) {
-            if (input == null) throw new IOException("Bundled Yarn mappings missing; rebuild the client.");
-            byte[] bytes = input.readAllBytes();
-            if (!Files.exists(mappings) || !Arrays.equals(Files.readAllBytes(mappings), bytes)) Files.write(mappings, bytes);
-        }
         namespace = FabricLoader.getInstance().getMappingResolver().getCurrentRuntimeNamespace();
+        mappings = cache.resolve("yarn.tiny").toAbsolutePath();
+        if (!namespace.equals("named")) {
+            try (InputStream input = ScriptClasspath.class.getResourceAsStream("/assets/omix/script/mappings/mappings.tiny")) {
+                if (input == null) throw new IOException("Bundled Yarn mappings missing; rebuild the client.");
+                byte[] bytes = input.readAllBytes();
+                if (!Files.exists(mappings) || !Arrays.equals(Files.readAllBytes(mappings), bytes)) Files.write(mappings, bytes);
+            }
+        }
         var entries = new LinkedHashSet<Path>();
         Set<String> loadedMods = new HashSet<>();
         for (var mod : FabricLoader.getInstance().getAllMods()) {
@@ -47,20 +53,65 @@ public final class ScriptClasspath {
         }
         List<Path> originals = new ArrayList<>();
         for (Path entry : entries) if (Files.exists(entry) && isRuntimeMinecraft(entry, namespace)) originals.add(entry);
-        if (namespace.equals("named")) return named = originals;
+        return environment = new Environment(namespace, originals.stream().map(path -> path.toAbsolutePath().toString()).toList(), mappings.toString());
+    }
+    public synchronized List<Path> prepare() throws IOException {
+        if (named != null) return named;
+        Environment runtime = environment();
+        namespace = runtime.namespace(); mappings = Path.of(runtime.mappings());
+        Files.createDirectories(cache);
+        List<Path> originals = runtime.entries().stream().map(Path::of).toList();
+        if (namespace.equals("named")) return named = List.copyOf(originals);
         if (!namespace.equals("intermediary")) throw new IOException("Unsupported runtime namespace: " + namespace);
+        // TinyRemapper creates a copy of the WHOLE graph for every multi-release version it sees.
+        // Compilation needs only the classes selected by this JVM, never all historical variants.
+        List<Path> views = new ArrayList<>();
+        for (Path original : originals) views.add(runtimeView(original));
+        originals = views;
         String mappingHash = ScriptFiles.hash(Files.readString(mappings));
         String dependencyHash = ScriptFiles.hash(String.join("\n", originals.stream().map(path -> { try { return fingerprint(path); } catch (IOException error) { throw new UncheckedIOException(error); } }).toList()));
         List<Path> result = new ArrayList<>();
         Map<Path, Path> pending = new LinkedHashMap<>();
         for (Path entry : originals) {
             String key = fingerprint(entry) + mappingHash + dependencyHash;
-            Path output = cache.resolve("named-" + ScriptFiles.hash(key) + ".jar");
+            Path output = cache.resolve("named-v2-" + ScriptFiles.hash(key) + ".jar");
             if (!Files.isRegularFile(output)) pending.put(entry, output);
             result.add(output);
         }
         if (!pending.isEmpty()) remapBatch(mappings, pending, originals, namespace, "named");
         return named = List.copyOf(result);
+    }
+    Path runtimeView(Path input) throws IOException {
+        Path output = cache.resolve("view-v1-" + ScriptFiles.hash(fingerprint(input) + ":" + Runtime.version().feature()) + ".jar");
+        if (Files.isRegularFile(output)) return output;
+        Files.createDirectories(cache);
+        Path temp = Files.createTempFile(cache, "view-", ".tmp");
+        try {
+            try (var jar = new JarOutputStream(Files.newOutputStream(temp))) {
+                if (Files.isDirectory(input)) {
+                    try (var files = Files.walk(input)) {
+                        for (Path file : files.filter(Files::isRegularFile).sorted().toList()) {
+                            String name = input.relativize(file).toString().replace('\\', '/');
+                            if (!classEntry(name)) continue;
+                            jar.putNextEntry(new JarEntry(name)); Files.copy(file, jar); jar.closeEntry();
+                        }
+                    }
+                } else {
+                    try (var archive = new JarFile(input.toFile(), false, JarFile.OPEN_READ, Runtime.version())) {
+                        for (JarEntry entry : archive.versionedStream().filter(value -> classEntry(value.getName())).toList()) {
+                            jar.putNextEntry(new JarEntry(entry.getName()));
+                            try (var bytes = archive.getInputStream(entry)) { bytes.transferTo(jar); }
+                            jar.closeEntry();
+                        }
+                    }
+                }
+            }
+            Files.move(temp, output, StandardCopyOption.REPLACE_EXISTING);
+        } finally { Files.deleteIfExists(temp); }
+        return output;
+    }
+    private static boolean classEntry(String name) {
+        return name.endsWith(".class") && !name.startsWith("META-INF/") && !name.equals("module-info.class");
     }
     private static String modId(Path path) throws IOException {
         if (!Files.isRegularFile(path) || !path.toString().endsWith(".jar")) return "";
@@ -137,12 +188,12 @@ public final class ScriptClasspath {
     /** One graph resolves inheritance across every dependency before emitting individual artifacts. */
     public static void remapBatch(Path mappings, Map<Path, Path> outputs, List<Path> classpath, String from, String to) throws IOException {
         TinyRemapper remapper = TinyRemapper.newRemapper()
-                .withMappings(TinyUtils.createTinyMappingProvider(mappings, from, to)).renameInvalidLocals(true).build();
+                .withMappings(TinyUtils.createTinyMappingProvider(mappings, from, to)).threads(2).renameInvalidLocals(true).build();
         Map<Path, InputTag> tags = new LinkedHashMap<>();
         try {
             remapper.readClassPath(classpath.stream().filter(path -> !outputs.containsKey(path)).toArray(Path[]::new));
             for (var entry : outputs.entrySet()) {
-                InputTag tag = remapper.createInputTag(); tags.put(entry.getValue(), tag); remapper.readInputs(tag, entry.getKey());
+                InputTag tag = outputs.size() == 1 ? null : remapper.createInputTag(); tags.put(entry.getValue(), tag); remapper.readInputs(tag, entry.getKey());
             }
             for (var entry : tags.entrySet()) {
                 Files.createDirectories(entry.getKey().getParent());

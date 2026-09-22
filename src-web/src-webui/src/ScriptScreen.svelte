@@ -9,7 +9,8 @@
 
     type Script = {id: string; loaded: boolean; changed: boolean; sourceHash: string; runningHash: string; generation: number};
     type Problem = {severity: string; message: string; line: number; column: number};
-    type Job = {id: string; script: string; state: string; generation: number; error?: string; diagnostics: Problem[]; value?: unknown};
+    type Job = {id: string; script: string; state: string; generation: number; error?: string; diagnostics: Problem[]; value?: unknown; phase?: string; startedAt?: number; finishedAt?: number};
+    const phases: Record<string, string> = {queued: '等待编译', dependencies: '收集依赖', source: '解析源码', classpath: '准备类路径缓存（首次较慢）', java: '编译 Java', remap: '映射游戏名称', cache: '复用编译缓存', waiting_client: '等待客户端应用', applying: '应用脚本'};
     let scripts: Script[] = [], templates: string[] = [], selected = '', source = '', savedSource = '', hash = '';
     let directory = '', error = '', notice = '', busy = false, job: Job | null = null;
     let createId = '', template = 'Sprint', query = '', api: Array<{owner: string; signature: string}> = [];
@@ -151,7 +152,7 @@
             <div class="editor" bind:this={editorElement}></div>
             <section class="console"><div class="tabs"><button class:active={tab === 'logs'} onclick={() => tab = 'logs'}>运行日志</button><button class:active={tab === 'diagnostics'} onclick={() => tab = 'diagnostics'}>编译诊断 {job ? `· ${job.state}` : ''}</button><button class:active={tab === 'api'} onclick={() => tab = 'api'}>API 查询</button>{#if job && ['queued', 'compiling'].includes(job.state)}<button onclick={cancelJob} disabled={busy}>取消任务</button>{/if}</div><div class="output">
                 {#if tab === 'logs'}{#each logs as entry}<button class="log" class:error={entry.level === 'ERROR'} onclick={() => jump(entry.line)}><small>{entry.level}{entry.line ? ` L${entry.line}` : ''}</small> {entry.message}</button>{/each}{#if !logs.length}<p class="muted">日志和运行错误将显示在这里。</p>{/if}
-                {:else if tab === 'diagnostics'}{#if job}<p>任务 {job.id} · {job.state}</p>{#if job.error}<p class="error">{job.error}</p>{/if}{#each job.diagnostics || [] as problem}<button class="log" onclick={() => jump(problem.line)}>{problem.severity} · {problem.line}:{problem.column} — {problem.message}</button>{/each}{#if job.state === 'checked'}<p>编译检查通过，尚未加载此版本。</p>{:else if job.state === 'loaded'}<p>已应用运行代次 {job.generation}。</p>{/if}{:else}<p class="muted">点击“编译检查”查看源码诊断。</p>{/if}
+                {:else if tab === 'diagnostics'}{#if job}<p>任务 {job.id} · {job.state}{job.phase ? ` · ${phases[job.phase] || job.phase}` : ''}{job.startedAt ? ` · ${(((job.finishedAt || Date.now()) - job.startedAt) / 1000).toFixed(1)} 秒` : ''}</p>{#if job.error}<p class="error">{job.error}</p>{/if}{#each job.diagnostics || [] as problem}<button class="log" onclick={() => jump(problem.line)}>{problem.severity} · {problem.line}:{problem.column} — {problem.message}</button>{/each}{#if job.state === 'checked'}<p>编译检查通过，尚未加载此版本。</p>{:else if job.state === 'loaded'}<p>已应用运行代次 {job.generation}。</p>{/if}{:else}<p class="muted">点击“编译检查”查看源码诊断。</p>{/if}
                 {:else}<form onsubmit={(event) => { event.preventDefault(); void perform(async () => { api = await call('script_api', {query, limit: 50}); }); }}><input aria-label="API 搜索" bind:value={query} placeholder="搜索接口、事件或 util，例如 RotationRequest" /><button type="submit">查询</button></form>{#each api as entry}<article><small>{entry.owner}</small><pre>{entry.signature}</pre></article>{/each}{/if}
             </div></section>
         </main>

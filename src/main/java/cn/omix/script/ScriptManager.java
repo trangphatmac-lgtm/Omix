@@ -22,6 +22,8 @@ public final class ScriptManager implements AutoCloseable {
         public final String script, action, sourceHash;
         public final long generation;
         public volatile String state = "queued", error;
+        public volatile String phase = "queued";
+        public volatile long startedAt, finishedAt;
         public volatile List<ScriptCompiler.Problem> diagnostics = List.of();
         public volatile JsonElement value;
         private transient long worldEpoch;
@@ -65,6 +67,9 @@ public final class ScriptManager implements AutoCloseable {
     private Job queue(ScriptFiles.Source source, String action) { return queue(source, action, false); }
     private synchronized Job queue(ScriptFiles.Source source, String action, boolean startup) {
         if (closed) throw new IllegalStateException("Script service stopped");
+        if (!action.equals("check")) jobs.values().stream()
+                .filter(job -> job.script.equals(source.id()) && !job.action.equals("check"))
+                .forEach(job -> cancel(job.id));
         if (!startup && jobs.values().stream().filter(job -> Set.of("queued", "compiling", "applying").contains(job.state)).count() >= 8)
             throw new IllegalStateException("Compiler queue is full; wait for a job to finish");
         if (jobs.size() >= 64) jobs.values().stream().filter(job -> !Set.of("queued", "compiling", "applying").contains(job.state))
@@ -75,19 +80,27 @@ public final class ScriptManager implements AutoCloseable {
         worker.execute(() -> compile(job, source)); return job;
     }
     private void compile(Job job, ScriptFiles.Source source) {
-        if (closed || job.state.equals("cancelled")) return;
-        job.state = "compiling";
+        synchronized (job) {
+            if (closed || job.state.equals("cancelled")) return;
+            job.startedAt = System.currentTimeMillis(); job.state = "compiling";
+        }
         try {
-            ScriptCompiler.Compiled compiled = compiler.compile(job.script, job.generation, source.text(), job.action.equals("evaluate") ? 1 : 0);
+            ScriptCompiler.Compiled compiled = compiler.compile(job.script, job.generation, source.text(), job.action.equals("evaluate") ? 1 : 0,
+                    () -> closed || job.state.equals("cancelled"), phase -> job.phase = phase);
             job.diagnostics = compiled.diagnostics();
-            if (closed || job.state.equals("cancelled")) { compiled.discard(); return; }
-            if (job.action.equals("check")) { job.state = "checked"; compiled.discard(); return; }
+            synchronized (job) {
+                if (closed || job.state.equals("cancelled")) { compiled.discard(); return; }
+                if (job.action.equals("check")) { job.finishedAt = System.currentTimeMillis(); job.state = "checked"; compiled.discard(); return; }
+                job.phase = "waiting_client";
+            }
             mc.execute(() -> apply(job, compiled));
-        } catch (Throwable error) { cn.omix.util.script.ScriptFailures.rethrowFatal(error); fail(job, error); }
+        } catch (Throwable error) { fail(job, error); ScriptFailures.rethrowFatal(error); }
     }
     private void apply(Job job, ScriptCompiler.Compiled compiled) {
-        if (closed || job.state.equals("cancelled") || !Objects.equals(attempts.get(job.script), job.generation)) { job.player = null; job.state = "cancelled"; compiled.discard(); return; }
-        job.state = "applying";
+        synchronized (job) {
+            if (closed || job.state.equals("cancelled") || !Objects.equals(attempts.get(job.script), job.generation)) { job.player = null; job.finishedAt = System.currentTimeMillis(); job.state = "cancelled"; compiled.discard(); return; }
+            job.phase = "applying"; job.state = "applying";
+        }
         ScriptContext next = null; URLClassLoader loader = null; Object instance = null;
         Running old = running.get(job.script); Map<String, JsonObject> state = old == null ? Map.of() : snapshot(old.context);
         boolean detached = false;
@@ -103,7 +116,7 @@ public final class ScriptManager implements AutoCloseable {
                 job.player = null;
                 next.prepared(); next.install();
                 Object result = lifecycle(instance, "evaluate", true);
-                job.value = new JsonPrimitive(String.valueOf(result)); job.state = "evaluated";
+                job.value = new JsonPrimitive(String.valueOf(result)); job.finishedAt = System.currentTimeMillis(); job.state = "evaluated";
                 next.close(); loader.close(); compiled.discard(); return;
             }
             lifecycle(instance, "onLoad", false); next.prepared(); next.validate(old == null ? null : old.context);
@@ -119,7 +132,7 @@ public final class ScriptManager implements AutoCloseable {
             running.put(job.script, current);
             persist();
             if (old != null) dispose(old);
-            job.state = "loaded"; log.add(job.script, job.generation, "INFO", "Loaded " + job.sourceHash.substring(0, 12), 0);
+            job.finishedAt = System.currentTimeMillis(); job.state = "loaded"; log.add(job.script, job.generation, "INFO", "Loaded " + job.sourceHash.substring(0, 12), 0);
         } catch (Throwable error) { cn.omix.util.script.ScriptFailures.rethrowFatal(error);
             if (next != null) { next.error("load", error); next.close(); }
             if (loader != null) try { loader.close(); } catch (IOException ignored) { }
@@ -165,15 +178,20 @@ public final class ScriptManager implements AutoCloseable {
         value.compiled.discard();
     }
     private void fail(Job job, Throwable error) {
-        if (job.state.equals("cancelled")) return;
-        job.player = null;
-        job.state = "failed"; job.error = error.toString();
-        if (error instanceof ScriptCompiler.CompileFailure failure) job.diagnostics = failure.diagnostics;
-        log.add(job.script, job.generation, "ERROR", job.error, 0);
+        synchronized (job) {
+            if (job.state.equals("cancelled")) return;
+            job.player = null;
+            job.error = error + " (phase: " + job.phase + ")";
+            if (error instanceof ScriptCompiler.CompileFailure failure) job.diagnostics = failure.diagnostics;
+            job.finishedAt = System.currentTimeMillis(); job.state = "failed";
+            log.add(job.script, job.generation, "ERROR", job.error, 0);
+        }
     }
     public void unload(String id) throws IOException {
         if (!mc.isOnThread()) throw new IllegalStateException("Unload must run on the client thread");
         id = ScriptFiles.id(id); attempts.remove(id);
+        String scriptId = id;
+        jobs.values().stream().filter(job -> job.script.equals(scriptId) && !job.action.equals("check")).forEach(job -> cancel(job.id));
         if (Client.instance.getConfigManager().getCurrentConfig() instanceof cn.omix.config.impl.ModuleConfig config) config.retainCurrentState();
         Running value = running.remove(id);
         try { if (value != null) dispose(value); persist(); }
@@ -204,11 +222,13 @@ public final class ScriptManager implements AutoCloseable {
     public Job job(String id) { Job job = jobs.get(id); if (job == null) throw new IllegalArgumentException("Unknown or expired job: " + id); return job; }
     public void cancel(String id) {
         Job job = job(id);
-        if (Set.of("queued", "compiling").contains(job.state)) { job.player = null; job.state = "cancelled"; attempts.remove(job.script, job.generation); }
+        synchronized (job) {
+            if (Set.of("queued", "compiling").contains(job.state)) { job.player = null; job.finishedAt = System.currentTimeMillis(); job.state = "cancelled"; attempts.remove(job.script, job.generation); }
+        }
     }
     private void persist() throws IOException { ScriptFiles.atomicWrite(root.resolve(".loaded.json"), new Gson().toJson(running.keySet().stream().sorted().toList())); }
     @Override public void close() {
-        closed = true; worker.shutdownNow();
+        closed = true; jobs.values().forEach(job -> cancel(job.id)); worker.shutdownNow();
         if (worldListener != null) worldListener.close();
         jobs.values().forEach(job -> job.player = null);
         // The load manifest describes user intent, so shutdown must not empty it.

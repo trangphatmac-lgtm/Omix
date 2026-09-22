@@ -8,6 +8,35 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ScriptCompilerTest {
     @TempDir Path temp;
+    private ScriptCompiler isolatedCompiler() {
+        Path cache = temp.resolve("cache with spaces");
+        var cp = Arrays.asList(System.getProperty("omix.test.classpath").split(java.io.File.pathSeparator));
+        return new ScriptCompiler(cache, new ScriptClasspath(cache.resolve("classpath"),
+                new ScriptClasspath.Environment("named", cp, temp.resolve("unused.tiny").toString())));
+    }
+    @Test void isolatedCompilerCachesUnchangedBytecodeButKeepsGenerationArtifactsIndependent() throws Exception {
+        ScriptCompiler compiler = isolatedCompiler();
+        List<String> phases = new ArrayList<>();
+        var first = compiler.compile("Cached", 1, "int answer() { return 42; }", 0, () -> false, phases::add);
+        assertTrue(Files.isRegularFile(first.jar()));
+        byte[] expected = Files.readAllBytes(first.jar()); first.discard(); phases.clear();
+        var second = compiler.compile("Cached", 2, "int answer() { return 42; }", 0, () -> false, phases::add);
+        assertEquals(List.of("cache"), phases);
+        assertNotEquals(first.jar(), second.jar()); assertArrayEquals(expected, Files.readAllBytes(second.jar()));
+        second.discard();
+        phases.clear();
+        var changed = compiler.compile("Cached", 3, "int answer() { return 43; }", 0, () -> false, phases::add);
+        assertFalse(phases.contains("cache")); assertNotEquals(second.source().className(), changed.source().className());
+        changed.discard();
+    }
+    @Test void isolatedCompilerReportsOriginalEvaluationLinesAndRecoversAfterErrors() throws Exception {
+        ScriptCompiler compiler = isolatedCompiler();
+        var error = assertThrows(ScriptCompiler.CompileFailure.class, () -> compiler.compile("@evaluation", 1,
+                "Object evaluate() {\nreturn unknownValue;\n}", 1));
+        assertEquals(1, error.diagnostics.stream().filter(p -> p.severity().equals("ERROR")).findFirst().orElseThrow().line());
+        var valid = compiler.compile("@evaluation", 2, "Object evaluate() {\nreturn 42;\n}", 1);
+        assertTrue(Files.isRegularFile(valid.jar())); valid.discard();
+    }
     private List<ScriptCompiler.Problem> compile(String name, String body) throws Exception {
         var source = ScriptSource.wrap(name, body); Path input = temp.resolve(name + ".java"); Files.writeString(input, source.source());
         Path output = temp.resolve(name); Files.createDirectories(output);
