@@ -44,7 +44,7 @@ void onLoad() {
 }`;
 try {
   await client.connect(transport);
-  const template=await readFile(new URL('../../../../../../docs/script/examples/CustomTools.java',import.meta.url),'utf8');
+  const template=await readFile(new URL('../../../docs/script/examples/CustomTools.java',import.meta.url),'utf8');
   await write(sample,template);
   assert.equal((await action(sample,'check')).state,'checked');
   console.log('PASS complete CustomTools template compiles against the installed runtime');

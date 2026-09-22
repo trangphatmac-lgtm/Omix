@@ -4,7 +4,7 @@ import { mkdtemp, mkdir, writeFile, readFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { once } from 'node:events';
 
-const runtime = resolve(process.argv[2] ?? 'src/main/java/im/src-ai-harness');
+const runtime = resolve(process.argv[2] ?? 'src-web/src-ai-harness');
 await mkdir('build/harness-smoke', { recursive: true });
 const home = await mkdtemp(resolve('build/harness-smoke/home-'));
 const workspace = join(home, 'Game directory 测试', 'Workspace');

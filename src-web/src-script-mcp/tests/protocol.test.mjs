@@ -8,7 +8,7 @@ import {Client} from '@modelcontextprotocol/client';
 import {StdioClientTransport} from '@modelcontextprotocol/client/stdio';
 import {Bridge} from '../server.mjs';
 const serverPath = resolve(import.meta.dirname, '../server.mjs');
-const gameTools = JSON.parse(await readFile(new URL('../../../../../../docs/script/game-tools.json', import.meta.url), 'utf8'));
+const gameTools = JSON.parse(await readFile(new URL('../../../docs/script/game-tools.json', import.meta.url), 'utf8'));
 async function connect(gameDir, entry = serverPath) {
   const client = new Client({name:'omix-test',version:'1.0.0'});
   const transport = new StdioClientTransport({command:process.execPath,args:[entry,'--game-dir',gameDir],stderr:'pipe'});

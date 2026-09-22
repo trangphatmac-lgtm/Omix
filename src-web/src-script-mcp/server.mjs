@@ -59,7 +59,7 @@ export class Bridge {
 }
 
 const localReference = fileURLToPath(new URL('./reference/', import.meta.url));
-const sourceReference = fileURLToPath(new URL('../../../../../docs/script/', import.meta.url));
+const sourceReference = fileURLToPath(new URL('../../docs/script/', import.meta.url));
 export async function createServer({gameDir, referenceDir = existsSync(localReference) ? localReference : sourceReference, bridge = new Bridge(gameDir)} = {}) {
   const root = resolve(referenceDir);
   const readReference = async path => {

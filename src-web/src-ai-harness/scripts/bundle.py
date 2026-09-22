@@ -10,7 +10,7 @@ from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'dist'
-CACHE = ROOT.parents[4] / 'build' / 'harness-downloads'
+CACHE = ROOT.parents[1] / 'build' / 'harness-downloads'
 PLATFORMS = {f'{display}-{arch}': (system, arch) for display, system in
              [('windows', 'win32'), ('macos', 'darwin'), ('linux', 'linux')] for arch in ['x64', 'arm64']}
 

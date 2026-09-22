@@ -134,11 +134,12 @@ dependencies {
 sourceSets {
     main {
         java {
-            exclude "im/src-webui/**"
-            exclude "im/src-music-webui/**"
-            exclude "im/src-music-sidecar/**"
-            exclude "im/src-ai-harness/**"
-            exclude "im/src-script-mcp/**"
+            srcDir "src-web"
+            exclude "src-webui/**"
+            exclude "src-music-webui/**"
+            exclude "src-music-sidecar/**"
+            exclude "src-ai-harness/**"
+            exclude "src-script-mcp/**"
         }
     }
 }
@@ -146,75 +147,75 @@ sourceSets {
 node {
     version = "24.18.0"
     download = true
-    nodeProjectDir = file("src/main/java/im/src-webui")
+    nodeProjectDir = file("src-web/src-webui")
 }
 
 def buildWebUi = tasks.register("buildWebUi", NpmTask) {
     dependsOn tasks.named("npmInstall")
     args = ["run", "build"]
     inputs.files(
-            "src/main/java/im/src-webui/package.json",
-            "src/main/java/im/src-webui/package-lock.json",
-            "src/main/java/im/src-webui/index.html",
-            "src/main/java/im/src-webui/svelte.config.js",
-            "src/main/java/im/src-webui/tsconfig.json",
-            "src/main/java/im/src-webui/vite.config.ts"
+            "src-web/src-webui/package.json",
+            "src-web/src-webui/package-lock.json",
+            "src-web/src-webui/index.html",
+            "src-web/src-webui/svelte.config.js",
+            "src-web/src-webui/tsconfig.json",
+            "src-web/src-webui/vite.config.ts"
     )
-    inputs.dir("src/main/java/im/src-webui/src")
-    outputs.dir("src/main/java/im/src-webui/dist")
+    inputs.dir("src-web/src-webui/src")
+    outputs.dir("src-web/src-webui/dist")
 }
 
 def installMusicWebUi = tasks.register("installMusicWebUi", NpmTask) {
     args = [
             "--prefix",
-            file("src/main/java/im/src-music-webui").absolutePath,
+            file("src-web/src-music-webui").absolutePath,
             "ci",
             "--legacy-peer-deps"
     ]
     inputs.files(
-            "src/main/java/im/src-music-webui/package.json",
-            "src/main/java/im/src-music-webui/package-lock.json"
+            "src-web/src-music-webui/package.json",
+            "src-web/src-music-webui/package-lock.json"
     )
-    outputs.dir("src/main/java/im/src-music-webui/node_modules")
+    outputs.dir("src-web/src-music-webui/node_modules")
 }
 
 def buildMusicWebUi = tasks.register("buildMusicWebUi", NpmTask) {
     dependsOn installMusicWebUi
     args = [
             "--prefix",
-            file("src/main/java/im/src-music-webui").absolutePath,
+            file("src-web/src-music-webui").absolutePath,
             "run",
             "build"
     ]
     inputs.files(
-            "src/main/java/im/src-music-webui/package.json",
-            "src/main/java/im/src-music-webui/package-lock.json",
-            "src/main/java/im/src-music-webui/public/index.html",
-            "src/main/java/im/src-music-webui/vue.config.js",
-            "src/main/java/im/src-music-webui/babel.config.js"
+            "src-web/src-music-webui/package.json",
+            "src-web/src-music-webui/package-lock.json",
+            "src-web/src-music-webui/public/index.html",
+            "src-web/src-music-webui/vue.config.js",
+            "src-web/src-music-webui/babel.config.js"
     )
-    inputs.dir("src/main/java/im/src-music-webui/src")
-    inputs.dir("src/main/java/im/src-music-webui/public")
-    outputs.dir("src/main/java/im/src-music-webui/dist")
+    inputs.dir("src-web/src-music-webui/src")
+    inputs.dir("src-web/src-music-webui/public")
+    outputs.dir("src-web/src-music-webui/dist")
 }
 
 def installMusicSidecar = tasks.register("installMusicSidecar", NpmTask) {
     args = [
             "--prefix",
-            file("src/main/java/im/src-music-sidecar").absolutePath,
+            file("src-web/src-music-sidecar").absolutePath,
             "ci",
             "--omit=dev"
     ]
     inputs.files(
-            "src/main/java/im/src-music-sidecar/package.json",
-            "src/main/java/im/src-music-sidecar/package-lock.json"
+            "src-web/src-music-sidecar/package.json",
+            "src-web/src-music-sidecar/package-lock.json"
     )
-    outputs.dir("src/main/java/im/src-music-sidecar/node_modules")
+    outputs.dir("src-web/src-music-sidecar/node_modules")
 }
 
 def bundleMusicSidecar = tasks.register("bundleMusicSidecar", Zip) {
     dependsOn installMusicSidecar
-    from("src/main/java/im/src-music-sidecar") {
+    from("src-web/src-music-sidecar") {
         include "index.js"
         include "package.json"
         include "package-lock.json"
@@ -225,41 +226,41 @@ def bundleMusicSidecar = tasks.register("bundleMusicSidecar", Zip) {
 }
 
 def installAiHarness = tasks.register("installAiHarness", NpmTask) {
-    args = ["--prefix", file("src/main/java/im/src-ai-harness").absolutePath,
+    args = ["--prefix", file("src-web/src-ai-harness").absolutePath,
             "ci", "--omit=dev", "--no-audit", "--no-fund"]
-    inputs.files("src/main/java/im/src-ai-harness/package.json", "src/main/java/im/src-ai-harness/package-lock.json")
-    outputs.dir("src/main/java/im/src-ai-harness/node_modules")
+    inputs.files("src-web/src-ai-harness/package.json", "src-web/src-ai-harness/package-lock.json")
+    outputs.dir("src-web/src-ai-harness/node_modules")
 }
 
 def bundleAiHarness = tasks.register("bundleAiHarness", Exec) {
     dependsOn installAiHarness
     commandLine providers.gradleProperty("pythonExecutable").getOrElse(
             System.getProperty("os.name").toLowerCase().contains("win") ? "python" : "python3"),
-            "src/main/java/im/src-ai-harness/scripts/bundle.py"
-    inputs.files(fileTree("src/main/java/im/src-ai-harness") {
+            "src-web/src-ai-harness/scripts/bundle.py"
+    inputs.files(fileTree("src-web/src-ai-harness") {
         exclude "node_modules/**", "dist/**", "tests/**"
     })
-    outputs.dir("src/main/java/im/src-ai-harness/dist")
+    outputs.dir("src-web/src-ai-harness/dist")
 }
 
 def testAiHarness = tasks.register("testAiHarness", NpmTask) {
     dependsOn installAiHarness
-    args = ["--prefix", file("src/main/java/im/src-ai-harness").absolutePath, "test"]
-    inputs.files(fileTree("src/main/java/im/src-ai-harness") { exclude "node_modules/**", "dist/**" })
+    args = ["--prefix", file("src-web/src-ai-harness").absolutePath, "test"]
+    inputs.files(fileTree("src-web/src-ai-harness") { exclude "node_modules/**", "dist/**" })
 }
 
 def testMusicSidecar = tasks.register("testMusicSidecar", NpmTask) {
     dependsOn installMusicSidecar
     args = [
             "--prefix",
-            file("src/main/java/im/src-music-sidecar").absolutePath,
+            file("src-web/src-music-sidecar").absolutePath,
             "test"
     ]
     inputs.files(
-            "src/main/java/im/src-music-sidecar/index.js",
-            "src/main/java/im/src-music-sidecar/test.js",
-            "src/main/java/im/src-music-sidecar/package.json",
-            "src/main/java/im/src-music-sidecar/package-lock.json"
+            "src-web/src-music-sidecar/index.js",
+            "src-web/src-music-sidecar/test.js",
+            "src-web/src-music-sidecar/package.json",
+            "src-web/src-music-sidecar/package-lock.json"
     )
 }
 
@@ -268,8 +269,8 @@ def bundleWebUi = tasks.register("bundleWebUi", Zip) {
     dependsOn buildMusicWebUi
     dependsOn "generateScriptReference"
     from("build/generated/script-docs") { into "script-docs" }
-    from("src/main/java/im/src-webui/dist")
-    from("src/main/java/im/src-music-webui/dist") {
+    from("src-web/src-webui/dist")
+    from("src-web/src-music-webui/dist") {
         into "music"
     }
     archiveFileName = "webui.zip"
@@ -294,9 +295,9 @@ def generateClientReference = tasks.register("generateClientReference", Exec) {
 }
 
 def installScriptMcp = tasks.register("installScriptMcp", NpmTask) {
-    args = ["--prefix", file("src/main/java/im/src-script-mcp").absolutePath, "ci", "--no-audit", "--no-fund"]
-    inputs.files("src/main/java/im/src-script-mcp/package.json", "src/main/java/im/src-script-mcp/package-lock.json")
-    outputs.dir("src/main/java/im/src-script-mcp/node_modules")
+    args = ["--prefix", file("src-web/src-script-mcp").absolutePath, "ci", "--no-audit", "--no-fund"]
+    inputs.files("src-web/src-script-mcp/package.json", "src-web/src-script-mcp/package-lock.json")
+    outputs.dir("src-web/src-script-mcp/node_modules")
 }
 
 def generateGameToolReference = tasks.register("generateGameToolReference", JavaExec) {
@@ -324,7 +325,7 @@ def generateScriptReference = tasks.register("generateScriptReference", Exec) {
 
 def bundleScriptKit = tasks.register("bundleScriptKit", Zip) {
     dependsOn installScriptMcp, generateScriptReference
-    from("src/main/java/im/src-script-mcp") {
+    from("src-web/src-script-mcp") {
         include "server.mjs", "package.json", "package-lock.json", "node_modules/**"
         exclude "**/*.map", "node_modules/@modelcontextprotocol/client/**"
         into "mcp"
@@ -342,7 +343,7 @@ def checkWebUi = tasks.register("checkWebUi", NpmTask) {
 
 def testScriptMcp = tasks.register("testScriptMcp", NpmTask) {
     dependsOn installScriptMcp, generateScriptReference
-    args = ["--prefix", file("src/main/java/im/src-script-mcp").absolutePath, "test"]
+    args = ["--prefix", file("src-web/src-script-mcp").absolutePath, "test"]
 }
 
 processResources {
@@ -379,7 +380,7 @@ processResources {
     from(bundleWebUi.flatMap { it.archiveFile }) {
         into "assets/omix/webui"
     }
-    from("src/main/java/im/src-ai-harness/dist") {
+    from("src-web/src-ai-harness/dist") {
         include "*.zip", "manifest.json"
         into "assets/omix/ai/harness"
     }

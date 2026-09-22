@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - 'src/main/java/im/src-ai-harness/**'
+      - 'src-web/src-ai-harness/**'
       - '.github/workflows/harness-runtime.yml'
 permissions:
   contents: read
@@ -18,13 +18,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: npm --prefix src/main/java/im/src-ai-harness ci --omit=dev --no-audit --no-fund
-      - run: npm --prefix src/main/java/im/src-ai-harness test
-      - run: python src/main/java/im/src-ai-harness/scripts/bundle.py
+      - run: npm --prefix src-web/src-ai-harness ci --omit=dev --no-audit --no-fund
+      - run: npm --prefix src-web/src-ai-harness test
+      - run: python src-web/src-ai-harness/scripts/bundle.py
       - uses: actions/upload-artifact@v4
         with:
           name: harness-runtime
-          path: src/main/java/im/src-ai-harness/dist/
+          path: src-web/src-ai-harness/dist/
   smoke:
     needs: package
     strategy:
@@ -43,7 +43,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: harness-runtime
-          path: src/main/java/im/src-ai-harness/dist/
-      - run: python src/main/java/im/src-ai-harness/scripts/extract-smoke.py build/harness-smoke/runtime
-      - run: node src/main/java/im/src-ai-harness/scripts/native-smoke.mjs build/harness-smoke/runtime
-      - run: node src/main/java/im/src-ai-harness/scripts/smoke.mjs build/harness-smoke/runtime
+          path: src-web/src-ai-harness/dist/
+      - run: python src-web/src-ai-harness/scripts/extract-smoke.py build/harness-smoke/runtime
+      - run: node src-web/src-ai-harness/scripts/native-smoke.mjs build/harness-smoke/runtime
+      - run: node src-web/src-ai-harness/scripts/smoke.mjs build/harness-smoke/runtime

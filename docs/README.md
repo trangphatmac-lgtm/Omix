@@ -33,6 +33,12 @@ AI 应先区分说明中的默认值和当前状态；需要现况时调用读�
 
 ## 维护
 
+### Web 与 Node 源码目录
+
+Web 和 Node 相关源码统一位于项目根目录 `src-web/`：`webui/`、`music/` 存放 Java 集成代码，保留 `im.webui`、`im.music` 包名；`src-webui/`、`src-music-webui/` 存放前端；`src-music-sidecar/`、`src-ai-harness/`、`src-script-mcp/` 存放 Node 服务与工具。Gradle 将 `src-web/` 纳入主 Java 源码目录，并排除上述前端和 Node 子目录。
+
+前端构建、运行时打包和测试仍使用原有 Gradle 任务；直接运行 npm 或脚本时使用 `src-web/` 下的对应路径，例如 `npm --prefix src-web/src-script-mcp test`。通用工具类及模块辅助类仍遵循下方的 `cn.omix.util` 目录约定。
+
 ### 模块辅助类目录
 
 以下辅助类统一放在 `src/main/java/cn/omix/util/` 下，模块通过对应的 `cn.omix.util` 包导入；相关单元测试也位于 `src/test/java/cn/omix/util/` 的对应子包。

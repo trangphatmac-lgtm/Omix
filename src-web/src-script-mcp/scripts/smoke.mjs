@@ -8,7 +8,7 @@ const option = name => process.argv[process.argv.indexOf(name) + 1];
 if (!process.argv.includes('--game-dir')) throw new Error('Usage: node smoke.mjs --game-dir <isolated game> [--server <exported server.mjs>]');
 const gameDir=resolve(option('--game-dir'));
 const entry=process.argv.includes('--server') ? resolve(option('--server')) : join(gameDir,'Omix/scripts/.agent/mcp/server.mjs');
-const expected=JSON.parse(await readFile(new URL('../../../../../../docs/script/game-tools.json',import.meta.url),'utf8'));
+const expected=JSON.parse(await readFile(new URL('../../../docs/script/game-tools.json',import.meta.url),'utf8'));
 const client=new Client({name:'omix-live-smoke',version:'1.0.0'});
 const transport=new StdioClientTransport({command:process.execPath,args:[entry,'--game-dir',gameDir],stderr:'pipe'});
 try {

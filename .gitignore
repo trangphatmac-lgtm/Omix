@@ -21,15 +21,15 @@ hs_err_pid*
 run
 
 # WebUI build products
-src/main/java/im/src-webui/node_modules/
-src/main/java/im/src-webui/dist/
-src/main/java/im/src-music-webui/node_modules/
-src/main/java/im/src-music-webui/dist/
-src/main/java/im/src-music-sidecar/node_modules/
+src-web/src-webui/node_modules/
+src-web/src-webui/dist/
+src-web/src-music-webui/node_modules/
+src-web/src-music-webui/dist/
+src-web/src-music-sidecar/node_modules/
 
 latest.log
-src/main/java/im/src-ai-harness/node_modules/
-src/main/java/im/src-ai-harness/dist/
+src-web/src-ai-harness/node_modules/
+src-web/src-ai-harness/dist/
 
 # Script MCP dependencies
-src/main/java/im/src-script-mcp/node_modules/
+src-web/src-script-mcp/node_modules/

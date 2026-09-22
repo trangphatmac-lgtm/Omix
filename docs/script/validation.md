@@ -59,7 +59,7 @@ python3 tools/run_script_smoke.py --game-dir /path/to/isolated/game
 - `gradle check remapJar` 通过，Java 共 257 项测试；新增离线游戏目录与实际 `MinecraftCommandToolExecutor.buildSnapshot` 一致性检查。后续 MCP 错误透传与版本更新再次通过 `testScriptMcp remapJar verifyWebUiRuntimeBundle`。
 - 10 项真实 stdio MCP 协议测试通过，包括离线首次发现全部 22 个游戏工具、逐工具参数／名称转发、实时参数和描述更新及通知、移除运行时扩展、离线后重连、取消、独立租约和 Java 拒绝原因透传。
 - 使用最终 remap JAR 和客户端实际导出的 `.agent/mcp/server.mjs`，真实 stdio 客户端首次发现 39 个工具；成功读取实时上下文、`getallconfig`、`getpacketlogs` 与同一 Harness 参考文档。测试停留在主菜单，`getcommandsuggestion` 按 Java 原规则返回未进入世界的具体错误；没有向服务器发送聊天／命令，也没有执行容器点击或 Baritone 行为。
-- 可复现：`node src/main/java/im/src-script-mcp/scripts/smoke.mjs --game-dir <已启动的隔离游戏目录>`。协议全覆盖测试使用受控 HTTP 工具桥，不能代替所有工具的游戏内行为验收。
+- 可复现：`node src-web/src-script-mcp/scripts/smoke.mjs --game-dir <已启动的隔离游戏目录>`。协议全覆盖测试使用受控 HTTP 工具桥，不能代替所有工具的游戏内行为验收。
 
 ## 2026-09-22 脚本自定义 AI Tools
 
@@ -67,7 +67,7 @@ python3 tools/run_script_smoke.py --game-dir /path/to/isolated/game
 - Harness 使用锁定依赖中的真实 `SystemPrompt` 和 `ToolRuntime`，验证同一会话的新工具发现、schema 替换、实际工具执行管线和卸载；注册器变化后重组提示词，Agent scope 的工具过滤仍有效。未使用模型密钥，没有声称真实模型自主编写验收。
 - 最终 remap JAR 通过正常 Fabric KnotClient 在隔离目录启动，使用客户端导出的 MCP 服务与官方 stdio 客户端。完整 CustomTools 模板编译通过；同一 MCP 会话完成源码写入、check/load、立即发现与调用、世界要求拒绝、错误源码行、工具故障隔离、跨脚本名称冲突、提交失败回滚、schema/回调热替换、编译失败保留旧代次及卸载。运行时工具成功访问原生 Minecraft 窗口和客户端模块列表。日志：`build/reports/script-custom-tools/production.log`。
 - 测试位于主菜单，未连接服务器；附近实体示例已编译，但未验收联网实体查询、跨世界时序或自定义工具发送网络操作。
-- 可复现：`node src/main/java/im/src-script-mcp/scripts/custom-tools-smoke.mjs --game-dir <已启动的隔离游戏目录>`。测试会创建并清理随机 QA 脚本，结束后释放 MCP 租约。MCP 还通过受控旧快照延迟，验证加载完成后的发现不会复用提交前快照。
+- 可复现：`node src-web/src-script-mcp/scripts/custom-tools-smoke.mjs --game-dir <已启动的隔离游戏目录>`。测试会创建并清理随机 QA 脚本，结束后释放 MCP 租约。MCP 还通过受控旧快照延迟，验证加载完成后的发现不会复用提交前快照。
 - Agent 技能包的 `quick_validate.py` 通过，自定义工具指南、示例、API 索引和离线 HTML 随客户端分发。
 
 ## 2026-09-22 数据包与模块控制 API
@@ -76,4 +76,4 @@ python3 tools/run_script_smoke.py --game-dir /path/to/isolated/game
 - 最终 remap JAR 在隔离主菜单客户端验证通过：PacketControl/ModuleControl 模板编译；经真实 MCP 工具调用模块开关/按键和七类设置；原生 Feature 生命周期；onSend/onReceive 方向过滤、feature 开关与注销；网络线程上同步取消；断线 send 拒绝。
 - 使用没有 socket 的 ClientConnection 触发真实 send Mixin，验证取消和替换不递归触发监听器，没有向外部服务器发送数据。合成收包事件用于验证同步线程语义，不代替真实 NetworkThreadUtils 收包链验收。
 - 尚未验证服务器上的序列号交互效果、真实网络收包或跨世界发包。序列号接口复用现有 PendingUpdateManager 路径，不能将编译与主菜单测试表述为联网验收。
-- 复现：`node src/main/java/im/src-script-mcp/scripts/control-api-smoke.mjs --game-dir <已启动的隔离主菜单客户端>`。脚本会清理自己创建的 QA 源码、模块和工具；日志在 `build/reports/script-controls/production.log`。
+- 复现：`node src-web/src-script-mcp/scripts/control-api-smoke.mjs --game-dir <已启动的隔离主菜单客户端>`。脚本会清理自己创建的 QA 源码、模块和工具；日志在 `build/reports/script-controls/production.log`。

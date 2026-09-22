@@ -24,7 +24,7 @@ CEF 直接访问 Harness 独立的本机动态端口。启动 token 通过上游
 
 `.ai` 的浏览器链接采用同一认证流程：可见聊天文本只包含本机地址，完整认证 URL 放在链接点击事件中；命令不依赖 CEF 页面就绪，也不会自动打开浏览器。服务重启后重新执行 `.ai` 获取新链接。
 
-`cn.omix.util.ai` 管理运行时、独立 Java HTTP 桥接、游戏工具及容器状态。`cn.omix.util.node` 管理共享 Node 下载与平台识别。Node 插件位于 `src/main/java/im/src-ai-harness/plugin/omix.mjs`，通过 Cordis 注册原有 22 个游戏工具及 14 个脚本开发工具和每步游戏上下文；详见 [AI Tools](ai-tools.md)。`plugin/workspace/` 是独立的 Host/Client 双端插件，使用上游 workspaceRegistry 注册目录、uiWorkspace 选择工作区，不修改 Harness 核心。游戏工具在 Minecraft 主线程执行，模型与网络请求在进程/工作线程中运行。
+`cn.omix.util.ai` 管理运行时、独立 Java HTTP 桥接、游戏工具及容器状态。`cn.omix.util.node` 管理共享 Node 下载与平台识别。Node 插件位于 `src-web/src-ai-harness/plugin/omix.mjs`，通过 Cordis 注册原有 22 个游戏工具及 14 个脚本开发工具和每步游戏上下文；详见 [AI Tools](ai-tools.md)。`plugin/workspace/` 是独立的 Host/Client 双端插件，使用上游 workspaceRegistry 注册目录、uiWorkspace 选择工作区，不修改 Harness 核心。游戏工具在 Minecraft 主线程执行，模型与网络请求在进程/工作线程中运行。
 
 桥接仅监听 127.0.0.1，要求启动时生成的 bearer token、精确 Host，拒绝浏览器 Origin，不提供 CORS。Harness 凭据通过子进程环境传入；外部 MCP 通过游戏目录中权限受限的 Omix/development/bridge.json 发现实例。桥由 Client 独立管理，随客户端启动/关闭，重启 Harness 不终止外部会话。
 
@@ -58,7 +58,7 @@ CEF 直接访问 Harness 独立的本机动态端口。启动 token 通过上游
 
 Gradle 的 installAiHarness、bundleAiHarness、testAiHarness 接入构建流程。打包脚本以 package-lock.json 的 URL 和 integrity 获取其他目标平台的 optional dependencies，仅发生在构建时，并输出可复现 ZIP 与 SHA-256 manifest。无 Node 二进制的约束在 JAR 内容检查中覆盖所有 Harness 归档。
 
-使用 `node src/main/java/im/src-ai-harness/scripts/smoke.mjs <解压运行时路径>` 检查隔离 profile 首次启动、同一数据目录重启、用户覆盖配置保留、插件激活、Web 页面与认证；使用 `npm --prefix src/main/java/im/src-ai-harness test` 运行插件协议测试。Java 测试覆盖参数、容器快照、串行化、争用、世界切换、重复调用、取消、桥接鉴权和启动诊断脱敏。
+使用 `node src-web/src-ai-harness/scripts/smoke.mjs <解压运行时路径>` 检查隔离 profile 首次启动、同一数据目录重启、用户覆盖配置保留、插件激活、Web 页面与认证；使用 `npm --prefix src-web/src-ai-harness test` 运行插件协议测试。Java 测试覆盖参数、容器快照、串行化、争用、世界切换、重复调用、取消、桥接鉴权和启动诊断脱敏。
 
 跨平台归档完整性不能代替在目标系统实际运行；各系统的原生组件启动、CEF 中文输入、文件选择、缩放、流式输出、权限弹窗以及音乐/ClickGUI 回归需要对应环境验收。
 

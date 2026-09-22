@@ -81,7 +81,7 @@ void onLoad() {
 try {
  await client.connect(new StdioClientTransport({command:process.execPath,args:[join(dir,'Omix/scripts/.agent/mcp/server.mjs'),'--game-dir',dir],stderr:'pipe'}));
  for(const name of ['PacketControl','ModuleControl']) {
-  const sample='QA'+name+'_'+suffix;await write(sample,await readFile(new URL('../../../../../../docs/script/examples/'+name+'.java',import.meta.url),'utf8'));
+  const sample='QA'+name+'_'+suffix;await write(sample,await readFile(new URL('../../../docs/script/examples/'+name+'.java',import.meta.url),'utf8'));
   const job=await action(sample,'check');assert.equal(job.state,'checked',JSON.stringify(job));console.log('PASS template '+name);
  }
  await write(id,source);const loaded=await action(id,'load');assert.equal(loaded.state,'loaded',JSON.stringify(loaded));

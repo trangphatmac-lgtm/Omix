@@ -30,7 +30,7 @@ public final class OmixLogoRenderer {
         List<Path> outputs = args.length == 0
             ? List.of(
                 Path.of("src/main/resources/assets/omix/textures/mainmenu/omix.png"),
-                Path.of("src/main/java/im/src-webui/src/assets/omix.png")
+                Path.of("src-web/src-webui/src/assets/omix.png")
             )
             : java.util.Arrays.stream(args).map(Path::of).toList();
 
