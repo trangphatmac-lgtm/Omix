@@ -1487,13 +1487,17 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 
 ## Auto Bypass
 
-按服务器提示自动回大厅、再次游玩、出售或登录；界面名称 Auto Bypass。
+按服务器提示自动回大厅、再次游玩、出售或登录；界面名称 Auto Bypass。各模式独立设置时延（秒），收到提示时开始计时，到期后在游戏更新中发送命令；0 表示下一次游戏更新即发送。等待期间忽略重复提示，修改时延仅影响后续触发；切换模式、切换世界或关闭模块会取消待发送命令。
 
 源码：`src/main/java/cn/omix/module/impl/world/AutoPlay.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
 | Mode | Hypixel Limbo 发送 /lobby；Cubecraft 发送 /playagain now；Purple Prison 背包满后 /sell；Auth Me 响应登录注册提示。 | 模式；默认 Hypixel Limbo；可选 Hypixel Limbo / Cubecraft / Purple Prison / Auth Me |
+| Hypixel Limbo Delay (s) | 收到 Limbo 提示后发送 /lobby 的等待时间，单位秒。 | 数值；默认 0；0–10；步长 0.1；显示条件：Mode = Hypixel Limbo |
+| Cubecraft Delay (s) | 收到游戏结束提示后发送 /playagain now 的等待时间，单位秒。 | 数值；默认 0；0–10；步长 0.1；显示条件：Mode = Cubecraft |
+| Purple Prison Delay (s) | 收到背包已满提示后发送 /sell 的等待时间，单位秒。 | 数值；默认 0；0–10；步长 0.1；显示条件：Mode = Purple Prison |
+| Auth Me Delay (s) | 收到登录或注册提示后发送对应命令的等待时间，单位秒；登录与注册共用此设置。 | 数值；默认 0；0–10；步长 0.1；显示条件：Mode = Auth Me |
 | Password | 登录注册密码；敏感文本，不展示默认值。 | 文本；敏感值（默认值省略）；显示条件：Mode = Auth Me |
 
 ## AutoGG
