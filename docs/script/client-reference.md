@@ -1516,7 +1516,7 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Word Pattern | 选择内置文本集合或 Custom；Classic 组合前后句。 | 模式；默认 Poem；可选 Poem / Ma Ma / Pride Plus / Ci xiao gui / Crystal PVP / Clear / English / San Guo / Classic / Bratty / Troll / Custom |
+| Word Pattern | 选择内置文本集合或 Custom；Classic 组合前后句；Troll2 随机使用所提供 CSV 每条记录的首列文案，换行合并为空格。 | 模式；默认 Poem；可选 Poem / Ma Ma / Pride Plus / Ci xiao gui / Crystal PVP / Clear / English / San Guo / Classic / Bratty / Troll / Troll2 / Custom |
 | NameInFront | 文本前加被击杀玩家名。 | 布尔；默认 true |
 | SendL | 70% 概率在文本前加全角 Ｌ。 | 布尔；默认 false |
 | Content | 自定义文本，支持 <target>；空白时发送未设置提示。 | 文本；默认 空文本；显示条件：Word Pattern = Custom |

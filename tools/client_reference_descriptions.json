@@ -871,7 +871,7 @@
   "AutoL": {
     "description": "记录自己攻击过的玩家，确认其生命归零后发送所选文本；离开渲染距离本身不触发。",
     "settings": {
-      "Word Pattern": "选择内置文本集合或 Custom；Classic 组合前后句。",
+      "Word Pattern": "选择内置文本集合或 Custom；Classic 组合前后句；Troll2 随机使用所提供 CSV 每条记录的首列文案，换行合并为空格。",
       "NameInFront": "文本前加被击杀玩家名。",
       "SendL": "70% 概率在文本前加全角 Ｌ。",
       "Content": "自定义文本，支持 <target>；空白时发送未设置提示。",
