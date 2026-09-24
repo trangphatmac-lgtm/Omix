@@ -1050,6 +1050,17 @@
 - `cn.omix.util.player.pathfinder.PathHub` — `public double getCurrentCost()`
 - `cn.omix.util.player.pathfinder.PathHub` — `public double getMaxCost()`
 - `cn.omix.util.player.pathfinder.PathHub` — `public long getSequence()`
+- `cn.omix.util.player.velocity.GrimFullPackets` — `cn.omix.util.player.velocity.GrimFullPackets`
+- `cn.omix.util.player.velocity.GrimFullPackets` — `public final class GrimFullPackets`
+- `cn.omix.util.player.velocity.GrimFullPackets` — `public synchronized void reset()`
+- `cn.omix.util.player.velocity.GrimFullPackets` — `public synchronized boolean shouldPassVelocity(Object currentPlayer, int age, Packet<?> packet, int playerId)`
+- `cn.omix.util.player.velocity.GrimFullPackets` — `public static boolean isSpecialImpulse(Packet<?> packet, int playerId)`
+- `cn.omix.util.player.velocity.GrimFullState` — `cn.omix.util.player.velocity.GrimFullState`
+- `cn.omix.util.player.velocity.GrimFullState` — `public final class GrimFullState`
+- `cn.omix.util.player.velocity.GrimFullState` — `public synchronized void reset()`
+- `cn.omix.util.player.velocity.GrimFullState` — `public synchronized boolean update(Object currentPlayer, int age, long nowNanos, boolean setback)`
+- `cn.omix.util.player.velocity.GrimFullState` — `public synchronized Decision decide(Object currentPlayer, int age, long nowNanos, boolean setback, boolean exemptVelocity, boolean allowVelocityDuringWait)`
+- `cn.omix.util.player.velocity.GrimFullState` — `public record Decision(boolean cancelPing, boolean cancelVelocity)`
 - `cn.omix.util.render.ColorUtil` — `cn.omix.util.render.ColorUtil`
 - `cn.omix.util.render.ColorUtil` — `public class ColorUtil implements IMinecraft`
 - `cn.omix.util.render.ColorUtil` — `public static int applyAlpha(int rgb, double alpha)`

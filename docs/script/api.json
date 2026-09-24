@@ -8180,6 +8180,92 @@
     "line": 51
   },
   {
+    "owner": "cn.omix.util.player.velocity.GrimFullPackets",
+    "name": "GrimFullPackets",
+    "signature": "cn.omix.util.player.velocity.GrimFullPackets",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/player/velocity/GrimFullPackets.java"
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.GrimFullPackets",
+    "name": "GrimFullPackets",
+    "signature": "public final class GrimFullPackets",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/GrimFullPackets.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.GrimFullPackets",
+    "name": "reset",
+    "signature": "public synchronized void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/GrimFullPackets.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.GrimFullPackets",
+    "name": "shouldPassVelocity",
+    "signature": "public synchronized boolean shouldPassVelocity(Object currentPlayer, int age, Packet<?> packet, int playerId)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/GrimFullPackets.java",
+    "line": 28
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.GrimFullPackets",
+    "name": "isSpecialImpulse",
+    "signature": "public static boolean isSpecialImpulse(Packet<?> packet, int playerId)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/GrimFullPackets.java",
+    "line": 56
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.GrimFullState",
+    "name": "GrimFullState",
+    "signature": "cn.omix.util.player.velocity.GrimFullState",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/player/velocity/GrimFullState.java"
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.GrimFullState",
+    "name": "GrimFullState",
+    "signature": "public final class GrimFullState",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/GrimFullState.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.GrimFullState",
+    "name": "reset",
+    "signature": "public synchronized void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/GrimFullState.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.GrimFullState",
+    "name": "update",
+    "signature": "public synchronized boolean update(Object currentPlayer, int age, long nowNanos, boolean setback)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/GrimFullState.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.GrimFullState",
+    "name": "decide",
+    "signature": "public synchronized Decision decide(Object currentPlayer, int age, long nowNanos, boolean setback, boolean exemptVelocity, boolean allowVelocityDuringWait)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/GrimFullState.java",
+    "line": 46
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.GrimFullState",
+    "name": "Decision",
+    "signature": "public record Decision(boolean cancelPing, boolean cancelVelocity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/GrimFullState.java",
+    "line": 53
+  },
+  {
     "owner": "cn.omix.util.render.ColorUtil",
     "name": "ColorUtil",
     "signature": "cn.omix.util.render.ColorUtil",

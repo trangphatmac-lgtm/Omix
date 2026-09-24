@@ -7,16 +7,21 @@ import cn.omix.event.impl.TickEvent;
 import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
+import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
 import cn.omix.util.player.RotationUtil;
+import cn.omix.util.player.velocity.GrimFullPackets;
+import cn.omix.util.player.velocity.GrimFullState;
 import injection.accessor.EntityVelocityUpdateS2CPacketAccessor;
 import lombok.Getter;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.common.CommonPingS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -24,9 +29,12 @@ import net.minecraft.util.math.Vec3d;
 
 @Getter
 public class Velocity extends Module {
-    private final ModeValue mode = new ModeValue("Mode", "Normal", "Normal", "Packet", "Reduce");
+    private final ModeValue mode = new ModeValue("Mode", "Normal", "Normal", "Packet", "Reduce", "Grim Full");
     private final NumberValue horizontal = new NumberValue("Horizontal", 0, 0, 100, 1, () -> mode.is("Packet"));
     private final NumberValue vertical = new NumberValue("Vertical", 0, 0, 100, 1, () -> mode.is("Packet"));
+    private final BoolValue allowVelocityDuringWait = new BoolValue("Allow Velocity During Wait", false, () -> mode.is("Grim Full"));
+    private final GrimFullState grimFullState = new GrimFullState();
+    private final GrimFullPackets grimFullPackets = new GrimFullPackets();
     private LivingEntity attackTarget = null;
     private boolean jump = false;
     private boolean attacking;
@@ -35,6 +43,7 @@ public class Velocity extends Module {
 
     public Velocity() {
         super("Velocity", Category.Combat);
+        mode.onChange((previous, current) -> reset());
     }
 
     @Override
@@ -53,6 +62,8 @@ public class Velocity extends Module {
     }
 
     private void reset() {
+        grimFullState.reset();
+        grimFullPackets.reset();
         attackTarget = null;
         attacking = false;
         reduceTicks = 0;
@@ -76,6 +87,20 @@ public class Velocity extends Module {
         setSuffix(mode.getValue());
         Packet<?> packet = event.getPacket();
         if (event.getType() == PacketEvent.Type.Received) {
+            if (mode.is("Grim Full")) {
+                GrimFullState.Decision decision = grimFullState.decide(mc.player, mc.player.age, System.nanoTime(),
+                        packet instanceof PlayerPositionLookS2CPacket,
+                        grimFullPackets.shouldPassVelocity(mc.player, mc.player.age, packet, mc.player.getId()),
+                        allowVelocityDuringWait.getValue());
+                // Modern Grim uses common ping/pong packets in place of legacy transactions.
+                if ((packet instanceof CommonPingS2CPacket && decision.cancelPing())
+                        || (packet instanceof EntityVelocityUpdateS2CPacket velocity
+                        && velocity.getEntityId() == mc.player.getId() && decision.cancelVelocity())) {
+                    event.setCancelled(true);
+                }
+                return;
+            }
+
             if (packet instanceof EntityVelocityUpdateS2CPacket velocity) {
                 if (velocity.getEntityId() == mc.player.getId()) {
                     switch (mode.getValue()) {
@@ -108,7 +133,11 @@ public class Velocity extends Module {
 
     @EventTarget
     public void onTick(TickEvent event) {
-        if (mc.player == null || mc.interactionManager == null) return;
+        if (mc.player == null) return;
+        if (mode.is("Grim Full")) {
+            grimFullState.update(mc.player, mc.player.age, System.nanoTime(), false);
+        }
+        if (mc.interactionManager == null) return;
 
         if (mode.is("Reduce")) {
             if (resetTicks > 0) {
