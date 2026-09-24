@@ -326,7 +326,7 @@
   },
   {
     "module": "ClickGui",
-    "selector": "Behavior",
+    "selector": "Mode",
     "source": "src/main/java/cn/omix/module/impl/render/ClickGui.java"
   },
   {
