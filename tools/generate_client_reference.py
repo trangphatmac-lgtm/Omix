@@ -97,7 +97,7 @@ for name in names:
             id=name,
             name=sm[1] if sm else name,
             category=p.parent.name,
-            path=str(p.relative_to(ROOT)),
+            path=p.relative_to(ROOT).as_posix(),
             values=vals + inherited,
         )
     )

@@ -37,6 +37,28 @@ class ScriptCompilerTest {
         var valid = compiler.compile("@evaluation", 2, "Object evaluate() {\nreturn 42;\n}", 1);
         assertTrue(Files.isRegularFile(valid.jar())); valid.discard();
     }
+    @Test void unavailableProgressFileDoesNotHideDiagnosticsOrPreventCompilation() throws Exception {
+        Path cache = temp.resolve("worker cache"), request = temp.resolve("request.json"), response = temp.resolve("response.json");
+        Path progress = temp.resolve("blocked-progress");
+        Files.createDirectories(progress);
+        Files.writeString(progress.resolve("occupied"), "prevent replacement on every platform");
+        var cp = Arrays.asList(System.getProperty("omix.test.classpath").split(java.io.File.pathSeparator));
+        var environment = new ScriptClasspath.Environment("named", cp, temp.resolve("unused.tiny").toString());
+        var gson = new com.google.gson.Gson();
+        for (int generation = 1; generation <= 2; generation++) {
+            String body = generation == 1 ? "int answer() { return unknownValue; }" : "int answer() { return 42; }";
+            Files.writeString(request, gson.toJson(new ScriptCompilerWorker.Request(cache.toString(), environment, "Progress", generation, body, 0)));
+            ScriptCompilerWorker.main(new String[]{request.toString(), response.toString(), progress.toString()});
+            var result = gson.fromJson(Files.readString(response), ScriptCompilerWorker.Result.class);
+            if (generation == 1) {
+                assertTrue(result.diagnostics().stream().anyMatch(problem -> problem.severity().equals("ERROR")));
+                assertTrue(result.error().contains("CompileFailure"), result.error());
+            } else {
+                assertNull(result.error());
+                assertTrue(Files.isRegularFile(Path.of(result.jar())));
+            }
+        }
+    }
     private List<ScriptCompiler.Problem> compile(String name, String body) throws Exception {
         var source = ScriptSource.wrap(name, body); Path input = temp.resolve(name + ".java"); Files.writeString(input, source.source());
         Path output = temp.resolve(name); Files.createDirectories(output);

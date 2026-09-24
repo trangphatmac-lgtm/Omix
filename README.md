@@ -169,6 +169,8 @@ gradlew.bat build
 
 `runClient` 启动开发客户端，`build` 构建并执行检查。产物位于 `build/libs/`，安装时选择不带 `-sources` 后缀的 Omix JAR。
 
+本地构建默认只内置当前操作系统和 CPU 架构的 AI 运行时，以缩小 JAR；跨平台分发请使用 `./gradlew build -PaiHarnessPlatform=all`（Windows 使用 `gradlew.bat`）。GitHub CI 的构建与发布仍打包全部六个平台。其他构建选项见 [AI 运行时打包说明](docs/ai-system.md#构建和验收)。
+
 ### 检查
 
 macOS / Linux：

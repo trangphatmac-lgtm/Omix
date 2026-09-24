@@ -1,4 +1,5 @@
 import com.github.gradle.node.npm.task.NpmTask
+import groovy.json.JsonSlurper
 
 import java.time.LocalDate
 import java.time.ZoneId
@@ -232,11 +233,27 @@ def installAiHarness = tasks.register("installAiHarness", NpmTask) {
     outputs.dir("src-web/src-ai-harness/node_modules")
 }
 
+def supportedHarnessPlatforms = ["windows-x64", "windows-arm64", "macos-x64", "macos-arm64", "linux-x64", "linux-arm64"]
+def harnessPlatform = providers.gradleProperty("aiHarnessPlatform").getOrElse("current")
+if (harnessPlatform == "current") {
+    def os = System.getProperty("os.name").toLowerCase(java.util.Locale.ROOT)
+    def arch = System.getProperty("os.arch").toLowerCase(java.util.Locale.ROOT)
+    def system = os.contains("mac") || os.contains("darwin") ? "macos" : os.contains("win") ? "windows" : os.contains("linux") ? "linux" : "unknown"
+    def cpu = ["amd64", "x86_64", "x64"].contains(arch) ? "x64" : ["aarch64", "arm64"].contains(arch) ? "arm64" : "unknown"
+    harnessPlatform = "${system}-${cpu}".toString()
+}
+if (harnessPlatform != "all" && !supportedHarnessPlatforms.contains(harnessPlatform)) {
+    throw new GradleException("Unsupported AI Harness platform: ${harnessPlatform}; use -PaiHarnessPlatform=all or a supported platform")
+}
+def harnessPlatforms = harnessPlatform == "all" ? supportedHarnessPlatforms : [harnessPlatform]
+def harnessArchives = (["common"] + harnessPlatforms).collect { "${it}.zip".toString() }
+
 def bundleAiHarness = tasks.register("bundleAiHarness", Exec) {
     dependsOn installAiHarness
     commandLine providers.gradleProperty("pythonExecutable").getOrElse(
             System.getProperty("os.name").toLowerCase().contains("win") ? "python" : "python3"),
-            "src-web/src-ai-harness/scripts/bundle.py"
+            "src-web/src-ai-harness/scripts/bundle.py", "--platform", harnessPlatform
+    inputs.property("harnessPlatform", harnessPlatform)
     inputs.files(fileTree("src-web/src-ai-harness") {
         exclude "node_modules/**", "dist/**", "tests/**"
     })
@@ -247,6 +264,12 @@ def testAiHarness = tasks.register("testAiHarness", NpmTask) {
     dependsOn installAiHarness
     args = ["--prefix", file("src-web/src-ai-harness").absolutePath, "test"]
     inputs.files(fileTree("src-web/src-ai-harness") { exclude "node_modules/**", "dist/**" })
+}
+
+def testAiHarnessBundle = tasks.register("testAiHarnessBundle", Exec) {
+    commandLine providers.gradleProperty("pythonExecutable").getOrElse(
+            System.getProperty("os.name").toLowerCase().contains("win") ? "python" : "python3"),
+            "-B", "-m", "unittest", "discover", "-s", "src-web/src-ai-harness/tests", "-p", "test_*.py"
 }
 
 def testMusicSidecar = tasks.register("testMusicSidecar", NpmTask) {
@@ -347,6 +370,14 @@ def testScriptMcp = tasks.register("testScriptMcp", NpmTask) {
 }
 
 processResources {
+    inputs.property("harnessPlatform", harnessPlatform)
+    doFirst {
+        // Copy tasks retain removed inputs. Remove only obsolete generated Harness
+        // archives so an all -> current build cannot ship stale foreign runtimes.
+        supportedHarnessPlatforms.findAll { !harnessPlatforms.contains(it) }.each { platform ->
+            delete new File(destinationDir, "assets/omix/ai/harness/${platform}.zip")
+        }
+    }
     dependsOn bundleScriptKit
     from(bundleScriptKit.flatMap { it.archiveFile }) { into "assets/omix/script" }
     from("docs/script") { into "assets/omix/script/reference" }
@@ -381,7 +412,8 @@ processResources {
         into "assets/omix/webui"
     }
     from("src-web/src-ai-harness/dist") {
-        include "*.zip", "manifest.json"
+        include harnessArchives
+        include "manifest.json"
         into "assets/omix/ai/harness"
     }
     from(bundleMusicSidecar.flatMap { it.archiveFile }) {
@@ -429,6 +461,7 @@ jar {
 def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
     dependsOn tasks.named("remapJar")
     inputs.file(tasks.named("remapJar").flatMap { it.archiveFile })
+    inputs.property("harnessPlatform", harnessPlatform)
 
     doLast {
         def requiredNestedJars = [
@@ -455,12 +488,17 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
             if (zip.getEntry("assets/omix/music/sidecar.zip") == null) {
                 throw new GradleException("Music sidecar bundle missing from ${archive.name}")
             }
-            ["common", "windows-x64", "windows-arm64", "macos-x64", "macos-arm64", "linux-x64", "linux-arm64"].each { platform ->
-                if (zip.getEntry("assets/omix/ai/harness/${platform}.zip") == null)
-                    throw new GradleException("Harness bundle missing: ${platform}")
-            }
             if (zip.getEntry("assets/omix/ai/harness/manifest.json") == null)
                 throw new GradleException("Harness manifest missing")
+            def manifest = zip.getInputStream(zip.getEntry("assets/omix/ai/harness/manifest.json")).withCloseable {
+                new JsonSlurper().parse(it, "UTF-8")
+            }
+            def actualHarnessArchives = zip.entries().findAll {
+                !it.directory && it.name.startsWith("assets/omix/ai/harness/") && it.name.endsWith(".zip")
+            }.collect { it.name.substring("assets/omix/ai/harness/".length()) }.toSet()
+            if (manifest.archives.keySet() != harnessArchives.toSet() || actualHarnessArchives != harnessArchives.toSet()) {
+                throw new GradleException("Harness archives do not match ${harnessPlatform}: expected ${harnessArchives}, manifest ${manifest.archives.keySet()}, JAR ${actualHarnessArchives}")
+            }
             ["developer-kit.zip", "mappings/mappings.tiny", "reference/README.md", "reference/api.json", "reference/tools.json", "reference/game-tools.json", "reference/client-reference.md", "reference/omix-script/SKILL.md"].each { resource ->
                 if (zip.getEntry("assets/omix/script/${resource}") == null) throw new GradleException("Script distribution missing: ${resource}")
             }
@@ -489,8 +527,8 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
                     nested.close()
                 }
             }
-            ["common", "windows-x64", "windows-arm64", "macos-x64", "macos-arm64", "linux-x64", "linux-arm64"].each { platform ->
-                inspectNestedZip("assets/omix/ai/harness/${platform}.zip") { entry ->
+            harnessArchives.each { archiveName ->
+                inspectNestedZip("assets/omix/ai/harness/${archiveName}") { entry ->
                     if (!entry.directory && forbiddenName(entry.name))
                         throw new GradleException("Node runtime leaked into Harness bundle: ${entry.name}")
                 }
@@ -529,6 +567,7 @@ tasks.named("check") {
     dependsOn verifyWebUiRuntimeBundle
     dependsOn testMusicSidecar
     dependsOn testAiHarness
+    dependsOn testAiHarnessBundle
 }
 
 // configure the maven publication

@@ -21,7 +21,10 @@ public final class ScriptCompilerWorker {
             var compiler = new ScriptCompiler(cache, new ScriptClasspath(cache.resolve("classpath"), data.environment()));
             var compiled = compiler.compileLocal(data.id(), data.generation(), data.body(), data.leadingLines(), phase -> {
                 try { ScriptFiles.atomicWrite(progress, phase); }
-                catch (java.io.IOException error) { throw new java.io.UncheckedIOException(error); }
+                catch (java.io.IOException ignored) {
+                    // Progress is advisory. Windows can deny replacement while the
+                    // parent reads phase.txt; this must not abort the compilation.
+                }
             });
             result = new Result(compiled.source(), compiled.jar().toString(), compiled.diagnostics(), null);
         } catch (Throwable error) {

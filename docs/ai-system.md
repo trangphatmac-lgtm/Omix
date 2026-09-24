@@ -58,6 +58,17 @@ CEF 直接访问 Harness 独立的本机动态端口。启动 token 通过上游
 
 Gradle 的 installAiHarness、bundleAiHarness、testAiHarness 接入构建流程。打包脚本以 package-lock.json 的 URL 和 integrity 获取其他目标平台的 optional dependencies，仅发生在构建时，并输出可复现 ZIP 与 SHA-256 manifest。无 Node 二进制的约束在 JAR 内容检查中覆盖所有 Harness 归档。
 
+本地构建默认只打包 `common.zip` 和当前操作系统、CPU 架构的 AI 运行时包，例如 Windows x64 只包含 `windows-x64.zip`；其他平台的 optional dependencies 不会由打包脚本下载。此类 JAR 的 AI 功能仅适用于所选平台。GitHub 的构建、发布和 Harness 兼容性 CI 显式选择 `all`，继续包含 Windows、macOS、Linux 的 x64/arm64 共六个平台。
+
+- 本地默认：`gradlew.bat build`（macOS/Linux 使用 `./gradlew build`）。
+- 全平台分发包：`./gradlew build -PaiHarnessPlatform=all`。
+- 指定单个平台：`./gradlew build -PaiHarnessPlatform=linux-arm64`；可选值为 `current`、`all`、`windows-x64`、`windows-arm64`、`macos-x64`、`macos-arm64`、`linux-x64`、`linux-arm64`。
+- 直接调用 Python：`python src-web/src-ai-harness/scripts/bundle.py` 默认选择本机，`--platform all` 生成全部平台，也可指定上述单个平台。
+
+平台选择计入 Gradle 增量构建输入；从全平台切回单平台时，会清除输出目录和待打包资源中遗留的其他平台归档，无需手动 `clean`。JAR 校验要求实际归档、manifest 与所选平台集合完全一致。
+
+`node-pty` 仅打包按平台命名的 `prebuilds/` 原生文件，排除 npm 安装在 `build/` 中生成的本机产物（包括 Windows 的 ConPTY 副本），避免本机文件无法归属平台或覆盖其他架构。`testAiHarnessBundle` 随 Gradle `check` 执行，验证加入本机安装产物前后归档哈希一致、六个平台文件互不混入，并继续拒绝其他未归属平台的原生二进制。可单独运行 `python -B -m unittest discover -s src-web/src-ai-harness/tests -p "test_*.py"`。
+
 使用 `node src-web/src-ai-harness/scripts/smoke.mjs <解压运行时路径>` 检查隔离 profile 首次启动、同一数据目录重启、用户覆盖配置保留、插件激活、Web 页面与认证；使用 `npm --prefix src-web/src-ai-harness test` 运行插件协议测试。Java 测试覆盖参数、容器快照、串行化、争用、世界切换、重复调用、取消、桥接鉴权和启动诊断脱敏。
 
 跨平台归档完整性不能代替在目标系统实际运行；各系统的原生组件启动、CEF 中文输入、文件选择、缩放、流式输出、权限弹窗以及音乐/ClickGUI 回归需要对应环境验收。

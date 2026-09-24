@@ -1,10 +1,10 @@
-"""Produce deterministic common + six platform archives from the npm lock.
+"""Produce deterministic common + selected platform archives from the npm lock.
 
 Foreign-platform optional packages are fetched only at BUILD time, by locked URL
 and integrity. Installed dependency trees are never modified. No Node executable
 or user data is packaged. Each native file is attributed to a supported platform.
 """
-import base64, hashlib, io, json, os, re, tarfile, urllib.request, zipfile
+import argparse, base64, hashlib, io, json, os, platform, re, tarfile, urllib.request, zipfile
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path, PurePosixPath
 
@@ -13,6 +13,17 @@ OUT = ROOT / 'dist'
 CACHE = ROOT.parents[1] / 'build' / 'harness-downloads'
 PLATFORMS = {f'{display}-{arch}': (system, arch) for display, system in
              [('windows', 'win32'), ('macos', 'darwin'), ('linux', 'linux')] for arch in ['x64', 'arm64']}
+
+
+def selected_platforms(target):
+    if target == 'all': return set(PLATFORMS)
+    if target == 'current':
+        system = {'Windows': 'windows', 'Darwin': 'macos', 'Linux': 'linux'}.get(platform.system())
+        arch = {'amd64': 'x64', 'x86_64': 'x64', 'x64': 'x64', 'aarch64': 'arm64', 'arm64': 'arm64'}.get(platform.machine().lower())
+        target = f'{system}-{arch}'
+    if target not in PLATFORMS:
+        raise ValueError(f'Unsupported Harness platform: {target}; use a supported platform or all')
+    return {target}
 
 
 def platforms(meta):
@@ -39,6 +50,10 @@ def keep(path):
                 or leaf.endswith(('.map', '.d.ts', '.tsbuildinfo')) or leaf in {'.DS_Store', '.package-lock.json'}
                 or path.startswith('node_modules/node-pty/src/')
                 or path.startswith('node_modules/node-pty/third_party/')
+                # npm install creates host-only files here (including Windows ConPTY
+                # copies). Ship the platform-labelled prebuilds instead; node-pty's
+                # loader falls back to those when build/Release is absent.
+                or path.startswith('node_modules/node-pty/build/')
                 or leaf == 'fastlist-0.3.0-x86.exe')
 
 
@@ -68,19 +83,26 @@ def locked_package(item):
     return files
 
 
-def main():
+def main(target='current'):
+    selected = selected_platforms(target)
     OUT.mkdir(exist_ok=True)
+    # Switching from an all-platform build must not leave foreign archives behind.
+    for name in PLATFORMS.keys() - selected:
+        (OUT / (name + '.zip')).unlink(missing_ok=True)
     CACHE.mkdir(parents=True, exist_ok=True)
-    lock = json.loads((ROOT / 'package-lock.json').read_text())['packages']
+    lock = json.loads((ROOT / 'package-lock.json').read_text(encoding='utf-8'))['packages']
     platform_packages = {p: m for p, m in lock.items() if p and ('os' in m or 'cpu' in m)}
     records = {}
     for path in sorted((ROOT / 'node_modules').rglob('*')):
         if not path.is_file() or path.is_symlink(): continue
         relative = path.relative_to(ROOT).as_posix()
         if any(relative == p or relative.startswith(p + '/') for p in platform_packages): continue
-        if keep(relative): records[relative] = (path.read_bytes(), path.stat().st_mode, native_platform(relative))
+        targets = native_platform(relative)
+        if targets is not None and not targets & selected: continue
+        if keep(relative): records[relative] = (path.read_bytes(), path.stat().st_mode, targets)
     with ThreadPoolExecutor(max_workers=6) as pool:
-        for entries in pool.map(locked_package, platform_packages.items()):
+        packages = ((p, m) for p, m in platform_packages.items() if platforms(m) & selected)
+        for entries in pool.map(locked_package, packages):
             for name, data, mode, targets in entries: records[name] = (data, mode, targets)
     own_files = ['launch.mjs', 'omix.patch.yml', 'package.json', 'package-lock.json']
     own_files += [p.relative_to(ROOT).as_posix() for p in sorted((ROOT / 'plugin').rglob('*')) if p.is_file()]
@@ -88,7 +110,7 @@ def main():
         records[relative] = ((ROOT / relative).read_bytes(), 0o644, None)
     # The published helper can lose its executable bit even before ZIP extraction.
     archives = {name: zipfile.ZipFile(OUT / (name+'.zip'), 'w', zipfile.ZIP_DEFLATED, compresslevel=6)
-                for name in ['common', *PLATFORMS]}
+                for name in ['common', *(p for p in PLATFORMS if p in selected)]}
     counts = {name: 0 for name in archives}
     executable = {name: [] for name in archives}
     try:
@@ -99,7 +121,7 @@ def main():
                 # pnpm bundles a cross-platform Windows process listing helper.
                 if path.endswith('fastlist-0.3.0-x64.exe'): names = {'windows-x64', 'windows-arm64'}
                 else: raise RuntimeError('Unattributed native binary: ' + path)
-            for name in sorted(names):
+            for name in sorted(names & archives.keys()):
                 entry = zipfile.ZipInfo(path, (2026, 1, 1, 0, 0, 0))
                 entry.compress_type = zipfile.ZIP_DEFLATED
                 entry.external_attr = (mode & 0o777) << 16
@@ -113,7 +135,11 @@ def main():
     finally:
         for archive in archives.values(): archive.close()
     manifest = {'version': '0.1.6-alpha.1', 'archives': {name+'.zip': hashlib.sha256((OUT/(name+'.zip')).read_bytes()).hexdigest() for name in archives}}
-    (OUT/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n')
+    (OUT/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding='utf-8')
     print(json.dumps({name: {'files': counts[name], 'MiB': round((OUT/(name+'.zip')).stat().st_size/1048576, 1)} for name in archives}))
 
-if __name__ == '__main__': main()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--platform', default='current', choices=['current', 'all', *PLATFORMS],
+                        help='Runtime target (default: current host; CI uses all)')
+    main(parser.parse_args().platform)

@@ -18,7 +18,7 @@ class AiClientReferenceTest {
         try (var documents = Files.walk(Path.of("docs"))) {
             assertTrue(documents
                     .filter(path -> path.toString().endsWith(".md"))
-                    .map(path -> Path.of("docs").relativize(path).toString()).toList().containsAll(AiClientReference.DOCUMENTS));
+                    .map(path -> Path.of("docs").relativize(path).toString().replace('\\', '/')).toList().containsAll(AiClientReference.DOCUMENTS));
         }
         for (String document : AiClientReference.DOCUMENTS) {
             String source = Files.readString(Path.of("docs", document));
@@ -62,7 +62,7 @@ class AiClientReferenceTest {
 
     @Test
     void documentsEveryRegisteredToolAndEachParameterInItsOwnSection() throws Exception {
-        String document = Files.readString(Path.of("docs/ai-tools.md"));
+        String document = Files.readString(Path.of("docs/ai-tools.md")).replace("\r\n", "\n");
         var snapshot = MinecraftCommandToolExecutor.buildSnapshot(List.of("/help"), List.of(".toggle"));
         for (var definition : snapshot.definitions()) {
             JsonObject function = definition.getAsJsonObject().getAsJsonObject("function");

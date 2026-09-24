@@ -12,8 +12,8 @@ def write(path, text):
 def json_text(value): return json.dumps(value, ensure_ascii=False, indent=2) + '\n'
 entries = []
 for base in ['cn/omix/script/api', 'cn/omix/event/impl', 'cn/omix/module/value/impl', 'cn/omix/management', 'cn/omix/fisproxy', 'cn/omix/util']:
-    for path in sorted((JAVA / base).rglob('*.java')):
-        if '/util/script/' in str(path): continue
+    for path in sorted((JAVA / base).rglob('*.java'), key=lambda p: p.parts):
+        if '/util/script/' in path.as_posix(): continue
         source = path.read_text(encoding='utf-8')
         package = re.search(r'package\s+([\w.]+)', source).group(1)
         owner = package + '.' + path.stem
@@ -31,28 +31,28 @@ for base in ['cn/omix/script/api', 'cn/omix/event/impl', 'cn/omix/module/value/i
         def declaring(position):
             names = [name for start,end,name in sorted(ranges) if start <= position <= end]
             return package + '.' + '.'.join(names or [path.stem])
-        entries.append(dict(owner=owner, name=path.stem, signature=owner, kind='type', source=str(path.relative_to(ROOT))))
+        entries.append(dict(owner=owner, name=path.stem, signature=owner, kind='type', source=path.relative_to(ROOT).as_posix()))
         # Declarations only: include constructors and explicitly declared public methods/fields.
         for match in re.finditer(r'\bpublic\s+(?:(?:static|final|abstract|synchronized|volatile)\s+)*(?:<[^;{}]+>\s+)?[\w.$<>?, \[\]]+(?:\([^{};]*?\))?(?=\s*(?:throws\s+[\w., ]+)?\s*[{;=])', source):
             signature = ' '.join(match.group().split())
             if '@UtilityClass' in source and not re.match(r'public (?:static|class|final class)', signature): signature = signature.replace('public ', 'public static ', 1)
             name_match = re.search(r'(\w+)\s*(?:\(|$)', signature)
             if not name_match: continue
-            entries.append(dict(owner=declaring(match.start()), name=name_match.group(1), signature=signature, kind='declaration', source=str(path.relative_to(ROOT)), line=source[:match.start()].count('\n')+1))
+            entries.append(dict(owner=declaring(match.start()), name=name_match.group(1), signature=signature, kind='declaration', source=path.relative_to(ROOT).as_posix(), line=source[:match.start()].count('\n')+1))
         # Lombok event accessors are part of the public compiled API.
-        if '/event/impl/' in str(path) and '@Getter' in source:
+        if '/event/impl/' in path.as_posix() and '@Getter' in source:
             for field in re.finditer(r'private\s+(final\s+)?([\w.<>?\[\]]+)\s+(\w+)\s*;', source):
                 final, type_, name = field.groups()
                 cap = name[0].upper()+name[1:]
-                entries.append(dict(owner=owner, name=('is' if type_=='boolean' else 'get')+cap, signature=f"public {type_} {'is' if type_=='boolean' else 'get'}{cap}()", kind='generated-accessor', source=str(path.relative_to(ROOT))))
+                entries.append(dict(owner=owner, name=('is' if type_=='boolean' else 'get')+cap, signature=f"public {type_} {'is' if type_=='boolean' else 'get'}{cap}()", kind='generated-accessor', source=path.relative_to(ROOT).as_posix()))
                 if not final and '@Setter' in source:
-                    entries.append(dict(owner=owner, name='set'+cap, signature=f'public void set{cap}({type_} {name})', kind='generated-accessor', source=str(path.relative_to(ROOT))))
+                    entries.append(dict(owner=owner, name='set'+cap, signature=f'public void set{cap}({type_} {name})', kind='generated-accessor', source=path.relative_to(ROOT).as_posix()))
 write(DOC/'api.json', json_text(entries))
 write(DOC/'sdk.md', '# SDK 声明索引\n\n此文件由实际 Java 声明生成。`api.json` 为相同索引的机器格式；Lombok 事件字段的访问器单独标记。完整原生类型继承关系请以当前依赖和编译检查为准。\n\n'+'\n'.join(f"- `{e['owner']}` — `{e['signature']}`" for e in entries))
 # Schema names must match the shared Java dispatcher, no transport-specific shadow tools.
-tools = json.loads((DOC/'tools.json').read_text())
+tools = json.loads((DOC/'tools.json').read_text(encoding='utf-8'))
 names = {tool['function']['name'] for tool in tools}
-source = (JAVA/'cn/omix/util/script/ScriptTools.java').read_text()
+source = (JAVA/'cn/omix/util/script/ScriptTools.java').read_text(encoding='utf-8')
 dispatched = set(re.findall(r'case "(script_\w+)"\s*->', source))
 assert names == dispatched, f'Tool schema mismatch: {names ^ dispatched}'
 write(DOC/'tools.md', '# 开发工具\n\nHarness、Script Studio 和 MCP 共用以下 schema。编译和加载返回 job，必须轮询 `script_job` 到终态；只有 `loaded` 和实际 generation 表示应用成功。\n\n'+ '\n\n'.join('## '+t['function']['name']+'\n\n'+t['function']['description']+'\n\n```json\n'+json_text(t['function']['parameters']).rstrip()+'\n```' for t in tools))
@@ -60,29 +60,29 @@ examples = sorted(p.stem for p in (DOC/'examples').glob('*.java'))
 write(DOC/'examples/index.json', json_text(examples))
 # Explicit per-module mode host catalog, synchronized with ModeHost.selectorName.
 modes=[]
-registered = set(re.findall(r'new (\w+)\(\)', (JAVA/'cn/omix/module/ModuleManager.java').read_text()))
-for path in sorted((JAVA/'cn/omix/module/impl').rglob('*.java')):
-    source=path.read_text()
+registered = set(re.findall(r'new (\w+)\(\)', (JAVA/'cn/omix/module/ModuleManager.java').read_text(encoding='utf-8')))
+for path in sorted((JAVA/'cn/omix/module/impl').rglob('*.java'), key=lambda p: p.parts):
+    source=path.read_text(encoding='utf-8')
     if path.stem not in registered: continue
     name=path.stem
     selector={'AutoTool':'Implementation','ChestESP':'Implementation','Chams':'Render Mode'}.get(name, 'Mode' if re.search(r'new\s+ModeValue\(\s*"Mode"',source) else 'Behavior')
-    modes.append(dict(module=name,selector=selector,source=str(path.relative_to(ROOT))))
+    modes.append(dict(module=name,selector=selector,source=path.relative_to(ROOT).as_posix()))
 write(DOC/'mode-hosts.json',json_text(modes))
 # Export a directly installable skill: references travel with the SKILL.md.
-write(DOC/'rotation-manager.md', (ROOT/'docs/rotation-manager.md').read_text())
-write(DOC/'game-tools.md', (ROOT/'docs/ai-tools.md').read_text())
+write(DOC/'rotation-manager.md', (ROOT/'docs/rotation-manager.md').read_text(encoding='utf-8'))
+write(DOC/'game-tools.md', (ROOT/'docs/ai-tools.md').read_text(encoding='utf-8'))
 # Match the game-side Harness reference list, including module and command documentation.
-reference_source = (JAVA/'cn/omix/util/ai/AiClientReference.java').read_text()
+reference_source = (JAVA/'cn/omix/util/ai/AiClientReference.java').read_text(encoding='utf-8')
 reference_list = reference_source.split('DOCUMENTS = List.of(', 1)[1].split(');', 1)[0]
 reference_names = re.findall(r'"([\w/.-]+\.md)"', reference_list)
 assert reference_names, 'Missing Harness client reference documents'
 write(DOC/'client-reference.md', 'Omix Client source reference (defaults are not live configuration):\n' +
-      ''.join('\n--- docs/' + name + ' ---\n' + (ROOT/'docs'/name).read_text() for name in reference_names))
+      ''.join('\n--- docs/' + name + ' ---\n' + (ROOT/'docs'/name).read_text(encoding='utf-8') for name in reference_names))
 
 for name in ['README.md','common-knowledge.md','rotation-manager.md','game-tools.md','lifecycle.md','api-guide.md','custom-tools.md','packet-module-control.md','modes.md','tools.md','mcp.md','api.json','mode-hosts.json']:
-    write(DOC/'omix-script/references'/name,(DOC/name).read_text())
+    write(DOC/'omix-script/references'/name,(DOC/name).read_text(encoding='utf-8'))
 for path in (DOC/'examples').glob('*'):
-    write(DOC/'omix-script/examples'/path.name,path.read_text())
+    write(DOC/'omix-script/examples'/path.name,path.read_text(encoding='utf-8'))
 def inline(text):
     value = html.escape(text)
     value = re.sub(r'`([^`]+)`', r'<code>\1</code>', value)
@@ -128,12 +128,12 @@ def markdown(text):
 
 sections, navigation = [], []
 for path in sorted(DOC.glob('*.md'), key=lambda p: (p.name != 'README.md',p.name)):
-    title=path.read_text().splitlines()[0].lstrip('# ')
+    title=path.read_text(encoding='utf-8').splitlines()[0].lstrip('# ')
     navigation.append(f'<a href="#{path.stem}">{html.escape(title)}</a>')
-    sections.append(f'<section id="{html.escape(path.stem)}"><div class="filename">{path.name}</div>{markdown(path.read_text())}</section>')
-for path in sorted((DOC/'examples').glob('*.java')):
+    sections.append(f'<section id="{html.escape(path.stem)}"><div class="filename">{path.name}</div>{markdown(path.read_text(encoding="utf-8"))}</section>')
+for path in sorted((DOC/'examples').glob('*.java'), key=lambda p: p.parts):
     navigation.append(f'<a href="#{path.stem}">{path.name}</a>')
-    sections.append(f'<section id="{path.stem}"><div class="filename">EXAMPLE</div><h2>{path.name}</h2><pre><code>{html.escape(path.read_text())}</code></pre></section>')
+    sections.append(f'<section id="{path.stem}"><div class="filename">EXAMPLE</div><h2>{path.name}</h2><pre><code>{html.escape(path.read_text(encoding="utf-8"))}</code></pre></section>')
 page='''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Omix Java Script SDK</title><style>
 :root{color-scheme:dark}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:95px}body{margin:0;background:#10141c;color:#cbd5e4;font:15px/1.8 system-ui}header{position:sticky;top:0;z-index:2;background:#181e29;border-bottom:1px solid #ffffff14;padding:16px 28px;display:flex;gap:24px;align-items:center}header strong{color:#a8caff;white-space:nowrap}input{background:#10141c;color:inherit;border:1px solid #46516d;border-radius:7px;padding:10px;width:min(380px,50vw)}.layout{display:flex;max-width:1600px;margin:auto}nav{width:250px;flex:none;position:sticky;top:76px;max-height:calc(100vh - 76px);overflow:auto;padding:24px 20px}nav a{display:block;font-size:13px;padding:5px 10px}a{color:#90baff;text-decoration:none}a:hover{text-decoration:underline}main{min-width:0;flex:1;padding:28px 36px}section{padding:18px 0 36px;border-bottom:1px solid #303b52;scroll-margin-top:20px}.filename{font:11px ui-monospace,monospace;letter-spacing:.1em;color:#788ca7}h2,h3,h4{color:#edf2fa;line-height:1.4}h2{font-size:27px}h3{font-size:20px;margin-top:32px}p{max-width:100ch;overflow-wrap:anywhere}pre{background:#171e2a;border:1px solid #303b52;border-radius:8px;padding:18px;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.8 ui-monospace,monospace}code{color:#b0cdf7;font-size:.9em}pre code{font-size:inherit}li{margin:8px 0;overflow-wrap:anywhere}table{border-collapse:collapse;table-layout:fixed;width:100%;font-size:13px}td,th{border:1px solid #303b52;padding:10px 12px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#1b2433;color:#edf2fa}td code{overflow-wrap:anywhere}@media(max-width:850px){nav{width:190px;padding:18px 6px}main{padding:20px}header{padding:12px 20px;gap:12px;font-size:13px}}@media(max-width:600px){nav{display:none}header{flex-wrap:wrap}input{width:100%}h2{font-size:23px}}
 </style><header><strong>OMIX / Java Script SDK</strong><input type="search" aria-label="搜索文档" placeholder="搜索 API、生命周期或示例"></header><div class="layout"><nav>'''+''.join(navigation)+'''</nav><main>'''+''.join(sections)+'''</main></div><script>

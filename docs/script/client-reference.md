@@ -42,6 +42,8 @@ Web 和 Node 相关源码统一位于项目根目录 `src-web/`：`webui/`、`mu
 
 前端构建、运行时打包和测试仍使用原有 Gradle 任务；直接运行 npm 或脚本时使用 `src-web/` 下的对应路径，例如 `npm --prefix src-web/src-script-mcp test`。通用工具类及模块辅助类仍遵循下方的 `cn.omix.util` 目录约定。
 
+脚本参考文档生成器统一以 UTF-8 读取源码与文档，并使用 `/` 分隔的相对路径生成索引，确保 Windows 默认 GBK 编码环境也能构建，且工具类筛选与事件访问器索引在各平台一致。
+
 ### 模块辅助类目录
 
 以下辅助类统一放在 `src/main/java/cn/omix/util/` 下，模块通过对应的 `cn.omix.util` 包导入；相关单元测试也位于 `src/test/java/cn/omix/util/` 的对应子包。

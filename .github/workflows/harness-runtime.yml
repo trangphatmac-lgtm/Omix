@@ -20,7 +20,8 @@ jobs:
           python-version: '3.12'
       - run: npm --prefix src-web/src-ai-harness ci --omit=dev --no-audit --no-fund
       - run: npm --prefix src-web/src-ai-harness test
-      - run: python src-web/src-ai-harness/scripts/bundle.py
+      - run: python -B -m unittest discover -s src-web/src-ai-harness/tests -p "test_*.py"
+      - run: python src-web/src-ai-harness/scripts/bundle.py --platform all
       - uses: actions/upload-artifact@v4
         with:
           name: harness-runtime

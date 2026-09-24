@@ -27,7 +27,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
       - name: Build and check
-        run: ./gradlew build --no-daemon --stacktrace
+        run: ./gradlew build --no-daemon --stacktrace -PaiHarnessPlatform=all
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -64,7 +64,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
       - name: Publish to GitHub Packages
-        run: ./gradlew publish --no-daemon --stacktrace
+        run: ./gradlew publish --no-daemon --stacktrace -PaiHarnessPlatform=all
         env:
           USERNAME: ${{ github.actor }}
           TOKEN: ${{ secrets.GITHUB_TOKEN }}

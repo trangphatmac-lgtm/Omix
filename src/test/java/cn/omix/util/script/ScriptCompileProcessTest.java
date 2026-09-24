@@ -13,7 +13,12 @@ class ScriptCompileProcessTest {
 
     public static class Child {
         public static void main(String[] args) throws Exception {
-            Files.writeString(Path.of(args[0]), Long.toString(ProcessHandle.current().pid()));
+            Path pid = Path.of(args[0]);
+            Path pending = pid.resolveSibling(pid.getFileName() + ".tmp");
+            Files.writeString(pending, Long.toString(ProcessHandle.current().pid()));
+            // Publish readiness only after the PID is complete; cancellation can
+            // otherwise kill this process between file creation and writing.
+            Files.move(pending, pid, StandardCopyOption.ATOMIC_MOVE);
             if (args[1].equals("hang")) Thread.sleep(60_000);
         }
     }
