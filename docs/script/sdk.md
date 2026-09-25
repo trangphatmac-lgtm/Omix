@@ -1106,6 +1106,271 @@
 - `cn.omix.util.render.Render3D` — `public static void drawBox(Render3DEvent event, Box box, Color color, boolean fill, boolean outline, float lineWidth)`
 - `cn.omix.util.render.Render3D` — `public static void drawLine(Render3DEvent event, Vec3d start, Vec3d end, Color color)`
 - `cn.omix.util.render.Render3D` — `public static void drawLine(Render3DEvent event, Vec3d start, Vec3d end, Color color, float lineWidth)`
+- `cn.omix.util.sigma.SigmaAnimation` — `cn.omix.util.sigma.SigmaAnimation`
+- `cn.omix.util.sigma.SigmaAnimation` — `public final class SigmaAnimation`
+- `cn.omix.util.sigma.SigmaAnimation` — `public SigmaAnimation()`
+- `cn.omix.util.sigma.SigmaAnimation` — `public SigmaAnimation(float value)`
+- `cn.omix.util.sigma.SigmaAnimation` — `public float update(boolean forward, long nowNanos, int durationMillis)`
+- `cn.omix.util.sigma.SigmaAnimation` — `public float value()`
+- `cn.omix.util.sigma.SigmaAnimation` — `public void reset()`
+- `cn.omix.util.sigma.SigmaAnimation` — `public static float easeInOut(float t)`
+- `cn.omix.util.sigma.SigmaAnimation` — `public static float easeOut(float t)`
+- `cn.omix.util.sigma.SigmaAnimation` — `public static float bezier(float x, double x1, double y1, double x2, double y2)`
+- `cn.omix.util.sigma.SigmaBlur` — `cn.omix.util.sigma.SigmaBlur`
+- `cn.omix.util.sigma.SigmaBlur` — `public final class SigmaBlur implements IMinecraft`
+- `cn.omix.util.sigma.SigmaBlur` — `public static final RenderPipeline OPAQUE_TEXTURE`
+- `cn.omix.util.sigma.SigmaBlur` — `public static void init()`
+- `cn.omix.util.sigma.SigmaBlur` — `public static int generation()`
+- `cn.omix.util.sigma.SigmaBlur` — `public static void releaseUnused()`
+- `cn.omix.util.sigma.SigmaBlur` — `public static void capture()`
+- `cn.omix.util.sigma.SigmaBlur` — `public static void draw(DrawContext context, float x, float y, float width, float height, float opacity)`
+- `cn.omix.util.sigma.SigmaBlur` — `public static void close()`
+- `cn.omix.util.sigma.SigmaBrainFreeze` — `cn.omix.util.sigma.SigmaBrainFreeze`
+- `cn.omix.util.sigma.SigmaBrainFreeze` — `public final class SigmaBrainFreeze`
+- `cn.omix.util.sigma.SigmaBrainFreeze` — `public void draw(DrawContext context, float opacity)`
+- `cn.omix.util.sigma.SigmaCategoryPanel` — `cn.omix.util.sigma.SigmaCategoryPanel`
+- `cn.omix.util.sigma.SigmaCategoryPanel` — `public final class SigmaCategoryPanel implements IMinecraft`
+- `cn.omix.util.sigma.SigmaCategoryPanel` — `public final Category category`
+- `cn.omix.util.sigma.SigmaCategoryPanel` — `public float x, y, scroll`
+- `cn.omix.util.sigma.SigmaCategoryPanel` — `public SigmaCategoryPanel(Category category, float x, float y)`
+- `cn.omix.util.sigma.SigmaCategoryPanel` — `public void refresh(String filter)`
+- `cn.omix.util.sigma.SigmaCategoryPanel` — `public void draw(DrawContext context, float mx, float my, float alpha)`
+- `cn.omix.util.sigma.SigmaCategoryPanel` — `public Module hit(float mx, float my)`
+- `cn.omix.util.sigma.SigmaCategoryPanel` — `public void scroll(double delta)`
+- `cn.omix.util.sigma.SigmaCategoryPanel` — `public String filter()`
+- `cn.omix.util.sigma.SigmaChestCache` — `cn.omix.util.sigma.SigmaChestCache`
+- `cn.omix.util.sigma.SigmaChestCache` — `public final class SigmaChestCache implements IMinecraft`
+- `cn.omix.util.sigma.SigmaChestCache` — `public List<BlockPos> positions()`
+- `cn.omix.util.sigma.SigmaChestCache` — `public void update()`
+- `cn.omix.util.sigma.SigmaChestCache` — `public void clear()`
+- `cn.omix.util.sigma.SigmaColors` — `cn.omix.util.sigma.SigmaColors`
+- `cn.omix.util.sigma.SigmaColors` — `public final class SigmaColors`
+- `cn.omix.util.sigma.SigmaColors` — `public static final int WHITE`
+- `cn.omix.util.sigma.SigmaColors` — `public static final int BLACK`
+- `cn.omix.util.sigma.SigmaColors` — `public static final int GREY`
+- `cn.omix.util.sigma.SigmaColors` — `public static final int UNSPAWN`
+- `cn.omix.util.sigma.SigmaColors` — `public static int alpha(int color, float opacity)`
+- `cn.omix.util.sigma.SigmaColors` — `public static int mix(int from, int to, float amount)`
+- `cn.omix.util.sigma.SigmaColors` — `public static int sourceBlend(int first, int second, float firstWeight)`
+- `cn.omix.util.sigma.SigmaDraw` — `cn.omix.util.sigma.SigmaDraw`
+- `cn.omix.util.sigma.SigmaDraw` — `public final class SigmaDraw implements IMinecraft`
+- `cn.omix.util.sigma.SigmaDraw` — `public static void begin(DrawContext context)`
+- `cn.omix.util.sigma.SigmaDraw` — `public static void end(DrawContext context)`
+- `cn.omix.util.sigma.SigmaDraw` — `public static int width()`
+- `cn.omix.util.sigma.SigmaDraw` — `public static int height()`
+- `cn.omix.util.sigma.SigmaDraw` — `public static void image(DrawContext context, String path, float x, float y, float w, float h, int color)`
+- `cn.omix.util.sigma.SigmaDraw` — `public static void innerShadow(DrawContext context, float x, float y, float w, float h, float size, float opacity)`
+- `cn.omix.util.sigma.SigmaDraw` — `public static void shadow(DrawContext context, float x, float y, float w, float h, float size, float opacity)`
+- `cn.omix.util.sigma.SigmaEntityFilter` — `cn.omix.util.sigma.SigmaEntityFilter`
+- `cn.omix.util.sigma.SigmaEntityFilter` — `public final class SigmaEntityFilter implements IMinecraft`
+- `cn.omix.util.sigma.SigmaEntityFilter` — `public static boolean bot(Entity entity)`
+- `cn.omix.util.sigma.SigmaEntityFilter` — `public static boolean matches(Entity entity, boolean players, boolean mobs, boolean passives, boolean invisible)`
+- `cn.omix.util.sigma.SigmaFurnaceRecipes` — `cn.omix.util.sigma.SigmaFurnaceRecipes`
+- `cn.omix.util.sigma.SigmaFurnaceRecipes` — `public final class SigmaFurnaceRecipes implements IMinecraft`
+- `cn.omix.util.sigma.SigmaFurnaceRecipes` — `public void refresh()`
+- `cn.omix.util.sigma.SigmaFurnaceRecipes` — `public ItemStack result(ItemStack input)`
+- `cn.omix.util.sigma.SigmaFurnaceRecipes` — `public void clear()`
+- `cn.omix.util.sigma.SigmaFurnaceTracker` — `cn.omix.util.sigma.SigmaFurnaceTracker`
+- `cn.omix.util.sigma.SigmaFurnaceTracker` — `public final class SigmaFurnaceTracker`
+- `cn.omix.util.sigma.SigmaFurnaceTracker` — `public final int syncId`
+- `cn.omix.util.sigma.SigmaFurnaceTracker` — `public SigmaFurnaceTracker(int syncId)`
+- `cn.omix.util.sigma.SigmaFurnaceTracker` — `public void slot(int index, ItemStack stack)`
+- `cn.omix.util.sigma.SigmaFurnaceTracker` — `public void recipe(SigmaFurnaceRecipes recipes)`
+- `cn.omix.util.sigma.SigmaFurnaceTracker` — `public void property(int index, int value)`
+- `cn.omix.util.sigma.SigmaFurnaceTracker` — `public void tick(boolean screenOpen, FuelRegistry fuels)`
+- `cn.omix.util.sigma.SigmaFurnaceTracker` — `public ItemStack output()`
+- `cn.omix.util.sigma.SigmaFurnaceTracker` — `public int outputCount()`
+- `cn.omix.util.sigma.SigmaFurnaceTracker` — `public float fuelProgress()`
+- `cn.omix.util.sigma.SigmaFurnaceTracker` — `public float cookProgress()`
+- `cn.omix.util.sigma.SigmaGeometry` — `cn.omix.util.sigma.SigmaGeometry`
+- `cn.omix.util.sigma.SigmaGeometry` — `public final class SigmaGeometry`
+- `cn.omix.util.sigma.SigmaGeometry` — `public record Point3(double x, double y, double z)`
+- `cn.omix.util.sigma.SigmaGeometry` — `public static Point3 waypointVertex(int half, int face, int vertex)`
+- `cn.omix.util.sigma.SigmaGeometry` — `public static Point3 circleVertex(int index)`
+- `cn.omix.util.sigma.SigmaGeometry` — `public static List<int[]> silhouetteEdges(double minX, double minY, double minZ, double maxX, double maxY, double maxZ, double cameraX, double cameraY, double cameraZ)`
+- `cn.omix.util.sigma.SigmaGeometry` — `public static float magnification(double squaredDistance, float minimum)`
+- `cn.omix.util.sigma.SigmaGeometry` — `public static float wrapDegrees(float yaw)`
+- `cn.omix.util.sigma.SigmaGuiLayout` — `cn.omix.util.sigma.SigmaGuiLayout`
+- `cn.omix.util.sigma.SigmaGuiLayout` — `public final class SigmaGuiLayout implements IMinecraft`
+- `cn.omix.util.sigma.SigmaGuiLayout` — `public static void read(List<SigmaCategoryPanel> panels)`
+- `cn.omix.util.sigma.SigmaGuiLayout` — `public static void write(List<SigmaCategoryPanel> panels)`
+- `cn.omix.util.sigma.SigmaHud` — `cn.omix.util.sigma.SigmaHud`
+- `cn.omix.util.sigma.SigmaHud` — `public final class SigmaHud implements IMinecraft`
+- `cn.omix.util.sigma.SigmaHud` — `public static int debugRightRows`
+- `cn.omix.util.sigma.SigmaHud` — `public static HUD active()`
+- `cn.omix.util.sigma.SigmaHud` — `public void render(HUD hud, DrawContext context)`
+- `cn.omix.util.sigma.SigmaHud` — `public static float scoreboardOffset(net.minecraft.scoreboard.ScoreboardObjective objective)`
+- `cn.omix.util.sigma.SigmaHud` — `public void key(int key)`
+- `cn.omix.util.sigma.SigmaImageBlur` — `cn.omix.util.sigma.SigmaImageBlur`
+- `cn.omix.util.sigma.SigmaImageBlur` — `public final class SigmaImageBlur`
+- `cn.omix.util.sigma.SigmaImageBlur` — `public static BufferedImage blur(BufferedImage source, int radius)`
+- `cn.omix.util.sigma.SigmaMapCache` — `cn.omix.util.sigma.SigmaMapCache`
+- `cn.omix.util.sigma.SigmaMapCache` — `public final class SigmaMapCache implements IMinecraft`
+- `cn.omix.util.sigma.SigmaMapCache` — `public static SigmaMapCache get()`
+- `cn.omix.util.sigma.SigmaMapCache` — `public void onWorld(WorldEvent event)`
+- `cn.omix.util.sigma.SigmaMapCache` — `public void onTick(TickEvent event)`
+- `cn.omix.util.sigma.SigmaMapCache` — `public void draw(DrawContext context, float x, float y, float width, float height, double centerX, double centerZ, float pixelsPerBlock)`
+- `cn.omix.util.sigma.SigmaMapCache` — `public void draw(DrawContext context, float x, float y, float width, float height, double centerX, double centerZ, float pixelsPerBlock, boolean clip)`
+- `cn.omix.util.sigma.SigmaMapCache` — `public void draw(DrawContext context, float x, float y, float width, float height, double centerX, double centerZ, float pixelsPerBlock, boolean clip, SigmaTexturePolygon.Clip rounded)`
+- `cn.omix.util.sigma.SigmaMapCache` — `public int colorAt(int x, int z)`
+- `cn.omix.util.sigma.SigmaMapCache` — `public void close()`
+- `cn.omix.util.sigma.SigmaMapRegion` — `cn.omix.util.sigma.SigmaMapRegion`
+- `cn.omix.util.sigma.SigmaMapRegion` — `public final class SigmaMapRegion`
+- `cn.omix.util.sigma.SigmaMapRegion` — `public static final int SIZE`
+- `cn.omix.util.sigma.SigmaMapRegion` — `public static final int UNKNOWN`
+- `cn.omix.util.sigma.SigmaMapRegion` — `public SigmaMapRegion()`
+- `cn.omix.util.sigma.SigmaMapRegion` — `public long revision()`
+- `cn.omix.util.sigma.SigmaMapRegion` — `public int color(int x, int z)`
+- `cn.omix.util.sigma.SigmaMapRegion` — `public boolean known(int x, int z)`
+- `cn.omix.util.sigma.SigmaMapRegion` — `public SigmaMapRegion snapshot()`
+- `cn.omix.util.sigma.SigmaMapRegion` — `public void putChunk(int chunkX, int chunkZ, int[] colors)`
+- `cn.omix.util.sigma.SigmaMapRegion` — `public void mergeMissing(SigmaMapRegion other)`
+- `cn.omix.util.sigma.SigmaMapRegion` — `public static SigmaMapRegion read(Path file)`
+- `cn.omix.util.sigma.SigmaMapRegion` — `public void write(Path file)`
+- `cn.omix.util.sigma.SigmaMapRows` — `cn.omix.util.sigma.SigmaMapRows`
+- `cn.omix.util.sigma.SigmaMapRows` — `public final class SigmaMapRows`
+- `cn.omix.util.sigma.SigmaMapRows` — `public void update(List<SigmaWaypoint> points, UUID dragged, float dragPosition, long now)`
+- `cn.omix.util.sigma.SigmaMapRows` — `public float position(UUID id)`
+- `cn.omix.util.sigma.SigmaMapRows` — `public float trashProgress()`
+- `cn.omix.util.sigma.SigmaMapRows` — `public boolean deleting(UUID id)`
+- `cn.omix.util.sigma.SigmaMapRows` — `public void delete(UUID id)`
+- `cn.omix.util.sigma.SigmaMapRows` — `public void finishDeletes()`
+- `cn.omix.util.sigma.SigmaMapRows` — `public void draw(DrawContext context, SigmaWaypoint point, float x, float y, float width, boolean dragging, float opacity)`
+- `cn.omix.util.sigma.SigmaMapZoom` — `cn.omix.util.sigma.SigmaMapZoom`
+- `cn.omix.util.sigma.SigmaMapZoom` — `public final class SigmaMapZoom implements IMinecraft, AutoCloseable`
+- `cn.omix.util.sigma.SigmaMapZoom` — `public void press(boolean plus)`
+- `cn.omix.util.sigma.SigmaMapZoom` — `public void draw(DrawContext context, float x, float y, double worldX, double worldZ, float pixelsPerBlock)`
+- `cn.omix.util.sigma.SigmaMapZoom` — `public void close()`
+- `cn.omix.util.sigma.SigmaMaskEffect` — `cn.omix.util.sigma.SigmaMaskEffect`
+- `cn.omix.util.sigma.SigmaMaskEffect` — `public final class SigmaMaskEffect implements IMinecraft`
+- `cn.omix.util.sigma.SigmaMaskEffect` — `public static void init()`
+- `cn.omix.util.sigma.SigmaMaskEffect` — `public record ColoredBox(Box box, int color)`
+- `cn.omix.util.sigma.SigmaMaskEffect` — `public static void boxes(Render3DEvent event, List<ColoredBox> boxes, List<Entity> shadows)`
+- `cn.omix.util.sigma.SigmaMaskEffect` — `public static void entities(Render3DEvent event, List<Entity> entities, int color)`
+- `cn.omix.util.sigma.SigmaMaskEffect` — `public static void releaseUnused()`
+- `cn.omix.util.sigma.SigmaMaskEffect` — `public static void close()`
+- `cn.omix.util.sigma.SigmaOwnerNames` — `cn.omix.util.sigma.SigmaOwnerNames`
+- `cn.omix.util.sigma.SigmaOwnerNames` — `public final class SigmaOwnerNames implements IMinecraft`
+- `cn.omix.util.sigma.SigmaOwnerNames` — `public static String name(UUID uuid)`
+- `cn.omix.util.sigma.SigmaOwnerNames` — `public static void close()`
+- `cn.omix.util.sigma.SigmaProfileStorage` — `cn.omix.util.sigma.SigmaProfileStorage`
+- `cn.omix.util.sigma.SigmaProfileStorage` — `public final class SigmaProfileStorage`
+- `cn.omix.util.sigma.SigmaProfileStorage` — `public static void captureDefaults()`
+- `cn.omix.util.sigma.SigmaProfileStorage` — `public static void saveCurrent()`
+- `cn.omix.util.sigma.SigmaProfileStorage` — `public static void activate(Config config)`
+- `cn.omix.util.sigma.SigmaProfileStorage` — `public static Config blank()`
+- `cn.omix.util.sigma.SigmaProfileStorage` — `public static Config duplicate()`
+- `cn.omix.util.sigma.SigmaProfileStorage` — `public static Config rename(Config config, String requestedName)`
+- `cn.omix.util.sigma.SigmaProfileStorage` — `public static boolean validName(String name)`
+- `cn.omix.util.sigma.SigmaProfilesPanel` — `cn.omix.util.sigma.SigmaProfilesPanel`
+- `cn.omix.util.sigma.SigmaProfilesPanel` — `public final class SigmaProfilesPanel implements IMinecraft`
+- `cn.omix.util.sigma.SigmaProfilesPanel` — `public SigmaProfilesPanel()`
+- `cn.omix.util.sigma.SigmaProfilesPanel` — `public void close()`
+- `cn.omix.util.sigma.SigmaProfilesPanel` — `public boolean closed()`
+- `cn.omix.util.sigma.SigmaProfilesPanel` — `public void draw(DrawContext context, float mx, float my, float alpha)`
+- `cn.omix.util.sigma.SigmaProfilesPanel` — `public boolean click(float mx, float my, int button)`
+- `cn.omix.util.sigma.SigmaProfilesPanel` — `public void scroll(double delta)`
+- `cn.omix.util.sigma.SigmaProfilesPanel` — `public boolean key(KeyInput input)`
+- `cn.omix.util.sigma.SigmaProfilesPanel` — `public boolean type(CharInput input)`
+- `cn.omix.util.sigma.SigmaProjection` — `cn.omix.util.sigma.SigmaProjection`
+- `cn.omix.util.sigma.SigmaProjection` — `public final class SigmaProjection implements IMinecraft`
+- `cn.omix.util.sigma.SigmaProjection` — `public static Label label(Render3DEvent event, Vec3d position, float worldScale)`
+- `cn.omix.util.sigma.SigmaProjection` — `public record Label(float x, float y, float rightX, float rightY, float downX, float downY)`
+- `cn.omix.util.sigma.SigmaProjection.Label` — `public void begin(DrawContext context)`
+- `cn.omix.util.sigma.SigmaProjection.Label` — `public void end(DrawContext context)`
+- `cn.omix.util.sigma.SigmaRearView` — `cn.omix.util.sigma.SigmaRearView`
+- `cn.omix.util.sigma.SigmaRearView` — `public final class SigmaRearView implements IMinecraft`
+- `cn.omix.util.sigma.SigmaRearView` — `public static SigmaRearView get()`
+- `cn.omix.util.sigma.SigmaRearView` — `public static boolean isRendering()`
+- `cn.omix.util.sigma.SigmaRearView` — `public static Framebuffer target()`
+- `cn.omix.util.sigma.SigmaRearView` — `public static Camera renderingCamera()`
+- `cn.omix.util.sigma.SigmaRearView` — `public void prepareFrame()`
+- `cn.omix.util.sigma.SigmaRearView` — `public void renderWorld(RenderTickCounter tickCounter)`
+- `cn.omix.util.sigma.SigmaRearView` — `public void draw(DrawContext context)`
+- `cn.omix.util.sigma.SigmaRearView` — `public void release()`
+- `cn.omix.util.sigma.SigmaRearView.RearCamera` — `public net.minecraft.world.attribute.EnvironmentAttributeInterpolator getEnvironmentAttributeInterpolator()`
+- `cn.omix.util.sigma.SigmaResources` — `cn.omix.util.sigma.SigmaResources`
+- `cn.omix.util.sigma.SigmaResources` — `public final class SigmaResources`
+- `cn.omix.util.sigma.SigmaResources` — `public static Identifier texture(String path)`
+- `cn.omix.util.sigma.SigmaResources` — `public static TrueTypeFont light(int size)`
+- `cn.omix.util.sigma.SigmaResources` — `public static TrueTypeFont medium(int size)`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `cn.omix.util.sigma.SigmaSettingsPanel`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public final class SigmaSettingsPanel`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public static final int BLUE`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public SigmaSettingsPanel(Module module)`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public Module module()`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public void close()`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public boolean closed()`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public float progress()`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public void draw(DrawContext context, float mouseX, float mouseY, float alpha)`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public static String format(float value)`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public static boolean inside(double mx, double my, float x, float y, float w, float h)`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public boolean click(float mx, float my, int button)`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public boolean drag(float mx, float my)`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public void release()`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public void scroll(double amount)`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public boolean key(KeyInput input)`
+- `cn.omix.util.sigma.SigmaSettingsPanel` — `public boolean type(CharInput input)`
+- `cn.omix.util.sigma.SigmaShape` — `cn.omix.util.sigma.SigmaShape`
+- `cn.omix.util.sigma.SigmaShape` — `public RenderPipeline pipeline()`
+- `cn.omix.util.sigma.SigmaShape` — `public TextureSetup textureSetup()`
+- `cn.omix.util.sigma.SigmaShape` — `public void setupVertices(VertexConsumer buffer)`
+- `cn.omix.util.sigma.SigmaShape` — `public static void rounded(DrawContext context, float x, float y, float w, float h, float radius, int color)`
+- `cn.omix.util.sigma.SigmaSims` — `cn.omix.util.sigma.SigmaSims`
+- `cn.omix.util.sigma.SigmaSims` — `public final class SigmaSims`
+- `cn.omix.util.sigma.SigmaSims` — `public static void render(Render3DEvent event, Entity entity)`
+- `cn.omix.util.sigma.SigmaSounds` — `cn.omix.util.sigma.SigmaSounds`
+- `cn.omix.util.sigma.SigmaSounds` — `public final class SigmaSounds implements IMinecraft`
+- `cn.omix.util.sigma.SigmaSounds` — `public static void toggled(boolean enabled)`
+- `cn.omix.util.sigma.SigmaSounds` — `public static void play(String name)`
+- `cn.omix.util.sigma.SigmaTextInput` — `cn.omix.util.sigma.SigmaTextInput`
+- `cn.omix.util.sigma.SigmaTextInput` — `public final class SigmaTextInput implements IMinecraft`
+- `cn.omix.util.sigma.SigmaTextInput` — `public SigmaTextInput(int limit)`
+- `cn.omix.util.sigma.SigmaTextInput` — `public String value()`
+- `cn.omix.util.sigma.SigmaTextInput` — `public boolean focused()`
+- `cn.omix.util.sigma.SigmaTextInput` — `public void focus(boolean focused)`
+- `cn.omix.util.sigma.SigmaTextInput` — `public void set(String value)`
+- `cn.omix.util.sigma.SigmaTextInput` — `public void selectAll()`
+- `cn.omix.util.sigma.SigmaTextInput` — `public boolean type(CharInput input)`
+- `cn.omix.util.sigma.SigmaTextInput` — `public boolean key(KeyInput input)`
+- `cn.omix.util.sigma.SigmaTextInput` — `public void draw(DrawContext context, TrueTypeFont font, float x, float y, float width, int color, String placeholder)`
+- `cn.omix.util.sigma.SigmaTextInput` — `public void draw(DrawContext context, TrueTypeFont font, float x, float y, float width, int color, String placeholder, boolean masked)`
+- `cn.omix.util.sigma.SigmaTexturePolygon` — `cn.omix.util.sigma.SigmaTexturePolygon`
+- `cn.omix.util.sigma.SigmaTexturePolygon` — `public RenderPipeline pipeline()`
+- `cn.omix.util.sigma.SigmaTexturePolygon` — `public void setupVertices(VertexConsumer buffer)`
+- `cn.omix.util.sigma.SigmaTexturePolygon` — `public record Clip(float x, float y, float width, float height, float radius)`
+- `cn.omix.util.sigma.SigmaTexturePolygon.Clip` — `public float[] polygon(float left, float top, float right, float bottom)`
+- `cn.omix.util.sigma.SigmaTexturePolygon` — `public static void draw(DrawContext context, TextureSetup texture, float x, float y, float width, float height, Clip clip, int color)`
+- `cn.omix.util.sigma.SigmaWaypoint` — `cn.omix.util.sigma.SigmaWaypoint`
+- `cn.omix.util.sigma.SigmaWaypoint` — `public record SigmaWaypoint(UUID id, String name, int x, double y, int z, int color, boolean surface)`
+- `cn.omix.util.sigma.SigmaWaypoint` — `public SigmaWaypoint`
+- `cn.omix.util.sigma.SigmaWaypoint` — `public static SigmaWaypoint surface(String name, int x, int z, int color)`
+- `cn.omix.util.sigma.SigmaWaypointStore` — `cn.omix.util.sigma.SigmaWaypointStore`
+- `cn.omix.util.sigma.SigmaWaypointStore` — `public final class SigmaWaypointStore`
+- `cn.omix.util.sigma.SigmaWaypointStore` — `public static String key(String server, String dimension)`
+- `cn.omix.util.sigma.SigmaWaypointStore` — `public static List<SigmaWaypoint> read(Path file)`
+- `cn.omix.util.sigma.SigmaWaypointStore` — `public static void write(Path file, List<SigmaWaypoint> points)`
+- `cn.omix.util.sigma.SigmaWaypoints` — `cn.omix.util.sigma.SigmaWaypoints`
+- `cn.omix.util.sigma.SigmaWaypoints` — `public final class SigmaWaypoints implements IMinecraft`
+- `cn.omix.util.sigma.SigmaWaypoints` — `public static SigmaWaypoints get()`
+- `cn.omix.util.sigma.SigmaWaypoints` — `public void updateWorld()`
+- `cn.omix.util.sigma.SigmaWaypoints` — `public Path directory()`
+- `cn.omix.util.sigma.SigmaWaypoints` — `public String label()`
+- `cn.omix.util.sigma.SigmaWaypoints` — `public List<SigmaWaypoint> points()`
+- `cn.omix.util.sigma.SigmaWaypoints` — `public void put(SigmaWaypoint point)`
+- `cn.omix.util.sigma.SigmaWaypoints` — `public void remove(UUID id)`
+- `cn.omix.util.sigma.SigmaWaypoints` — `public void move(UUID id, int index)`
+- `cn.omix.util.sigma.SigmaWaypoints` — `public void close()`
+- `cn.omix.util.sigma.SigmaWorldRender` — `cn.omix.util.sigma.SigmaWorldRender`
+- `cn.omix.util.sigma.SigmaWorldRender` — `public final class SigmaWorldRender implements IMinecraft`
+- `cn.omix.util.sigma.SigmaWorldRender` — `public static void init()`
+- `cn.omix.util.sigma.SigmaWorldRender` — `public static void line(Render3DEvent event, Vec3d from, Vec3d to, int startColor, int endColor, float width)`
+- `cn.omix.util.sigma.SigmaWorldRender` — `public static void triangle(Render3DEvent event, Vec3d a, Vec3d b, Vec3d c, int color)`
+- `cn.omix.util.sigma.SigmaWorldRender` — `public static void waypoint(Render3DEvent event, Vec3d origin, int color, float scale, int age)`
+- `cn.omix.util.sigma.SigmaWorldRender` — `public static void box(Render3DEvent event, Box box, int color, boolean filled, float lineWidth)`
+- `cn.omix.util.sigma.SigmaWorldRender` — `public static void shadowSprite(Render3DEvent event, Entity entity)`
+- `cn.omix.util.sigma.SigmaWorldRender` — `public static Vec3d[] corners(Box box)`
+- `cn.omix.util.sigma.SigmaWorldRender` — `public static void silhouette(Render3DEvent event, Box box, int color, float width)`
 - `cn.omix.util.webui.WebPanelLayout` — `cn.omix.util.webui.WebPanelLayout`
 - `cn.omix.util.webui.WebPanelLayout` — `public record WebPanelLayout( int x, int y, int width, int height, int cornerRadius )`
 - `cn.omix.util.webui.WebPanelLayout` — `public static WebPanelLayout current()`

@@ -44,6 +44,8 @@
     "MixinPlayerEntity",
     "MixinRenderTickCounterDynamic",
     "MixinSectionBuilder",
+    "MixinSigmaDebugHud",
+    "MixinSigmaEntityRenderer",
     "MixinSodiumBlockRenderContext",
     "MixinSodiumBlockRenderer",
     "MixinSodiumRenderSectionManager",

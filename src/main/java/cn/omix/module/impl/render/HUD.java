@@ -37,7 +37,26 @@ import java.util.Locale;
 
 @Getter
 public class HUD extends Module {
-    private final ModeValue hudMode = new ModeValue("Mode", "Omix", "Classic", "Omix");
+    private final ModeValue hudMode = new ModeValue("Mode", "Omix", "Classic", "Omix", "Sigma");
+    private final BoolValue sigmaActiveMods = new BoolValue("ActiveMods", true, () -> hudMode.is("Sigma"));
+    private final ModeValue sigmaActiveModsSize = new ModeValue("ActiveMods Size", "Normal", () -> hudMode.is("Sigma") && sigmaActiveMods.getValue(), "Normal", "Small", "Tiny");
+    private final BoolValue sigmaActiveModsAnimations = new BoolValue("ActiveMods Animations", true, () -> hudMode.is("Sigma") && sigmaActiveMods.getValue());
+    private final BoolValue sigmaActiveModsSound = new BoolValue("ActiveMods Sound", true, () -> hudMode.is("Sigma") && sigmaActiveMods.getValue());
+    private final BoolValue sigmaBrainFreeze = new BoolValue("BrainFreeze", false, () -> hudMode.is("Sigma"));
+    private final BoolValue sigmaCompass = new BoolValue("Compass", false, () -> hudMode.is("Sigma"));
+    private final BoolValue sigmaInfoHud = new BoolValue("InfoHUD", true, () -> hudMode.is("Sigma"));
+    private final ModeValue sigmaInfoCoords = new ModeValue("InfoHUD Cords", "Normal", () -> hudMode.is("Sigma") && sigmaInfoHud.getValue(), "None", "Normal", "Precise");
+    private final BoolValue sigmaInfoPlayer = new BoolValue("InfoHUD Show Player", true, () -> hudMode.is("Sigma") && sigmaInfoHud.getValue());
+    private final BoolValue sigmaInfoArmor = new BoolValue("InfoHUD Show Armor", true, () -> hudMode.is("Sigma") && sigmaInfoHud.getValue());
+    private final BoolValue sigmaInfoChat = new BoolValue("InfoHUD Move chat up", true, () -> hudMode.is("Sigma") && sigmaInfoHud.getValue());
+    private final BoolValue sigmaKeyStrokes = new BoolValue("KeyStrokes", false, () -> hudMode.is("Sigma"));
+    private final BoolValue sigmaMiniMap = new BoolValue("MiniMap", false, () -> hudMode.is("Sigma"));
+    private final BoolValue sigmaRearView = new BoolValue("RearView", false, () -> hudMode.is("Sigma"));
+    private final BoolValue sigmaRearViewGui = new BoolValue("RearView Show in GUI", false, () -> hudMode.is("Sigma") && sigmaRearView.getValue());
+    private final BoolValue sigmaRearViewSmart = new BoolValue("RearView Smart Visibility", false, () -> hudMode.is("Sigma") && sigmaRearView.getValue());
+    private final NumberValue sigmaRearViewSize = new NumberValue("RearView Size", 400, 120, 1000, 1, () -> hudMode.is("Sigma") && sigmaRearView.getValue());
+    private final BoolValue sigmaTabGui = new BoolValue("TabGUI", true, () -> hudMode.is("Sigma"));
+    private final cn.omix.util.sigma.SigmaHud sigma = new cn.omix.util.sigma.SigmaHud();
     private final ModeValue colorMode = new ModeValue("Color Setting", "Rainbow", () -> hudMode.is("Omix"), "Rainbow", "Fade", "Custom");
     private final ColorValue mainColor = new ColorValue("Main Color", Color.WHITE, () -> hudMode.is("Omix"));
     private final ColorValue secondColor = new ColorValue("Second Color", Color.WHITE, () -> hudMode.is("Omix") && colorMode.is("Fade"));
@@ -99,6 +118,11 @@ public class HUD extends Module {
     @EventTarget
     public void onRender2D(Render2DEvent event) {
         if (mc.player == null || mc.world == null) return;
+
+        if (hudMode.is("Sigma")) {
+            sigma.render(this, event.getContext());
+            return;
+        }
 
         if (hudMode.is("Classic")) {
             renderClassic(event.getContext());
@@ -252,7 +276,7 @@ public class HUD extends Module {
 
     @EventTarget
     public void onChatScreen(ChatScreenEvent event) {
-        if (mc.player == null || mc.world == null || hudMode.is("Classic")) return;
+        if (mc.player == null || mc.world == null || !hudMode.is("Omix")) return;
 
         for (Module module : instance.getModuleManager().getModuleMap().values()) {
             if (module instanceof Drag drag && drag.isEnabled() && !(drag instanceof cn.omix.util.script.ScriptHud)) {
@@ -263,6 +287,10 @@ public class HUD extends Module {
 
     @EventTarget
     public void onKey(KeyInputEvent event) {
+        if (hudMode.is("Sigma")) {
+            if (event.getAction() == 1 && mc.currentScreen == null && sigmaTabGui.getValue()) sigma.key(event.getKey());
+            return;
+        }
         if (event.getAction() != 1 || mc.currentScreen != null || hudMode.is("Classic")) return;
         int code = event.getKey();
         List<Module> modules = instance.getModuleManager().getModuleMap().values().stream().filter(m -> m.getCategory() == categories.get(current)).toList();
@@ -288,6 +316,7 @@ public class HUD extends Module {
     }
 
     public int getColor(int counter, int alpha) {
+        if (hudMode.is("Sigma")) return (Math.clamp(alpha, 0, 255) << 24) | 0xfefefe;
         if (hudMode.is("Classic")) {
             return ColorUtil.applyAlpha(getClassicColor(System.currentTimeMillis(), counter).getRGB(), alpha);
         }

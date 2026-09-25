@@ -11,6 +11,9 @@ import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ColorValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.util.render.Render3D;
+import cn.omix.util.sigma.SigmaChestCache;
+import cn.omix.util.sigma.SigmaColors;
+import cn.omix.util.sigma.SigmaWorldRender;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ChestBlock;
@@ -39,7 +42,15 @@ import java.util.Set;
 public final class ChestESP extends Module {
     private static final int CLASSIC_SCAN_CHUNK_RADIUS = 4;
 
-    private final ModeValue implementation = new ModeValue("Implementation", "Classic", "Classic", "Omix");
+    private final ModeValue implementation = new ModeValue("Implementation", "Classic", "Classic", "Omix", "Sigma");
+    private final ModeValue sigmaMode = new ModeValue("Sigma Mode", "Outline", () -> implementation.is("Sigma"), "Outline", "Box");
+    private final BoolValue sigmaRegular = new BoolValue("Show Regular Chests", true, () -> implementation.is("Sigma"));
+    private final ColorValue sigmaRegularColor = new ColorValue("Regular Color", new Color(SigmaColors.WHITE), () -> implementation.is("Sigma"));
+    private final BoolValue sigmaTrapped = new BoolValue("Show Trapped Chests", true, () -> implementation.is("Sigma"));
+    private final ColorValue sigmaTrappedColor = new ColorValue("Trapped Color", new Color(-13108), () -> implementation.is("Sigma"));
+    private final BoolValue sigmaEnder = new BoolValue("Show Ender Chests", true, () -> implementation.is("Sigma"));
+    private final ColorValue sigmaEnderColor = new ColorValue("Ender Color", new Color(-1848065), () -> implementation.is("Sigma"));
+    private final SigmaChestCache sigmaChests = new SigmaChestCache();
 
     private final ColorValue chestColor = new ColorValue(
             "Chest",
@@ -69,7 +80,9 @@ public final class ChestESP extends Module {
     @Override
     public void onEnable() {
         reset();
-        if (implementation.is("Classic")) {
+        if (implementation.is("Sigma")) {
+            sigmaChests.update();
+        } else if (implementation.is("Classic")) {
             scanClassicChests();
         }
     }
@@ -106,7 +119,9 @@ public final class ChestESP extends Module {
         if (mc.player == null || mc.world == null) return;
 
         setSuffix(implementation.getValue());
-        if (implementation.is("Classic")) {
+        if (implementation.is("Sigma")) {
+            sigmaChests.update();
+        } else if (implementation.is("Classic")) {
             scanClassicChests();
         } else {
             scanOmixChests();
@@ -117,7 +132,9 @@ public final class ChestESP extends Module {
     public void onRender3D(Render3DEvent event) {
         if (mc.world == null) return;
 
-        if (implementation.is("Omix")) {
+        if (implementation.is("Sigma")) {
+            renderSigma(event);
+        } else if (implementation.is("Omix")) {
             renderOmix(event);
         } else {
             renderClassic(event);
@@ -175,6 +192,7 @@ public final class ChestESP extends Module {
     }
 
     private void scanClassicChests() {
+        if (mc.world == null || mc.player == null) return;
         Set<BlockPos> found = new HashSet<>();
         ChunkPos origin = mc.player.getChunkPos();
         for (int chunkX = origin.x - CLASSIC_SCAN_CHUNK_RADIUS;
@@ -231,8 +249,35 @@ public final class ChestESP extends Module {
     }
 
     private void reset() {
+        sigmaChests.clear();
         classicChests = Set.of();
         omixOpenedChests.clear();
         omixChests.clear();
+    }
+
+    private void renderSigma(Render3DEvent event) {
+        boolean outline = sigmaMode.is("Outline");
+        var boxes = new java.util.ArrayList<cn.omix.util.sigma.SigmaMaskEffect.ColoredBox>();
+        for (BlockPos pos : sigmaChests.positions()) {
+            BlockState state = mc.world.getBlockState(pos);
+            Block block = state.getBlock();
+            int color;
+            if (block instanceof EnderChestBlock) {
+                if (!sigmaEnder.getValue()) continue;
+                color = sigmaEnderColor.getValue().getRGB();
+            } else if (block instanceof TrappedChestBlock) {
+                if (!sigmaTrapped.getValue()) continue;
+                color = sigmaTrappedColor.getValue().getRGB();
+            } else if (block instanceof ChestBlock) {
+                if (!sigmaRegular.getValue()) continue;
+                color = sigmaRegularColor.getValue().getRGB();
+            } else continue;
+            var shape = state.getOutlineShape(mc.world, pos);
+            if (shape.isEmpty()) continue;
+            Box box = shape.getBoundingBox().offset(pos);
+            if (outline) boxes.add(new cn.omix.util.sigma.SigmaMaskEffect.ColoredBox(box, SigmaColors.alpha(color, .7f)));
+            else SigmaWorldRender.box(event, box, SigmaColors.alpha(color, .14f), true, 2);
+        }
+        if (outline) cn.omix.util.sigma.SigmaMaskEffect.boxes(event, boxes, java.util.List.of());
     }
 }

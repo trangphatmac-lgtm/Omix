@@ -370,6 +370,11 @@
     "source": "src/main/java/cn/omix/module/impl/render/MusicPlayer.java"
   },
   {
+    "module": "NameTags",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/NameTags.java"
+  },
+  {
     "module": "NickHider",
     "selector": "Behavior",
     "source": "src/main/java/cn/omix/module/impl/render/NickHider.java"
@@ -415,6 +420,11 @@
     "source": "src/main/java/cn/omix/module/impl/render/ViewClip.java"
   },
   {
+    "module": "Waypoint",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/Waypoint.java"
+  },
+  {
     "module": "Xray",
     "selector": "Mode",
     "source": "src/main/java/cn/omix/module/impl/render/Xray.java"
@@ -448,6 +458,11 @@
     "module": "GhostHand",
     "selector": "Behavior",
     "source": "src/main/java/cn/omix/module/impl/world/GhostHand.java"
+  },
+  {
+    "module": "Maps",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/world/Maps.java"
   },
   {
     "module": "QuickMacro",

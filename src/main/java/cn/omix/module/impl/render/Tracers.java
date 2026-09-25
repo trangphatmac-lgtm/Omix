@@ -10,6 +10,10 @@ import cn.omix.module.impl.player.Teams;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
+import cn.omix.module.value.impl.ColorValue;
+import cn.omix.util.sigma.SigmaColors;
+import cn.omix.util.sigma.SigmaEntityFilter;
+import cn.omix.util.sigma.SigmaWorldRender;
 import cn.omix.util.render.Render2D;
 import cn.omix.util.render.Render3D;
 import net.minecraft.client.render.Camera;
@@ -25,15 +29,17 @@ import java.awt.Color;
 public final class Tracers extends Module {
     private static final float LINE_START_NDC_Z = 0.6F;
 
-    private final ModeValue colorMode = new ModeValue("Color", "Default", "Default", "Teams", "HUD");
-    private final BoolValue lines = new BoolValue("Lines", true);
-    private final BoolValue arrows = new BoolValue("Arrows", false);
-    private final NumberValue opacity = new NumberValue("Opacity", 100, 0, 100, 1);
-    private final NumberValue distance = new NumberValue("Distance", 512, 0, 512, 1);
-    private final BoolValue players = new BoolValue("Players", true);
-    private final BoolValue friends = new BoolValue("Friends", true);
-    private final BoolValue enemies = new BoolValue("Enemies", true);
-    private final BoolValue bots = new BoolValue("Bots", false);
+    private final ModeValue implementation = new ModeValue("Implementation", "Classic", "Classic", "Sigma");
+    private final ModeValue colorMode = new ModeValue("Color", "Default", () -> implementation.is("Classic"), "Default", "Teams", "HUD");
+    private final BoolValue lines = new BoolValue("Lines", true, () -> implementation.is("Classic"));
+    private final BoolValue arrows = new BoolValue("Arrows", false, () -> implementation.is("Classic"));
+    private final NumberValue opacity = new NumberValue("Opacity", 100, 0, 100, 1, () -> implementation.is("Classic"));
+    private final NumberValue distance = new NumberValue("Distance", 512, 0, 512, 1, () -> implementation.is("Classic"));
+    private final BoolValue players = new BoolValue("Players", true, () -> implementation.is("Classic"));
+    private final BoolValue friends = new BoolValue("Friends", true, () -> implementation.is("Classic"));
+    private final BoolValue enemies = new BoolValue("Enemies", true, () -> implementation.is("Classic"));
+    private final BoolValue bots = new BoolValue("Bots", false, () -> implementation.is("Classic"));
+    private final ColorValue sigmaColor = new ColorValue("Sigma Color", new Color(SigmaColors.WHITE), () -> implementation.is("Sigma"));
 
     public Tracers() {
         super("Tracers", Category.Render);
@@ -41,6 +47,11 @@ public final class Tracers extends Module {
 
     @EventTarget
     public void onRender3D(Render3DEvent event) {
+        setSuffix(implementation.getValue());
+        if (implementation.is("Sigma")) {
+            renderSigma(event);
+            return;
+        }
         if (!lines.getValue() || mc.player == null || mc.world == null) return;
 
         Entity cameraEntity = mc.getCameraEntity();
@@ -61,6 +72,7 @@ public final class Tracers extends Module {
 
     @EventTarget
     public void onRender2D(Render2DEvent event) {
+        if (implementation.is("Sigma")) return;
         if (!arrows.getValue() || mc.player == null || mc.world == null) return;
 
         Entity cameraEntity = mc.getCameraEntity();
@@ -99,6 +111,19 @@ public final class Tracers extends Module {
         if (isBot(player)) return bots.getValue();
         if (isFriend(player)) return friends.getValue();
         return isEnemy(player) ? enemies.getValue() : players.getValue();
+    }
+
+    private void renderSigma(Render3DEvent event) {
+        if (mc.player == null || mc.world == null || !mc.gameRenderer.getCamera().isReady()) return;
+        // Sigma starts ten blocks down the player's view ray, independent of third-person camera position.
+        Vec3d start = mc.gameRenderer.getCamera().getCameraPos().add(Vec3d.fromPolar(mc.player.getPitch(), mc.player.getYaw()).multiply(10));
+        int color = sigmaColor.getValue().getRGB();
+        for (PlayerEntity player : mc.world.getPlayers()) {
+            if (player == mc.player || !player.isAlive() || player.age <= 30
+                    || player.getBoundingBox().getAverageSideLength() <= .8 || SigmaEntityFilter.bot(player)) continue;
+            Vec3d end = player.getLerpedPos(event.getTickDelta()).add(0, player.getHeight() / 2, 0);
+            SigmaWorldRender.line(event, start, end, SigmaColors.alpha(color, .45f), SigmaColors.alpha(color, 0), 2);
+        }
     }
 
     private boolean isBot(PlayerEntity player) {

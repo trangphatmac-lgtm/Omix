@@ -52,6 +52,7 @@ public abstract class Module implements IMinecraft {
                     && Client.instance.getModuleManager() != null
                     && Client.instance.getModuleManager().getModuleMap().containsValue(this)) {
                 Util.log(getName() + ": " + (isEnabled() ? "&a&lON" : "&c&lOFF"));
+                cn.omix.util.sigma.SigmaSounds.toggled(isEnabled());
             }
         }
     }

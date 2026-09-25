@@ -21,9 +21,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class FontTexture implements IMinecraft {
 
-    private static final int atlasSize = 4096;
+    @Getter
+    private final int atlasSize;
     private static final int maxGlyph = 512;
-    private static final float invAtlasSize = 1f / atlasSize;
+    private final float invAtlasSize;
+    private final boolean linear;
     private static final AtomicInteger pageCounter = new AtomicInteger(0);
 
     private final Font[] bmpFontCache = new Font[65536];
@@ -48,6 +50,18 @@ public class FontTexture implements IMinecraft {
     private TexturePage page;
 
     public FontTexture(Font primaryFont, List<Font> fallbackFonts) {
+        this(primaryFont, fallbackFonts, 4096);
+    }
+
+    public FontTexture(Font primaryFont, List<Font> fallbackFonts, int atlasSize) {
+        this(primaryFont, fallbackFonts, atlasSize, false);
+    }
+
+    public FontTexture(Font primaryFont, List<Font> fallbackFonts, int atlasSize, boolean linear) {
+        if (atlasSize < maxGlyph || Integer.bitCount(atlasSize) != 1) throw new IllegalArgumentException("Invalid atlas size");
+        this.atlasSize = atlasSize;
+        this.linear = linear;
+        this.invAtlasSize = 1f / atlasSize;
         Map<TextAttribute, Object> attr = new HashMap<>();
         attr.put(TextAttribute.LIGATURES, TextAttribute.LIGATURES_ON);
         attr.put(TextAttribute.KERNING, TextAttribute.KERNING_ON);
@@ -185,7 +199,7 @@ public class FontTexture implements IMinecraft {
         }
     }
 
-    private static class TexturePage {
+    private class TexturePage {
         NativeImage image = new NativeImage(atlasSize, atlasSize, false);
         Identifier id = Identifier.of("omix", "_" + pageCounter.incrementAndGet());
         NativeImageBackedTexture texture;
@@ -195,7 +209,9 @@ public class FontTexture implements IMinecraft {
         boolean dirty;
 
         TexturePage() {
-            texture = new NativeImageBackedTexture(id::toString, image);
+            texture = new NativeImageBackedTexture(id::toString, image) {
+                { if (linear) sampler = com.mojang.blaze3d.systems.RenderSystem.getSamplerCache().get(com.mojang.blaze3d.textures.FilterMode.LINEAR); }
+            };
             mc.getTextureManager().registerTexture(id, texture);
         }
     }

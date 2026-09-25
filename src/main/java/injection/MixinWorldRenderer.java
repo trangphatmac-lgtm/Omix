@@ -11,6 +11,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(WorldRenderer.class)
 public class MixinWorldRenderer {
 
+    @Inject(method = "canDrawEntityOutlines", at = @At("HEAD"), cancellable = true)
+    private void omix$sigmaRearOutline(CallbackInfoReturnable<Boolean> cir) {
+        if (cn.omix.util.sigma.SigmaRearView.isRendering()) cir.setReturnValue(false);
+    }
+
     @Inject(method = "hasBlindnessOrDarkness", at = @At("HEAD"), cancellable = true)
     private void hasBlindnessOrDarkness(Camera camera, CallbackInfoReturnable<Boolean> cir) {
         if (AntiDebuff.isActive()) {

@@ -29,7 +29,15 @@ public class TrueTypeFont implements IMinecraft {
     };
 
     public TrueTypeFont(Font font, List<Font> fallbackFont, float scale) {
-        this.fontTexture = new FontTexture(font, fallbackFont);
+        this(font, fallbackFont, scale, 4096);
+    }
+
+    public TrueTypeFont(Font font, List<Font> fallbackFont, float scale, int atlasSize) {
+        this(font, fallbackFont, scale, atlasSize, false);
+    }
+
+    public TrueTypeFont(Font font, List<Font> fallbackFont, float scale, int atlasSize, boolean linear) {
+        this.fontTexture = new FontTexture(font, fallbackFont, atlasSize, linear);
         this.scale = scale;
         this.fontHeight = fontTexture.getFontHeight() / scale;
     }
@@ -163,7 +171,8 @@ public class TrueTypeFont implements IMinecraft {
             if (shadow) {
                 c = (c & 0xFCFCFC) >> 2 | (c & 0xFF000000);
             }
-            ctx.drawTexture(RenderPipelines.GUI_TEXTURED, glyph.atlasId(), Math.round(sx + xs[i] + glyph.offsetX()), Math.round(sy + ys[i] + glyph.offsetY()), glyph.u0() * 4096f, glyph.v0() * 4096f, glyph.width(), glyph.height(), 4096, 4096, c);
+            int atlasSize = fontTexture.getAtlasSize();
+            ctx.drawTexture(RenderPipelines.GUI_TEXTURED, glyph.atlasId(), Math.round(sx + xs[i] + glyph.offsetX()), Math.round(sy + ys[i] + glyph.offsetY()), glyph.u0() * atlasSize, glyph.v0() * atlasSize, glyph.width(), glyph.height(), atlasSize, atlasSize, c);
         }
         matrices.popMatrix();
     }

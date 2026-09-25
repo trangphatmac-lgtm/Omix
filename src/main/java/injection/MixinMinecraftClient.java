@@ -28,6 +28,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MinecraftClient.class)
 public abstract class MixinMinecraftClient implements IMinecraft {
+    @Inject(method = "getFramebuffer", at = @At("HEAD"), cancellable = true)
+    private void omix$sigmaRearFramebuffer(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<net.minecraft.client.gl.Framebuffer> cir) {
+        var target = cn.omix.util.sigma.SigmaRearView.target();
+        if (target != null) cir.setReturnValue(target);
+    }
+    @Inject(method = "hasOutline", at = @At("HEAD"), cancellable = true)
+    private void omix$sigmaOutline(net.minecraft.entity.Entity entity,
+            org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Boolean> cir) {
+        if (Client.instance == null || Client.instance.getModuleManager() == null) return;
+        var esp = Client.instance.getModuleManager().getModule(cn.omix.module.impl.render.ESP.class);
+        if (esp != null && esp.sigmaOutline(entity)) cir.setReturnValue(true);
+    }
     @Final
     @Shadow
     public GameOptions options;
@@ -95,8 +107,9 @@ public abstract class MixinMinecraftClient implements IMinecraft {
         }
     }
 
-    @Inject(method = "setWorld(Lnet/minecraft/client/world/ClientWorld;)V", at = @At("HEAD"))
-    private void setWorld(ClientWorld world, CallbackInfo ci) {
+    // The one-argument overload delegates here, while normal disconnect calls this overload directly.
+    @Inject(method = "setWorld(Lnet/minecraft/client/world/ClientWorld;Z)V", at = @At("HEAD"))
+    private void setWorld(ClientWorld world, boolean stopSounds, CallbackInfo ci) {
         ChestScreenGuard.clear();
         instance.getEventManager().call(new WorldEvent(world));
     }

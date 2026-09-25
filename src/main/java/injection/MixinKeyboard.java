@@ -15,15 +15,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Keyboard.class)
 public class MixinKeyboard implements IMinecraft {
 
-    @Inject(method = "onKey", at = @At(value = "HEAD"))
+    @Inject(method = "onKey", at = @At(value = "HEAD"), cancellable = true)
     private void onKey(long window, int action, KeyInput input, CallbackInfo ci) {
         WebUiRuntime.getInstance().key(input.key(), input.scancode(), action, input.modifiers());
         if (mc.currentScreen instanceof WebUiScreen) {
             return;
         }
         if (action == 0 || action == 1) {
+            boolean hadScreen = mc.currentScreen != null;
             KeyInputEvent event = new KeyInputEvent(input.key(), action);
             instance.getEventManager().call(event);
+            if (!hadScreen && mc.currentScreen != null) {
+                // The module already consumed this key to open a screen. Vanilla would otherwise
+                // dispatch the same press to that new screen (and immediately close ClickGUI).
+                if (mc.currentScreen instanceof cn.omix.ui.sigma.SigmaClickGuiScreen sigma) {
+                    sigma.ignoreOpeningKeyUntilRelease(input.key());
+                }
+                ci.cancel();
+            }
         }
     }
 

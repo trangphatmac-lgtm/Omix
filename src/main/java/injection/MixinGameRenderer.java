@@ -32,6 +32,25 @@ public abstract class MixinGameRenderer implements IMinecraft {
     @Inject(method = "render", at = @At("HEAD"))
     private void omix$driveWebUi(CallbackInfo ci) {
         WebUiRuntime.getInstance().onFrame();
+        cn.omix.util.sigma.SigmaRearView.get().prepareFrame();
+        cn.omix.util.sigma.SigmaMaskEffect.releaseUnused();
+        cn.omix.util.sigma.SigmaBlur.releaseUnused();
+    }
+
+    @Inject(method = "renderWorld", at = @At("HEAD"))
+    private void omix$sigmaRearView(RenderTickCounter tickCounter, CallbackInfo ci) {
+        cn.omix.util.sigma.SigmaRearView.get().renderWorld(tickCounter);
+    }
+
+    @Inject(method = "renderWorld", at = @At("RETURN"))
+    private void omix$sigmaBlur(RenderTickCounter tickCounter, CallbackInfo ci) {
+        cn.omix.util.sigma.SigmaBlur.capture();
+    }
+
+    @Inject(method = "getCamera", at = @At("HEAD"), cancellable = true)
+    private void omix$sigmaRearCamera(CallbackInfoReturnable<Camera> cir) {
+        Camera camera = cn.omix.util.sigma.SigmaRearView.renderingCamera();
+        if (camera != null) cir.setReturnValue(camera);
     }
 
     @Inject(method = "render", at = @At("RETURN"))

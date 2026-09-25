@@ -8620,6 +8620,2091 @@
     "line": 135
   },
   {
+    "owner": "cn.omix.util.sigma.SigmaAnimation",
+    "name": "SigmaAnimation",
+    "signature": "cn.omix.util.sigma.SigmaAnimation",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaAnimation.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaAnimation",
+    "name": "SigmaAnimation",
+    "signature": "public final class SigmaAnimation",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaAnimation.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaAnimation",
+    "name": "SigmaAnimation",
+    "signature": "public SigmaAnimation()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaAnimation.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaAnimation",
+    "name": "SigmaAnimation",
+    "signature": "public SigmaAnimation(float value)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaAnimation.java",
+    "line": 9
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaAnimation",
+    "name": "update",
+    "signature": "public float update(boolean forward, long nowNanos, int durationMillis)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaAnimation.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaAnimation",
+    "name": "value",
+    "signature": "public float value()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaAnimation.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaAnimation",
+    "name": "reset",
+    "signature": "public void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaAnimation.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaAnimation",
+    "name": "easeInOut",
+    "signature": "public static float easeInOut(float t)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaAnimation.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaAnimation",
+    "name": "easeOut",
+    "signature": "public static float easeOut(float t)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaAnimation.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaAnimation",
+    "name": "bezier",
+    "signature": "public static float bezier(float x, double x1, double y1, double x2, double y2)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaAnimation.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaBlur",
+    "name": "SigmaBlur",
+    "signature": "cn.omix.util.sigma.SigmaBlur",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaBlur.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaBlur",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaBlur implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaBlur.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaBlur",
+    "name": "OPAQUE_TEXTURE",
+    "signature": "public static final RenderPipeline OPAQUE_TEXTURE",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaBlur.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaBlur",
+    "name": "init",
+    "signature": "public static void init()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaBlur.java",
+    "line": 43
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaBlur",
+    "name": "generation",
+    "signature": "public static int generation()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaBlur.java",
+    "line": 44
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaBlur",
+    "name": "releaseUnused",
+    "signature": "public static void releaseUnused()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaBlur.java",
+    "line": 46
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaBlur",
+    "name": "capture",
+    "signature": "public static void capture()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaBlur.java",
+    "line": 53
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaBlur",
+    "name": "draw",
+    "signature": "public static void draw(DrawContext context, float x, float y, float width, float height, float opacity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaBlur.java",
+    "line": 95
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaBlur",
+    "name": "close",
+    "signature": "public static void close()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaBlur.java",
+    "line": 104
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaBrainFreeze",
+    "name": "SigmaBrainFreeze",
+    "signature": "cn.omix.util.sigma.SigmaBrainFreeze",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaBrainFreeze.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaBrainFreeze",
+    "name": "SigmaBrainFreeze",
+    "signature": "public final class SigmaBrainFreeze",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaBrainFreeze.java",
+    "line": 9
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaBrainFreeze",
+    "name": "draw",
+    "signature": "public void draw(DrawContext context, float opacity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaBrainFreeze.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaCategoryPanel",
+    "name": "SigmaCategoryPanel",
+    "signature": "cn.omix.util.sigma.SigmaCategoryPanel",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaCategoryPanel.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaCategoryPanel",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaCategoryPanel implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaCategoryPanel.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaCategoryPanel",
+    "name": "category",
+    "signature": "public final Category category",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaCategoryPanel.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaCategoryPanel",
+    "name": "scroll",
+    "signature": "public float x, y, scroll",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaCategoryPanel.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaCategoryPanel",
+    "name": "SigmaCategoryPanel",
+    "signature": "public SigmaCategoryPanel(Category category, float x, float y)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaCategoryPanel.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaCategoryPanel",
+    "name": "refresh",
+    "signature": "public void refresh(String filter)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaCategoryPanel.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaCategoryPanel",
+    "name": "draw",
+    "signature": "public void draw(DrawContext context, float mx, float my, float alpha)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaCategoryPanel.java",
+    "line": 29
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaCategoryPanel",
+    "name": "hit",
+    "signature": "public Module hit(float mx, float my)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaCategoryPanel.java",
+    "line": 57
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaCategoryPanel",
+    "name": "scroll",
+    "signature": "public void scroll(double delta)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaCategoryPanel.java",
+    "line": 62
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaCategoryPanel",
+    "name": "filter",
+    "signature": "public String filter()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaCategoryPanel.java",
+    "line": 64
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaChestCache",
+    "name": "SigmaChestCache",
+    "signature": "cn.omix.util.sigma.SigmaChestCache",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaChestCache.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaChestCache",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaChestCache implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaChestCache.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaChestCache",
+    "name": "positions",
+    "signature": "public List<BlockPos> positions()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaChestCache.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaChestCache",
+    "name": "update",
+    "signature": "public void update()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaChestCache.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaChestCache",
+    "name": "clear",
+    "signature": "public void clear()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaChestCache.java",
+    "line": 43
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaColors",
+    "name": "SigmaColors",
+    "signature": "cn.omix.util.sigma.SigmaColors",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaColors.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaColors",
+    "name": "SigmaColors",
+    "signature": "public final class SigmaColors",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaColors.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaColors",
+    "name": "WHITE",
+    "signature": "public static final int WHITE",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaColors.java",
+    "line": 5
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaColors",
+    "name": "BLACK",
+    "signature": "public static final int BLACK",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaColors.java",
+    "line": 6
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaColors",
+    "name": "GREY",
+    "signature": "public static final int GREY",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaColors.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaColors",
+    "name": "UNSPAWN",
+    "signature": "public static final int UNSPAWN",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaColors.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaColors",
+    "name": "alpha",
+    "signature": "public static int alpha(int color, float opacity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaColors.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaColors",
+    "name": "mix",
+    "signature": "public static int mix(int from, int to, float amount)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaColors.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaColors",
+    "name": "sourceBlend",
+    "signature": "public static int sourceBlend(int first, int second, float firstWeight)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaColors.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaDraw",
+    "name": "SigmaDraw",
+    "signature": "cn.omix.util.sigma.SigmaDraw",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaDraw",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaDraw implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaDraw",
+    "name": "begin",
+    "signature": "public static void begin(DrawContext context)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaDraw",
+    "name": "end",
+    "signature": "public static void end(DrawContext context)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaDraw",
+    "name": "width",
+    "signature": "public static int width()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaDraw",
+    "name": "height",
+    "signature": "public static int height()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaDraw",
+    "name": "image",
+    "signature": "public static void image(DrawContext context, String path, float x, float y, float w, float h, int color)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaDraw",
+    "name": "innerShadow",
+    "signature": "public static void innerShadow(DrawContext context, float x, float y, float w, float h, float size, float opacity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaDraw",
+    "name": "shadow",
+    "signature": "public static void shadow(DrawContext context, float x, float y, float w, float h, float size, float opacity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
+    "line": 34
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaEntityFilter",
+    "name": "SigmaEntityFilter",
+    "signature": "cn.omix.util.sigma.SigmaEntityFilter",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaEntityFilter.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaEntityFilter",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaEntityFilter implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaEntityFilter.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaEntityFilter",
+    "name": "bot",
+    "signature": "public static boolean bot(Entity entity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaEntityFilter.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaEntityFilter",
+    "name": "matches",
+    "signature": "public static boolean matches(Entity entity, boolean players, boolean mobs, boolean passives, boolean invisible)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaEntityFilter.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceRecipes",
+    "name": "SigmaFurnaceRecipes",
+    "signature": "cn.omix.util.sigma.SigmaFurnaceRecipes",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceRecipes.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceRecipes",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaFurnaceRecipes implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceRecipes.java",
+    "line": 28
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceRecipes",
+    "name": "refresh",
+    "signature": "public void refresh()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceRecipes.java",
+    "line": 35
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceRecipes",
+    "name": "result",
+    "signature": "public ItemStack result(ItemStack input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceRecipes.java",
+    "line": 54
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceRecipes",
+    "name": "clear",
+    "signature": "public void clear()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceRecipes.java",
+    "line": 88
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceTracker",
+    "name": "SigmaFurnaceTracker",
+    "signature": "cn.omix.util.sigma.SigmaFurnaceTracker",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceTracker.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceTracker",
+    "name": "SigmaFurnaceTracker",
+    "signature": "public final class SigmaFurnaceTracker",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceTracker.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceTracker",
+    "name": "syncId",
+    "signature": "public final int syncId",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceTracker.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceTracker",
+    "name": "SigmaFurnaceTracker",
+    "signature": "public SigmaFurnaceTracker(int syncId)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceTracker.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceTracker",
+    "name": "slot",
+    "signature": "public void slot(int index, ItemStack stack)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceTracker.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceTracker",
+    "name": "recipe",
+    "signature": "public void recipe(SigmaFurnaceRecipes recipes)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceTracker.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceTracker",
+    "name": "property",
+    "signature": "public void property(int index, int value)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceTracker.java",
+    "line": 27
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceTracker",
+    "name": "tick",
+    "signature": "public void tick(boolean screenOpen, FuelRegistry fuels)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceTracker.java",
+    "line": 37
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceTracker",
+    "name": "output",
+    "signature": "public ItemStack output()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceTracker.java",
+    "line": 58
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceTracker",
+    "name": "outputCount",
+    "signature": "public int outputCount()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceTracker.java",
+    "line": 59
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceTracker",
+    "name": "fuelProgress",
+    "signature": "public float fuelProgress()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceTracker.java",
+    "line": 60
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaFurnaceTracker",
+    "name": "cookProgress",
+    "signature": "public float cookProgress()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaFurnaceTracker.java",
+    "line": 61
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaGeometry",
+    "name": "SigmaGeometry",
+    "signature": "cn.omix.util.sigma.SigmaGeometry",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaGeometry.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaGeometry",
+    "name": "SigmaGeometry",
+    "signature": "public final class SigmaGeometry",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaGeometry.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaGeometry",
+    "name": "Point3",
+    "signature": "public record Point3(double x, double y, double z)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaGeometry.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaGeometry",
+    "name": "waypointVertex",
+    "signature": "public static Point3 waypointVertex(int half, int face, int vertex)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaGeometry.java",
+    "line": 28
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaGeometry",
+    "name": "circleVertex",
+    "signature": "public static Point3 circleVertex(int index)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaGeometry.java",
+    "line": 34
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaGeometry",
+    "name": "silhouetteEdges",
+    "signature": "public static List<int[]> silhouetteEdges(double minX, double minY, double minZ, double maxX, double maxY, double maxZ, double cameraX, double cameraY, double cameraZ)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaGeometry.java",
+    "line": 37
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaGeometry",
+    "name": "magnification",
+    "signature": "public static float magnification(double squaredDistance, float minimum)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaGeometry.java",
+    "line": 55
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaGeometry",
+    "name": "wrapDegrees",
+    "signature": "public static float wrapDegrees(float yaw)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaGeometry.java",
+    "line": 59
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaGuiLayout",
+    "name": "SigmaGuiLayout",
+    "signature": "cn.omix.util.sigma.SigmaGuiLayout",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaGuiLayout.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaGuiLayout",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaGuiLayout implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaGuiLayout.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaGuiLayout",
+    "name": "read",
+    "signature": "public static void read(List<SigmaCategoryPanel> panels)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaGuiLayout.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaGuiLayout",
+    "name": "write",
+    "signature": "public static void write(List<SigmaCategoryPanel> panels)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaGuiLayout.java",
+    "line": 30
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaHud",
+    "name": "SigmaHud",
+    "signature": "cn.omix.util.sigma.SigmaHud",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaHud.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaHud",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaHud implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaHud.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaHud",
+    "name": "debugRightRows",
+    "signature": "public static int debugRightRows",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaHud.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaHud",
+    "name": "active",
+    "signature": "public static HUD active()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaHud.java",
+    "line": 34
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaHud",
+    "name": "render",
+    "signature": "public void render(HUD hud, DrawContext context)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaHud.java",
+    "line": 40
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaHud",
+    "name": "scoreboardOffset",
+    "signature": "public static float scoreboardOffset(net.minecraft.scoreboard.ScoreboardObjective objective)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaHud.java",
+    "line": 89
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaHud",
+    "name": "key",
+    "signature": "public void key(int key)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaHud.java",
+    "line": 167
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaImageBlur",
+    "name": "SigmaImageBlur",
+    "signature": "cn.omix.util.sigma.SigmaImageBlur",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaImageBlur.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaImageBlur",
+    "name": "SigmaImageBlur",
+    "signature": "public final class SigmaImageBlur",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaImageBlur.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaImageBlur",
+    "name": "blur",
+    "signature": "public static BufferedImage blur(BufferedImage source, int radius)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaImageBlur.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapCache",
+    "name": "SigmaMapCache",
+    "signature": "cn.omix.util.sigma.SigmaMapCache",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapCache.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapCache",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaMapCache implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapCache.java",
+    "line": 27
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapCache",
+    "name": "get",
+    "signature": "public static SigmaMapCache get()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapCache.java",
+    "line": 39
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapCache",
+    "name": "onWorld",
+    "signature": "public void onWorld(WorldEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapCache.java",
+    "line": 41
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapCache",
+    "name": "onTick",
+    "signature": "public void onTick(TickEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapCache.java",
+    "line": 43
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapCache",
+    "name": "draw",
+    "signature": "public void draw(DrawContext context, float x, float y, float width, float height, double centerX, double centerZ, float pixelsPerBlock)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapCache.java",
+    "line": 120
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapCache",
+    "name": "draw",
+    "signature": "public void draw(DrawContext context, float x, float y, float width, float height, double centerX, double centerZ, float pixelsPerBlock, boolean clip)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapCache.java",
+    "line": 124
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapCache",
+    "name": "draw",
+    "signature": "public void draw(DrawContext context, float x, float y, float width, float height, double centerX, double centerZ, float pixelsPerBlock, boolean clip, SigmaTexturePolygon.Clip rounded)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapCache.java",
+    "line": 128
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapCache",
+    "name": "colorAt",
+    "signature": "public int colorAt(int x, int z)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapCache.java",
+    "line": 155
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapCache",
+    "name": "close",
+    "signature": "public void close()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapCache.java",
+    "line": 204
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRegion",
+    "name": "SigmaMapRegion",
+    "signature": "cn.omix.util.sigma.SigmaMapRegion",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRegion.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRegion",
+    "name": "SigmaMapRegion",
+    "signature": "public final class SigmaMapRegion",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRegion.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRegion",
+    "name": "SIZE",
+    "signature": "public static final int SIZE",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRegion.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRegion",
+    "name": "UNKNOWN",
+    "signature": "public static final int UNKNOWN",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRegion.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRegion",
+    "name": "SigmaMapRegion",
+    "signature": "public SigmaMapRegion()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRegion.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRegion",
+    "name": "revision",
+    "signature": "public long revision()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRegion.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRegion",
+    "name": "color",
+    "signature": "public int color(int x, int z)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRegion.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRegion",
+    "name": "known",
+    "signature": "public boolean known(int x, int z)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRegion.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRegion",
+    "name": "snapshot",
+    "signature": "public SigmaMapRegion snapshot()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRegion.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRegion",
+    "name": "putChunk",
+    "signature": "public void putChunk(int chunkX, int chunkZ, int[] colors)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRegion.java",
+    "line": 27
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRegion",
+    "name": "mergeMissing",
+    "signature": "public void mergeMissing(SigmaMapRegion other)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRegion.java",
+    "line": 40
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRegion",
+    "name": "read",
+    "signature": "public static SigmaMapRegion read(Path file)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRegion.java",
+    "line": 49
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRegion",
+    "name": "write",
+    "signature": "public void write(Path file)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRegion.java",
+    "line": 61
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRows",
+    "name": "SigmaMapRows",
+    "signature": "cn.omix.util.sigma.SigmaMapRows",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRows.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRows",
+    "name": "SigmaMapRows",
+    "signature": "public final class SigmaMapRows",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRows.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRows",
+    "name": "update",
+    "signature": "public void update(List<SigmaWaypoint> points, UUID dragged, float dragPosition, long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRows.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRows",
+    "name": "position",
+    "signature": "public float position(UUID id)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRows.java",
+    "line": 36
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRows",
+    "name": "trashProgress",
+    "signature": "public float trashProgress()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRows.java",
+    "line": 37
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRows",
+    "name": "deleting",
+    "signature": "public boolean deleting(UUID id)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRows.java",
+    "line": 38
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRows",
+    "name": "delete",
+    "signature": "public void delete(UUID id)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRows.java",
+    "line": 39
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRows",
+    "name": "finishDeletes",
+    "signature": "public void finishDeletes()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRows.java",
+    "line": 41
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapRows",
+    "name": "draw",
+    "signature": "public void draw(DrawContext context, SigmaWaypoint point, float x, float y, float width, boolean dragging, float opacity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapRows.java",
+    "line": 47
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapZoom",
+    "name": "SigmaMapZoom",
+    "signature": "cn.omix.util.sigma.SigmaMapZoom",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapZoom.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapZoom",
+    "name": "AutoCloseable",
+    "signature": "public final class SigmaMapZoom implements IMinecraft, AutoCloseable",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapZoom.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapZoom",
+    "name": "press",
+    "signature": "public void press(boolean plus)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapZoom.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapZoom",
+    "name": "draw",
+    "signature": "public void draw(DrawContext context, float x, float y, double worldX, double worldZ, float pixelsPerBlock)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapZoom.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMapZoom",
+    "name": "close",
+    "signature": "public void close()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMapZoom.java",
+    "line": 54
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMaskEffect",
+    "name": "SigmaMaskEffect",
+    "signature": "cn.omix.util.sigma.SigmaMaskEffect",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMaskEffect.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMaskEffect",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaMaskEffect implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMaskEffect.java",
+    "line": 27
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMaskEffect",
+    "name": "init",
+    "signature": "public static void init()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMaskEffect.java",
+    "line": 41
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMaskEffect",
+    "name": "ColoredBox",
+    "signature": "public record ColoredBox(Box box, int color)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMaskEffect.java",
+    "line": 42
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMaskEffect",
+    "name": "boxes",
+    "signature": "public static void boxes(Render3DEvent event, List<ColoredBox> boxes, List<Entity> shadows)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMaskEffect.java",
+    "line": 44
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMaskEffect",
+    "name": "entities",
+    "signature": "public static void entities(Render3DEvent event, List<Entity> entities, int color)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMaskEffect.java",
+    "line": 54
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMaskEffect",
+    "name": "releaseUnused",
+    "signature": "public static void releaseUnused()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMaskEffect.java",
+    "line": 117
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaMaskEffect",
+    "name": "close",
+    "signature": "public static void close()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaMaskEffect.java",
+    "line": 118
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaOwnerNames",
+    "name": "SigmaOwnerNames",
+    "signature": "cn.omix.util.sigma.SigmaOwnerNames",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaOwnerNames.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaOwnerNames",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaOwnerNames implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaOwnerNames.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaOwnerNames",
+    "name": "name",
+    "signature": "public static String name(UUID uuid)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaOwnerNames.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaOwnerNames",
+    "name": "close",
+    "signature": "public static void close()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaOwnerNames.java",
+    "line": 37
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfileStorage",
+    "name": "SigmaProfileStorage",
+    "signature": "cn.omix.util.sigma.SigmaProfileStorage",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfileStorage.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfileStorage",
+    "name": "SigmaProfileStorage",
+    "signature": "public final class SigmaProfileStorage",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfileStorage.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfileStorage",
+    "name": "captureDefaults",
+    "signature": "public static void captureDefaults()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfileStorage.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfileStorage",
+    "name": "saveCurrent",
+    "signature": "public static void saveCurrent()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfileStorage.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfileStorage",
+    "name": "activate",
+    "signature": "public static void activate(Config config)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfileStorage.java",
+    "line": 28
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfileStorage",
+    "name": "blank",
+    "signature": "public static Config blank()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfileStorage.java",
+    "line": 34
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfileStorage",
+    "name": "duplicate",
+    "signature": "public static Config duplicate()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfileStorage.java",
+    "line": 41
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfileStorage",
+    "name": "rename",
+    "signature": "public static Config rename(Config config, String requestedName)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfileStorage.java",
+    "line": 50
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfileStorage",
+    "name": "validName",
+    "signature": "public static boolean validName(String name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfileStorage.java",
+    "line": 75
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfilesPanel",
+    "name": "SigmaProfilesPanel",
+    "signature": "cn.omix.util.sigma.SigmaProfilesPanel",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfilesPanel.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfilesPanel",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaProfilesPanel implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfilesPanel.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfilesPanel",
+    "name": "SigmaProfilesPanel",
+    "signature": "public SigmaProfilesPanel()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfilesPanel.java",
+    "line": 33
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfilesPanel",
+    "name": "close",
+    "signature": "public void close()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfilesPanel.java",
+    "line": 39
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfilesPanel",
+    "name": "closed",
+    "signature": "public boolean closed()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfilesPanel.java",
+    "line": 40
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfilesPanel",
+    "name": "draw",
+    "signature": "public void draw(DrawContext context, float mx, float my, float alpha)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfilesPanel.java",
+    "line": 42
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfilesPanel",
+    "name": "click",
+    "signature": "public boolean click(float mx, float my, int button)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfilesPanel.java",
+    "line": 124
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfilesPanel",
+    "name": "scroll",
+    "signature": "public void scroll(double delta)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfilesPanel.java",
+    "line": 164
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfilesPanel",
+    "name": "key",
+    "signature": "public boolean key(KeyInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfilesPanel.java",
+    "line": 167
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProfilesPanel",
+    "name": "type",
+    "signature": "public boolean type(CharInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProfilesPanel.java",
+    "line": 177
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProjection",
+    "name": "SigmaProjection",
+    "signature": "cn.omix.util.sigma.SigmaProjection",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProjection.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProjection",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaProjection implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProjection.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProjection",
+    "name": "label",
+    "signature": "public static Label label(Render3DEvent event, Vec3d position, float worldScale)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProjection.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProjection",
+    "name": "Label",
+    "signature": "public record Label(float x, float y, float rightX, float rightY, float downX, float downY)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProjection.java",
+    "line": 32
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProjection.Label",
+    "name": "begin",
+    "signature": "public void begin(DrawContext context)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProjection.java",
+    "line": 33
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaProjection.Label",
+    "name": "end",
+    "signature": "public void end(DrawContext context)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaProjection.java",
+    "line": 37
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaRearView",
+    "name": "SigmaRearView",
+    "signature": "cn.omix.util.sigma.SigmaRearView",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaRearView.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaRearView",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaRearView implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaRearView.java",
+    "line": 28
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaRearView",
+    "name": "get",
+    "signature": "public static SigmaRearView get()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaRearView.java",
+    "line": 44
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaRearView",
+    "name": "isRendering",
+    "signature": "public static boolean isRendering()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaRearView.java",
+    "line": 45
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaRearView",
+    "name": "target",
+    "signature": "public static Framebuffer target()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaRearView.java",
+    "line": 46
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaRearView",
+    "name": "renderingCamera",
+    "signature": "public static Camera renderingCamera()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaRearView.java",
+    "line": 47
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaRearView",
+    "name": "prepareFrame",
+    "signature": "public void prepareFrame()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaRearView.java",
+    "line": 49
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaRearView",
+    "name": "renderWorld",
+    "signature": "public void renderWorld(RenderTickCounter tickCounter)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaRearView.java",
+    "line": 67
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaRearView",
+    "name": "draw",
+    "signature": "public void draw(DrawContext context)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaRearView.java",
+    "line": 121
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaRearView",
+    "name": "release",
+    "signature": "public void release()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaRearView.java",
+    "line": 136
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaRearView.RearCamera",
+    "name": "getEnvironmentAttributeInterpolator",
+    "signature": "public net.minecraft.world.attribute.EnvironmentAttributeInterpolator getEnvironmentAttributeInterpolator()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaRearView.java",
+    "line": 150
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaResources",
+    "name": "SigmaResources",
+    "signature": "cn.omix.util.sigma.SigmaResources",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaResources.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaResources",
+    "name": "SigmaResources",
+    "signature": "public final class SigmaResources",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaResources.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaResources",
+    "name": "texture",
+    "signature": "public static Identifier texture(String path)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaResources.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaResources",
+    "name": "light",
+    "signature": "public static TrueTypeFont light(int size)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaResources.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaResources",
+    "name": "medium",
+    "signature": "public static TrueTypeFont medium(int size)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaResources.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "SigmaSettingsPanel",
+    "signature": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "SigmaSettingsPanel",
+    "signature": "public final class SigmaSettingsPanel",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "BLUE",
+    "signature": "public static final int BLUE",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "SigmaSettingsPanel",
+    "signature": "public SigmaSettingsPanel(Module module)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 36
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "module",
+    "signature": "public Module module()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 37
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "close",
+    "signature": "public void close()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 38
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "closed",
+    "signature": "public boolean closed()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 39
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "progress",
+    "signature": "public float progress()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 40
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "draw",
+    "signature": "public void draw(DrawContext context, float mouseX, float mouseY, float alpha)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 42
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "format",
+    "signature": "public static String format(float value)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 190
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "inside",
+    "signature": "public static boolean inside(double mx, double my, float x, float y, float w, float h)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 191
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "click",
+    "signature": "public boolean click(float mx, float my, int button)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 194
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "drag",
+    "signature": "public boolean drag(float mx, float my)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 226
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "release",
+    "signature": "public void release()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 241
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "scroll",
+    "signature": "public void scroll(double amount)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 242
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "key",
+    "signature": "public boolean key(KeyInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 246
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
+    "name": "type",
+    "signature": "public boolean type(CharInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSettingsPanel.java",
+    "line": 259
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaShape",
+    "name": "SigmaShape",
+    "signature": "cn.omix.util.sigma.SigmaShape",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaShape.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaShape",
+    "name": "pipeline",
+    "signature": "public RenderPipeline pipeline()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaShape.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaShape",
+    "name": "textureSetup",
+    "signature": "public TextureSetup textureSetup()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaShape.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaShape",
+    "name": "setupVertices",
+    "signature": "public void setupVertices(VertexConsumer buffer)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaShape.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaShape",
+    "name": "rounded",
+    "signature": "public static void rounded(DrawContext context, float x, float y, float w, float h, float radius, int color)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaShape.java",
+    "line": 29
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSims",
+    "name": "SigmaSims",
+    "signature": "cn.omix.util.sigma.SigmaSims",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSims.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSims",
+    "name": "SigmaSims",
+    "signature": "public final class SigmaSims",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSims.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSims",
+    "name": "render",
+    "signature": "public static void render(Render3DEvent event, Entity entity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSims.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSounds",
+    "name": "SigmaSounds",
+    "signature": "cn.omix.util.sigma.SigmaSounds",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSounds.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSounds",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaSounds implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSounds.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSounds",
+    "name": "toggled",
+    "signature": "public static void toggled(boolean enabled)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSounds.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaSounds",
+    "name": "play",
+    "signature": "public static void play(String name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaSounds.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTextInput",
+    "name": "SigmaTextInput",
+    "signature": "cn.omix.util.sigma.SigmaTextInput",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTextInput.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTextInput",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaTextInput implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTextInput.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTextInput",
+    "name": "SigmaTextInput",
+    "signature": "public SigmaTextInput(int limit)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTextInput.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTextInput",
+    "name": "value",
+    "signature": "public String value()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTextInput.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTextInput",
+    "name": "focused",
+    "signature": "public boolean focused()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTextInput.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTextInput",
+    "name": "focus",
+    "signature": "public void focus(boolean focused)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTextInput.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTextInput",
+    "name": "set",
+    "signature": "public void set(String value)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTextInput.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTextInput",
+    "name": "selectAll",
+    "signature": "public void selectAll()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTextInput.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTextInput",
+    "name": "type",
+    "signature": "public boolean type(CharInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTextInput.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTextInput",
+    "name": "key",
+    "signature": "public boolean key(KeyInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTextInput.java",
+    "line": 30
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTextInput",
+    "name": "draw",
+    "signature": "public void draw(DrawContext context, TrueTypeFont font, float x, float y, float width, int color, String placeholder)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTextInput.java",
+    "line": 70
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTextInput",
+    "name": "draw",
+    "signature": "public void draw(DrawContext context, TrueTypeFont font, float x, float y, float width, int color, String placeholder, boolean masked)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTextInput.java",
+    "line": 74
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTexturePolygon",
+    "name": "SigmaTexturePolygon",
+    "signature": "cn.omix.util.sigma.SigmaTexturePolygon",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTexturePolygon.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTexturePolygon",
+    "name": "pipeline",
+    "signature": "public RenderPipeline pipeline()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTexturePolygon.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTexturePolygon",
+    "name": "setupVertices",
+    "signature": "public void setupVertices(VertexConsumer buffer)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTexturePolygon.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTexturePolygon",
+    "name": "Clip",
+    "signature": "public record Clip(float x, float y, float width, float height, float radius)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTexturePolygon.java",
+    "line": 33
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTexturePolygon.Clip",
+    "name": "polygon",
+    "signature": "public float[] polygon(float left, float top, float right, float bottom)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTexturePolygon.java",
+    "line": 34
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaTexturePolygon",
+    "name": "draw",
+    "signature": "public static void draw(DrawContext context, TextureSetup texture, float x, float y, float width, float height, Clip clip, int color)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaTexturePolygon.java",
+    "line": 67
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypoint",
+    "name": "SigmaWaypoint",
+    "signature": "cn.omix.util.sigma.SigmaWaypoint",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypoint.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypoint",
+    "name": "SigmaWaypoint",
+    "signature": "public record SigmaWaypoint(UUID id, String name, int x, double y, int z, int color, boolean surface)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypoint.java",
+    "line": 5
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypoint",
+    "name": "SigmaWaypoint",
+    "signature": "public SigmaWaypoint",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypoint.java",
+    "line": 6
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypoint",
+    "name": "surface",
+    "signature": "public static SigmaWaypoint surface(String name, int x, int z, int color)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypoint.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypointStore",
+    "name": "SigmaWaypointStore",
+    "signature": "cn.omix.util.sigma.SigmaWaypointStore",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypointStore.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypointStore",
+    "name": "SigmaWaypointStore",
+    "signature": "public final class SigmaWaypointStore",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypointStore.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypointStore",
+    "name": "key",
+    "signature": "public static String key(String server, String dimension)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypointStore.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypointStore",
+    "name": "read",
+    "signature": "public static List<SigmaWaypoint> read(Path file)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypointStore.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypointStore",
+    "name": "write",
+    "signature": "public static void write(Path file, List<SigmaWaypoint> points)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypointStore.java",
+    "line": 47
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypoints",
+    "name": "SigmaWaypoints",
+    "signature": "cn.omix.util.sigma.SigmaWaypoints",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypoints.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypoints",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaWaypoints implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypoints.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypoints",
+    "name": "get",
+    "signature": "public static SigmaWaypoints get()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypoints.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypoints",
+    "name": "updateWorld",
+    "signature": "public void updateWorld()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypoints.java",
+    "line": 28
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypoints",
+    "name": "directory",
+    "signature": "public Path directory()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypoints.java",
+    "line": 51
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypoints",
+    "name": "label",
+    "signature": "public String label()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypoints.java",
+    "line": 52
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypoints",
+    "name": "points",
+    "signature": "public List<SigmaWaypoint> points()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypoints.java",
+    "line": 53
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypoints",
+    "name": "put",
+    "signature": "public void put(SigmaWaypoint point)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypoints.java",
+    "line": 55
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypoints",
+    "name": "remove",
+    "signature": "public void remove(UUID id)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypoints.java",
+    "line": 64
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypoints",
+    "name": "move",
+    "signature": "public void move(UUID id, int index)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypoints.java",
+    "line": 66
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWaypoints",
+    "name": "close",
+    "signature": "public void close()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWaypoints.java",
+    "line": 99
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWorldRender",
+    "name": "SigmaWorldRender",
+    "signature": "cn.omix.util.sigma.SigmaWorldRender",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWorldRender.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWorldRender",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaWorldRender implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWorldRender.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWorldRender",
+    "name": "init",
+    "signature": "public static void init()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWorldRender.java",
+    "line": 36
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWorldRender",
+    "name": "line",
+    "signature": "public static void line(Render3DEvent event, Vec3d from, Vec3d to, int startColor, int endColor, float width)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWorldRender.java",
+    "line": 38
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWorldRender",
+    "name": "triangle",
+    "signature": "public static void triangle(Render3DEvent event, Vec3d a, Vec3d b, Vec3d c, int color)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWorldRender.java",
+    "line": 53
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWorldRender",
+    "name": "waypoint",
+    "signature": "public static void waypoint(Render3DEvent event, Vec3d origin, int color, float scale, int age)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWorldRender.java",
+    "line": 68
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWorldRender",
+    "name": "box",
+    "signature": "public static void box(Render3DEvent event, Box box, int color, boolean filled, float lineWidth)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWorldRender.java",
+    "line": 102
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWorldRender",
+    "name": "shadowSprite",
+    "signature": "public static void shadowSprite(Render3DEvent event, Entity entity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWorldRender.java",
+    "line": 113
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWorldRender",
+    "name": "corners",
+    "signature": "public static Vec3d[] corners(Box box)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWorldRender.java",
+    "line": 131
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaWorldRender",
+    "name": "silhouette",
+    "signature": "public static void silhouette(Render3DEvent event, Box box, int color, float width)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaWorldRender.java",
+    "line": 139
+  },
+  {
     "owner": "cn.omix.util.webui.WebPanelLayout",
     "name": "WebPanelLayout",
     "signature": "cn.omix.util.webui.WebPanelLayout",

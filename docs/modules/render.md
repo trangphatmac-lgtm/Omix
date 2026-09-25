@@ -10,12 +10,30 @@
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Classic 经典样式；Omix 使用 Omix HUD。 | 模式；默认 Omix；可选 Classic / Omix |
+| Mode | Classic 经典样式；Omix 原有 HUD；Sigma 为 Jello HUD。 | 模式；默认 Omix；可选 Classic / Omix / Sigma |
+| ActiveMods | Sigma：右上角活动模块列表，默认开启。 | 布尔；默认 true；显示条件：Mode = Sigma |
+| ActiveMods Size | Sigma ActiveMods：Normal / Small / Tiny，原版 20 / 18 / 14 号字体。 | 模式；默认 Normal；可选 Normal / Small / Tiny；显示条件：Mode = Sigma 且 ActiveMods 开启 |
+| ActiveMods Animations | Sigma ActiveMods：开关列表动画，默认开启。 | 布尔；默认 true；显示条件：Mode = Sigma 且 ActiveMods 开启 |
+| ActiveMods Sound | Sigma ActiveMods：模块启停使用 Jello 原版音效，默认开启。 | 布尔；默认 true；显示条件：Mode = Sigma 且 ActiveMods 开启 |
+| BrainFreeze | Sigma：ClickGUI 背景雪花。 | 布尔；默认 false；显示条件：Mode = Sigma |
+| Compass | Sigma：顶部动态方向刻度。 | 布尔；默认 false；显示条件：Mode = Sigma |
+| InfoHUD | Sigma：左下角玩家、护甲耐久及坐标信息。 | 布尔；默认 true；显示条件：Mode = Sigma |
+| InfoHUD Cords | Sigma InfoHUD：None 隐藏坐标；Normal 整数；Precise 一位小数，保留源配置拼写 Cords。 | 模式；默认 Normal；可选 None / Normal / Precise；显示条件：Mode = Sigma 且 InfoHUD 开启 |
+| InfoHUD Show Player | Sigma InfoHUD：显示玩家模型。 | 布尔；默认 true；显示条件：Mode = Sigma 且 InfoHUD 开启 |
+| InfoHUD Show Armor | Sigma InfoHUD：显示已装备护甲及耐久。 | 布尔；默认 true；显示条件：Mode = Sigma 且 InfoHUD 开启 |
+| InfoHUD Move chat up | Sigma InfoHUD：聊天上移 40 GUI 单位。 | 布尔；默认 true；显示条件：Mode = Sigma 且 InfoHUD 开启 |
+| KeyStrokes | Sigma：移动键和鼠标左右键状态及按下涟漪。 | 布尔；默认 false；显示条件：Mode = Sigma |
+| MiniMap | Sigma：旋转小地图，共享 Maps 的地形缓存。 | 布尔；默认 false；显示条件：Mode = Sigma |
+| RearView | Sigma：右下角后视画面，独立相机渲染完整场景。 | 布尔；默认 false；显示条件：Mode = Sigma |
+| RearView Show in GUI | Sigma RearView：打开界面时仍显示。 | 布尔；默认 false；显示条件：Mode = Sigma 且 RearView 开启 |
+| RearView Smart Visibility | Sigma RearView：附近身后出现玩家时显示。 | 布尔；默认 false；显示条件：Mode = Sigma 且 RearView 开启 |
+| RearView Size | Sigma RearView：画面宽度，默认 400，范围 120–1000 窗口像素。 | 数值；默认 400；120–1000；步长 1；显示条件：Mode = Sigma 且 RearView 开启 |
+| TabGUI | Sigma 或 Omix：方向键切换分类/模块，右方向键展开/开关，Enter 开关，左方向键收起。 | 布尔；默认 true；显示条件：Mode = Sigma |
 | Color Setting | Rainbow 彩虹；Fade 两色渐变；Custom 自定义颜色。 | 模式；默认 Rainbow；可选 Rainbow / Fade / Custom；显示条件：Mode = Omix |
 | Main Color | Omix 主色。 | 颜色；默认 白色；显示条件：Mode = Omix |
 | Second Color | Omix Fade 第二色。 | 颜色；默认 白色；显示条件：Mode = Omix 且 Color Setting = Fade |
 | HUD Options | Omix 信息组件组。 | 布尔选项组；显示条件：Mode = Omix |
-| TabGUI | 显示键盘导航 TabGUI。 | 布尔；默认 true；属于 HUD Options；显示条件：Mode = Omix |
+| TabGUI | Sigma 或 Omix：方向键切换分类/模块，右方向键展开/开关，Enter 开关，左方向键收起。 | 布尔；默认 true；属于 HUD Options；显示条件：Mode = Omix |
 | Watermark | 显示客户端水印。 | 布尔；默认 true；属于 HUD Options；显示条件：Mode = Omix |
 | Potion Effects | 显示药水效果。 | 布尔；默认 true；属于 HUD Options；显示条件：Mode = Omix |
 | Display | 显示 CubeCraft Disabler 的等待提示或队列数量。 | 布尔；默认 true；属于 HUD Options；显示条件：Mode = Omix |
@@ -46,13 +64,13 @@
 
 ## ClickGui
 
-默认右 Shift 打开模块配置界面，打开后自动关闭模块。Web 模式使用现有 WebUI，启动失败时回退原生界面；Remix 模式直接打开原生 ClickGUI。WebUI 页面提前加载，重复打开时复用已加载的页面并后台刷新模块状态；记忆模块/配置页、分类、选中模块、搜索内容、选中配置及滚动位置，重启后也会恢复。已移除的模块或配置会自动回退到有效选项。
+默认右 Shift 打开模块配置界面，打开后自动关闭模块。Web 模式使用现有 WebUI，启动失败时回退原生界面；Remix 模式直接打开原生 ClickGUI。WebUI 页面提前加载，重复打开时复用已加载的页面并后台刷新模块状态；记忆模块/配置页、分类、选中模块、搜索内容、选中配置及滚动位置，重启后也会恢复。已移除的模块或配置会自动回退到有效选项。 Sigma 打开 Jello 原生分类面板，支持拖动、滚动、右键设置、中键绑定及 Profiles；沿用原版字体、图片、模糊和动画，不含 Jello Music。Profiles 使用本地 Omix 配置，Sigma 旧在线配置不兼容。
 
 源码：`src/main/java/cn/omix/module/impl/render/ClickGui.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Web 打开 WebUI；Remix 直接打开原生 ClickGUI。 | 模式；默认 Web；可选 Web / Remix |
+| Mode | Web 打开 WebUI；Remix 打开原原生 ClickGUI；Sigma 打开 Jello ClickGUI。 | 模式；默认 Web；可选 Web / Remix / Sigma |
 
 ## AIScreen
 
@@ -206,16 +224,45 @@
 
 ## ESP
 
-绘制实体边框及生命、护甲和名称信息。
+Classic 保留二维框、血条、护甲和姓名；Sigma 移植 Jello 的 Shadow、Sims、Box Outline 与 Vanilla。
 
 源码：`src/main/java/cn/omix/module/impl/render/ESP.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| 2D ESP | 绘制二维方框。 | 布尔；默认 true |
-| Health Bar | 显示生命条。 | 布尔；默认 true |
-| Armor Bar | 显示护甲条。 | 布尔；默认 true |
-| Name Tags | 显示名称标签。 | 布尔；默认 true |
+| Implementation | Classic 保留原实现；Sigma 使用 Jello。 | 模式；默认 Classic；可选 Classic / Sigma |
+| 2D ESP | 绘制二维方框。 | 布尔；默认 true；显示条件：Implementation = Classic |
+| Health Bar | 显示生命条。 | 布尔；默认 true；显示条件：Implementation = Classic |
+| Armor Bar | 显示护甲条。 | 布尔；默认 true；显示条件：Implementation = Classic |
+| Name Tags | 显示名称标签。 | 布尔；默认 true；显示条件：Implementation = Classic |
+| Sigma Mode | Shadow 绘制玩家模型轮廓及阴影；Sims 绘制玩家头顶旋转标记；Box Outline 绘制扩展包围盒；Vanilla 使用原生发光轮廓。 | 模式；默认 Shadow；可选 Shadow / Sims / Box Outline / Vanilla；显示条件：Implementation = Sigma |
+| Show Players | Sigma：Box Outline / Vanilla 的玩家过滤。Shadow / Sims 与原版一样使用独立玩家过滤。 | 布尔；默认 true；显示条件：Implementation = Sigma |
+| Show Mobs | Sigma：Box Outline / Vanilla 的 MobEntity 过滤；沿用原版分类，包括动物。 | 布尔；默认 false；显示条件：Implementation = Sigma |
+| Show Passives | Sigma：Box Outline / Vanilla 中既非玩家也非 MobEntity 的活体（如盔甲架）。沿用 Sigma 源码分类。 | 布尔；默认 false；显示条件：Implementation = Sigma |
+| Show Invisibles | Sigma：Box Outline / Vanilla 是否包含隐形实体；Shadow 始终排除隐形玩家，Sims 包含。 | 布尔；默认 true；显示条件：Implementation = Sigma |
+| Sigma Color | Sigma：Shadow / Box Outline 的轮廓颜色。 | 颜色；默认 new Color(SigmaColors.WHITE)；显示条件：Implementation = Sigma 且 (Sigma Mode = Shadow 或 Sigma Mode = Box Outline) |
+
+## NameTags
+
+移植 Jello 玩家名牌、生命值、朋友/队友背景、特殊昵称徽标、已打开熔炉状态和驯服生物主人名。熔炉关闭后按最后库存与配方估算，再次打开时以服务端同步为准；使用服务端配方展示及缓存的原版配方推算，不在绘制时重载资源。
+
+源码：`src/main/java/cn/omix/module/impl/render/NameTags.java`。
+
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| Magnify | 随距离放大标签，沿用原版公式。 | 布尔；默认 true |
+| Furnaces | 首次打开熔炉后显示物品、估算数量、燃料和烧炼进度；最多跟踪 256 个，切世界清空。 | 布尔；默认 true |
+| Mob Owners | 显示驯服生物主人；优先玩家列表/本地缓存，缺失时后台解析 UUID。 | 布尔；默认 true |
+
+## Waypoint
+
+绘制 Jello Maps 保存的路径点：地表高度平滑、旋转八面标记、地面圆环与距离缩放标签。路径点按世界/服务器与维度隔离并持久化，超过 300 格不绘制。
+
+源码：`src/main/java/cn/omix/module/impl/render/Waypoint.java`。
+
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| Unspawn Positions | 记录卸载的其他玩家最后位置，重新出现或切换世界后移除。 | 布尔；默认 false |
 
 ## BedESP
 
@@ -234,13 +281,20 @@
 
 ## ChestESP
 
-高亮普通箱、陷阱箱与末影箱。
+标记普通箱、陷阱箱与末影箱；Sigma 移植 Jello 的轮廓遮罩和半透明箱体。
 
 源码：`src/main/java/cn/omix/module/impl/render/ChestESP.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Implementation | Classic 可配置颜色与连线；Omix 使用 Omix 实现。 | 模式；默认 Classic；可选 Classic / Omix |
+| Implementation | Classic 保留原箱体颜色与连线；Omix 使用原 Omix 实现；Sigma 使用 Jello。 | 模式；默认 Classic；可选 Classic / Omix / Sigma |
+| Sigma Mode | Sigma：Outline 只绘制联合遮罩的外轮廓；Box 绘制半透明箱体与边线。 | 模式；默认 Outline；可选 Outline / Box；显示条件：Implementation = Sigma |
+| Show Regular Chests | Sigma：显示普通箱，默认开启。 | 布尔；默认 true；显示条件：Implementation = Sigma |
+| Regular Color | Sigma：普通箱颜色，默认 Jello 白色。 | 颜色；默认 new Color(SigmaColors.WHITE)；显示条件：Implementation = Sigma |
+| Show Trapped Chests | Sigma：显示陷阱箱，默认开启。 | 布尔；默认 true；显示条件：Implementation = Sigma |
+| Trapped Color | Sigma：陷阱箱颜色。 | 颜色；默认 new Color(-13108)；显示条件：Implementation = Sigma |
+| Show Ender Chests | Sigma：显示末影箱，默认开启。 | 布尔；默认 true；显示条件：Implementation = Sigma |
+| Ender Color | Sigma：末影箱颜色。 | 颜色；默认 new Color(-1848065)；显示条件：Implementation = Sigma |
 | Chest | 普通箱颜色。 | 颜色；默认 new Color(255, 170, 0)；显示条件：Implementation = Classic |
 | Trapped Chest | 陷阱箱颜色。 | 颜色；默认 new Color(255, 43, 0)；显示条件：Implementation = Classic |
 | Ender Chest | 末影箱颜色。 | 颜色；默认 new Color(26, 17, 170)；显示条件：Implementation = Classic |
@@ -308,21 +362,23 @@
 
 ## Tracers
 
-以连线或方向箭头指示玩家，可分别筛选好友、敌人与机器人。
+以连线或方向箭头指示玩家，可分别筛选好友、敌人与机器人。 Sigma 使用 Jello 的白色渐隐连线，从视线前方十格绘制到玩家中心。
 
 源码：`src/main/java/cn/omix/module/impl/render/Tracers.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Color | Default 默认；Teams 队伍颜色；HUD 主题。 | 模式；默认 Default；可选 Default / Teams / HUD |
-| Lines | 绘制连线。 | 布尔；默认 true |
-| Arrows | 绘制方向箭头。 | 布尔；默认 false |
-| Opacity | 不透明度百分比。 | 数值；默认 100；0–100；步长 1 |
-| Distance | 距离上限，单位方块。 | 数值；默认 512；0–512；步长 1 |
-| Players | 显示普通玩家。 | 布尔；默认 true |
-| Friends | 显示好友。 | 布尔；默认 true |
-| Enemies | 显示敌对分类玩家。 | 布尔；默认 true |
-| Bots | 显示 AntiBot 标记实体。 | 布尔；默认 false |
+| Implementation | Classic 保留原来的线、箭头和过滤设置；Sigma 使用 Jello 连线。 | 模式；默认 Classic；可选 Classic / Sigma |
+| Color | Default 默认；Teams 队伍颜色；HUD 主题。 | 模式；默认 Default；可选 Default / Teams / HUD；显示条件：Implementation = Classic |
+| Lines | 绘制连线。 | 布尔；默认 true；显示条件：Implementation = Classic |
+| Arrows | 绘制方向箭头。 | 布尔；默认 false；显示条件：Implementation = Classic |
+| Opacity | 不透明度百分比。 | 数值；默认 100；0–100；步长 1；显示条件：Implementation = Classic |
+| Distance | 距离上限，单位方块。 | 数值；默认 512；0–512；步长 1；显示条件：Implementation = Classic |
+| Players | 显示普通玩家。 | 布尔；默认 true；显示条件：Implementation = Classic |
+| Friends | 显示好友。 | 布尔；默认 true；显示条件：Implementation = Classic |
+| Enemies | 显示敌对分类玩家。 | 布尔；默认 true；显示条件：Implementation = Classic |
+| Bots | 显示 AntiBot 标记实体。 | 布尔；默认 false；显示条件：Implementation = Classic |
+| Sigma Color | Sigma 连线颜色，起点透明度 45%，终点为 0；目标为存活时间超过 30 tick 的非机器人玩家。 | 颜色；默认 new Color(SigmaColors.WHITE)；显示条件：Implementation = Sigma |
 
 ## Trajectories
 

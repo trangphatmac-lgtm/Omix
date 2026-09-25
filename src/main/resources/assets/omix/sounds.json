@@ -1,0 +1,6 @@
+{
+  "sigma.activate": {"sounds": [{"name": "omix:sigma/activate", "stream": false}]},
+  "sigma.deactivate": {"sounds": [{"name": "omix:sigma/deactivate", "stream": false}]},
+  "sigma.click": {"sounds": [{"name": "omix:sigma/click", "stream": false}]},
+  "sigma.switch": {"sounds": [{"name": "omix:sigma/switch", "stream": false}]}
+}

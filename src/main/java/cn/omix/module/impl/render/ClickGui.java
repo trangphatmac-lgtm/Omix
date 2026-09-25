@@ -9,7 +9,7 @@ import im.webui.screen.WebScreenType;
 import org.lwjgl.glfw.GLFW;
 
 public final class ClickGui extends Module {
-    private final ModeValue mode = new ModeValue("Mode", "Web", "Web", "Remix");
+    private final ModeValue mode = new ModeValue("Mode", "Web", "Web", "Remix", "Sigma");
 
     public ClickGui() {
         super("ClickGui", Category.Render);
@@ -18,7 +18,9 @@ public final class ClickGui extends Module {
 
     @Override
     public void onEnable() {
-        if (mode.is("Remix")) {
+        if (mode.is("Sigma")) {
+            mc.setScreen(new cn.omix.ui.sigma.SigmaClickGuiScreen());
+        } else if (mode.is("Remix")) {
             mc.setScreen(instance.getClickGuiScreen());
         } else {
             WebScreenOpenResult result = WebUiRuntime.getInstance().openScreen(WebScreenType.CLICK_GUI);

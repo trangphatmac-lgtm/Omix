@@ -29,7 +29,7 @@ public class Client implements IMinecraft {
     public static Logger logger;
 
     public static String name = "Omix";
-    public static String version = "260924-SNAPSHOT";
+    public static String version = "260925-SNAPSHOT";
 
     private cn.omix.script.ScriptManager scriptManager;
     private cn.omix.util.ai.MinecraftGameBridge gameBridge;
@@ -54,15 +54,18 @@ public class Client implements IMinecraft {
         );
         Render2D.init();
         Render3D.init();
+        cn.omix.util.sigma.SigmaWorldRender.init();
         eventManager = new EventManager();
         fisProxyManager = new FisProxyManager(Path.of(name, "fisproxy.json"));
         moduleManager = new ModuleManager();
+        cn.omix.util.sigma.SigmaProfileStorage.captureDefaults();
         commandManager = new CommandManager();
         configManager = new ConfigManager();
         rotationManager = new RotationManager();
         targetManager = new TargetManager();
         friendManager = new FriendManager();
         fontManager = new FontManager();
+        eventManager.register(cn.omix.util.sigma.SigmaMapCache.get());
         packetManager = new PacketManager();
         clickGuiScreen = new ClickGuiScreen();
         AccountManager.init();
@@ -83,6 +86,12 @@ public class Client implements IMinecraft {
         if (scriptManager != null) scriptManager.close();
         WebUiRuntime.getInstance().stop();
         if (fisProxyManager != null) fisProxyManager.close();
+        cn.omix.util.sigma.SigmaWaypoints.get().close();
+        cn.omix.util.sigma.SigmaMapCache.get().close();
+        cn.omix.util.sigma.SigmaRearView.get().release();
+        cn.omix.util.sigma.SigmaMaskEffect.close();
+        cn.omix.util.sigma.SigmaBlur.close();
+        cn.omix.util.sigma.SigmaOwnerNames.close();
         AccountManager.save();
     }
 }

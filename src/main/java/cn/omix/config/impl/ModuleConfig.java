@@ -135,6 +135,9 @@ public final class ModuleConfig extends Config {
         return categories;
     }
 
+    /** Detached native configuration for local profile creation, including hidden values. */
+    public JsonObject snapshot() { return serializeCurrentState(false); }
+
     private JsonObject serializeCurrentState(boolean redactSensitive) {
         final JsonObject jsonObject = retained.deepCopy();
         for (Module module : instance.getModuleManager().getModuleMap().values()) {
