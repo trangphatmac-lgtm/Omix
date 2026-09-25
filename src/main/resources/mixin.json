@@ -10,6 +10,7 @@
   ],
   "client": [
     "MixinAbstractBlockState",
+    "MixinArmedEntityRenderState",
     "MixinBlockModelRenderer",
     "MixinBlockRenderLayers",
     "MixinBlockCollisionSpliterator",

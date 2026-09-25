@@ -186,6 +186,14 @@ public class RotationManager implements IMinecraft {
         return activeRequest;
     }
 
+    /** Release only this exact request; retain angle caches until normal pre-motion. */
+    public static void release(RotationRequest request) {
+        if (request != null && activeRequest == request) {
+            activeRequest = null;
+            enabled = false;
+        }
+    }
+
     public static boolean isOwner(String owner) {
         return isRotating() && activeRequest != null && activeRequest.owner().equals(owner);
     }

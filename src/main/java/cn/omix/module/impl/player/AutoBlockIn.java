@@ -52,7 +52,7 @@ import java.util.Set;
 /** Hold Select Keybind to build the same nine-cell enclosure as Raven's Block In. */
 public final class AutoBlockIn extends Module {
     private static final double REACH = 4.5;
-    private final NumberValue speed = new NumberValue("Speed", 10, 1, 30, 1);
+    private final NumberValue speed = new NumberValue("Speed", 10, 1, 180, 1);
     private final NumberValue randomization = new NumberValue("Randomization", 10, 0, 100, 1);
     private final NumberValue rotationTolerance = new NumberValue("Rotation Tolerance", 25, 20, 100, 1);
     private final KeyValue selectKeybind = new KeyValue("Select Keybind", 0, true);

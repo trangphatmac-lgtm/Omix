@@ -223,6 +223,11 @@ public class Aura extends Module {
         return criticals == null || !criticals.shouldDeferAttack(target);
     }
 
+    /** Projectile support yields as soon as Aura has an eligible melee attack. */
+    public boolean isAttackingForProjectileAura() {
+        return isNativeBehaviorActive() && !check() && target != null && canAttack(target);
+    }
+
     private boolean isInAttackRange(LivingEntity target) {
         Vec3d bestPoint = RotationUtil.getNearestPointBB(target.getBoundingBox());
         boolean canSee = RotationUtil.isVisible(bestPoint);

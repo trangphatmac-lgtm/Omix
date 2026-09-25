@@ -45,6 +45,23 @@
 | MovementFix Mode | None 不修正移动；Silent 和 Strict 在旋转改变时修正移动方向。 | 模式；默认 None；可选 None / Silent / Strict |
 | Ray Cast | 攻击前要求射线检测实际命中目标。 | 布尔；默认 false |
 
+## ProjectileAura
+
+自动使用鸡蛋、雪球或鱼竿：优先选玩家包围盒扩张 8 格内最近的可见末影水晶，其次选 Aura 目标，再选符合 Targets/Teams/AntiBot/好友策略的最近可见玩家；选定后才检查 Range。非水晶在实体距离 ≤3.2 格时立即让出槽位，水晶豁免 Requires KillAura 与近战退出。根据目标当前与上一 tick 的位置预测落点，以固定弹道参数扫描俯仰角；分两次玩家更新完成转向/切槽申请和校验后使用，之后发送挥手包。Auto 先搜完所有鸡蛋/雪球，再搜鱼竿；每种物品均优先副手、当前主手、快捷栏 0–8。排除显示文本含 wind charge（忽略大小写）或风弹的投掷物，普通改名或 Lore 不影响选择。鱼竿单独计时收杆。Scaffold/ScaffoldX、Blink、正在用物品、LongJump 使用阶段、AutoBlockIn 放置和 NoSlowDown Grim 忙状态会暂停。禁用清理申请但不主动收杆；切世界丢弃旧状态。详见 ../projectileaura.md 的移植边界与验证。
+
+源码：`src/main/java/cn/omix/module/impl/combat/ProjectileAura.java`。
+
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| Mode | Egg & Snowball 只选鸡蛋/雪球；Rod 只选鱼竿；Auto 优先鸡蛋/雪球，全部找不到时才选鱼竿。 | 模式；默认 Egg & Snowball；可选 Egg & Snowball / Rod / Auto |
+| Range | 玩家到选定实体位置的最大距离，单位格；不是眼睛到碰撞箱的距离。选定目标超出范围时不会回退尝试其他目标。 | 数值；默认 12；4–30；步长 .1 |
+| Dynamic Delay | 固定 Throw Delay 之外，再比较预计抵达时间与目标 hurtTime，以及同一目标上一发的预计命中时间，避免过早连续命中。鱼竿不受此设置影响。 | 布尔；默认 true；显示条件：非 Mode = Rod |
+| Throw Delay | 两次使用鸡蛋/雪球之间的最小毫秒间隔；动态延迟也使用该间隔约束同目标预计到达时间。鱼竿绕过延迟。 | 数值；默认 500；50–1000；步长 50；显示条件：非 Mode = Rod |
+| Rod Timeout | 抛竿后收杆超时，毫秒；now > 抛竿时间 + Timeout，或 now ≥ 抛竿时间 + 最近轨迹零起始步号×50 +300 时收杆。 | 数值；默认 300；100–1000；步长 10；显示条件：Mode = Rod 或 Mode = Auto |
+| Requires KillAura | 非水晶目标要求 Omix Aura 开启；水晶无需 Aura。保留原版配置名称。 | 布尔；默认 true |
+| Pause During Attack | Aura 开启且当前目标满足其近战攻击条件时暂停；输入阶段立即清理待投掷并收杆/归还槽位，不等待 CPS 或武器冷却。 | 布尔；默认 true |
+| Silent | 临时切槽期间第一、第三人称主手显示原槽位物品；仍实际选择投掷槽并同步服务器。副手或无需切槽时不创建显示伪装。转向始终使用静默请求，与此开关独立。 | 布尔；默认 true |
+
 ## Reach
 
 Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原版客户端实体距离及武器攻击范围，不扩展客户端射线距离。Grim 拦截 TeleportConfirm（传送确认包），仍正常应用 PlayerPositionLook 并发送移动包；存在待确认传送时，攻击前检查保存的服务器眼睛位置到目标碰撞箱最近点的三维距离，超过配置距离则取消攻击，硬上限为 6 格。每个游戏 tick 按 Chance 抽样，在 Min Range 与 Max Range 之间选取距离；条件未满足时，Normal 使用原版距离，Grim 的服务器距离限制回退为 3 格。没有待确认服务器位置时，Grim 保留普通攻击流程。关闭模块或切回 Normal 时回到最新待确认位置、清除速度与下落距离，并补发最新确认和位置包；切换世界、连接或玩家实体后丢弃旧记录。ShowServerPosition 显示最新待确认位置。Grim 模式未进行服务端验证。

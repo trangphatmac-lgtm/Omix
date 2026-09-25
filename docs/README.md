@@ -1,6 +1,6 @@
 # Omix Client 使用参考
 
-本参考依据仓库中实际注册和执行的源码编写，覆盖内置命令、通用模块命令、94 个内置模块，以及 22 个游戏工具和 14 个脚本开发工具。脚本运行时还可动态增加模块、模式与命令。命令拼写和模块名称保留源码原样，介绍使用中文。
+本参考依据仓库中实际注册和执行的源码编写，覆盖内置命令、通用模块命令、99 个内置模块，以及 22 个游戏工具和 14 个脚本开发工具。脚本运行时还可动态增加模块、模式与命令。命令拼写和模块名称保留源码原样，介绍使用中文。
 
 - [命令及每个选项](commands.md)
 - [Combat 战斗模块](modules/combat.md)
@@ -16,6 +16,7 @@
 - [外部 MCP 完整游戏工具与连接](script/mcp.md)
 - [Agent 脚本开发技能](script/omix-script/SKILL.md)
 - [RotationManager 开发说明](rotation-manager.md)
+- [ProjectileAura 实现、适配与验证](projectileaura.md)
 
 ## 配置共通规则
 
@@ -48,6 +49,7 @@ Web 和 Node 相关源码统一位于项目根目录 `src-web/`：`webui/`、`mu
 | 子目录 | 辅助类 |
 | --- | --- |
 | `combat/` | `CriticalsLandingPredictor`、`CriticalsTiming`、`MeleeDamagePredictor`、`ReachServerRange`、`ReachTeleportState` |
+| `combat/projectile/` | `ProjectileAuraEngine`、`ProjectileAuraHost`、`ProjectileSlotState`、`ProjectileAuraRendering`、`ProjectileItemPolicy` |
 | `move/` | `PredictionTimerBalance` |
 | `network/` | `PacketLogHooks`、`PacketLogBuffer`、`PacketLogFormatter`、`PacketLogContent`、`PacketLogFilter`、`PacketLogRules`、`PacketLogHistory`（PacketsLogger 的观察桥接、有界内容快照、双向过滤与自定义名单） |
 | `player/blockin/` | `BlockInPlanner` |

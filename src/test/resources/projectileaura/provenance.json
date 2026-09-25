@@ -1,0 +1,21 @@
+{
+  "jar_sha256": "aba2af9ac9e44f79017cd39f721363a65e75bbd1ad16f83b4735070fc0631548",
+  "entries": {
+    "NewZKMJNIC/li1i1l1liiii.class": {
+      "sha256": "faffc23060173f7836abeb915526ddd603e3e0d31a58042ec329a780dcfeb0fa",
+      "matches_prior": true
+    },
+    "NewZKMJNIC/iill1liiiiii.class": {
+      "sha256": "4941041ffa7e198e831df7dbe97d89019709c9d8bfde028c0e54022df45bb34d",
+      "matches_prior": true
+    },
+    "XinXin/NewZKMJNICVMP.xinxin": {
+      "sha256": "b61b5c3ba2f051db43f8f69c9620e05005055e6644348af1e4a4e370dbf8215c",
+      "matches_prior": true
+    },
+    "fabric.mod.json": {
+      "sha256": "90056ca6efd12cae1e7d39482a30e897c0a732561c4ba272c9df5116e679643b",
+      "matches_prior": true
+    }
+  }
+}

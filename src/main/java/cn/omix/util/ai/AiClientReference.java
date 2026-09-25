@@ -10,8 +10,7 @@ final class AiClientReference {
     static final List<String> DOCUMENTS = List.of(
             "README.md", "commands.md",
             "modules/combat.md", "modules/exploits.md", "modules/move.md",
-            "modules/player.md", "modules/render.md", "modules/world.md", "ai-tools.md",
-            "rotation-manager.md"
+            "modules/player.md", "modules/render.md", "modules/world.md", "ai-tools.md"
     );
     private static final String RESOURCE_ROOT = "/assets/omix/ai/reference/";
 

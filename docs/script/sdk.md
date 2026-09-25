@@ -273,6 +273,8 @@
 - `cn.omix.event.impl.CobwebEvent` — `public class CobwebEvent extends Event`
 - `cn.omix.event.impl.CobwebEvent` — `public BlockState getState()`
 - `cn.omix.event.impl.CobwebEvent` — `public BlockPos getPos()`
+- `cn.omix.event.impl.HandleInputEvent` — `cn.omix.event.impl.HandleInputEvent`
+- `cn.omix.event.impl.HandleInputEvent` — `public final class HandleInputEvent extends Event`
 - `cn.omix.event.impl.JumpEvent` — `cn.omix.event.impl.JumpEvent`
 - `cn.omix.event.impl.JumpEvent` — `public class JumpEvent extends Event`
 - `cn.omix.event.impl.JumpEvent` — `public float getYaw()`
@@ -470,6 +472,7 @@
 - `cn.omix.management.RotationManager` — `public void onMoveInput(MoveInputEvent e)`
 - `cn.omix.management.RotationManager` — `public void onRotation(RenderRotationEvent e)`
 - `cn.omix.management.RotationManager` — `public static RotationRequest getActiveRequest()`
+- `cn.omix.management.RotationManager` — `public static void release(RotationRequest request)`
 - `cn.omix.management.RotationManager` — `public static boolean isOwner(String owner)`
 - `cn.omix.management.RotationManager` — `public static boolean isRotating()`
 - `cn.omix.management.RotationManager` — `public static float getAppliedYaw(float fallback)`
@@ -701,6 +704,164 @@
 - `cn.omix.util.combat.ReachTeleportState` — `public synchronized Pending<T> peek(Object connection, Object world, Object player)`
 - `cn.omix.util.combat.ReachTeleportState` — `public synchronized Pending<T> take(Object connection, Object world, Object player)`
 - `cn.omix.util.combat.ReachTeleportState` — `public synchronized void clear()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `cn.omix.util.combat.projectile.ProjectileAuraEngine`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public class ProjectileAuraEngine`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public enum Mode`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public enum Hand`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public enum Priority`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public static final class Settings`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings` — `public Mode mode`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings` — `public float range`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings` — `public boolean dynamicDelay`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings` — `public float throwDelayMs`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings` — `public float rodTimeoutMs`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings` — `public boolean requiresKillAura`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings` — `public boolean pauseDuringAttack`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings` — `public boolean silent`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings` — `public boolean hideDynamicDelay()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings` — `public boolean hideThrowDelay()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings` — `public boolean hideRodTimeout()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public record Vec3(double x, double y, double z)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Vec3` — `public Vec3 add(Vec3 b)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Vec3` — `public Vec3 multiply(double d)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Vec3` — `public Vec3 subtract(double a, double b, double c)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Vec3` — `public double distanceTo(Vec3 b)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public static final class Rotation`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Rotation` — `public final float yaw, pitch`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine.Rotation` — `public Rotation(float yaw, float pitch)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public record ProjectileChoice(Hand hand, int slot, boolean rod)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public record AimSolution(Rotation rotation, int closestStep)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public record TrajectoryResult(double missDistance, int closestStep)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public interface Item`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public interface Entity`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public interface Host`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public final Settings settings`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public long lastThrowAt`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public boolean rodOut`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public long rodTimeoutAt`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public long rodFlightDeadline`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public int renderedOriginalSlot`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public int requestedSlot`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public Hand rodHand`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public Entity previousThrowTarget`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public long previousExpectedHitAt`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public ProjectileChoice pendingChoice`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public Entity pendingTarget`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public AimSolution pendingAim`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public Rotation ownedRotation`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public ProjectileAuraEngine(Host host)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public ProjectileAuraEngine(Host host, Settings settings)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public void onDisable()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public void releaseSlotAndRotation(boolean immediate)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public void releaseOwnedRotation()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public void renewRodSlot()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public boolean canContinueProjectileCombat()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public void reelAndRelease()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public void reelRod(boolean release)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public void reelRod(boolean release, boolean immediate)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public Item onRenderHand(Hand hand, Item originalRenderStack)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public void onInput()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public void onUpdate()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public void executePendingThrow()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public void clearPending()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public void cancelPending()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public void cancelPending(boolean immediate)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public boolean prepareSlot(ProjectileChoice choice)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public boolean isSilentSlotActive()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public boolean shouldPauseForAttack()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public boolean canThrowNow(ProjectileChoice choice, Entity target, int flightTicks, long now)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public AimSolution solveAim(Vec3 start, Vec3 predicted, Entity target)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public TrajectoryResult simulateTrajectory(Vec3 start,float yaw,float pitch,Entity target,Vec3 predicted)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public Vec3 predictTargetPosition(Entity entity,Vec3 start)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public Entity getBestTarget()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public ProjectileChoice findProjectile()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public boolean isThrowable(Item item)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public boolean isRod(Item item)`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public boolean isConflictingAction()`
+- `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public boolean isWithinMeleeRange(Entity target)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `cn.omix.util.combat.projectile.ProjectileAuraHost`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public final class ProjectileAuraHost implements ProjectileAuraEngine.Host, IMinecraft`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public static final int ROTATION_PRIORITY`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public ProjectileAuraHost(ProjectileAura module)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean contextChanged()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public void discard()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public void beginUpdate()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public void finishUpdate(Rotation owned)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public void submitRotation(RotationRequestEvent event, Rotation owned)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public long nowMs()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean moduleEnabled()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean playerPresent()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean worldPresent()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean networkPresent()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean interactionManagerPresent()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public Vec3 playerEyePosition()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public double squaredDistanceToPlayer(Entity entity)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public float distanceToPlayer(Entity entity)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public List<Entity> crystalsInPlayerBoxExpandedBy(double blocks)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public List<Entity> worldPlayers()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public Entity killAuraTarget()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean killAuraEnabled()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean killAuraAttacking()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean excludedByEntityPolicy(Entity entity)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean combatTargetPredicate(Entity entity)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean playerCanSee(Entity entity)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean scaffoldEnabled()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean blinkEnabled()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean playerUsingItem()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean externalMovementBusy()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean noSlowBusy()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean crosshairIsEntityHit()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public Entity crosshairEntity()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public Item mainHandItem()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public Item offHandItem()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public Item hotbarItem(int slot)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public int selectedSlot()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean isAllowedEggOrSnowball(Item item)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public float yawBetween(Vec3 from, Vec3 to)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean worldIsAir(int x, int y, int z)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean rayHitsBlock(Vec3 start, Vec3 end)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean requestRotation(Rotation value, double maxTurn, int ticks, Priority priority)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean rotationActive()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public Rotation currentRotation()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public Rotation requestedRotation()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public Priority rotationPriority()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public void setRotationActive(boolean active)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean requestSlot(Object owner, int slot, Priority priority)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public void releaseSlot(Object owner)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public void releaseSlotImmediately(Object owner)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public int originalSlotFor(Object owner)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public boolean ownsSlotRequest(Object owner)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public void flushSlotRelease()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public void interactItem(Hand hand)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public void sendHandSwingPacket(Hand hand)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public Item wrap(ItemStack stack)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public ItemStack unwrap(Item item)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost` — `public static Hand hand(net.minecraft.util.Hand hand)`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost.ItemView` — `public boolean isEmpty()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost.ItemView` — `public boolean isFishingRod()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost.EntityView` — `public Vec3 position()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost.EntityView` — `public Vec3 previousPosition()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost.EntityView` — `public float height()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost.EntityView` — `public boolean isEndCrystal()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost.EntityView` — `public boolean isLiving()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost.EntityView` — `public boolean isRemoved()`
+- `cn.omix.util.combat.projectile.ProjectileAuraHost.EntityView` — `public int hurtTime()`
+- `cn.omix.util.combat.projectile.ProjectileAuraRendering` — `cn.omix.util.combat.projectile.ProjectileAuraRendering`
+- `cn.omix.util.combat.projectile.ProjectileAuraRendering` — `public final class ProjectileAuraRendering implements IMinecraft`
+- `cn.omix.util.combat.projectile.ProjectileAuraRendering` — `public static ItemStack stack(LivingEntity entity, Hand hand, ItemStack original)`
+- `cn.omix.util.combat.projectile.ProjectileItemPolicy` — `cn.omix.util.combat.projectile.ProjectileItemPolicy`
+- `cn.omix.util.combat.projectile.ProjectileItemPolicy` — `public final class ProjectileItemPolicy`
+- `cn.omix.util.combat.projectile.ProjectileItemPolicy` — `public static boolean isWindChargeName(String hoverText)`
+- `cn.omix.util.combat.projectile.ProjectileSlotState` — `cn.omix.util.combat.projectile.ProjectileSlotState`
+- `cn.omix.util.combat.projectile.ProjectileSlotState` — `public final class ProjectileSlotState`
+- `cn.omix.util.combat.projectile.ProjectileSlotState` — `public void observe(int current)`
+- `cn.omix.util.combat.projectile.ProjectileSlotState` — `public void select(int current, int next)`
+- `cn.omix.util.combat.projectile.ProjectileSlotState` — `public int original()`
+- `cn.omix.util.combat.projectile.ProjectileSlotState` — `public boolean owns(int current)`
+- `cn.omix.util.combat.projectile.ProjectileSlotState` — `public void deferRelease()`
+- `cn.omix.util.combat.projectile.ProjectileSlotState` — `public int flush(int current)`
+- `cn.omix.util.combat.projectile.ProjectileSlotState` — `public int release(int current)`
+- `cn.omix.util.combat.projectile.ProjectileSlotState` — `public void clear()`
 - `cn.omix.util.misc.KeyUtil` — `cn.omix.util.misc.KeyUtil`
 - `cn.omix.util.misc.KeyUtil` — `public final class KeyUtil`
 - `cn.omix.util.misc.KeyUtil` — `public static int mouseKeyCode(int button)`

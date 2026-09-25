@@ -22,6 +22,9 @@ Omix 基于 DSJ 的 Remix base，面向 Minecraft 1.21.11 / Fabric 开发。除�
 
 <div align="center">
 
+<h3>Visual</h3>
+<img src="Pictures/2026-09-26_00.49.56.png" alt="Sigma Visual" width="100%">
+
 <h3>ClickGUI</h3>
 <img src="Pictures/2026-07-30_23.23.57.png" alt="Omix ClickGUI" width="100%">
 
@@ -36,6 +39,7 @@ Omix 基于 DSJ 的 Remix base，面向 Minecraft 1.21.11 / Fabric 开发。除�
 ## 核心特色
 
 - **94 个内置模块**：覆盖战斗、协议、移动、玩家、画面与世界交互，支持快捷键和个性化配置。
+- **3 种视觉模式**：我们提供 Remix、Myau、Sigma 三种模式的 Hud，ClickGui，以及其它视觉模块。
 - **游戏内 AI Agent**：在游戏面板或系统浏览器中使用同一个 Harness，管理模型、工作区、会话和插件。
 - **游戏工具接入**：提供 22 个游戏工具与 14 个脚本开发工具，支持状态查询、命令执行、容器交互、数据包观察和脚本开发。
 - **Java 脚本工作台**：内置编辑、模板、编译检查、加载、重载和日志查看，可动态注册自定义 AI 工具。

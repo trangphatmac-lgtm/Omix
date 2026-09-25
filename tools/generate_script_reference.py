@@ -69,7 +69,6 @@ for path in sorted((JAVA/'cn/omix/module/impl').rglob('*.java'), key=lambda p: p
     modes.append(dict(module=name,selector=selector,source=path.relative_to(ROOT).as_posix()))
 write(DOC/'mode-hosts.json',json_text(modes))
 # Export a directly installable skill: references travel with the SKILL.md.
-write(DOC/'rotation-manager.md', (ROOT/'docs/rotation-manager.md').read_text(encoding='utf-8'))
 write(DOC/'game-tools.md', (ROOT/'docs/ai-tools.md').read_text(encoding='utf-8'))
 # Match the game-side Harness reference list, including module and command documentation.
 reference_source = (JAVA/'cn/omix/util/ai/AiClientReference.java').read_text(encoding='utf-8')
@@ -79,7 +78,7 @@ assert reference_names, 'Missing Harness client reference documents'
 write(DOC/'client-reference.md', 'Omix Client source reference (defaults are not live configuration):\n' +
       ''.join('\n--- docs/' + name + ' ---\n' + (ROOT/'docs'/name).read_text(encoding='utf-8') for name in reference_names))
 
-for name in ['README.md','common-knowledge.md','rotation-manager.md','game-tools.md','lifecycle.md','api-guide.md','custom-tools.md','packet-module-control.md','modes.md','tools.md','mcp.md','api.json','mode-hosts.json']:
+for name in ['README.md','common-knowledge.md','game-tools.md','lifecycle.md','api-guide.md','custom-tools.md','packet-module-control.md','modes.md','tools.md','mcp.md','api.json','mode-hosts.json']:
     write(DOC/'omix-script/references'/name,(DOC/name).read_text(encoding='utf-8'))
 for path in (DOC/'examples').glob('*'):
     write(DOC/'omix-script/examples'/path.name,path.read_text(encoding='utf-8'))

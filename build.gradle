@@ -340,7 +340,7 @@ def generateScriptReference = tasks.register("generateScriptReference", Exec) {
     commandLine providers.gradleProperty("pythonExecutable").getOrElse(System.getProperty("os.name").toLowerCase().contains("win") ? "python" : "python3"), "tools/generate_script_reference.py"
     inputs.files(fileTree("src/main/java/cn/omix") { include "script/api/**/*.java", "util/**/*.java", "event/impl/*.java", "module/**/*.java", "management/**/*.java", "fisproxy/**/*.java" })
     inputs.file("tools/generate_script_reference.py")
-    inputs.files("docs/rotation-manager.md", "docs/ai-tools.md", "docs/README.md", "docs/commands.md")
+    inputs.files("docs/ai-tools.md", "docs/README.md", "docs/commands.md")
     inputs.files(fileTree("docs/modules") { include "**/*.md" })
     inputs.dir("docs/script")
     outputs.dir("build/generated/script-docs")
@@ -404,7 +404,7 @@ processResources {
 
     // Ship the user-facing reference verbatim; Agent has no separate documentation copy.
     from("docs") {
-        include "README.md", "commands.md", "ai-tools.md", "rotation-manager.md", "modules/*.md"
+        include "README.md", "commands.md", "ai-tools.md", "rotation-manager.md", "projectileaura.md", "modules/*.md"
         into "assets/omix/ai/reference"
     }
 

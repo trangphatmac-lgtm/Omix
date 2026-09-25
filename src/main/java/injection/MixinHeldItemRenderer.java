@@ -4,6 +4,8 @@ import cn.omix.module.impl.combat.Aura;
 import cn.omix.module.impl.render.Animation;
 import cn.omix.util.IMinecraft;
 import cn.omix.util.player.ItemSpoofUtil;
+import cn.omix.util.combat.projectile.ProjectileAuraRendering;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.item.HeldItemRenderer;
@@ -22,10 +24,25 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(HeldItemRenderer.class)
 public abstract class MixinHeldItemRenderer implements IMinecraft {
+    @ModifyVariable(method = "renderFirstPersonItem", at = @At("HEAD"), argsOnly = true)
+    private ItemStack omix$projectileHand(ItemStack original, AbstractClientPlayerEntity player,
+            float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack stack,
+            float equipProgress, MatrixStack matrices, OrderedRenderCommandQueue queue, int light) {
+        return ProjectileAuraRendering.stack(player, hand, original);
+    }
+
+    @Redirect(method = "updateHeldItems", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/network/ClientPlayerEntity;getMainHandStack()Lnet/minecraft/item/ItemStack;"))
+    private ItemStack omix$projectileEquip(ClientPlayerEntity player) {
+        return ProjectileAuraRendering.stack(player, Hand.MAIN_HAND, player.getMainHandStack());
+    }
+
     @Shadow
     private float equipProgressMainHand;
     @Shadow
@@ -58,7 +75,7 @@ public abstract class MixinHeldItemRenderer implements IMinecraft {
         Animation animation = instance.getModuleManager().getModule(Animation.class);
 
         if (animation.isNativeBehaviorActive() && !animation.equipProgress.getValue()) {
-            ItemStack mainStack = mc.player.getMainHandStack();
+            ItemStack mainStack = ProjectileAuraRendering.stack(mc.player, Hand.MAIN_HAND, mc.player.getMainHandStack());
             ItemStack offStack = mc.player.getOffHandStack();
             this.mainHand = mainStack;
             this.lastEquipProgressMainHand = 1;
@@ -92,6 +109,7 @@ public abstract class MixinHeldItemRenderer implements IMinecraft {
             if (bl) { // Item Spoof
                 ItemStack spoofedSlot = ItemSpoofUtil.getStack();
                 item = spoofedSlot != null ? spoofedSlot : item;
+                item = ProjectileAuraRendering.stack(player, hand, item);
             }
 
             matrices.push();

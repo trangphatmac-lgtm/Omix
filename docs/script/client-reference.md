@@ -3,7 +3,7 @@ Omix Client source reference (defaults are not live configuration):
 --- docs/README.md ---
 # Omix Client 使用参考
 
-本参考依据仓库中实际注册和执行的源码编写，覆盖内置命令、通用模块命令、94 个内置模块，以及 22 个游戏工具和 14 个脚本开发工具。脚本运行时还可动态增加模块、模式与命令。命令拼写和模块名称保留源码原样，介绍使用中文。
+本参考依据仓库中实际注册和执行的源码编写，覆盖内置命令、通用模块命令、99 个内置模块，以及 22 个游戏工具和 14 个脚本开发工具。脚本运行时还可动态增加模块、模式与命令。命令拼写和模块名称保留源码原样，介绍使用中文。
 
 - [命令及每个选项](commands.md)
 - [Combat 战斗模块](modules/combat.md)
@@ -19,6 +19,7 @@ Omix Client source reference (defaults are not live configuration):
 - [外部 MCP 完整游戏工具与连接](script/mcp.md)
 - [Agent 脚本开发技能](script/omix-script/SKILL.md)
 - [RotationManager 开发说明](rotation-manager.md)
+- [ProjectileAura 实现、适配与验证](projectileaura.md)
 
 ## 配置共通规则
 
@@ -51,6 +52,7 @@ Web 和 Node 相关源码统一位于项目根目录 `src-web/`：`webui/`、`mu
 | 子目录 | 辅助类 |
 | --- | --- |
 | `combat/` | `CriticalsLandingPredictor`、`CriticalsTiming`、`MeleeDamagePredictor`、`ReachServerRange`、`ReachTeleportState` |
+| `combat/projectile/` | `ProjectileAuraEngine`、`ProjectileAuraHost`、`ProjectileSlotState`、`ProjectileAuraRendering`、`ProjectileItemPolicy` |
 | `move/` | `PredictionTimerBalance` |
 | `network/` | `PacketLogHooks`、`PacketLogBuffer`、`PacketLogFormatter`、`PacketLogContent`、`PacketLogFilter`、`PacketLogRules`、`PacketLogHistory`（PacketsLogger 的观察桥接、有界内容快照、双向过滤与自定义名单） |
 | `player/blockin/` | `BlockInPlanner` |
@@ -297,6 +299,23 @@ Text、Color、Key 和 MultiBool 父组不支持此命令直接赋值。模块�
 | Rotation Speed | 瞄准转向的最大角度步幅，越大转向越快。 | 数值；默认 180；0–180；步长 5 |
 | MovementFix Mode | None 不修正移动；Silent 和 Strict 在旋转改变时修正移动方向。 | 模式；默认 None；可选 None / Silent / Strict |
 | Ray Cast | 攻击前要求射线检测实际命中目标。 | 布尔；默认 false |
+
+## ProjectileAura
+
+自动使用鸡蛋、雪球或鱼竿：优先选玩家包围盒扩张 8 格内最近的可见末影水晶，其次选 Aura 目标，再选符合 Targets/Teams/AntiBot/好友策略的最近可见玩家；选定后才检查 Range。非水晶在实体距离 ≤3.2 格时立即让出槽位，水晶豁免 Requires KillAura 与近战退出。根据目标当前与上一 tick 的位置预测落点，以固定弹道参数扫描俯仰角；分两次玩家更新完成转向/切槽申请和校验后使用，之后发送挥手包。Auto 先搜完所有鸡蛋/雪球，再搜鱼竿；每种物品均优先副手、当前主手、快捷栏 0–8。排除显示文本含 wind charge（忽略大小写）或风弹的投掷物，普通改名或 Lore 不影响选择。鱼竿单独计时收杆。Scaffold/ScaffoldX、Blink、正在用物品、LongJump 使用阶段、AutoBlockIn 放置和 NoSlowDown Grim 忙状态会暂停。禁用清理申请但不主动收杆；切世界丢弃旧状态。详见 ../projectileaura.md 的移植边界与验证。
+
+源码：`src/main/java/cn/omix/module/impl/combat/ProjectileAura.java`。
+
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| Mode | Egg & Snowball 只选鸡蛋/雪球；Rod 只选鱼竿；Auto 优先鸡蛋/雪球，全部找不到时才选鱼竿。 | 模式；默认 Egg & Snowball；可选 Egg & Snowball / Rod / Auto |
+| Range | 玩家到选定实体位置的最大距离，单位格；不是眼睛到碰撞箱的距离。选定目标超出范围时不会回退尝试其他目标。 | 数值；默认 12；4–30；步长 .1 |
+| Dynamic Delay | 固定 Throw Delay 之外，再比较预计抵达时间与目标 hurtTime，以及同一目标上一发的预计命中时间，避免过早连续命中。鱼竿不受此设置影响。 | 布尔；默认 true；显示条件：非 Mode = Rod |
+| Throw Delay | 两次使用鸡蛋/雪球之间的最小毫秒间隔；动态延迟也使用该间隔约束同目标预计到达时间。鱼竿绕过延迟。 | 数值；默认 500；50–1000；步长 50；显示条件：非 Mode = Rod |
+| Rod Timeout | 抛竿后收杆超时，毫秒；now > 抛竿时间 + Timeout，或 now ≥ 抛竿时间 + 最近轨迹零起始步号×50 +300 时收杆。 | 数值；默认 300；100–1000；步长 10；显示条件：Mode = Rod 或 Mode = Auto |
+| Requires KillAura | 非水晶目标要求 Omix Aura 开启；水晶无需 Aura。保留原版配置名称。 | 布尔；默认 true |
+| Pause During Attack | Aura 开启且当前目标满足其近战攻击条件时暂停；输入阶段立即清理待投掷并收杆/归还槽位，不等待 CPS 或武器冷却。 | 布尔；默认 true |
+| Silent | 临时切槽期间第一、第三人称主手显示原槽位物品；仍实际选择投掷槽并同步服务器。副手或无需切槽时不创建显示伪装。转向始终使用静默请求，与此开关独立。 | 布尔；默认 true |
 
 ## Reach
 
@@ -1549,7 +1568,7 @@ Classic 保留二维框、血条、护甲和姓名；Sigma 移植 Jello 的 Shad
 | Rotation Mode | Normal、Facing、Hit Vec、Nearest、Hypixel 采用不同瞄准点算法；On tick 在移动 tick 应用旋转。 | 模式；默认 Normal；可选 Normal / Facing / Hit Vec / Nearest / Hypixel / On tick |
 | Shrink | 搜索命中点时的边缘收缩量。 | 数值；默认 .1；0–.45；步长 .01；显示条件：Rotation Mode = Nearest 或 Rotation Mode = Hypixel |
 | Rotation Speed | 转向最大角度步幅。 | 数值；默认 180；0–180；步长 5；显示条件：非 Rotation Mode = On tick |
-| Tower Mode | None 不自动搭高；其余为不同搭高运动流程。 | 模式；默认 None；可选 None / Vanilla / NCP / Hypixel |
+| Tower Mode | None 不自动搭高；Vanilla、NCP、Hypixel 使用各自搭高运动流程；HypixelNew 参考 Ravenb4 的 testVertTower 脚本，仅按住跳跃键且水平速度 ≤ 0.01 时生效：落地设置垂直速度 0.41999998688697815，空中垂直速度处于 [-0.09, 0] 时改为 -0.38，保留水平速度。 | 模式；默认 None；可选 None / Vanilla / NCP / Hypixel / HypixelNew |
 | Downwards | 允许向下搭路。 | 布尔；默认 false |
 | Auto Jump | 自动起跳。 | 布尔；默认 false |
 | Sprint | 搭路期间允许疾跑。 | 布尔；默认 false |
@@ -1830,85 +1849,3 @@ Classic 保留二维框、血条、护甲和姓名；Sigma 移植 Jello 的 Shad
 ## Java 脚本开发工具
 
 `script_status/read/write/delete/templates/create/action/job/cancel/logs/api/reference/evaluate/screenshot` 由共用开发服务执行。名称使用完整 script_ 前缀。源码写入/删除必须带 expectedHash；检查、加载、重载返回后台 job。仅 loaded 表示应用成功，checked 仅表示编译通过。脚本资料和编译不要求进入世界；MCP 的 reference/api/templates 离线可读。截图通过 Harness 附件或 MCP image content 返回，避免将 base64 当作文本送入模型。参数、运行代次和开发流程详见 [脚本工具 schema](script/tools.md)。
-
---- docs/rotation-manager.md ---
-# RotationManager 开发说明
-
-RotationManager 不再读取具体模块或维护模块优先级列表。模块在 `RotationRequestEvent` 中提交不可变 `RotationRequest`，管理器统一选择并应用旋转。优先级和策略由请求发送者决定。
-
-## 模块接入
-
-```java
-@EventTarget
-public void onRotationRequest(RotationRequestEvent event) {
-    if (!isEnabled() || mc.player == null || rotations == null) return;
-    event.submit(RotationRequest.builder(getName(), rotations, 400)
-            .speed(180)
-            .silent(true)
-            .movementCorrection(MovementCorrection.Silent)
-            .build());
-}
-```
-
-需要导入 `cn.omix.event.impl.RotationRequestEvent`、`cn.omix.management.rotation.RotationRequest` 和 `cn.omix.management.movement.MovementCorrection`。
-
-模块先在 `LivingUpdateEvent` 计算角度。管理器的监听优先级为 999，在该回调内同步派发 `RotationRequestEvent`，收集完成后立即仲裁并应用。角度计算监听应在此之前执行（事件优先级小于 999）；旋转请求自身的 `priority` 与事件监听的 `@EventPriority` 无关。
-
-每次收集创建新事件，请求仅对这一 tick 生效。下一 tick 不再提交即停止应用旋转；旋转数组缓存仍按旧流程保留到 pre-motion 再恢复镜头角度，避免提前影响放置模块；模块关闭后监听注销，不会在下一轮继续提交。切换世界或玩家/世界为空时清空所有已应用状态。只允许在客户端线程的收集回调中提交，事件完成仲裁后再提交会抛出异常。同一个 owner 在一轮内重复提交会替换此前请求。
-
-## 请求字段
-
-| 字段 | 含义 |
-| --- | --- |
-| `owner` | 稳定且唯一的来源标识，模块使用 `getName()`。 |
-| `yaw / pitch` | 目标角度，单位度；构建时复制数组内的值。必须为有限数值，不强制限制 pitch，以兼容 Derp 的非安全 pitch。 |
-| `priority` | 整数，数值越大越优先；相同时按 owner 的字符串自然顺序选择，避免依赖监听注册顺序。 |
-| `speed` | 默认 180；平滑时使用原有随机微调和鼠标灵敏度处理。未指定 instant 时，0 表示直接应用，正数表示平滑。负数及非有限数值无效。 |
-| `instant` | 可显式覆盖 speed 推导的模式。true 直接应用；false 始终使用原有 `speed + Math.random()` 平滑，包括速度为 0。Aura、Scaffold、ScaffoldX 显式使用 false，保留配置语义。 |
-| `silent` | 默认 true，仅改变发送/渲染的旋转，不主动转动镜头；false 将请求控制的轴同步到镜头。 |
-| `movementCorrection` | 默认 None；可选 Silent、Strict、Prediction。它与 silent 独立：前者控制移动输入，后者控制镜头。 |
-| `axes` | 默认 BOTH；YAW_ONLY 保留镜头 pitch；PITCH_ONLY 从其他请求中选择优先级最高的 yaw 来源，没有来源则使用镜头 yaw。 |
-| `continuousYaw` | 默认 false；将 yaw 转为距离上一次发送角度最近的等价整圈表示，并在释放时保持连续。 |
-
-仲裁先选出一个总优先级最高的请求，使用该请求的速度、silent 和移动修正。仅当赢家是 PITCH_ONLY 时，才借用另一请求的目标 yaw 及连续性标志；低优先级的 pitch 请求不会覆盖高优先级的 BOTH/YAW_ONLY 请求。YAW_ONLY 始终保留镜头 pitch，不继承其他请求的 pitch；平滑阶段仍使用模块最初采样的 pitch 计算角度分配，平滑后再恢复镜头 pitch，与旧流程一致。非 silent 的 PITCH_ONLY 只同步镜头 pitch。
-
-`RotationManager.getActiveRequest()` 可读取获胜请求（无请求时为 null），`isOwner(getName())` 可用于确保交互/数据包修正仍属于本模块。`isRotating()`、`getAppliedYaw(fallback)` 和现有旋转数组保留供消费方使用；消费方不应直接修改这些数组。原 `setRotations(...)` 已移除，新模块通过事件提交即可，无需修改管理器。
-
-## 当前模块策略
-
-| 模块/场景 | 默认优先级 | 特殊策略 |
-| --- | ---: | --- |
-| LongJump 起跳 / 收集 motion | 1200 | 起跳离地上升即开始 Silent 转至镜头 yaw + 180° 和 Target Pitch，并启用 Silent 移动修正；达到高度且旋转到位后发射。交互 tick 固定精确角度，后续 tick 收齐 motion 后释放请求。0 速度立即应用。 |
-| NoFall Grim | 1100 | 立即覆盖 pitch=90，继承 yaw；Derp 服务端旋转活跃时不提交（Client Only 不阻止）。控制窗口内移动包 pitch=90 修正仍独立执行，保留旧行为，不检查仲裁归属。 |
-| ChestArua Manual 待交互 | 1000 | 立即应用，保持 yaw 连续。 |
-| Derp | 900 | 立即应用，silent，无移动修正；Client Only 开启时不提交请求，仅通过 RenderRotationEvent 改变本地模型渲染。 |
-| AntiLava | 800 | 速度 180，移动修正跟随选项。 |
-| AutoBlockIn | 700 | 直接应用已平滑的角度，Silent 移动修正。 |
-| ScaffoldX | 600 | 速度、移动修正由模块提供。 |
-| Scaffold 持续旋转 | 500 | 速度、移动修正由模块提供。 |
-| Aura | 400 | 速度、移动修正由模块提供。 |
-| ChestArua 自动 | 300 | 速度 180，保持 yaw 连续。 |
-| TargetStrafe Legit | 200 | YAW_ONLY、Strict 移动修正，silent 跟随 Silent Aim。 |
-| Speed Prediction | 100 | 立即应用，Prediction 移动修正。 |
-
-这些数值位于各模块的提交代码中，不是新的用户配置项。默认顺序延续原管理器策略。Scaffold 的 On tick 放置事务、NoFall 的其他模式及临时交互发包保持各自现有流程；本接口接管此前由 RotationManager 管理的持续旋转。
-
-## 行为兼容边界
-
-LongJump 的 motion 收集与顶点释放由 `src/main/java/cn/omix/util/LongJumpMotionQueue.java` 管理，模块通过公共接口调用；旋转请求仍由 LongJump 模块提交。
-
-LongJump 首次使用在 `RotationAppliedEvent` 的正常交互阶段使用上一玩家 tick 已发送的旋转，由原版交互管理器同步槽位并右键：Fireball 沿 Silent 角度射线检测交互距离内的方块，再调用 `interactBlock`；Windcharge 调用 `interactItem`。未命中方块时在开启 Timer 前退出并提示。交互走正常发包事件链，临时设置 yaw/pitch，并在 finally 中恢复镜头。
-
-Multi 收到上一发 motion 后，客户端线程直接尝试连续使用；若原生 tick 尚未发出 `CLIENT_TICK_END`，由渲染帧在其结束后继续。只观察原有 tick-end，不创建移动包或额外 tick-end，也不推进玩家、世界或冷却管理器 tick。整个收集过程保持 0.02x，直到收齐 motion 或退出才清除倍率。后续使用按物品冷却组件及服务器冷却包确定真实时间期限，过期后通过原版交互管理器发送交互，即使本地冷却显示仍受慢速 tick 影响。每个续用必须有新的 motion 响应授权，渲染帧仅重试尚未到期的预约，不会连续重复发包。
-
-`LongJumpUseSchedule` 保存上一发的 `LongJumpAim`；收集期间旋转请求、最终 pre-motion 和带转头的发送包均复用这组精确浮点值。Scaffold/ScaffoldX 在收集期间及交互所在 tick 暂停切槽与放置。
-
-保留默认优先顺序、零速平滑、TargetStrafe 的单轴平滑顺序，以及无请求时到 pre-motion 才恢复缓存的时机。NoFall Grim 的发包层 pitch 修正与持续旋转仲裁仍是独立流程。
-
-有意保留的生命周期变化：切换世界或玩家/世界为空时清空旋转状态，避免沿用上一世界的目标角度；Scaffold 的 Nearest/Hypixel 在缓存为空时以当前玩家视角兜底。这一点与旧管理器保留缓存的行为不同。
-
-## 验证
-
-`RotationRequestTest` 覆盖优先级与稳定平局、同来源替换、单轴合成、连续性继承、参数验证、角度快照、显式零速平滑与立即应用的区分，以及真实 EventManager 注销监听后下一 tick 不再收到请求。
-
-兼容性复核还将改造前的管理器与当前管理器、当前模块的请求回调放入隔离桩环境，固定随机增量，对照了 65,536 组模块启停与参数组合，包括 Look/Strafe/Jump/MoveInput/Render/Motion 消费、无请求及释放阶段，结果一致；NoFall Grim 发包回调与改造前文本一致。该对照检查平滑调用参数与调用顺序，未替代真实游戏的鼠标灵敏度、服务器或切世界联调。

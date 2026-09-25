@@ -3,6 +3,7 @@ package injection;
 import cn.omix.util.ai.AiContainerTools;
 import cn.omix.Client;
 import cn.omix.event.impl.RotationAppliedEvent;
+import cn.omix.event.impl.HandleInputEvent;
 import cn.omix.module.impl.move.NoSlowDown;
 import net.minecraft.entity.player.PlayerInventory;
 import cn.omix.event.impl.TickEvent;
@@ -82,6 +83,12 @@ public abstract class MixinMinecraftClient implements IMinecraft {
     private void beforeHandleInputEvents(CallbackInfo ci) {
         if (mc.player == null || mc.world == null) return;
         instance.getEventManager().call(new RotationAppliedEvent());
+    }
+
+    @Inject(method = "handleInputEvents", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z", ordinal = 0))
+    private void omix$projectileInput(CallbackInfo ci) {
+        instance.getEventManager().call(new HandleInputEvent());
     }
 
     @Redirect(method = "handleInputEvents", at = @At(value = "INVOKE",

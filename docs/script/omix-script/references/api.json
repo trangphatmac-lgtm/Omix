@@ -2143,6 +2143,21 @@
     "source": "src/main/java/cn/omix/event/impl/CobwebEvent.java"
   },
   {
+    "owner": "cn.omix.event.impl.HandleInputEvent",
+    "name": "HandleInputEvent",
+    "signature": "cn.omix.event.impl.HandleInputEvent",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/event/impl/HandleInputEvent.java"
+  },
+  {
+    "owner": "cn.omix.event.impl.HandleInputEvent",
+    "name": "Event",
+    "signature": "public final class HandleInputEvent extends Event",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/event/impl/HandleInputEvent.java",
+    "line": 6
+  },
+  {
     "owner": "cn.omix.event.impl.JumpEvent",
     "name": "JumpEvent",
     "signature": "cn.omix.event.impl.JumpEvent",
@@ -3624,11 +3639,19 @@
   },
   {
     "owner": "cn.omix.management.RotationManager",
+    "name": "release",
+    "signature": "public static void release(RotationRequest request)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/management/RotationManager.java",
+    "line": 190
+  },
+  {
+    "owner": "cn.omix.management.RotationManager",
     "name": "isOwner",
     "signature": "public static boolean isOwner(String owner)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 189
+    "line": 197
   },
   {
     "owner": "cn.omix.management.RotationManager",
@@ -3636,7 +3659,7 @@
     "signature": "public static boolean isRotating()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 197
+    "line": 205
   },
   {
     "owner": "cn.omix.management.RotationManager",
@@ -3644,7 +3667,7 @@
     "signature": "public static float getAppliedYaw(float fallback)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 201
+    "line": 209
   },
   {
     "owner": "cn.omix.management.TargetManager",
@@ -5423,6 +5446,1265 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/combat/ReachTeleportState.java",
     "line": 31
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "ProjectileAuraEngine",
+    "signature": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java"
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "ProjectileAuraEngine",
+    "signature": "public class ProjectileAuraEngine",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 6
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "Mode",
+    "signature": "public enum Mode",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "Hand",
+    "signature": "public enum Hand",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "Priority",
+    "signature": "public enum Priority",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 9
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "Settings",
+    "signature": "public static final class Settings",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings",
+    "name": "mode",
+    "signature": "public Mode mode",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings",
+    "name": "range",
+    "signature": "public float range",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings",
+    "name": "dynamicDelay",
+    "signature": "public boolean dynamicDelay",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings",
+    "name": "throwDelayMs",
+    "signature": "public float throwDelayMs",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings",
+    "name": "rodTimeoutMs",
+    "signature": "public float rodTimeoutMs",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings",
+    "name": "requiresKillAura",
+    "signature": "public boolean requiresKillAura",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings",
+    "name": "pauseDuringAttack",
+    "signature": "public boolean pauseDuringAttack",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings",
+    "name": "silent",
+    "signature": "public boolean silent",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings",
+    "name": "hideDynamicDelay",
+    "signature": "public boolean hideDynamicDelay()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings",
+    "name": "hideThrowDelay",
+    "signature": "public boolean hideThrowDelay()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Settings",
+    "name": "hideRodTimeout",
+    "signature": "public boolean hideRodTimeout()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "Vec3",
+    "signature": "public record Vec3(double x, double y, double z)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Vec3",
+    "name": "add",
+    "signature": "public Vec3 add(Vec3 b)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 27
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Vec3",
+    "name": "multiply",
+    "signature": "public Vec3 multiply(double d)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 28
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Vec3",
+    "name": "subtract",
+    "signature": "public Vec3 subtract(double a, double b, double c)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 29
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Vec3",
+    "name": "distanceTo",
+    "signature": "public double distanceTo(Vec3 b)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 30
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "Rotation",
+    "signature": "public static final class Rotation",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 35
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Rotation",
+    "name": "pitch",
+    "signature": "public final float yaw, pitch",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 36
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine.Rotation",
+    "name": "Rotation",
+    "signature": "public Rotation(float yaw, float pitch)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 37
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "ProjectileChoice",
+    "signature": "public record ProjectileChoice(Hand hand, int slot, boolean rod)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 39
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "AimSolution",
+    "signature": "public record AimSolution(Rotation rotation, int closestStep)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 40
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "TrajectoryResult",
+    "signature": "public record TrajectoryResult(double missDistance, int closestStep)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 41
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "Item",
+    "signature": "public interface Item",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 43
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "Entity",
+    "signature": "public interface Entity",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 47
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "Host",
+    "signature": "public interface Host",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 57
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "settings",
+    "signature": "public final Settings settings",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 106
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "lastThrowAt",
+    "signature": "public long lastThrowAt",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 108
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "rodOut",
+    "signature": "public boolean rodOut",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 109
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "rodTimeoutAt",
+    "signature": "public long rodTimeoutAt",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 110
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "rodFlightDeadline",
+    "signature": "public long rodFlightDeadline",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 111
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "renderedOriginalSlot",
+    "signature": "public int renderedOriginalSlot",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 112
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "requestedSlot",
+    "signature": "public int requestedSlot",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 113
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "rodHand",
+    "signature": "public Hand rodHand",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 114
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "previousThrowTarget",
+    "signature": "public Entity previousThrowTarget",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 115
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "previousExpectedHitAt",
+    "signature": "public long previousExpectedHitAt",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 116
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "pendingChoice",
+    "signature": "public ProjectileChoice pendingChoice",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 117
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "pendingTarget",
+    "signature": "public Entity pendingTarget",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 118
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "pendingAim",
+    "signature": "public AimSolution pendingAim",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 119
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "ownedRotation",
+    "signature": "public Rotation ownedRotation",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 120
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "ProjectileAuraEngine",
+    "signature": "public ProjectileAuraEngine(Host host)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 122
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "ProjectileAuraEngine",
+    "signature": "public ProjectileAuraEngine(Host host, Settings settings)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 123
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "onDisable",
+    "signature": "public void onDisable()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 127
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "releaseSlotAndRotation",
+    "signature": "public void releaseSlotAndRotation(boolean immediate)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 134
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "releaseOwnedRotation",
+    "signature": "public void releaseOwnedRotation()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 141
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "renewRodSlot",
+    "signature": "public void renewRodSlot()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 149
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "canContinueProjectileCombat",
+    "signature": "public boolean canContinueProjectileCombat()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 152
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "reelAndRelease",
+    "signature": "public void reelAndRelease()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 163
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "reelRod",
+    "signature": "public void reelRod(boolean release)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 164
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "reelRod",
+    "signature": "public void reelRod(boolean release, boolean immediate)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 165
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "onRenderHand",
+    "signature": "public Item onRenderHand(Hand hand, Item originalRenderStack)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 174
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "onInput",
+    "signature": "public void onInput()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 179
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "onUpdate",
+    "signature": "public void onUpdate()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 185
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "executePendingThrow",
+    "signature": "public void executePendingThrow()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 234
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "clearPending",
+    "signature": "public void clearPending()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 268
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "cancelPending",
+    "signature": "public void cancelPending()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 269
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "cancelPending",
+    "signature": "public void cancelPending(boolean immediate)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 270
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "prepareSlot",
+    "signature": "public boolean prepareSlot(ProjectileChoice choice)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 273
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "isSilentSlotActive",
+    "signature": "public boolean isSilentSlotActive()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 284
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "shouldPauseForAttack",
+    "signature": "public boolean shouldPauseForAttack()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 289
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "canThrowNow",
+    "signature": "public boolean canThrowNow(ProjectileChoice choice, Entity target, int flightTicks, long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 293
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "solveAim",
+    "signature": "public AimSolution solveAim(Vec3 start, Vec3 predicted, Entity target)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 305
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "simulateTrajectory",
+    "signature": "public TrajectoryResult simulateTrajectory(Vec3 start,float yaw,float pitch,Entity target,Vec3 predicted)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 322
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "predictTargetPosition",
+    "signature": "public Vec3 predictTargetPosition(Entity entity,Vec3 start)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 342
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "getBestTarget",
+    "signature": "public Entity getBestTarget()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 359
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "findProjectile",
+    "signature": "public ProjectileChoice findProjectile()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 374
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "isThrowable",
+    "signature": "public boolean isThrowable(Item item)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 391
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "isRod",
+    "signature": "public boolean isRod(Item item)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 392
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "isConflictingAction",
+    "signature": "public boolean isConflictingAction()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 394
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
+    "name": "isWithinMeleeRange",
+    "signature": "public boolean isWithinMeleeRange(Entity target)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraEngine.java",
+    "line": 401
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "ProjectileAuraHost",
+    "signature": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java"
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "IMinecraft",
+    "signature": "public final class ProjectileAuraHost implements ProjectileAuraEngine.Host, IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 38
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "ROTATION_PRIORITY",
+    "signature": "public static final int ROTATION_PRIORITY",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 39
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "ProjectileAuraHost",
+    "signature": "public ProjectileAuraHost(ProjectileAura module)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 51
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "contextChanged",
+    "signature": "public boolean contextChanged()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 53
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "discard",
+    "signature": "public void discard()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 57
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "beginUpdate",
+    "signature": "public void beginUpdate()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 69
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "finishUpdate",
+    "signature": "public void finishUpdate(Rotation owned)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 79
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "submitRotation",
+    "signature": "public void submitRotation(RotationRequestEvent event, Rotation owned)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 87
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "nowMs",
+    "signature": "public long nowMs()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 93
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "moduleEnabled",
+    "signature": "public boolean moduleEnabled()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 94
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "playerPresent",
+    "signature": "public boolean playerPresent()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 95
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "worldPresent",
+    "signature": "public boolean worldPresent()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 96
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "networkPresent",
+    "signature": "public boolean networkPresent()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 97
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "interactionManagerPresent",
+    "signature": "public boolean interactionManagerPresent()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 98
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "playerEyePosition",
+    "signature": "public Vec3 playerEyePosition()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 99
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "squaredDistanceToPlayer",
+    "signature": "public double squaredDistanceToPlayer(Entity entity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 100
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "distanceToPlayer",
+    "signature": "public float distanceToPlayer(Entity entity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 101
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "crystalsInPlayerBoxExpandedBy",
+    "signature": "public List<Entity> crystalsInPlayerBoxExpandedBy(double blocks)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 102
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "worldPlayers",
+    "signature": "public List<Entity> worldPlayers()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 106
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "killAuraTarget",
+    "signature": "public Entity killAuraTarget()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 107
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "killAuraEnabled",
+    "signature": "public boolean killAuraEnabled()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 111
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "killAuraAttacking",
+    "signature": "public boolean killAuraAttacking()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 112
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "excludedByEntityPolicy",
+    "signature": "public boolean excludedByEntityPolicy(Entity entity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 116
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "combatTargetPredicate",
+    "signature": "public boolean combatTargetPredicate(Entity entity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 119
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "playerCanSee",
+    "signature": "public boolean playerCanSee(Entity entity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 120
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "scaffoldEnabled",
+    "signature": "public boolean scaffoldEnabled()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 121
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "blinkEnabled",
+    "signature": "public boolean blinkEnabled()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 122
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "playerUsingItem",
+    "signature": "public boolean playerUsingItem()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 123
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "externalMovementBusy",
+    "signature": "public boolean externalMovementBusy()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 124
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "noSlowBusy",
+    "signature": "public boolean noSlowBusy()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 129
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "crosshairIsEntityHit",
+    "signature": "public boolean crosshairIsEntityHit()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 133
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "crosshairEntity",
+    "signature": "public Entity crosshairEntity()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 134
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "mainHandItem",
+    "signature": "public Item mainHandItem()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 135
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "offHandItem",
+    "signature": "public Item offHandItem()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 136
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "hotbarItem",
+    "signature": "public Item hotbarItem(int slot)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 137
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "selectedSlot",
+    "signature": "public int selectedSlot()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 138
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "isAllowedEggOrSnowball",
+    "signature": "public boolean isAllowedEggOrSnowball(Item item)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 140
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "yawBetween",
+    "signature": "public float yawBetween(Vec3 from, Vec3 to)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 147
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "worldIsAir",
+    "signature": "public boolean worldIsAir(int x, int y, int z)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 150
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "rayHitsBlock",
+    "signature": "public boolean rayHitsBlock(Vec3 start, Vec3 end)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 151
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "requestRotation",
+    "signature": "public boolean requestRotation(Rotation value, double maxTurn, int ticks, Priority priority)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 156
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "rotationActive",
+    "signature": "public boolean rotationActive()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 165
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "currentRotation",
+    "signature": "public Rotation currentRotation()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 166
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "requestedRotation",
+    "signature": "public Rotation requestedRotation()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 170
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "rotationPriority",
+    "signature": "public Priority rotationPriority()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 173
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "setRotationActive",
+    "signature": "public void setRotationActive(boolean active)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 174
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "requestSlot",
+    "signature": "public boolean requestSlot(Object owner, int slot, Priority priority)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 178
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "releaseSlot",
+    "signature": "public void releaseSlot(Object owner)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 184
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "releaseSlotImmediately",
+    "signature": "public void releaseSlotImmediately(Object owner)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 185
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "originalSlotFor",
+    "signature": "public int originalSlotFor(Object owner)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 189
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "ownsSlotRequest",
+    "signature": "public boolean ownsSlotRequest(Object owner)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 190
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "flushSlotRelease",
+    "signature": "public void flushSlotRelease()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 194
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "interactItem",
+    "signature": "public void interactItem(Hand hand)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 207
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "sendHandSwingPacket",
+    "signature": "public void sendHandSwingPacket(Hand hand)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 222
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "wrap",
+    "signature": "public Item wrap(ItemStack stack)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 235
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "unwrap",
+    "signature": "public ItemStack unwrap(Item item)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 236
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost",
+    "name": "hand",
+    "signature": "public static Hand hand(net.minecraft.util.Hand hand)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 237
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost.ItemView",
+    "name": "isEmpty",
+    "signature": "public boolean isEmpty()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 247
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost.ItemView",
+    "name": "isFishingRod",
+    "signature": "public boolean isFishingRod()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 248
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost.EntityView",
+    "name": "position",
+    "signature": "public Vec3 position()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 254
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost.EntityView",
+    "name": "previousPosition",
+    "signature": "public Vec3 previousPosition()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 255
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost.EntityView",
+    "name": "height",
+    "signature": "public float height()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 256
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost.EntityView",
+    "name": "isEndCrystal",
+    "signature": "public boolean isEndCrystal()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 257
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost.EntityView",
+    "name": "isLiving",
+    "signature": "public boolean isLiving()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 258
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost.EntityView",
+    "name": "isRemoved",
+    "signature": "public boolean isRemoved()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 259
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraHost.EntityView",
+    "name": "hurtTime",
+    "signature": "public int hurtTime()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraHost.java",
+    "line": 260
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraRendering",
+    "name": "ProjectileAuraRendering",
+    "signature": "cn.omix.util.combat.projectile.ProjectileAuraRendering",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraRendering.java"
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraRendering",
+    "name": "IMinecraft",
+    "signature": "public final class ProjectileAuraRendering implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraRendering.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileAuraRendering",
+    "name": "stack",
+    "signature": "public static ItemStack stack(LivingEntity entity, Hand hand, ItemStack original)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileAuraRendering.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileItemPolicy",
+    "name": "ProjectileItemPolicy",
+    "signature": "cn.omix.util.combat.projectile.ProjectileItemPolicy",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileItemPolicy.java"
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileItemPolicy",
+    "name": "ProjectileItemPolicy",
+    "signature": "public final class ProjectileItemPolicy",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileItemPolicy.java",
+    "line": 5
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileItemPolicy",
+    "name": "isWindChargeName",
+    "signature": "public static boolean isWindChargeName(String hoverText)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileItemPolicy.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileSlotState",
+    "name": "ProjectileSlotState",
+    "signature": "cn.omix.util.combat.projectile.ProjectileSlotState",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileSlotState.java"
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileSlotState",
+    "name": "ProjectileSlotState",
+    "signature": "public final class ProjectileSlotState",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileSlotState.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileSlotState",
+    "name": "observe",
+    "signature": "public void observe(int current)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileSlotState.java",
+    "line": 9
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileSlotState",
+    "name": "select",
+    "signature": "public void select(int current, int next)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileSlotState.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileSlotState",
+    "name": "original",
+    "signature": "public int original()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileSlotState.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileSlotState",
+    "name": "owns",
+    "signature": "public boolean owns(int current)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileSlotState.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileSlotState",
+    "name": "deferRelease",
+    "signature": "public void deferRelease()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileSlotState.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileSlotState",
+    "name": "flush",
+    "signature": "public int flush(int current)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileSlotState.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileSlotState",
+    "name": "release",
+    "signature": "public int release(int current)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileSlotState.java",
+    "line": 28
+  },
+  {
+    "owner": "cn.omix.util.combat.projectile.ProjectileSlotState",
+    "name": "clear",
+    "signature": "public void clear()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/projectile/ProjectileSlotState.java",
+    "line": 34
   },
   {
     "owner": "cn.omix.util.misc.KeyUtil",
@@ -8153,7 +9435,7 @@
     "signature": "public final class GrimPlusState",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/nofall/GrimPlusState.java",
-    "line": 8
+    "line": 7
   },
   {
     "owner": "cn.omix.util.player.nofall.GrimPlusState",
@@ -8161,7 +9443,7 @@
     "signature": "public GrimPlusState(Host host)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/nofall/GrimPlusState.java",
-    "line": 18
+    "line": 17
   },
   {
     "owner": "cn.omix.util.player.nofall.GrimPlusState",
@@ -8169,7 +9451,7 @@
     "signature": "public void onPlayerUpdate(PlayerUpdateEvent event)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/nofall/GrimPlusState.java",
-    "line": 22
+    "line": 21
   },
   {
     "owner": "cn.omix.util.player.nofall.GrimPlusState",
@@ -8177,7 +9459,7 @@
     "signature": "public void onMotion(MotionEvent event)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/nofall/GrimPlusState.java",
-    "line": 29
+    "line": 28
   },
   {
     "owner": "cn.omix.util.player.nofall.GrimPlusState",
@@ -8185,7 +9467,7 @@
     "signature": "public void onInput(MoveInputEvent event)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/nofall/GrimPlusState.java",
-    "line": 43
+    "line": 42
   },
   {
     "owner": "cn.omix.util.player.nofall.GrimPlusState",
@@ -8193,7 +9475,7 @@
     "signature": "public void onDisable()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/nofall/GrimPlusState.java",
-    "line": 58
+    "line": 57
   },
   {
     "owner": "cn.omix.util.player.nofall.GrimPlusState",
@@ -8201,7 +9483,7 @@
     "signature": "public static boolean triggeredRecently()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/nofall/GrimPlusState.java",
-    "line": 67
+    "line": 66
   },
   {
     "owner": "cn.omix.util.player.nofall.GrimPlusState",
@@ -8209,7 +9491,7 @@
     "signature": "public interface Host",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/nofall/GrimPlusState.java",
-    "line": 79
+    "line": 78
   },
   {
     "owner": "cn.omix.util.player.noslow.GrimNoSlowPackets",

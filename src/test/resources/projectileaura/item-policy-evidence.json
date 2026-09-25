@@ -1,0 +1,20 @@
+{
+  "classKey": 62375746350356,
+  "predicate": "i1ilil1iiiii.lillliillli",
+  "excludedItem": "WIND_CHARGE",
+  "nameAccessor": "toHoverableText",
+  "nameContains": [
+    {
+      "token": 17277,
+      "seed": 1949435942080187696,
+      "index": 13,
+      "plaintext": "wind charge"
+    },
+    {
+      "token": 14907,
+      "seed": 470830020337005684,
+      "index": 15,
+      "plaintext": "风弹"
+    }
+  ]
+}

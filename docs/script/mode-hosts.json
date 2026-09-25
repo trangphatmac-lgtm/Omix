@@ -55,6 +55,11 @@
     "source": "src/main/java/cn/omix/module/impl/combat/Offhand.java"
   },
   {
+    "module": "ProjectileAura",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/combat/ProjectileAura.java"
+  },
+  {
     "module": "Reach",
     "selector": "Mode",
     "source": "src/main/java/cn/omix/module/impl/combat/Reach.java"

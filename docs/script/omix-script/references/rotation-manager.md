@@ -40,6 +40,8 @@ public void onRotationRequest(RotationRequestEvent event) {
 
 `RotationManager.getActiveRequest()` 可读取获胜请求（无请求时为 null），`isOwner(getName())` 可用于确保交互/数据包修正仍属于本模块。`isRotating()`、`getAppliedYaw(fallback)` 和现有旋转数组保留供消费方使用；消费方不应直接修改这些数组。原 `setRotations(...)` 已移除，新模块通过事件提交即可，无需修改管理器。
 
+`RotationManager.release(request)` 只在 `request` 与当前获胜请求为同一对象时撤销控制，保留角度缓存至正常 pre-motion。ProjectileAura 用它实现取消/投掷后的及时释放，避免清除其他模块已经抢占的请求；未获胜或过期的请求不会影响管理器。
+
 ## 当前模块策略
 
 | 模块/场景 | 默认优先级 | 特殊策略 |
@@ -52,6 +54,7 @@ public void onRotationRequest(RotationRequestEvent event) {
 | AutoBlockIn | 700 | 直接应用已平滑的角度，Silent 移动修正。 |
 | ScaffoldX | 600 | 速度、移动修正由模块提供。 |
 | Scaffold 持续旋转 | 500 | 速度、移动修正由模块提供。 |
+| ProjectileAura | 450 | 速度 180，静默、无移动修正；保留同一请求对象至下一次玩家更新，最多续交两个更新周期。执行前要求请求身份仍相同；交互期间临时应用已仲裁角度并在 finally 恢复镜头。 |
 | Aura | 400 | 速度、移动修正由模块提供。 |
 | ChestArua 自动 | 300 | 速度 180，保持 yaw 连续。 |
 | TargetStrafe Legit | 200 | YAW_ONLY、Strict 移动修正，silent 跟随 Silent Aim。 |

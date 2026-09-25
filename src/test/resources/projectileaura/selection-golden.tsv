@@ -1,0 +1,54 @@
+select	Egg & Snowball	true		null
+select	Egg & Snowball	true	off=egg	OFF_HAND,-1,false
+select	Egg & Snowball	true	off=rod	null
+select	Egg & Snowball	true	2=egg	MAIN_HAND,2,false
+select	Egg & Snowball	true	2=rod	null
+select	Egg & Snowball	true	0=egg,8=rod	MAIN_HAND,0,false
+select	Egg & Snowball	true	0=rod,8=egg	MAIN_HAND,8,false
+select	Egg & Snowball	true	off=rod,8=egg	MAIN_HAND,8,false
+select	Egg & Snowball	true	off=egg,2=egg,0=egg	OFF_HAND,-1,false
+select	Egg & Snowball	true	2=egg,0=egg	MAIN_HAND,2,false
+select	Egg & Snowball	true	off=rod,2=rod,0=rod	null
+select	Egg & Snowball	true	2=rod,0=rod	null
+select	Egg & Snowball	true	off=egg,2=rod	OFF_HAND,-1,false
+select	Egg & Snowball	true	off=rod,2=egg	MAIN_HAND,2,false
+select	Egg & Snowball	false	off=egg,0=rod	null
+select	Rod	true		null
+select	Rod	true	off=egg	null
+select	Rod	true	off=rod	OFF_HAND,-1,true
+select	Rod	true	2=egg	null
+select	Rod	true	2=rod	MAIN_HAND,2,true
+select	Rod	true	0=egg,8=rod	MAIN_HAND,8,true
+select	Rod	true	0=rod,8=egg	MAIN_HAND,0,true
+select	Rod	true	off=rod,8=egg	OFF_HAND,-1,true
+select	Rod	true	off=egg,2=egg,0=egg	null
+select	Rod	true	2=egg,0=egg	null
+select	Rod	true	off=rod,2=rod,0=rod	OFF_HAND,-1,true
+select	Rod	true	2=rod,0=rod	MAIN_HAND,2,true
+select	Rod	true	off=egg,2=rod	MAIN_HAND,2,true
+select	Rod	true	off=rod,2=egg	OFF_HAND,-1,true
+select	Rod	false	off=egg,0=rod	null
+select	Auto	true		null
+select	Auto	true	off=egg	OFF_HAND,-1,false
+select	Auto	true	off=rod	OFF_HAND,-1,true
+select	Auto	true	2=egg	MAIN_HAND,2,false
+select	Auto	true	2=rod	MAIN_HAND,2,true
+select	Auto	true	0=egg,8=rod	MAIN_HAND,0,false
+select	Auto	true	0=rod,8=egg	MAIN_HAND,8,false
+select	Auto	true	off=rod,8=egg	MAIN_HAND,8,false
+select	Auto	true	off=egg,2=egg,0=egg	OFF_HAND,-1,false
+select	Auto	true	2=egg,0=egg	MAIN_HAND,2,false
+select	Auto	true	off=rod,2=rod,0=rod	OFF_HAND,-1,true
+select	Auto	true	2=rod,0=rod	MAIN_HAND,2,true
+select	Auto	true	off=egg,2=rod	OFF_HAND,-1,false
+select	Auto	true	off=rod,2=egg	MAIN_HAND,2,false
+select	Auto	false	off=egg,0=rod	null
+lambda_new_0	Egg & Snowball	true		false
+lambda_new_1	Egg & Snowball	true		false
+lambda_new_2	Egg & Snowball	true		true
+lambda_new_0	Rod	true		true
+lambda_new_1	Rod	true		true
+lambda_new_2	Rod	true		false
+lambda_new_0	Auto	true		false
+lambda_new_1	Auto	true		false
+lambda_new_2	Auto	true		false
