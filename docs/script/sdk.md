@@ -341,6 +341,8 @@
 - `cn.omix.event.impl.PlayerPositionLookEvent` — `cn.omix.event.impl.PlayerPositionLookEvent`
 - `cn.omix.event.impl.PlayerPositionLookEvent` — `public final class PlayerPositionLookEvent extends Event`
 - `cn.omix.event.impl.PlayerPositionLookEvent` — `public Vec3d getPosition()`
+- `cn.omix.event.impl.PlayerUpdateEvent` — `cn.omix.event.impl.PlayerUpdateEvent`
+- `cn.omix.event.impl.PlayerUpdateEvent` — `public final class PlayerUpdateEvent extends Event`
 - `cn.omix.event.impl.Render2DEvent` — `cn.omix.event.impl.Render2DEvent`
 - `cn.omix.event.impl.Render2DEvent` — `public class Render2DEvent extends Event`
 - `cn.omix.event.impl.Render2DEvent` — `public DrawContext getContext()`
@@ -1043,6 +1045,15 @@
 - `cn.omix.util.player.chest.ChestScreenState` — `public boolean deferClose(int syncId)`
 - `cn.omix.util.player.chest.ChestScreenState` — `public boolean shouldClose(int syncId)`
 - `cn.omix.util.player.chest.ChestScreenState` — `public void reset()`
+- `cn.omix.util.player.nofall.GrimPlusState` — `cn.omix.util.player.nofall.GrimPlusState`
+- `cn.omix.util.player.nofall.GrimPlusState` — `public final class GrimPlusState`
+- `cn.omix.util.player.nofall.GrimPlusState` — `public GrimPlusState(Host host)`
+- `cn.omix.util.player.nofall.GrimPlusState` — `public void onPlayerUpdate(PlayerUpdateEvent event)`
+- `cn.omix.util.player.nofall.GrimPlusState` — `public void onMotion(MotionEvent event)`
+- `cn.omix.util.player.nofall.GrimPlusState` — `public void onInput(MoveInputEvent event)`
+- `cn.omix.util.player.nofall.GrimPlusState` — `public void onDisable()`
+- `cn.omix.util.player.nofall.GrimPlusState` — `public static boolean triggeredRecently()`
+- `cn.omix.util.player.nofall.GrimPlusState` — `public interface Host`
 - `cn.omix.util.player.noslow.GrimNoSlowPackets` — `cn.omix.util.player.noslow.GrimNoSlowPackets`
 - `cn.omix.util.player.noslow.GrimNoSlowPackets` — `public final class GrimNoSlowPackets`
 - `cn.omix.util.player.noslow.GrimNoSlowPackets` — `public boolean allowsNoSlow()`
@@ -1080,6 +1091,7 @@
 - `cn.omix.util.player.noslow.GrimNoSlowState` — `public void abortActive()`
 - `cn.omix.util.player.noslow.GrimNoSlowState` — `public void discardSession()`
 - `cn.omix.util.player.noslow.GrimNoSlowState` — `public boolean isBuffering()`
+- `cn.omix.util.player.noslow.GrimNoSlowState` — `public boolean isActivePhase()`
 - `cn.omix.util.player.noslow.GrimNoSlowState` — `public Hand getUseHand()`
 - `cn.omix.util.player.noslow.GrimNoSlowState` — `public boolean shouldLockHotbar()`
 - `cn.omix.util.player.noslow.GrimNoSlowState` — `public boolean shouldBlockUseAfterInventoryClick()`

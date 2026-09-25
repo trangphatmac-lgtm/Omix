@@ -260,6 +260,11 @@ public final class GrimNoSlowState {
         return buffering;
     }
 
+    /** Original NoFall guard includes recovery/preparation phases, not just slowdown removal. */
+    public boolean isActivePhase() {
+        return state != State.NONE || activeNoSlow;
+    }
+
     public Hand getUseHand() {
         return useHand;
     }

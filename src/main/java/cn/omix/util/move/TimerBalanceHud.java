@@ -17,7 +17,6 @@ import org.lwjgl.glfw.GLFW;
 
 import java.awt.Color;
 
-/** Omix rendering and persistent chat-drag adapter for the recovered HUD calls. */
 public final class TimerBalanceHud implements TimerBalance.DragPosition, TimerBalance.HudRenderer, IMinecraft {
     private final NumberValue positionX;
     private final NumberValue positionY;

@@ -9,6 +9,7 @@ import cn.omix.event.impl.MotionEvent;
 import cn.omix.event.impl.MoveInputEvent;
 import cn.omix.event.impl.PacketEvent;
 import cn.omix.event.impl.PlayerPositionLookEvent;
+import cn.omix.event.impl.PlayerUpdateEvent;
 import cn.omix.event.impl.TickEvent;
 import cn.omix.event.impl.UpdateEvent;
 import cn.omix.event.impl.WorldEvent;
@@ -21,6 +22,7 @@ import cn.omix.util.misc.TimerSpeedUtil;
 import cn.omix.util.misc.TimerUtil;
 import cn.omix.util.network.PacketUtil;
 import cn.omix.util.player.RayCastUtil;
+import cn.omix.util.player.nofall.GrimPlusState;
 import injection.accessor.LivingEntityAccessor;
 import injection.accessor.PlayerMoveC2SPacketAccessor;
 import net.minecraft.block.Blocks;
@@ -67,21 +69,36 @@ public final class NoFall extends Module {
             "MLG",
             "Grim",
             "Grim2",
+            "GrimPlus",
             "Heypixel"
     );
     private final NumberValue distance = new NumberValue("Distance", 3.0F, 0.0F, 20.0F, 0.5F,
-            () -> !mode.is("Grim2") && !mode.is("Heypixel"));
+            () -> !mode.is("Grim2") && !mode.is("GrimPlus") && !mode.is("Heypixel"));
     private final NumberValue delay = new NumberValue("Delay", 0, 0, 10000, 50,
             () -> !mode.is("NoGround")
                     && !mode.is("CubeCraft Reduce")
                     && !mode.is("MLG")
                     && !mode.is("Grim")
                     && !mode.is("Grim2")
+                    && !mode.is("GrimPlus")
                     && !mode.is("Heypixel"));
     private final BoolValue rotation = new BoolValue("Rotation", false, () -> mode.is("MLG"));
     private final BoolValue newestGrim = new BoolValue("Newest Grim, may flag the anticheat", false,
             () -> mode.is("Grim2"));
     private final TimerUtil packetDelayTimer = new TimerUtil();
+    private final GrimPlusState grimPlus = new GrimPlusState(new GrimPlusState.Host() {
+        @Override public double fallDistance() { return mc.player.fallDistance; }
+        @Override public boolean playerOnGround() { return mc.player.isOnGround(); }
+        @Override public boolean horizontalCollision() { return mc.player.horizontalCollision; }
+        @Override public boolean noSlowActivePhase() {
+            NoSlowDown noSlow = getModule(NoSlowDown.class);
+            return noSlow != null && noSlow.isGrimActivePhase();
+        }
+        @Override public long currentTimeMillis() { return System.currentTimeMillis(); }
+        @Override public void sendGroundPacket(boolean onGround, boolean horizontalCollision) {
+            PacketUtil.sendPacket(new PlayerMoveC2SPacket.OnGroundOnly(onGround, horizontalCollision));
+        }
+    });
 
     private boolean slowFalling;
     private boolean blinking;
@@ -146,6 +163,7 @@ public final class NoFall extends Module {
 
     @Override
     public void onDisable() {
+        grimPlus.onDisable();
         resetState(true);
         activeMode = null;
     }
@@ -168,7 +186,7 @@ public final class NoFall extends Module {
             handleReferencePacket(event);
         }
         if (event.getType() == PacketEvent.Type.Received && event.getPacket() instanceof PlayerPositionLookS2CPacket) {
-            if (!mode.is("Grim") && !mode.is("Grim2") && !mode.is("Heypixel")) {
+            if (!mode.is("Grim") && !mode.is("Grim2") && !mode.is("GrimPlus") && !mode.is("Heypixel")) {
                 resetState(true);
             }
             return;
@@ -366,6 +384,31 @@ public final class NoFall extends Module {
         grimPosAtTickStart = null;
         grimOnGroundAtTickStart = false;
         grimHorizontalCollisionAtTickStart = false;
+    }
+
+    @EventTarget
+    public void onGrimPlusPlayerUpdate(PlayerUpdateEvent event) {
+        if (mc.player == null) return;
+        syncModeState();
+        if (mode.is("GrimPlus")) grimPlus.onPlayerUpdate(event);
+    }
+
+    @EventTarget
+    public void onGrimPlusMotion(MotionEvent event) {
+        if (mc.player == null) return;
+        if (event.isPre()) syncModeState();
+        if (mode.is("GrimPlus")) grimPlus.onMotion(event);
+    }
+
+    @EventTarget
+    public void onGrimPlusInput(MoveInputEvent event) {
+        if (mc.player == null) return;
+        syncModeState();
+        if (mode.is("GrimPlus")) grimPlus.onInput(event);
+    }
+
+    public static boolean isGrimPlusTriggeredRecently() {
+        return GrimPlusState.triggeredRecently();
     }
 
     private boolean usesReferenceMode() {
@@ -1297,6 +1340,7 @@ public final class NoFall extends Module {
     private void syncModeState() {
         String selectedMode = mode.getValue();
         if (activeMode != null && !activeMode.equalsIgnoreCase(selectedMode)) {
+            if (activeMode.equalsIgnoreCase("GrimPlus")) grimPlus.onDisable();
             resetState(true);
         }
         activeMode = selectedMode;

@@ -2,12 +2,6 @@ package cn.omix.util.move;
 
 import java.awt.Color;
 
-/**
- * Semantic reconstruction of NewZKMJNIC.ilill11liiii from the supplied JAR.
- * Float arithmetic, branch ordering and HUD calls follow the supplied reverse
- * engineering reference. Host and HudRenderer adapt it to Omix; obfuscation
- * guards and string decryption are outside this behavioral model.
- */
 public final class TimerBalance {
     public static final Color PANEL = new Color(28, 27, 31, 220); // x
     public static final Color TRACK = new Color(73, 69, 79, 100); // c
@@ -15,7 +9,6 @@ public final class TimerBalance {
     public static final Color PERCENT = new Color(202, 196, 208);// t
     public static final float WIDTH = 140.0f, HEIGHT = 32.0f;
 
-    /** Values are supplied by the framework's settings UI/configuration layer. */
     public static final class Settings {
         public String mode = "Balance";        // C
         public String releaseButton = "Middle";// F
@@ -35,25 +28,20 @@ public final class TimerBalance {
         boolean hasPlayer();
         boolean isTimerEnabled();
         boolean isLongJumpEnabled();
-        /** True exactly when KillAura.m != null; no enabled-state test is added. */
         boolean hasKillAuraTarget();
         boolean forwardPressed();
         boolean backPressed();
         boolean leftPressed();
         boolean rightPressed();
-        /** Raw GLFW result: 1 means pressed. Uses the Minecraft window handle. */
         int mouseButtonState(int glfwButtonIndex);
         float scaledWindowWidth();
         float scaledWindowHeight();
         DragPosition createDrag(String id, float initialX, float initialY);
-        /** Supplies this module's multiplier; the host owns global arbitration. */
         void setTimerMultiplier(float multiplier);
         Color themeColor();
-        /** The original superclass onDisable call, after multiplier reset. */
         void baseOnDisable();
     }
 
-    /** These methods correspond to the original shared rendering helpers. */
     public interface HudRenderer {
         void save();
         void restore();
@@ -84,7 +72,6 @@ public final class TimerBalance {
     public float displayedRatio() { return displayedRatio; }
     public float opacity() { return opacity; }
 
-    /** Called for li1ilii1iiii, emitted from the local player's tick mixin. */
     public void onPlayerUpdate() {
         if (!host.hasPlayer()) return;
 
@@ -118,7 +105,6 @@ public final class TimerBalance {
         }
     }
 
-    /** Despite its label, "Release Button" means hold-to-spend, not mouse-up. */
     public boolean isReleaseButtonPressed() {
         int button = switch (settings.releaseButton) {
             case "Side 1" -> 3;
@@ -128,7 +114,6 @@ public final class TimerBalance {
         return host.mouseButtonState(button) == 1;
     }
 
-    /** Called for iili1iiiiiii. Retains every original draw call and threshold. */
     public void onRender(HudRenderer renderer) {
         if (!"Balance".equalsIgnoreCase(settings.mode)) return;
         // Keep the original comparison direction (including float NaN behavior).
@@ -171,14 +156,12 @@ public final class TimerBalance {
         renderer.restore();
     }
 
-    /** llliilliiiii's shared alpha helper, also recovered from the sample. */
     public static Color alpha(Color color, float multiplier) {
         multiplier = Math.min(1.0f, Math.max(0.0f, multiplier));
         return new Color(color.getRed(), color.getGreen(), color.getBlue(),
                          (int)(color.getAlpha() * multiplier));
     }
 
-    /** No balance/HUD reset exists here; the superclass owns lifecycle wiring. */
     public void onDisable() {
         host.setTimerMultiplier(1.0f);
         host.baseOnDisable();

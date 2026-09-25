@@ -11,6 +11,19 @@ import static cn.omix.util.player.noslow.GrimNoSlowState.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GrimNoSlowStateTest {
+    @Test
+    void noFallGuardCoversEveryActivePhaseAndTheIndependentFlag() {
+        for (State phase : State.values()) {
+            flow.state = phase;
+            flow.activeNoSlow = false;
+            assertEquals(phase != State.NONE, flow.isActivePhase(), phase.name());
+            flow.activeNoSlow = true;
+            assertTrue(flow.isActivePhase(), phase.name());
+        }
+        flow.discardState();
+        assertFalse(flow.isActivePhase());
+    }
+
     private static final Item EMPTY = item(true, ItemType.OTHER, Action.OTHER, false, false);
     private static final Item FOOD = item(false, ItemType.OTHER, Action.OTHER, true, false);
     private static final Item BOW = item(false, ItemType.BOW, Action.BOW, false, false);

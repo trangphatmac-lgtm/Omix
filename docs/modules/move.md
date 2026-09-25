@@ -195,13 +195,15 @@
 
 按所选模式处理下落、落地标记或水桶落地，尝试减少摔落伤害。Grim2 与 Heypixel 使用参考代码的独立累计下落距离，并在模式处理之后更新。Grim2 落地时取消常规移动包、发送落地标志包，受击条件满足后补跳；参考代码未实际入队或取消接收包，此处同样不做收包缓存。Heypixel 预测脚下实心方块后进入偏移状态，每 tick 将垂直速度归零、报告未落地并下移 0.098F；位置修正仅结束偏移，下一次未取消的跳跃才释放按键，普通跳跃与疾跑跳跃均可触发释放。关闭、切换模式或换世界时清理状态并恢复实际跳跃按键。Grim 的静默朝下旋转以优先级 1100 提交 pitch 覆盖请求，继承其他请求的 yaw；Derp 正在进行服务端旋转时不提交（Client Only 不阻止）。Grim 控制窗口内的移动包 pitch=90 修正保留原有独立行为，不受旋转请求是否获胜影响。
 
+GrimPlus 移植提供的 NoFall 逆向状态机：使用上一轮 PRE 采样的原生 fallDistance ≥ 3，在落地且 NoSlow 无活动阶段时先将当前移动事件改为未落地、再补发落地包，随后取消一次玩家更新，下一次输入冻结水平移动并请求跳跃。执行细节、生命周期与验证范围见 [GrimPlus 实现说明](../modules/nofall-grimplus.md)。
+
 源码：`src/main/java/cn/omix/module/impl/move/NoFall.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Packet 发送落地包；Blink 暂存落下过程；NoGround 报告未落地；Spoof 修改落地标志；CubeCraft Reduce 专用减伤；MLG 水桶落地与回收；Grim 专用落地恢复流程；Grim2 按 GrimServer19 参考实现处理落地与受击跳跃；Heypixel 下落偏移并在位置修正后跳跃。 | 模式；默认 Packet；可选 Packet / Blink / NoGround / Spoof / CubeCraft Reduce / MLG / Grim / Grim2 / Heypixel |
-| Distance | 触发保护时的下落距离阈值，单位方块；Grim2 与 Heypixel 按参考代码固定为累计下落距离大于 3，不使用此设置。 | 数值；默认 3.0；0.0–20.0；步长 0.5；显示条件：非 Mode = Grim2 且 非 Mode = Heypixel |
-| Delay | 允许使用延迟的模式中，两次保护之间的间隔，单位毫秒。 | 数值；默认 0；0–10000；步长 50；显示条件：非 Mode = NoGround 且 非 Mode = CubeCraft Reduce 且 非 Mode = MLG 且 非 Mode = Grim 且 非 Mode = Grim2 且 非 Mode = Heypixel |
+| Mode | Packet 发送落地包；Blink 暂存落下过程；NoGround 报告未落地；Spoof 修改落地标志；CubeCraft Reduce 专用减伤；MLG 水桶落地与回收；Grim 专用落地恢复流程；Grim2 按 GrimServer19 参考实现处理落地与受击跳跃；GrimPlus 按提供的逆向实现协调落地标志、更新取消与一次跳跃输入；Heypixel 下落偏移并在位置修正后跳跃。 | 模式；默认 Packet；可选 Packet / Blink / NoGround / Spoof / CubeCraft Reduce / MLG / Grim / Grim2 / GrimPlus / Heypixel |
+| Distance | 触发保护时的下落距离阈值，单位方块；Grim2 与 Heypixel 固定为累计下落距离大于 3；GrimPlus 固定为上一轮 PRE 的原生 fallDistance ≥ 3。这三个模式不使用此设置。 | 数值；默认 3.0；0.0–20.0；步长 0.5；显示条件：非 Mode = Grim2 且 非 Mode = GrimPlus 且 非 Mode = Heypixel |
+| Delay | 允许使用延迟的模式中，两次保护之间的间隔，单位毫秒。 | 数值；默认 0；0–10000；步长 50；显示条件：非 Mode = NoGround 且 非 Mode = CubeCraft Reduce 且 非 Mode = MLG 且 非 Mode = Grim 且 非 Mode = Grim2 且 非 Mode = GrimPlus 且 非 Mode = Heypixel |
 | Rotation | MLG 使用旋转瞄准放水位置。 | 布尔；默认 false；显示条件：Mode = MLG |
 | Newest Grim, may flag the anticheat | Grim2 的参考选项，默认关闭；开启时落地先发送 Y + 0.01 的落地位置包，并在离地第 9 tick、距位置修正超过 200 tick、距地面大于 5 格时预测 10 tick 的垂直速度。该选项可能触发反作弊。 | 布尔；默认 false；显示条件：Mode = Grim2 |
 

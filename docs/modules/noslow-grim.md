@@ -49,6 +49,8 @@
 
 ## 代码与兼容边界
 
+NoFall GrimPlus 通过 `isGrimActivePhase()` 查询本模式准备、使用及恢复阶段（`state != NONE || activeNoSlow`），这些阶段阻止新的 GrimPlus 落地触发。只开启 NoSlowDown 或尚未收到解除减速元数据都不能替代此阶段判断；详情见 [GrimPlus 实现说明](nofall-grimplus.md)。
+
 Minecraft 适配由 `src/main/java/cn/omix/module/impl/move/NoSlowDown.java` 承接。按仓库 AGENTS.md 约定，状态机、包策略与队列位于 `src/main/java/cn/omix/util/player/noslow/`，相应测试位于 `src/test/java/cn/omix/util/player/noslow/`。
 
 项目没有原客户端 CRITICAL 槽位仲裁器、多 owner 队列、Stuck、Helper、AntiWeb、外部 use guard 和 ViaFabricPlus 协议查询服务。槽位通过原版同步入口及输入拦截锁定；Scaffold、AutoBlockIn 鼠标接管、NoFall Grim 控制窗口、死亡/旁观/骑乘、主手水桶下落超过 3 格等条件会阻止特殊流程。实现面向项目原生 Minecraft 1.21.11 协议，并非原客户端完整运行环境的逐包复刻。

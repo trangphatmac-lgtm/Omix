@@ -59,7 +59,8 @@ public class Scaffold extends Module {
             "None",
             "Vanilla",
             "NCP",
-            "Hypixel"
+            "Hypixel",
+            "HypixelNew"
     );
     public static BoolValue downwards = new BoolValue("Downwards", false);
     private final BoolValue autoJump = new BoolValue("Auto Jump", false);
@@ -267,8 +268,26 @@ public class Scaffold extends Module {
                 yield false;
             }
             case "Hypixel" -> updateHypixelTower();
+            case "HypixelNew" -> {
+                resetTowerState();
+                updateHypixelNewTower();
+                yield false;
+            }
             default -> false;
         };
+    }
+
+    private void updateHypixelNewTower() {
+        Vec3d velocity = mc.player.getVelocity();
+        double horizontalSpeed = Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
+        if (horizontalSpeed > 0.01) return;
+
+        // Match testVertTower's grounded jump and near-apex downward acceleration.
+        if (mc.player.isOnGround()) {
+            setVelocityY(0.41999998688697815);
+        } else if (velocity.y <= 0.0 && velocity.y >= -0.09) {
+            setVelocityY(-0.38);
+        }
     }
 
     private boolean updateHypixelTower() {

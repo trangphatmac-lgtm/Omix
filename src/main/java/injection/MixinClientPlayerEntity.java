@@ -93,6 +93,19 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
         omix$swapFreecamInput();
     }
 
+    @Inject(method = "tick", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/network/AbstractClientPlayerEntity;tick()V"),
+            cancellable = true, require = 1)
+    private void omix$beforePlayerUpdate(CallbackInfo ci) {
+        PlayerUpdateEvent event = new PlayerUpdateEvent();
+        Client.instance.getEventManager().call(event);
+        if (event.isCancelled()) {
+            ChestScreenGuard.playerTickCompleted();
+            omix$restoreFreecamInput();
+            ci.cancel();
+        }
+    }
+
     @Inject(method = "tick", at = @At("RETURN"))
     private void omix$restoreFreecamInput(CallbackInfo ci) {
         ChestScreenGuard.playerTickCompleted();

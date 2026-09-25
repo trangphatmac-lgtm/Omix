@@ -45,7 +45,7 @@
 | Rotation Mode | Normal、Facing、Hit Vec、Nearest、Hypixel 采用不同瞄准点算法；On tick 在移动 tick 应用旋转。 | 模式；默认 Normal；可选 Normal / Facing / Hit Vec / Nearest / Hypixel / On tick |
 | Shrink | 搜索命中点时的边缘收缩量。 | 数值；默认 .1；0–.45；步长 .01；显示条件：Rotation Mode = Nearest 或 Rotation Mode = Hypixel |
 | Rotation Speed | 转向最大角度步幅。 | 数值；默认 180；0–180；步长 5；显示条件：非 Rotation Mode = On tick |
-| Tower Mode | None 不自动搭高；其余为不同搭高运动流程。 | 模式；默认 None；可选 None / Vanilla / NCP / Hypixel |
+| Tower Mode | None 不自动搭高；Vanilla、NCP、Hypixel 使用各自搭高运动流程；HypixelNew 参考 Ravenb4 的 testVertTower 脚本，仅按住跳跃键且水平速度 ≤ 0.01 时生效：落地设置垂直速度 0.41999998688697815，空中垂直速度处于 [-0.09, 0] 时改为 -0.38，保留水平速度。 | 模式；默认 None；可选 None / Vanilla / NCP / Hypixel / HypixelNew |
 | Downwards | 允许向下搭路。 | 布尔；默认 false |
 | Auto Jump | 自动起跳。 | 布尔；默认 false |
 | Sprint | 搭路期间允许疾跑。 | 布尔；默认 false |

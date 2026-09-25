@@ -60,6 +60,11 @@ public class NoSlowDown extends Module implements GrimNoSlowState.Host {
         return isNativeBehaviorActive() && mode.is("Grim Full") && keepSprint.getValue() && cancelSlowdown();
     }
 
+    /** Native-protocol equivalent of the supplied NoFall reference's NoSlow phase query. */
+    public boolean isGrimActivePhase() {
+        return isNativeBehaviorActive() && mode.is("Grim Full") && context() && flow.isActivePhase();
+    }
+
     @Override
     public void onEnable() {
         discard();
