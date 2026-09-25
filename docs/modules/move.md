@@ -122,13 +122,19 @@
 
 ## Timer
 
-调整客户端游戏时钟倍率，支持 0.01x–5.00x；1.00x 为正常速度。启用期间优先于 Speed、Spider、Phase 等模块的时钟设置；LongJump 收集 motion 期间持续使用的临时 0.02x 优先于本模块，结束后恢复本模块当前倍率。修改倍率在下一次渲染时钟计算时生效，无需等待游戏 tick。关闭后恢复其他模块当前的时钟设置；没有其他倍率设置时恢复 1.00x。没有玩家或世界时使用 1.00x，进入世界后自动应用配置倍率。列表后缀显示两位小数倍率。
+调整客户端游戏时钟。Mode 默认 Classic，保留原 Speed 的 0.01x–5x 固定倍率和实时设置；Balance 按玩家 tick 复刻逆向样本的浮点预算：无 Aura 目标且未充满时，方向键按下用 0.92x、否则 0.8x，积累 1−倍率；按住 Release Button 且余额 >0.1 时尝试支付 Boost Speed−1，足够则加速，否则保持 1x 且不充能。默认空余额一直按住会停在约 0.2，松开后才继续积累。LongJump 开启暂停预算；Omix 临时倍率仍优先。关闭 Balance 恢复基础 1x，但不清余额和 HUD 插值；Classic 关闭保留原有释放行为。Balance 自带可在聊天中左键拖动的余额 HUD，显示实际百分比和平滑进度条，字体及阴影适配 Omix。具体边界、时钟公式和验证范围见 docs/modules/timer-balance.md。
 
 源码：`src/main/java/cn/omix/module/impl/move/Timer.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Speed | 游戏时钟倍率，低于 1 减速，高于 1 加速；仅调整客户端时钟，不修改服务器 TPS。 | 数值；默认 1.0；0.01–5.0；步长 0.01 |
+| Mode | Classic 为原固定倍率功能；Balance 为减速积累、按住鼠标键消耗余额的模式。 | 模式；默认 Classic；可选 Classic / Balance |
+| Speed | Classic 游戏时钟倍率，低于 1 减速，高于 1 加速；不修改服务器 TPS。 | 数值；默认 1.0；0.01–5.0；步长 0.01；显示条件：Mode = Classic |
+| Release Button | Balance 消耗余额时按住的鼠标键；Middle / Side 1 / Side 2 对应 GLFW 索引 2 / 3 / 4。 | 模式；默认 Middle；可选 Middle / Side 1 / Side 2；显示条件：Mode = Balance |
+| Boost Speed | Balance 加速倍率，每次加速扣除该值减 1 的余额。 | 数值；默认 1.6；1.05–3.0；步长 0.05；显示条件：Mode = Balance |
+| Max Balance | Balance 浮点预算上限；每次 Balance 更新末尾夹紧。 | 数值；默认 9.0；1.0–12.0；步长 1.0；显示条件：Mode = Balance |
+| Balance HUD X | 隐藏的拖动位置：相对屏幕宽度的比例；-1 使用初始位置，通过聊天左键拖动保存。 | 数值；默认 -1；-1–1；步长 0.0001；显示条件：false |
+| Balance HUD Y | 隐藏的拖动位置：相对屏幕高度的比例；-1 使用初始位置，通过聊天左键拖动保存。 | 数值；默认 -1；-1–1；步长 0.0001；显示条件：false |
 
 ## Spider
 

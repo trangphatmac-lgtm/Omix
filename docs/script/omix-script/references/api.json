@@ -5577,7 +5577,7 @@
     "signature": "public class TimerSpeedUtil",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/misc/TimerSpeedUtil.java",
-    "line": 9
+    "line": 10
   },
   {
     "owner": "cn.omix.util.misc.TimerSpeedUtil",
@@ -5585,7 +5585,7 @@
     "signature": "public static float getTimerSpeed()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/misc/TimerSpeedUtil.java",
-    "line": 14
+    "line": 16
   },
   {
     "owner": "cn.omix.util.misc.TimerSpeedUtil",
@@ -5593,7 +5593,7 @@
     "signature": "public static void setTemporaryOverride(Object owner, float speed)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/misc/TimerSpeedUtil.java",
-    "line": 20
+    "line": 22
   },
   {
     "owner": "cn.omix.util.misc.TimerSpeedUtil",
@@ -5601,7 +5601,7 @@
     "signature": "public static void clearTemporaryOverride(Object owner)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/misc/TimerSpeedUtil.java",
-    "line": 24
+    "line": 26
   },
   {
     "owner": "cn.omix.util.misc.TimerSpeedUtil",
@@ -5609,7 +5609,7 @@
     "signature": "public static void setTimerSpeed(float speed)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/misc/TimerSpeedUtil.java",
-    "line": 28
+    "line": 30
   },
   {
     "owner": "cn.omix.util.misc.TimerSpeedUtil",
@@ -5617,7 +5617,23 @@
     "signature": "public static void setTimerOverride(Supplier<Float> speed)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/misc/TimerSpeedUtil.java",
-    "line": 33
+    "line": 35
+  },
+  {
+    "owner": "cn.omix.util.misc.TimerSpeedUtil",
+    "name": "setTimerOverride",
+    "signature": "public static void setTimerOverride(Supplier<Float> speed, BooleanSupplier useBalanceTiming)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/misc/TimerSpeedUtil.java",
+    "line": 39
+  },
+  {
+    "owner": "cn.omix.util.misc.TimerSpeedUtil",
+    "name": "getBalanceTickMultiplier",
+    "signature": "public static float getBalanceTickMultiplier()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/misc/TimerSpeedUtil.java",
+    "line": 45
   },
   {
     "owner": "cn.omix.util.misc.TimerSpeedUtil",
@@ -5625,7 +5641,7 @@
     "signature": "public static void clearTimerOverride()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/misc/TimerSpeedUtil.java",
-    "line": 37
+    "line": 50
   },
   {
     "owner": "cn.omix.util.misc.TimerSpeedUtil",
@@ -5633,7 +5649,7 @@
     "signature": "public static void reset()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/misc/TimerSpeedUtil.java",
-    "line": 41
+    "line": 55
   },
   {
     "owner": "cn.omix.util.misc.TimerUtil",
@@ -5760,6 +5776,404 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/move/PredictionTimerBalance.java",
     "line": 89
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "TimerBalance",
+    "signature": "cn.omix.util.move.TimerBalance",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java"
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "TimerBalance",
+    "signature": "public final class TimerBalance",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "PANEL",
+    "signature": "public static final Color PANEL",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "TRACK",
+    "signature": "public static final Color TRACK",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "TITLE",
+    "signature": "public static final Color TITLE",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "PERCENT",
+    "signature": "public static final Color PERCENT",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "WIDTH",
+    "signature": "public static final float WIDTH",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "Settings",
+    "signature": "public static final class Settings",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance.Settings",
+    "name": "mode",
+    "signature": "public String mode",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance.Settings",
+    "name": "releaseButton",
+    "signature": "public String releaseButton",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance.Settings",
+    "name": "gameSpeed",
+    "signature": "public float gameSpeed",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance.Settings",
+    "name": "boostSpeed",
+    "signature": "public float boostSpeed",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance.Settings",
+    "name": "maxBalance",
+    "signature": "public float maxBalance",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "DragPosition",
+    "signature": "public interface DragPosition",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 27
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "Host",
+    "signature": "public interface Host",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 34
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "HudRenderer",
+    "signature": "public interface HudRenderer",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 57
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "settings",
+    "signature": "public final Settings settings",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 70
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "drag",
+    "signature": "public final DragPosition drag",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 71
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "TimerBalance",
+    "signature": "public TimerBalance(Host host)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 76
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "balance",
+    "signature": "public float balance()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 83
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "displayedRatio",
+    "signature": "public float displayedRatio()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 84
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "opacity",
+    "signature": "public float opacity()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 85
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "onPlayerUpdate",
+    "signature": "public void onPlayerUpdate()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 88
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "isReleaseButtonPressed",
+    "signature": "public boolean isReleaseButtonPressed()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 122
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "onRender",
+    "signature": "public void onRender(HudRenderer renderer)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 132
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "alpha",
+    "signature": "public static Color alpha(Color color, float multiplier)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 175
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalance",
+    "name": "onDisable",
+    "signature": "public void onDisable()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalance.java",
+    "line": 182
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "TimerBalanceHud",
+    "signature": "cn.omix.util.move.TimerBalanceHud",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java"
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "IMinecraft",
+    "signature": "public final class TimerBalanceHud implements TimerBalance.DragPosition, TimerBalance.HudRenderer, IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "TimerBalanceHud",
+    "signature": "public TimerBalanceHud(NumberValue positionX, NumberValue positionY)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 29
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "initialize",
+    "signature": "public void initialize(float x, float y)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 34
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "x",
+    "signature": "public float x()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 39
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "y",
+    "signature": "public float y()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 40
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "width",
+    "signature": "public void width(float width)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 41
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "height",
+    "signature": "public void height(float height)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 42
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "stopDragging",
+    "signature": "public void stopDragging()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 44
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "drag",
+    "signature": "public void drag(float mouseX, float mouseY)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 46
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "render",
+    "signature": "public void render(DrawContext context, TimerBalance balance)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 63
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "save",
+    "signature": "public void save()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 73
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "restore",
+    "signature": "public void restore()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 74
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "translate",
+    "signature": "public void translate(float x, float y)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 75
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "scale",
+    "signature": "public void scale(float scale)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 76
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "roundedRect",
+    "signature": "public void roundedRect(float x, float y, float width, float height, float radius, Color color)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 78
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "shadow",
+    "signature": "public void shadow(float x, float y, float width, float height, float radius, Color color)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 89
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "font",
+    "signature": "public Object font(float size)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 99
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "textWidth",
+    "signature": "public float textWidth(String text, Object font)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 100
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud",
+    "name": "text",
+    "signature": "public void text(String text, float x, float y, Color color, Object font)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 101
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud.RoundedPanel",
+    "name": "pipeline",
+    "signature": "public RenderPipeline pipeline()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 109
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud.RoundedPanel",
+    "name": "textureSetup",
+    "signature": "public TextureSetup textureSetup()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 110
+  },
+  {
+    "owner": "cn.omix.util.move.TimerBalanceHud.RoundedPanel",
+    "name": "setupVertices",
+    "signature": "public void setupVertices(VertexConsumer vertices)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/TimerBalanceHud.java",
+    "line": 112
   },
   {
     "owner": "cn.omix.util.network.GameConnectionContext",

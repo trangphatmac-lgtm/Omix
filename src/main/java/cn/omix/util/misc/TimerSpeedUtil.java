@@ -3,12 +3,14 @@ package cn.omix.util.misc;
 import lombok.experimental.UtilityClass;
 
 import java.util.LinkedHashMap;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 @UtilityClass
 public class TimerSpeedUtil {
     private float timerSpeed = 1.0F;
     private Supplier<Float> timerOverride;
+    private BooleanSupplier balanceTiming;
     private final LinkedHashMap<Object, Float> temporaryOverrides = new LinkedHashMap<>();
 
     public float getTimerSpeed() {
@@ -31,11 +33,23 @@ public class TimerSpeedUtil {
 
     // Read on every render tick so even 0.01x does not delay setting changes.
     public void setTimerOverride(Supplier<Float> speed) {
+        setTimerOverride(speed, null);
+    }
+
+    public void setTimerOverride(Supplier<Float> speed, BooleanSupplier useBalanceTiming) {
         timerOverride = speed;
+        balanceTiming = useBalanceTiming;
+    }
+
+    /** Only Balance owns the recovered tick accumulator; temporary owners use normal Omix timing. */
+    public float getBalanceTickMultiplier() {
+        return temporaryOverrides.isEmpty() && balanceTiming != null && balanceTiming.getAsBoolean()
+                ? getTimerSpeed() : 1.0F;
     }
 
     public void clearTimerOverride() {
         timerOverride = null;
+        balanceTiming = null;
     }
 
     public void reset() {

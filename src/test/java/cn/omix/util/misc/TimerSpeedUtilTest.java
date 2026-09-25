@@ -77,6 +77,25 @@ class TimerSpeedUtilTest {
     }
 
     @Test
+    void recoveredBalanceTimingFollowsModeAndYieldsToTemporaryOwners() {
+        boolean[] balance = {true};
+        TimerSpeedUtil.setTimerOverride(() -> 1.6F, () -> balance[0]);
+        assertEquals(1.6F, TimerSpeedUtil.getBalanceTickMultiplier());
+        TimerSpeedUtil.setTemporaryOverride(longJump, 0.02F);
+        assertEquals(1.0F, TimerSpeedUtil.getBalanceTickMultiplier());
+        assertEquals(0.02F, TimerSpeedUtil.getTimerSpeed());
+        TimerSpeedUtil.clearTemporaryOverride(longJump);
+        assertEquals(1.6F, TimerSpeedUtil.getBalanceTickMultiplier());
+        balance[0] = false;
+        assertEquals(1.0F, TimerSpeedUtil.getBalanceTickMultiplier());
+        balance[0] = true;
+        TimerSpeedUtil.clearTimerOverride();
+        assertEquals(1.0F, TimerSpeedUtil.getBalanceTickMultiplier());
+        TimerSpeedUtil.setTimerOverride(() -> 0.8F);
+        assertEquals(1.0F, TimerSpeedUtil.getBalanceTickMultiplier());
+    }
+
+    @Test
     void supportsMinimumAndMaximumRequestedSpeeds() {
         TimerSpeedUtil.setTimerSpeed(0.01F);
         assertEquals(0.01F, TimerSpeedUtil.getTimerSpeed());

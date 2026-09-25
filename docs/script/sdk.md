@@ -726,6 +726,8 @@
 - `cn.omix.util.misc.TimerSpeedUtil` — `public static void clearTemporaryOverride(Object owner)`
 - `cn.omix.util.misc.TimerSpeedUtil` — `public static void setTimerSpeed(float speed)`
 - `cn.omix.util.misc.TimerSpeedUtil` — `public static void setTimerOverride(Supplier<Float> speed)`
+- `cn.omix.util.misc.TimerSpeedUtil` — `public static void setTimerOverride(Supplier<Float> speed, BooleanSupplier useBalanceTiming)`
+- `cn.omix.util.misc.TimerSpeedUtil` — `public static float getBalanceTickMultiplier()`
 - `cn.omix.util.misc.TimerSpeedUtil` — `public static void clearTimerOverride()`
 - `cn.omix.util.misc.TimerSpeedUtil` — `public static void reset()`
 - `cn.omix.util.misc.TimerUtil` — `cn.omix.util.misc.TimerUtil`
@@ -744,6 +746,56 @@
 - `cn.omix.util.move.PredictionTimerBalance` — `public void prepareNextJump()`
 - `cn.omix.util.move.PredictionTimerBalance` — `public void reset()`
 - `cn.omix.util.move.PredictionTimerBalance` — `public static boolean isNormalSpeed(float speed)`
+- `cn.omix.util.move.TimerBalance` — `cn.omix.util.move.TimerBalance`
+- `cn.omix.util.move.TimerBalance` — `public final class TimerBalance`
+- `cn.omix.util.move.TimerBalance` — `public static final Color PANEL`
+- `cn.omix.util.move.TimerBalance` — `public static final Color TRACK`
+- `cn.omix.util.move.TimerBalance` — `public static final Color TITLE`
+- `cn.omix.util.move.TimerBalance` — `public static final Color PERCENT`
+- `cn.omix.util.move.TimerBalance` — `public static final float WIDTH`
+- `cn.omix.util.move.TimerBalance` — `public static final class Settings`
+- `cn.omix.util.move.TimerBalance.Settings` — `public String mode`
+- `cn.omix.util.move.TimerBalance.Settings` — `public String releaseButton`
+- `cn.omix.util.move.TimerBalance.Settings` — `public float gameSpeed`
+- `cn.omix.util.move.TimerBalance.Settings` — `public float boostSpeed`
+- `cn.omix.util.move.TimerBalance.Settings` — `public float maxBalance`
+- `cn.omix.util.move.TimerBalance` — `public interface DragPosition`
+- `cn.omix.util.move.TimerBalance` — `public interface Host`
+- `cn.omix.util.move.TimerBalance` — `public interface HudRenderer`
+- `cn.omix.util.move.TimerBalance` — `public final Settings settings`
+- `cn.omix.util.move.TimerBalance` — `public final DragPosition drag`
+- `cn.omix.util.move.TimerBalance` — `public TimerBalance(Host host)`
+- `cn.omix.util.move.TimerBalance` — `public float balance()`
+- `cn.omix.util.move.TimerBalance` — `public float displayedRatio()`
+- `cn.omix.util.move.TimerBalance` — `public float opacity()`
+- `cn.omix.util.move.TimerBalance` — `public void onPlayerUpdate()`
+- `cn.omix.util.move.TimerBalance` — `public boolean isReleaseButtonPressed()`
+- `cn.omix.util.move.TimerBalance` — `public void onRender(HudRenderer renderer)`
+- `cn.omix.util.move.TimerBalance` — `public static Color alpha(Color color, float multiplier)`
+- `cn.omix.util.move.TimerBalance` — `public void onDisable()`
+- `cn.omix.util.move.TimerBalanceHud` — `cn.omix.util.move.TimerBalanceHud`
+- `cn.omix.util.move.TimerBalanceHud` — `public final class TimerBalanceHud implements TimerBalance.DragPosition, TimerBalance.HudRenderer, IMinecraft`
+- `cn.omix.util.move.TimerBalanceHud` — `public TimerBalanceHud(NumberValue positionX, NumberValue positionY)`
+- `cn.omix.util.move.TimerBalanceHud` — `public void initialize(float x, float y)`
+- `cn.omix.util.move.TimerBalanceHud` — `public float x()`
+- `cn.omix.util.move.TimerBalanceHud` — `public float y()`
+- `cn.omix.util.move.TimerBalanceHud` — `public void width(float width)`
+- `cn.omix.util.move.TimerBalanceHud` — `public void height(float height)`
+- `cn.omix.util.move.TimerBalanceHud` — `public void stopDragging()`
+- `cn.omix.util.move.TimerBalanceHud` — `public void drag(float mouseX, float mouseY)`
+- `cn.omix.util.move.TimerBalanceHud` — `public void render(DrawContext context, TimerBalance balance)`
+- `cn.omix.util.move.TimerBalanceHud` — `public void save()`
+- `cn.omix.util.move.TimerBalanceHud` — `public void restore()`
+- `cn.omix.util.move.TimerBalanceHud` — `public void translate(float x, float y)`
+- `cn.omix.util.move.TimerBalanceHud` — `public void scale(float scale)`
+- `cn.omix.util.move.TimerBalanceHud` — `public void roundedRect(float x, float y, float width, float height, float radius, Color color)`
+- `cn.omix.util.move.TimerBalanceHud` — `public void shadow(float x, float y, float width, float height, float radius, Color color)`
+- `cn.omix.util.move.TimerBalanceHud` — `public Object font(float size)`
+- `cn.omix.util.move.TimerBalanceHud` — `public float textWidth(String text, Object font)`
+- `cn.omix.util.move.TimerBalanceHud` — `public void text(String text, float x, float y, Color color, Object font)`
+- `cn.omix.util.move.TimerBalanceHud.RoundedPanel` — `public RenderPipeline pipeline()`
+- `cn.omix.util.move.TimerBalanceHud.RoundedPanel` — `public TextureSetup textureSetup()`
+- `cn.omix.util.move.TimerBalanceHud.RoundedPanel` — `public void setupVertices(VertexConsumer vertices)`
 - `cn.omix.util.network.GameConnectionContext` — `cn.omix.util.network.GameConnectionContext`
 - `cn.omix.util.network.GameConnectionContext` — `public final class GameConnectionContext`
 - `cn.omix.util.network.GameConnectionContext` — `public static String username(MinecraftClient client)`
