@@ -3,6 +3,7 @@ package cn.omix.module.impl.combat;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.MoveInputEvent;
 import cn.omix.event.impl.PacketEvent;
+import cn.omix.event.impl.RotationRequestEvent;
 import cn.omix.event.impl.TickEvent;
 import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.Category;
@@ -13,6 +14,7 @@ import cn.omix.module.value.impl.NumberValue;
 import cn.omix.util.player.RotationUtil;
 import cn.omix.util.player.velocity.GrimFullPackets;
 import cn.omix.util.player.velocity.GrimFullState;
+import cn.omix.util.player.velocity.HeypixelReduce;
 import injection.accessor.EntityVelocityUpdateS2CPacketAccessor;
 import lombok.Getter;
 import net.minecraft.entity.Entity;
@@ -29,10 +31,18 @@ import net.minecraft.util.math.Vec3d;
 
 @Getter
 public class Velocity extends Module {
-    private final ModeValue mode = new ModeValue("Mode", "Normal", "Normal", "Packet", "Reduce", "Grim Full");
+    private final ModeValue mode = new ModeValue("Mode", "Normal", "Normal", "Packet", "Reduce", "Grim Full", "Heypixel Reduce");
     private final NumberValue horizontal = new NumberValue("Horizontal", 0, 0, 100, 1, () -> mode.is("Packet"));
     private final NumberValue vertical = new NumberValue("Vertical", 0, 0, 100, 1, () -> mode.is("Packet"));
     private final BoolValue allowVelocityDuringWait = new BoolValue("Allow Velocity During Wait", false, () -> mode.is("Grim Full"));
+    private final BoolValue autoAttackCount = new BoolValue("AutoAttackCount", true, () -> mode.is("Heypixel Reduce"));
+    private final NumberValue attackCount = new NumberValue("AttackCount", 4, 0, 20, 1, () -> mode.is("Heypixel Reduce") && !autoAttackCount.getValue());
+    private final ModeValue attackMode = new ModeValue("AttackMode", "PerTick", () -> mode.is("Heypixel Reduce"), "OneTime", "PerTick");
+    private final NumberValue alinkTargetRange = new NumberValue("AlinkTargetRange", 10, 0, 20, 0.1F, () -> mode.is("Heypixel Reduce"));
+    private final NumberValue alinkMaxDelay = new NumberValue("AlinkMaxDelay", 60, 0, 200, 1, () -> mode.is("Heypixel Reduce"));
+    private final BoolValue requireKillAura = new BoolValue("RequireKillAura", false, () -> mode.is("Heypixel Reduce"));
+    private final BoolValue debug = new BoolValue("Debug", false, () -> mode.is("Heypixel Reduce"));
+    private final HeypixelReduce heypixelReduce = new HeypixelReduce(this);
     private final GrimFullState grimFullState = new GrimFullState();
     private final GrimFullPackets grimFullPackets = new GrimFullPackets();
     private LivingEntity attackTarget = null;
@@ -43,7 +53,10 @@ public class Velocity extends Module {
 
     public Velocity() {
         super("Velocity", Category.Combat);
-        mode.onChange((previous, current) -> reset());
+        mode.onChange((previous, current) -> {
+            if (previous.equals("Heypixel Reduce")) heypixelReduce.disable();
+            reset();
+        });
     }
 
     @Override
@@ -53,6 +66,7 @@ public class Velocity extends Module {
 
     @Override
     public void onDisable() {
+        heypixelReduce.disable();
         reset();
     }
 
@@ -62,6 +76,7 @@ public class Velocity extends Module {
     }
 
     private void reset() {
+        heypixelReduce.reset();
         grimFullState.reset();
         grimFullPackets.reset();
         attackTarget = null;
@@ -74,6 +89,10 @@ public class Velocity extends Module {
     @EventTarget
     public void onMoveInput(MoveInputEvent event) {
         if (mc.player == null) return;
+        if (mode.is("Heypixel Reduce")) {
+            heypixelReduce.onMoveInput(event);
+            return;
+        }
 
         if (jump) {
             event.setJumping(true);
@@ -87,6 +106,10 @@ public class Velocity extends Module {
         setSuffix(mode.getValue());
         Packet<?> packet = event.getPacket();
         if (event.getType() == PacketEvent.Type.Received) {
+            if (mode.is("Heypixel Reduce")) {
+                heypixelReduce.onReceivePacket(event);
+                return;
+            }
             if (mode.is("Grim Full")) {
                 GrimFullState.Decision decision = grimFullState.decide(mc.player, mc.player.age, System.nanoTime(),
                         packet instanceof PlayerPositionLookS2CPacket,
@@ -134,6 +157,10 @@ public class Velocity extends Module {
     @EventTarget
     public void onTick(TickEvent event) {
         if (mc.player == null) return;
+        if (mode.is("Heypixel Reduce")) {
+            heypixelReduce.onPreTick();
+            return;
+        }
         if (mode.is("Grim Full")) {
             grimFullState.update(mc.player, mc.player.age, System.nanoTime(), false);
         }
@@ -165,6 +192,28 @@ public class Velocity extends Module {
                 }
             }
         }
+    }
+
+    @EventTarget
+    public void onRotationRequest(RotationRequestEvent event) {
+        if (mode.is("Heypixel Reduce")) heypixelReduce.onRotationRequest(event);
+    }
+
+    @Override
+    public String getSuffix() {
+        return mode.is("Heypixel Reduce") ? heypixelReduce.getSuffix() : super.getSuffix();
+    }
+
+    public boolean isAttacking() {
+        return mode.is("Heypixel Reduce") ? heypixelReduce.isAttacking() : attacking;
+    }
+
+    public int getHitSelectSkips() {
+        return mode.is("Heypixel Reduce") ? heypixelReduce.getHitSelectSkips() : 0;
+    }
+
+    public boolean consumeHitSelectSkip() {
+        return mode.is("Heypixel Reduce") && heypixelReduce.consumeHitSelectSkip();
     }
 
     private Entity getEntity() {

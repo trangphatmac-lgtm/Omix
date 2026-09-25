@@ -457,16 +457,23 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 
 ## Velocity
 
-调整自身收到的击退速度；具体效果取决于模式及服务器对移动的处理。
+调整自身收到的击退速度；具体效果取决于模式及服务器对移动的处理。 Heypixel Reduce 移植 Heypixel Test 的受伤触发、Alink 收包缓冲和攻击减速流程，详见 [实现与验证说明](../modules/velocity-heypixel-reduce.md)。
 
 源码：`src/main/java/cn/omix/module/impl/combat/Velocity.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Normal 使用取消击退处理；Packet 按比例修改击退分量；Reduce 使用减弱击退流程；Grim Full 等待 180 游戏 tick（正常速度约 9 秒）后取消收到的 CommonPing。启用、切入该模式、更换世界或玩家实体时重新等待；收到服务器位置修正 PlayerPositionLook（旧版 S08 / setback）时立即重新等待，期间放行 CommonPing 由原版回复 Pong。每隔 30 秒真实时间也重新等待 180 tick，setback 不推迟该周期；用于周期性恢复 Ping 回复，实际连接状态仍取决于服务器。通常取消自身实体速度包，可用 Allow Velocity During Wait 在普通等待期间放行。Fireball、TNT、Windcharge、Enderpearl 特殊来源保护：收到自身的 fireball / unattributed_fireball / explosion / player_explosion / wind_charge / ender_pearl 伤害通知，或含非零玩家击退的 Explosion 包时，仅记录一次性来源标记，在随后 5 tick 内放行一个自身实体速度包，消费后立即恢复原速度处理；此标记不放行 CommonPing，不重置或延长 180 tick 等待，也不改变 30 秒周期。重复来源通知合并为一个标记；标记过期、收到自身其他类型伤害、切换模式或玩家实体后清除。爆炸包本身保持原样，无伤害的风弹爆风也可触发保护；无自身击退的爆炸及其他实体受伤不触发。爆炸伤害无法精确区分 TNT 与其他爆炸，因此统一保护。识别依赖服务器先发出的来源通知；若自定义服务器只发送无来源速度包或在速度之后才发送来源，客户端无法据此追溯已处理速度。其他模式不使用这项保护；不修改其他实体速度、爆炸、位置修正或 KeepAlive 包。 | 模式；默认 Normal；可选 Normal / Packet / Reduce / Grim Full |
+| Mode | Normal 使用取消击退处理；Packet 按比例修改击退分量；Reduce 使用减弱击退流程；Grim Full 等待 180 游戏 tick（正常速度约 9 秒）后取消收到的 CommonPing。启用、切入该模式、更换世界或玩家实体时重新等待；收到服务器位置修正 PlayerPositionLook（旧版 S08 / setback）时立即重新等待，期间放行 CommonPing 由原版回复 Pong。每隔 30 秒真实时间也重新等待 180 tick，setback 不推迟该周期；用于周期性恢复 Ping 回复，实际连接状态仍取决于服务器。通常取消自身实体速度包，可用 Allow Velocity During Wait 在普通等待期间放行。Fireball、TNT、Windcharge、Enderpearl 特殊来源保护：收到自身的 fireball / unattributed_fireball / explosion / player_explosion / wind_charge / ender_pearl 伤害通知，或含非零玩家击退的 Explosion 包时，仅记录一次性来源标记，在随后 5 tick 内放行一个自身实体速度包，消费后立即恢复原速度处理；此标记不放行 CommonPing，不重置或延长 180 tick 等待，也不改变 30 秒周期。重复来源通知合并为一个标记；标记过期、收到自身其他类型伤害、切换模式或玩家实体后清除。爆炸包本身保持原样，无伤害的风弹爆风也可触发保护；无自身击退的爆炸及其他实体受伤不触发。爆炸伤害无法精确区分 TNT 与其他爆炸，因此统一保护。识别依赖服务器先发出的来源通知；若自定义服务器只发送无来源速度包或在速度之后才发送来源，客户端无法据此追溯已处理速度。其他模式不使用这项保护；不修改其他实体速度、爆炸、位置修正或 KeepAlive 包。 Heypixel Reduce 在自身受伤后的速度包触发自动或手动次数攻击，未就绪时缓冲击退与指定同步包，释放后每次攻击将水平速度额外乘 0.6。 | 模式；默认 Normal；可选 Normal / Packet / Reduce / Grim Full / Heypixel Reduce |
 | Horizontal | Packet 模式保留的水平击退百分比。 | 数值；默认 0；0–100；步长 1；显示条件：Mode = Packet |
 | Vertical | Packet 模式保留的垂直击退百分比。 | 数值；默认 0；0–100；步长 1；显示条件：Mode = Packet |
 | Allow Velocity During Wait | 仅 Grim Full 可见，默认关闭。开启后，在所有 180 tick 等待期内放行自身击退速度包，等待结束后恢复取消；关闭时普通等待期间仍取消自身击退。匹配特殊来源的一次性击退放行不受此开关影响，也不会启动等待期。 | 布尔；默认 false；显示条件：Mode = Grim Full |
+| AutoAttackCount | 仅 Heypixel Reduce 可见。按原版 X/Y 速度强度自动选择 0、3、4、5 次攻击，默认开启。 | 布尔；默认 true；显示条件：Mode = Heypixel Reduce |
+| AttackCount | 仅 Heypixel Reduce 且关闭 AutoAttackCount 时可见。手动攻击次数，0 表示不启动流程。 | 数值；默认 4；0–20；步长 1；显示条件：Mode = Heypixel Reduce 且 非 AutoAttackCount 开启 |
+| AttackMode | 仅 Heypixel Reduce 可见。PerTick 每个游戏 tick 攻击一次；OneTime 在同一个 tick 完成全部次数。 | 模式；默认 PerTick；可选 OneTime / PerTick；显示条件：Mode = Heypixel Reduce |
+| AlinkTargetRange | 仅 Heypixel Reduce 可见。附近目标搜索及缓冲期间距离检查范围；实际附近攻击目标须在 3 格内，准星命中目标优先。 | 数值；默认 10；0–20；步长 0.1；显示条件：Mode = Heypixel Reduce |
+| AlinkMaxDelay | 仅 Heypixel Reduce 可见。最大缓冲输入 tick 数；在 MoveInput 中递减，达到 0 后于下个 Tick 回放。 | 数值；默认 60；0–200；步长 1；显示条件：Mode = Heypixel Reduce |
+| RequireKillAura | 仅 Heypixel Reduce 可见。开启后要求 Omix Aura 已开启并已选中目标；不直接以 Aura 目标代替原版的准星/附近目标搜索。 | 布尔；默认 false；显示条件：Mode = Heypixel Reduce |
+| Debug | 仅 Heypixel Reduce 可见。输出 Alink 开始、结束原因及攻击次数到聊天栏。 | 布尔；默认 false；显示条件：Mode = Heypixel Reduce |
 
 --- docs/modules/exploits.md ---
 # Exploits 模块

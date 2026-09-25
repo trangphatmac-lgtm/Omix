@@ -8328,6 +8328,109 @@
     "line": 53
   },
   {
+    "owner": "cn.omix.util.player.velocity.HeypixelReduce",
+    "name": "HeypixelReduce",
+    "signature": "cn.omix.util.player.velocity.HeypixelReduce",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/player/velocity/HeypixelReduce.java"
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.HeypixelReduce",
+    "name": "IMinecraft",
+    "signature": "public final class HeypixelReduce implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/HeypixelReduce.java",
+    "line": 30
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.HeypixelReduce",
+    "name": "HeypixelReduce",
+    "signature": "public HeypixelReduce(Velocity module)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/HeypixelReduce.java",
+    "line": 47
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.HeypixelReduce",
+    "name": "onReceivePacket",
+    "signature": "public synchronized void onReceivePacket(final PacketEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/HeypixelReduce.java",
+    "line": 51
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.HeypixelReduce",
+    "name": "onMoveInput",
+    "signature": "public synchronized void onMoveInput(final MoveInputEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/HeypixelReduce.java",
+    "line": 134
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.HeypixelReduce",
+    "name": "onPreTick",
+    "signature": "public synchronized void onPreTick()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/HeypixelReduce.java",
+    "line": 167
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.HeypixelReduce",
+    "name": "reset",
+    "signature": "public synchronized void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/HeypixelReduce.java",
+    "line": 402
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.HeypixelReduce",
+    "name": "isAttacking",
+    "signature": "public synchronized boolean isAttacking()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/HeypixelReduce.java",
+    "line": 425
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.HeypixelReduce",
+    "name": "getHitSelectSkips",
+    "signature": "public synchronized int getHitSelectSkips()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/HeypixelReduce.java",
+    "line": 429
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.HeypixelReduce",
+    "name": "consumeHitSelectSkip",
+    "signature": "public synchronized boolean consumeHitSelectSkip()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/HeypixelReduce.java",
+    "line": 433
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.HeypixelReduce",
+    "name": "disable",
+    "signature": "public synchronized void disable()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/HeypixelReduce.java",
+    "line": 441
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.HeypixelReduce",
+    "name": "getSuffix",
+    "signature": "public synchronized String getSuffix()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/HeypixelReduce.java",
+    "line": 446
+  },
+  {
+    "owner": "cn.omix.util.player.velocity.HeypixelReduce",
+    "name": "onRotationRequest",
+    "signature": "public synchronized void onRotationRequest(RotationRequestEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/velocity/HeypixelReduce.java",
+    "line": 450
+  },
+  {
     "owner": "cn.omix.util.render.ColorUtil",
     "name": "ColorUtil",
     "signature": "cn.omix.util.render.ColorUtil",

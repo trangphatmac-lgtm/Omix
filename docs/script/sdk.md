@@ -1069,6 +1069,19 @@
 - `cn.omix.util.player.velocity.GrimFullState` — `public synchronized boolean update(Object currentPlayer, int age, long nowNanos, boolean setback)`
 - `cn.omix.util.player.velocity.GrimFullState` — `public synchronized Decision decide(Object currentPlayer, int age, long nowNanos, boolean setback, boolean exemptVelocity, boolean allowVelocityDuringWait)`
 - `cn.omix.util.player.velocity.GrimFullState` — `public record Decision(boolean cancelPing, boolean cancelVelocity)`
+- `cn.omix.util.player.velocity.HeypixelReduce` — `cn.omix.util.player.velocity.HeypixelReduce`
+- `cn.omix.util.player.velocity.HeypixelReduce` — `public final class HeypixelReduce implements IMinecraft`
+- `cn.omix.util.player.velocity.HeypixelReduce` — `public HeypixelReduce(Velocity module)`
+- `cn.omix.util.player.velocity.HeypixelReduce` — `public synchronized void onReceivePacket(final PacketEvent event)`
+- `cn.omix.util.player.velocity.HeypixelReduce` — `public synchronized void onMoveInput(final MoveInputEvent event)`
+- `cn.omix.util.player.velocity.HeypixelReduce` — `public synchronized void onPreTick()`
+- `cn.omix.util.player.velocity.HeypixelReduce` — `public synchronized void reset()`
+- `cn.omix.util.player.velocity.HeypixelReduce` — `public synchronized boolean isAttacking()`
+- `cn.omix.util.player.velocity.HeypixelReduce` — `public synchronized int getHitSelectSkips()`
+- `cn.omix.util.player.velocity.HeypixelReduce` — `public synchronized boolean consumeHitSelectSkip()`
+- `cn.omix.util.player.velocity.HeypixelReduce` — `public synchronized void disable()`
+- `cn.omix.util.player.velocity.HeypixelReduce` — `public synchronized String getSuffix()`
+- `cn.omix.util.player.velocity.HeypixelReduce` — `public synchronized void onRotationRequest(RotationRequestEvent event)`
 - `cn.omix.util.render.ColorUtil` — `cn.omix.util.render.ColorUtil`
 - `cn.omix.util.render.ColorUtil` — `public class ColorUtil implements IMinecraft`
 - `cn.omix.util.render.ColorUtil` — `public static int applyAlpha(int rgb, double alpha)`
