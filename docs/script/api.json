@@ -5286,6 +5286,68 @@
     "line": 34
   },
   {
+    "owner": "cn.omix.util.combat.OffhandItems",
+    "name": "OffhandItems",
+    "signature": "cn.omix.util.combat.OffhandItems",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/combat/OffhandItems.java"
+  },
+  {
+    "owner": "cn.omix.util.combat.OffhandItems",
+    "name": "OffhandItems",
+    "signature": "public final class OffhandItems",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/OffhandItems.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.combat.OffhandItems",
+    "name": "findBestSlot",
+    "signature": "public static int findBestSlot(Inventory inventory, ItemStack offhand)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/OffhandItems.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.combat.OffhandSelection",
+    "name": "OffhandSelection",
+    "signature": "cn.omix.util.combat.OffhandSelection",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/combat/OffhandSelection.java"
+  },
+  {
+    "owner": "cn.omix.util.combat.OffhandSelection",
+    "name": "OffhandSelection",
+    "signature": "public final class OffhandSelection",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/OffhandSelection.java",
+    "line": 6
+  },
+  {
+    "owner": "cn.omix.util.combat.OffhandSelection",
+    "name": "Kind",
+    "signature": "public enum Kind",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/OffhandSelection.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.combat.OffhandSelection",
+    "name": "Item",
+    "signature": "public record Item(Kind kind, float saturation)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/OffhandSelection.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.combat.OffhandSelection",
+    "name": "findBestSlot",
+    "signature": "public static int findBestSlot(int inventorySize, IntFunction<Item> inventory, Item offhand)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/OffhandSelection.java",
+    "line": 21
+  },
+  {
     "owner": "cn.omix.util.combat.ReachServerRange",
     "name": "ReachServerRange",
     "signature": "cn.omix.util.combat.ReachServerRange",

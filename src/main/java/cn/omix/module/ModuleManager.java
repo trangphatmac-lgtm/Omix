@@ -7,6 +7,7 @@ import cn.omix.module.impl.combat.AntiAim;
 import cn.omix.module.impl.combat.Aura;
 import cn.omix.module.impl.combat.Reach;
 import cn.omix.module.impl.combat.AutoTotem;
+import cn.omix.module.impl.combat.Offhand;
 import cn.omix.module.impl.combat.AutoWeapon;
 import cn.omix.module.impl.combat.Backtrack;
 import cn.omix.module.impl.combat.Criticals;
@@ -67,6 +68,7 @@ public class ModuleManager implements IMinecraft {
                 new Reach(),
                 new TPAura(),
                 new AutoTotem(),
+                new Offhand(),
                 new AutoWeapon(),
                 new Backtrack(),
                 new CrossbowExploit(),

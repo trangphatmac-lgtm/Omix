@@ -683,6 +683,14 @@
 - `cn.omix.util.combat.MeleeDamagePredictor` — `cn.omix.util.combat.MeleeDamagePredictor`
 - `cn.omix.util.combat.MeleeDamagePredictor` — `public final class MeleeDamagePredictor`
 - `cn.omix.util.combat.MeleeDamagePredictor` — `public static boolean canKill(PlayerEntity player, LivingEntity target)`
+- `cn.omix.util.combat.OffhandItems` — `cn.omix.util.combat.OffhandItems`
+- `cn.omix.util.combat.OffhandItems` — `public final class OffhandItems`
+- `cn.omix.util.combat.OffhandItems` — `public static int findBestSlot(Inventory inventory, ItemStack offhand)`
+- `cn.omix.util.combat.OffhandSelection` — `cn.omix.util.combat.OffhandSelection`
+- `cn.omix.util.combat.OffhandSelection` — `public final class OffhandSelection`
+- `cn.omix.util.combat.OffhandSelection` — `public enum Kind`
+- `cn.omix.util.combat.OffhandSelection` — `public record Item(Kind kind, float saturation)`
+- `cn.omix.util.combat.OffhandSelection` — `public static int findBestSlot(int inventorySize, IntFunction<Item> inventory, Item offhand)`
 - `cn.omix.util.combat.ReachServerRange` — `cn.omix.util.combat.ReachServerRange`
 - `cn.omix.util.combat.ReachServerRange` — `public final class ReachServerRange`
 - `cn.omix.util.combat.ReachServerRange` — `public static boolean contains(Vec3d serverPosition, double eyeHeight, Box targetBox, double configuredRange)`

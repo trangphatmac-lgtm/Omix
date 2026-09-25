@@ -50,6 +50,11 @@
     "source": "src/main/java/cn/omix/module/impl/combat/MaceDamageBooster.java"
   },
   {
+    "module": "Offhand",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/combat/Offhand.java"
+  },
+  {
     "module": "Reach",
     "selector": "Mode",
     "source": "src/main/java/cn/omix/module/impl/combat/Reach.java"
