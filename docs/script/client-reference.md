@@ -798,14 +798,14 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 
 ## AntiVoid
 
-玩家离开安全地面后暂存移动包，跌落超过阈值时尝试回到之前的安全位置。
+在虚空上方跌落超过阈值时，按所选模式尝试救援。默认 Blink 保留移动包暂存保护；Motion、TP、Cubecraft 参考 Sigma 的移动事件实现，仅在垂直速度低于 -0.08 时累计下落距离，落地后归零，Fly 或飞行权限启用时暂停累计。新模式按当前世界最低高度检查下方碰撞，兼容负高度世界。关闭、切换模式、换世界或收到位置修正时清理保护状态。TP 在落地或脚下 0.001 方块内有碰撞时记录位置，没有有效记录时不传送。
 
 源码：`src/main/java/cn/omix/module/impl/move/AntiVoid.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | 当前只有 Blink，使用移动包暂存保护。 | 模式；默认 Blink；可选 Blink |
-| Distance | 相对最后安全位置允许下降的距离，单位方块。 | 数值；默认 5.0；0.0–16.0；步长 0.5 |
+| Mode | Blink 暂存移动包；Motion 将本次移动及玩家垂直速度设为 0.1；TP 传送到最近记录的安全位置并取消本次移动；Cubecraft 发送当前位置 X/Z、Y=3.2E7、未落地的位置包并关闭 Fly，在非 cubecraft.net 服务器或单人世界自动采用 Motion。 | 模式；默认 Blink；可选 Blink / Motion / TP / Cubecraft |
+| Distance | 触发保护的下降距离，单位方块。Blink 使用相对最后安全位置的高度差，其余模式使用累计下落距离；严格超过阈值时触发。 | 数值；默认 5.0；0.0–16.0；步长 0.5 |
 | Disabler While Scaffold | Scaffold 或 ScaffoldX 开启时暂停 AntiVoid 保护，释放其暂存的数据包并重置保护状态；搭路模块关闭后自动恢复保护。 | 布尔；默认 false |
 
 ## NoFall
