@@ -339,7 +339,8 @@ public final class AutoL extends Module {
             "狩猎结束。连输七回合的滋味爽不爽。",
             "妖猫还是像水我抓不住。请注意，我在打假想敌。",
             "钵钵鸡，这次抽我吧",
-            "ai生成并非外挂，视频均为ai生成"
+            "ai生成并非外挂，视频均为ai生成",
+            "寿来。寿来。寿来。寿来。寿来。寿来。寿来。寿来。寿来。寿来。"
     };
 
     private static final String[] POEMS = {

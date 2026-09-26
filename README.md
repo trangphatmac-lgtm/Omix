@@ -16,8 +16,6 @@
 
 Omix 基于 DSJ 的 Remix base，面向 Minecraft 1.21.11 / Fabric 开发。除了功能模块、ClickGUI、HUD、音乐播放器和账号管理，项目还集成了基于 **DeepSeek Harness** 的 AI Agent、支持热加载的 **Java 脚本工作台**，以及供外部 Agent 连接游戏的 **MCP 服务**。
 
-你可以通过界面和命令管理客户端，让 AI 读取游戏状态并调用工具，也可以编写脚本扩展模块、模式、命令、HUD 和 AI 能力。
-
 ## 项目截图
 
 <div align="center">
@@ -38,7 +36,7 @@ Omix 基于 DSJ 的 Remix base，面向 Minecraft 1.21.11 / Fabric 开发。除�
 
 ## 核心特色
 
-- **94 个内置模块**：覆盖战斗、协议、移动、玩家、画面与世界交互，支持快捷键和个性化配置。
+- **99 个内置模块**：覆盖战斗、协议、移动、玩家、画面与世界交互，支持快捷键和个性化配置。
 - **3 种视觉模式**：我们提供 Remix、Myau、Sigma 三种模式的 Hud，ClickGui，以及其它视觉模块。
 - **游戏内 AI Agent**：在游戏面板或系统浏览器中使用同一个 Harness，管理模型、工作区、会话和插件。
 - **游戏工具接入**：提供 22 个游戏工具与 14 个脚本开发工具，支持状态查询、命令执行、容器交互、数据包观察和脚本开发。
@@ -53,12 +51,12 @@ Omix 基于 DSJ 的 Remix base，面向 Minecraft 1.21.11 / Fabric 开发。除�
 
 | 分类 | 数量 | 内容 |
 | --- | ---: | --- |
-| [Combat](docs/modules/combat.md) | 14 | 战斗、武器与攻击辅助 |
+| [Combat](docs/modules/combat.md) | 16 | 战斗、武器与攻击辅助 |
 | [Exploits](docs/modules/exploits.md) | 9 | 协议控制、数据包观察与路径功能 |
 | [Move](docs/modules/move.md) | 18 | 移动、跳跃、速度与防坠落 |
 | [Player](docs/modules/player.md) | 17 | 目标筛选、背包、装备与生存辅助 |
-| [Render](docs/modules/render.md) | 27 | HUD、WebUI、脚本入口与视觉效果 |
-| [World](docs/modules/world.md) | 9 | 搭路、世界交互与自动化 |
+| [Render](docs/modules/render.md) | 29 | HUD、WebUI、脚本入口与视觉效果 |
+| [World](docs/modules/world.md) | 10 | 搭路、世界交互与自动化 |
 
 ## 快速开始
 
