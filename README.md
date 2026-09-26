@@ -1,8 +1,7 @@
 <div align="center">
 
 <h1>Omix Client</h1>
-<p><strong>Omix is the first AI-native Minecraft Hacked Client.</strong></p>
-<p>模块、AI Agent、Java 脚本与游戏工具，集成于同一个客户端。</p>
+<p><strong>The first AI-native Minecraft Hacked Client in the world.</strong></p>
 <p>Minecraft 1.21.11 · Fabric · Java 21</p>
 
 <a href="#快速开始">快速开始</a> ·
@@ -14,7 +13,7 @@
 
 ## 项目简介
 
-Omix 基于 DSJ 的 Remix base，面向 Minecraft 1.21.11 / Fabric 开发。除了功能模块、ClickGUI、HUD、音乐播放器和账号管理，项目还集成了基于 **DeepSeek Harness** 的 AI Agent、支持热加载的 **Java 脚本工作台**，以及供外部 Agent 连接游戏的 **MCP 服务**。
+Omix 基于 DSJ 的 Remix base 和 Minecraft 1.21.11 / Fabric 开发的我的世界黑客客户端。除了功能模块、ClickGUI、HUD 视觉、音乐播放器和账号管理等常规功能外，该项目也是该领域第一个 AI 原生的客户端。
 
 ## 项目截图
 
