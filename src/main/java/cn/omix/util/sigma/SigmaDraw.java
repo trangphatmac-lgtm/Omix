@@ -10,13 +10,30 @@ public final class SigmaDraw implements IMinecraft {
 
     public static void begin(DrawContext context) {
         context.getMatrices().pushMatrix();
-        float scale = 1f / mc.getWindow().getScaleFactor();
-        context.getMatrices().scale(scale, scale);
+        context.getMatrices().scale(guiScaleX(), guiScaleY());
     }
 
     public static void end(DrawContext context) { context.getMatrices().popMatrix(); }
     public static int width() { return mc.getWindow().getWidth(); }
     public static int height() { return mc.getWindow().getHeight(); }
+
+    public static float guiScaleX() {
+        var window = mc.getWindow();
+        return SigmaUiCoordinates.renderScale(width(), window.getFramebufferWidth(), window.getScaleFactor());
+    }
+
+    public static float guiScaleY() {
+        var window = mc.getWindow();
+        return SigmaUiCoordinates.renderScale(height(), window.getFramebufferHeight(), window.getScaleFactor());
+    }
+
+    public static float mouseX(double coordinate) {
+        return SigmaUiCoordinates.fromMouse(coordinate, width(), mc.getWindow().getScaledWidth());
+    }
+
+    public static float mouseY(double coordinate) {
+        return SigmaUiCoordinates.fromMouse(coordinate, height(), mc.getWindow().getScaledHeight());
+    }
 
     public static void image(DrawContext context, String path, float x, float y, float w, float h, int color) {
         Render2D.drawTexture(context, SigmaResources.texture(path), x, y, w, h, color);

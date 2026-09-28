@@ -63,18 +63,18 @@ public final class SigmaClickGuiScreen extends Screen implements IMinecraft {
             var config = instance.getConfigManager().getCurrentConfig();
             if (config != null) SigmaResources.light(20).drawString(context, config.getName(), 20, SigmaDraw.height() - 36, SigmaColors.alpha(SigmaColors.WHITE, .6f * progress));
             if (binding != null) SigmaResources.light(25).drawString(context, binding.getName() + ": press a key", 20, SigmaDraw.height() - 70, SigmaColors.WHITE);
-            if (profiles != null) { profiles.draw(context, mouse(mouseX), mouse(mouseY), progress); if (profiles.closed()) profiles = null; }
-            if (settings != null) { settings.draw(context, mouse(mouseX), mouse(mouseY), progress); if (settings.closed()) settings = null; }
+            if (profiles != null) { profiles.draw(context, SigmaDraw.mouseX(mouseX), SigmaDraw.mouseY(mouseY), progress); if (profiles.closed()) profiles = null; }
+            if (settings != null) { settings.draw(context, SigmaDraw.mouseX(mouseX), SigmaDraw.mouseY(mouseY), progress); if (settings.closed()) settings = null; }
         } finally { SigmaDraw.end(context); }
     }
-    private float mouse(double coordinate) { return (float) coordinate * mc.getWindow().getScaleFactor(); }
     private float panelMouse(double coordinate, boolean horizontal) {
         float center = (horizontal ? SigmaDraw.width() : SigmaDraw.height()) / 2f;
-        return (mouse(coordinate) - center) / Math.max(.01f, uiScale) + center;
+        float position = horizontal ? SigmaDraw.mouseX(coordinate) : SigmaDraw.mouseY(coordinate);
+        return (position - center) / Math.max(.01f, uiScale) + center;
     }
     @Override public boolean mouseClicked(Click click, boolean doubled) {
         if (closing) return true;
-        float mx = mouse(click.x()), my = mouse(click.y());
+        float mx = SigmaDraw.mouseX(click.x()), my = SigmaDraw.mouseY(click.y());
         if (settings != null) { if (!settings.click(mx, my, click.button())) settings.close(); return true; }
         if (profiles != null) { if (!profiles.click(mx, my, click.button())) profiles.close(); return true; }
         if (SigmaSettingsPanel.inside(mx, my, SigmaDraw.width() - 69, SigmaDraw.height() - 55, 55, 41)) { profiles = new SigmaProfilesPanel(); return true; }
@@ -97,7 +97,7 @@ public final class SigmaClickGuiScreen extends Screen implements IMinecraft {
         return true;
     }
     @Override public boolean mouseDragged(Click click, double dx, double dy) {
-        if (settings != null) return settings.drag(mouse(click.x()), mouse(click.y()));
+        if (settings != null) return settings.drag(SigmaDraw.mouseX(click.x()), SigmaDraw.mouseY(click.y()));
         if (dragging == null) return false;
         dragging.x = Math.clamp(panelMouse(click.x(), true) - dragX, 0, Math.max(0, SigmaDraw.width() - 200));
         dragging.y = Math.clamp(panelMouse(click.y(), false) - dragY, 0, Math.max(0, SigmaDraw.height() - 60));

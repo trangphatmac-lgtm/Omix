@@ -25,16 +25,20 @@ public abstract class MixinInGameHud implements IMinecraft {
 
     @Unique private net.minecraft.client.world.ClientWorld sigma$cachedWorld;
     @Unique private int sigma$width, sigma$height, sigma$scale, sigma$blurGeneration;
+    @Unique private int sigma$framebufferWidth, sigma$framebufferHeight;
 
     @Inject(method = "render", at = @At(value = "HEAD"))
     private void render(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         if (mc.player == null || mc.world == null) return;
 
         int width = mc.getWindow().getWidth(), height = mc.getWindow().getHeight(), scale = mc.getWindow().getScaleFactor();
+        int framebufferWidth = mc.getWindow().getFramebufferWidth(), framebufferHeight = mc.getWindow().getFramebufferHeight();
         int blurGeneration = cn.omix.util.sigma.SigmaBlur.generation();
         if (sigma$cachedWorld != mc.world || sigma$width != width || sigma$height != height || sigma$scale != scale || sigma$blurGeneration != blurGeneration
+                || sigma$framebufferWidth != framebufferWidth || sigma$framebufferHeight != framebufferHeight
                 || timer.hasTimeElapsed(1000L / instance.getModuleManager().getModule(HUD.class).getHudFps().getValue())) {
             sigma$cachedWorld = mc.world; sigma$width = width; sigma$height = height; sigma$scale = scale; sigma$blurGeneration = blurGeneration;
+            sigma$framebufferWidth = framebufferWidth; sigma$framebufferHeight = framebufferHeight;
             timer.reset();
             cachedHudState.clear();
             DrawContext cacheContext = new DrawContext(mc, cachedHudState, mc.getWindow().getScaledWidth(), mc.getWindow().getScaledHeight());

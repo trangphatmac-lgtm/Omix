@@ -71,6 +71,14 @@ AI 架构、运行时和插件开发见 [DeepSeek Harness AI](ai-system.md)。
 
 脚本 SDK 使用 `generateScriptReference` 从实际声明生成 API、模式入口、schema 校验和离线 HTML，随 JAR 导出统一 Agent 技能包。详见 [脚本验证记录](script/validation.md)。
 
+### Sigma 与高分屏
+
+Sigma HUD、ClickGUI 和 Maps 使用 GLFW 窗口逻辑像素布局，支持 macOS Retina 等高分屏。背景模糊覆盖完整窗口，模块列表靠右、InfoHUD 靠底，鼠标点击与拖动保持对齐。
+
+Sigma 字体按 framebuffer 与窗口逻辑尺寸的实际比例生成字形：Retina 2 倍屏使用 2 倍字号栅格化，再按相同比例还原布局尺寸，避免放大 1 倍字形导致文字模糊。字体缓存区分像素密度，切换显示器后自动选用对应字形；非整数密度向上取整，以保证字形采样分辨率足够。此比例独立于 Minecraft GUI Scale，HUD、ClickGUI 和 Maps 的逻辑字号保持不变。
+
+坐标换算统一由 `SigmaDraw` / `SigmaUiCoordinates` 提供：绘制按 X/Y 分别使用 `framebuffer / GUI Scale / 窗口逻辑尺寸`，与 Minecraft 未取整的 GUI 投影一致；鼠标位置和拖动距离则按 `窗口逻辑尺寸 / scaled GUI 尺寸` 换算，与 Minecraft 鼠标事件的取整尺寸一致。不能只除以 GUI Scale，也不能将取整后的 scaled GUI 尺寸直接作为绘制投影。InfoHUD 玩家预览与 F3 列表避让使用相同的绘制比例；切换显示器导致 framebuffer 尺寸改变时立即刷新 HUD 缓存。
+
 --- docs/commands.md ---
 # 命令与选项
 

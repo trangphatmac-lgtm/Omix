@@ -1404,6 +1404,10 @@
 - `cn.omix.util.sigma.SigmaDraw` — `public static void end(DrawContext context)`
 - `cn.omix.util.sigma.SigmaDraw` — `public static int width()`
 - `cn.omix.util.sigma.SigmaDraw` — `public static int height()`
+- `cn.omix.util.sigma.SigmaDraw` — `public static float guiScaleX()`
+- `cn.omix.util.sigma.SigmaDraw` — `public static float guiScaleY()`
+- `cn.omix.util.sigma.SigmaDraw` — `public static float mouseX(double coordinate)`
+- `cn.omix.util.sigma.SigmaDraw` — `public static float mouseY(double coordinate)`
 - `cn.omix.util.sigma.SigmaDraw` — `public static void image(DrawContext context, String path, float x, float y, float w, float h, int color)`
 - `cn.omix.util.sigma.SigmaDraw` — `public static void innerShadow(DrawContext context, float x, float y, float w, float h, float size, float opacity)`
 - `cn.omix.util.sigma.SigmaDraw` — `public static void shadow(DrawContext context, float x, float y, float w, float h, float size, float opacity)`
@@ -1536,7 +1540,7 @@
 - `cn.omix.util.sigma.SigmaRearView` — `public void release()`
 - `cn.omix.util.sigma.SigmaRearView.RearCamera` — `public net.minecraft.world.attribute.EnvironmentAttributeInterpolator getEnvironmentAttributeInterpolator()`
 - `cn.omix.util.sigma.SigmaResources` — `cn.omix.util.sigma.SigmaResources`
-- `cn.omix.util.sigma.SigmaResources` — `public final class SigmaResources`
+- `cn.omix.util.sigma.SigmaResources` — `public final class SigmaResources implements IMinecraft`
 - `cn.omix.util.sigma.SigmaResources` — `public static Identifier texture(String path)`
 - `cn.omix.util.sigma.SigmaResources` — `public static TrueTypeFont light(int size)`
 - `cn.omix.util.sigma.SigmaResources` — `public static TrueTypeFont medium(int size)`
@@ -1587,6 +1591,11 @@
 - `cn.omix.util.sigma.SigmaTexturePolygon` — `public record Clip(float x, float y, float width, float height, float radius)`
 - `cn.omix.util.sigma.SigmaTexturePolygon.Clip` — `public float[] polygon(float left, float top, float right, float bottom)`
 - `cn.omix.util.sigma.SigmaTexturePolygon` — `public static void draw(DrawContext context, TextureSetup texture, float x, float y, float width, float height, Clip clip, int color)`
+- `cn.omix.util.sigma.SigmaUiCoordinates` — `cn.omix.util.sigma.SigmaUiCoordinates`
+- `cn.omix.util.sigma.SigmaUiCoordinates` — `public final class SigmaUiCoordinates`
+- `cn.omix.util.sigma.SigmaUiCoordinates` — `public static int rasterScale(int width, int height, int framebufferWidth, int framebufferHeight)`
+- `cn.omix.util.sigma.SigmaUiCoordinates` — `public static float renderScale(int windowSize, int framebufferSize, int guiScale)`
+- `cn.omix.util.sigma.SigmaUiCoordinates` — `public static float fromMouse(double coordinate, int windowSize, int scaledSize)`
 - `cn.omix.util.sigma.SigmaWaypoint` — `cn.omix.util.sigma.SigmaWaypoint`
 - `cn.omix.util.sigma.SigmaWaypoint` — `public record SigmaWaypoint(UUID id, String name, int x, double y, int z, int color, boolean surface)`
 - `cn.omix.util.sigma.SigmaWaypoint` — `public SigmaWaypoint`

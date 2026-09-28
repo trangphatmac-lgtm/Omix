@@ -65,7 +65,7 @@ public final class SigmaHud implements IMinecraft {
         animations.keySet().retainAll(modules);
         List<Module> sorted = modules.stream().filter(module -> module != hud && !(module instanceof Drag) && !module.isHidden())
                 .sorted(Comparator.comparingDouble((Module module) -> SigmaResources.light(20).getStringWidth(module.getName())).reversed()).toList();
-        float y = mc.getDebugHud().shouldShowDebugHud() ? debugRightRows * 9 * mc.getWindow().getScaleFactor() + 7 : 6;
+        float y = mc.getDebugHud().shouldShowDebugHud() ? debugRightRows * 9f / SigmaDraw.guiScaleY() + 7 : 6;
         int margin = size == 14 ? 7 : 10;
         for (Module module : sorted) {
             float progress = animations.computeIfAbsent(module, ignored -> new SigmaAnimation(module.isEnabled() ? 1 : 0)).update(module.isEnabled(), now, 150);
@@ -127,13 +127,14 @@ public final class SigmaHud implements IMinecraft {
         int x = 14, bottom = SigmaDraw.height();
         if (hud.getSigmaInfoPlayer().getValue()) {
             // Special GUI elements do not use DrawContext's pose. Convert their viewport and size explicitly.
-            int guiScale = mc.getWindow().getScaleFactor();
+            float scaleX = SigmaDraw.guiScaleX();
+            float scaleY = SigmaDraw.guiScaleY();
             var state = mc.getEntityRenderDispatcher().getAndUpdateRenderState(mc.player, 1);
             state.light = 0xf000f0; state.shadowPieces.clear(); state.outlineColor = 0; state.displayName = null;
             int top = bottom - 150, foot = bottom - 22;
-            context.addEntity(state, 57f / guiScale, new org.joml.Vector3f(0, (foot - top) / 114f, 0),
+            context.addEntity(state, 57f * scaleY, new org.joml.Vector3f(0, (foot - top) / 114f, 0),
                     new org.joml.Quaternionf().rotateZ((float) Math.PI), new org.joml.Quaternionf().rotateY((float) Math.PI),
-                    0, top / guiScale, 114 / guiScale, foot / guiScale);
+                    0, Math.round(top * scaleY), Math.round(114 * scaleX), Math.round(foot * scaleY));
             x += 90;
         }
         if (hud.getSigmaInfoArmor().getValue()) {

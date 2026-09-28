@@ -43,10 +43,10 @@ public final class SigmaMapsScreen extends Screen implements IMinecraft {
     }
 
     private float pixelsPerBlock() { return Math.max(panelWidth - sidebar, panelHeight) / ((zoom - 1) * 32f); }
-    private float mouse(double coordinate) { return (float) coordinate * mc.getWindow().getScaleFactor(); }
     private float localMouse(double coordinate, boolean horizontal) {
         float center = (horizontal ? SigmaDraw.width() : SigmaDraw.height()) / 2f;
-        return (mouse(coordinate) - center) / uiScale + center;
+        float position = horizontal ? SigmaDraw.mouseX(coordinate) : SigmaDraw.mouseY(coordinate);
+        return (position - center) / uiScale + center;
     }
     private boolean inside(float x, float y, float left, float top, float w, float h) { return x >= left && x < left + w && y >= top && y < top + h; }
 
@@ -237,7 +237,7 @@ public final class SigmaMapsScreen extends Screen implements IMinecraft {
             }
             return true;
         }
-        if (dragging) { centerX -= mouse(dx) / uiScale / pixelsPerBlock(); centerZ -= mouse(dy) / uiScale / pixelsPerBlock(); return true; }
+        if (dragging) { centerX -= SigmaDraw.mouseX(dx) / uiScale / pixelsPerBlock(); centerZ -= SigmaDraw.mouseY(dy) / uiScale / pixelsPerBlock(); return true; }
         return false;
     }
     @Override public boolean mouseReleased(Click click) {

@@ -10965,7 +10965,7 @@
     "signature": "public static void end(DrawContext context)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
-    "line": 17
+    "line": 16
   },
   {
     "owner": "cn.omix.util.sigma.SigmaDraw",
@@ -10973,7 +10973,7 @@
     "signature": "public static int width()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
-    "line": 18
+    "line": 17
   },
   {
     "owner": "cn.omix.util.sigma.SigmaDraw",
@@ -10981,7 +10981,39 @@
     "signature": "public static int height()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
-    "line": 19
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaDraw",
+    "name": "guiScaleX",
+    "signature": "public static float guiScaleX()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaDraw",
+    "name": "guiScaleY",
+    "signature": "public static float guiScaleY()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaDraw",
+    "name": "mouseX",
+    "signature": "public static float mouseX(double coordinate)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
+    "line": 30
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaDraw",
+    "name": "mouseY",
+    "signature": "public static float mouseY(double coordinate)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
+    "line": 34
   },
   {
     "owner": "cn.omix.util.sigma.SigmaDraw",
@@ -10989,7 +11021,7 @@
     "signature": "public static void image(DrawContext context, String path, float x, float y, float w, float h, int color)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
-    "line": 21
+    "line": 38
   },
   {
     "owner": "cn.omix.util.sigma.SigmaDraw",
@@ -10997,7 +11029,7 @@
     "signature": "public static void innerShadow(DrawContext context, float x, float y, float w, float h, float size, float opacity)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
-    "line": 25
+    "line": 42
   },
   {
     "owner": "cn.omix.util.sigma.SigmaDraw",
@@ -11005,7 +11037,7 @@
     "signature": "public static void shadow(DrawContext context, float x, float y, float w, float h, float size, float opacity)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/sigma/SigmaDraw.java",
-    "line": 34
+    "line": 51
   },
   {
     "owner": "cn.omix.util.sigma.SigmaEntityFilter",
@@ -11319,7 +11351,7 @@
     "signature": "public void key(int key)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/sigma/SigmaHud.java",
-    "line": 167
+    "line": 168
   },
   {
     "owner": "cn.omix.util.sigma.SigmaImageBlur",
@@ -12023,11 +12055,11 @@
   },
   {
     "owner": "cn.omix.util.sigma.SigmaResources",
-    "name": "SigmaResources",
-    "signature": "public final class SigmaResources",
+    "name": "IMinecraft",
+    "signature": "public final class SigmaResources implements IMinecraft",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/sigma/SigmaResources.java",
-    "line": 13
+    "line": 14
   },
   {
     "owner": "cn.omix.util.sigma.SigmaResources",
@@ -12035,7 +12067,7 @@
     "signature": "public static Identifier texture(String path)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/sigma/SigmaResources.java",
-    "line": 20
+    "line": 22
   },
   {
     "owner": "cn.omix.util.sigma.SigmaResources",
@@ -12043,7 +12075,7 @@
     "signature": "public static TrueTypeFont light(int size)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/sigma/SigmaResources.java",
-    "line": 24
+    "line": 26
   },
   {
     "owner": "cn.omix.util.sigma.SigmaResources",
@@ -12051,7 +12083,7 @@
     "signature": "public static TrueTypeFont medium(int size)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/sigma/SigmaResources.java",
-    "line": 25
+    "line": 27
   },
   {
     "owner": "cn.omix.util.sigma.SigmaSettingsPanel",
@@ -12422,6 +12454,45 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/sigma/SigmaTexturePolygon.java",
     "line": 67
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaUiCoordinates",
+    "name": "SigmaUiCoordinates",
+    "signature": "cn.omix.util.sigma.SigmaUiCoordinates",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaUiCoordinates.java"
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaUiCoordinates",
+    "name": "SigmaUiCoordinates",
+    "signature": "public final class SigmaUiCoordinates",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaUiCoordinates.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaUiCoordinates",
+    "name": "rasterScale",
+    "signature": "public static int rasterScale(int width, int height, int framebufferWidth, int framebufferHeight)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaUiCoordinates.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaUiCoordinates",
+    "name": "renderScale",
+    "signature": "public static float renderScale(int windowSize, int framebufferSize, int guiScale)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaUiCoordinates.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.sigma.SigmaUiCoordinates",
+    "name": "fromMouse",
+    "signature": "public static float fromMouse(double coordinate, int windowSize, int scaledSize)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sigma/SigmaUiCoordinates.java",
+    "line": 19
   },
   {
     "owner": "cn.omix.util.sigma.SigmaWaypoint",
