@@ -1631,6 +1631,19 @@
 - `cn.omix.util.webui.WebPanelLayout` — `public static WebPanelLayout current()`
 - `cn.omix.util.webui.WebPanelLayout` — `public static WebPanelLayout calculate( int framebufferWidth, int framebufferHeight, double guiScale )`
 - `cn.omix.util.webui.WebPanelLayout` — `public BrowserViewport browserViewport()`
+- `cn.omix.util.world.AutoLSignals` — `cn.omix.util.world.AutoLSignals`
+- `cn.omix.util.world.AutoLSignals` — `public final class AutoLSignals`
+- `cn.omix.util.world.AutoLSignals` — `public static void status(EntityStatusS2CPacket packet)`
+- `cn.omix.util.world.AutoLSignals` — `public static void damage(EntityDamageS2CPacket packet)`
+- `cn.omix.util.world.AutoLSignals` — `public static void metadata(EntityTrackerUpdateS2CPacket packet)`
+- `cn.omix.util.world.CombatDeathTracker` — `cn.omix.util.world.CombatDeathTracker`
+- `cn.omix.util.world.CombatDeathTracker` — `public static final long HIT_WINDOW_MS`
+- `cn.omix.util.world.CombatDeathTracker` — `public void hit(T entity, String name, long now)`
+- `cn.omix.util.world.CombatDeathTracker` — `public void death(T entity, long now)`
+- `cn.omix.util.world.CombatDeathTracker` — `public List<T> targets(long now)`
+- `cn.omix.util.world.CombatDeathTracker` — `public void removed(T entity)`
+- `cn.omix.util.world.CombatDeathTracker` — `public List<String> drainDeaths()`
+- `cn.omix.util.world.CombatDeathTracker` — `public void clear()`
 - `cn.omix.util.world.ScaffoldMutex` — `cn.omix.util.world.ScaffoldMutex`
 - `cn.omix.util.world.ScaffoldMutex` — `public final class ScaffoldMutex`
 - `cn.omix.util.world.ScaffoldMutex` — `public static synchronized void activate(Module other)`

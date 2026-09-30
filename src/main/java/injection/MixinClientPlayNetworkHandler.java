@@ -3,9 +3,13 @@ package injection;
 import cn.omix.util.ai.AiContainerTools;
 import cn.omix.event.impl.PlayerPositionLookEvent;
 import cn.omix.util.IMinecraft;
+import cn.omix.util.world.AutoLSignals;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityDamageS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,6 +18,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler implements IMinecraft {
+
+    // TAIL runs after forceMainThread and before the next packet can remove/reset the entity.
+    @Inject(method = "onEntityStatus", at = @At("TAIL"))
+    private void omix$autoLStatus(EntityStatusS2CPacket packet, CallbackInfo ci) {
+        AutoLSignals.status(packet);
+    }
+
+    @Inject(method = "onEntityDamage", at = @At("TAIL"))
+    private void omix$autoLDamage(EntityDamageS2CPacket packet, CallbackInfo ci) {
+        AutoLSignals.damage(packet);
+    }
+
+    @Inject(method = "onEntityTrackerUpdate", at = @At("TAIL"))
+    private void omix$autoLMetadata(EntityTrackerUpdateS2CPacket packet, CallbackInfo ci) {
+        AutoLSignals.metadata(packet);
+    }
 
     @Inject(method = "onInventory", at = @At("RETURN"))
     private void afterContainerInventoryApplied(InventoryS2CPacket packet, CallbackInfo ci) {

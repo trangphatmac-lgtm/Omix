@@ -2,7 +2,8 @@ package cn.omix.module.impl.world;
 
 import cn.omix.Client;
 import cn.omix.event.base.annotation.EventTarget;
-import cn.omix.event.impl.AttackEvent;
+import cn.omix.event.impl.PacketEvent;
+import cn.omix.event.impl.PacketLogEvent;
 import cn.omix.event.impl.UpdateEvent;
 import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.Category;
@@ -11,11 +12,14 @@ import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.TextValue;
 import cn.omix.util.network.GameConnectionContext;
+import cn.omix.util.world.CombatDeathTracker;
+import injection.accessor.PlayerInteractEntityC2SPacketAccessor;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
+import net.minecraft.util.Hand;
 
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class AutoL extends Module {
@@ -28,7 +32,8 @@ public final class AutoL extends Module {
     private final ModeValue targetSource = new ModeValue("Target", "Client Name",
             "Client Name", "Account Name", "Custom");
     private final TextValue targetText = new TextValue("Target Text", "", () -> targetSource.is("Custom"));
-    private final Set<PlayerEntity> enemies = new LinkedHashSet<>();
+    private final CombatDeathTracker<PlayerEntity> combat = new CombatDeathTracker<>();
+    private volatile long generation;
 
     public AutoL() {
         super("AutoL", Category.World);
@@ -41,63 +46,90 @@ public final class AutoL extends Module {
 
     @Override
     public void onEnable() {
-        enemies.clear();
+        resetCombat();
     }
 
     @Override
     public void onDisable() {
-        enemies.clear();
+        resetCombat();
     }
 
     @EventTarget
     public void onWorld(WorldEvent event) {
-        enemies.clear();
+        resetCombat();
+    }
+
+    private void resetCombat() {
+        generation++;
+        combat.clear();
     }
 
     @EventTarget
-    public void onAttack(AttackEvent event) {
-        if (!isNativeBehaviorActive() || event.isCancelled() || mc.player == null || mc.world == null) return;
-        if (event.getEntity() instanceof PlayerEntity player
-                && player != mc.player && player.isAlive() && !player.isRemoved()) {
-            enemies.add(player);
+    public void onPacketSent(PacketLogEvent event) {
+        // Observe the final send decision, including packets released by Blink/KeepSprint.
+        if (!isNativeBehaviorActive() || event.isPacketCancelled()
+                || event.getDirection() != PacketEvent.Type.Send
+                || !(event.getPacket() instanceof PlayerInteractEntityC2SPacket packet)) return;
+        long session = generation;
+        mc.execute(() -> {
+            if (session != generation || !isNativeBehaviorActive() || mc.player == null || mc.world == null
+                    || mc.player.networkHandler.getConnection() != event.getConnection()) return;
+            packet.handle(new PlayerInteractEntityC2SPacket.Handler() {
+                public void interact(Hand hand) {}
+                public void interactAt(Hand hand, net.minecraft.util.math.Vec3d pos) {}
+                public void attack() {
+                    Entity entity = mc.world.getEntityById(((PlayerInteractEntityC2SPacketAccessor) packet).omix$getEntityId());
+                    if (entity instanceof PlayerEntity player && player.isAlive()) recordDamage(player);
+                }
+            });
+        });
+    }
+
+    public void recordDamage(Entity entity) {
+        if (entity instanceof PlayerEntity player && player != mc.player && !player.isRemoved()) {
+            combat.hit(player, player.getName().getString(), now());
+        }
+    }
+
+    public void confirmDeath(Entity entity) {
+        if (entity instanceof PlayerEntity player && player != mc.player) combat.death(player, now());
+    }
+
+    public void checkDeath(Entity entity) {
+        if (entity instanceof PlayerEntity player
+                && (player.getHealth() <= 0.0F || player.getPose() == EntityPose.DYING)) {
+            confirmDeath(player);
         }
     }
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
         if (!isNativeBehaviorActive() || mc.player == null || mc.world == null) {
-            enemies.clear();
+            resetCombat();
             return;
         }
-
-        Iterator<PlayerEntity> iterator = enemies.iterator();
-        while (iterator.hasNext()) {
-            PlayerEntity player = iterator.next();
-            // Removal alone can mean a disconnect or leaving render distance, not a death.
-            if (player.getHealth() <= 0.0F) {
-                iterator.remove();
-                String message = getRandomMessage().replace("<target>", getTargetText());
-                if (nameInFront.getValue()) {
-                    message = player.getName().getString() + " " + message;
-                }
-                if (sendL.getValue() && ThreadLocalRandom.current().nextInt(10) < 7) {
-                    message = "Ｌ " + message;
-                }
-                // Custom text must fit a single vanilla chat packet.
-                StringBuilder chat = new StringBuilder();
-                for (int i = 0; i < message.length() && chat.length() < 256; i++) {
-                    char character = message.charAt(i);
-                    if (character >= ' ' && character != '\u007f' && character != '\u00a7') {
-                        chat.append(character);
-                    }
-                }
-                if (!chat.toString().isBlank()) {
-                    mc.player.networkHandler.sendChatMessage(chat.toString());
-                }
-            } else if (player.isRemoved() || !mc.world.hasEntity(player)) {
-                iterator.remove();
-            }
+        for (PlayerEntity player : combat.targets(now())) {
+            checkDeath(player);
+            if (player.isRemoved() || !mc.world.hasEntity(player)) combat.removed(player);
         }
+        for (String name : combat.drainDeaths()) sendMessage(name);
+    }
+
+    private void sendMessage(String name) {
+        String message = getRandomMessage().replace("<target>", getTargetText());
+        if (nameInFront.getValue()) message = name + " " + message;
+        if (sendL.getValue() && ThreadLocalRandom.current().nextInt(10) < 7) message = "Ｌ " + message;
+        // Custom text must fit a single vanilla chat packet.
+        StringBuilder chat = new StringBuilder();
+        for (int i = 0; i < message.length() && chat.length() < 256; i++) {
+            char character = message.charAt(i);
+            if (character >= ' ' && character != '\u007f' && character != '\u00a7') chat.append(character);
+        }
+        if (!chat.toString().isBlank()) mc.player.networkHandler.sendChatMessage(chat.toString());
+    }
+
+    private static long now() {
+        return System.nanoTime() / 1_000_000L;
     }
 
     private String getRandomMessage() {
@@ -222,6 +254,7 @@ public final class AutoL extends Module {
     };
 
     private static final String[] TROLL = {
+            "@大佬萌茶 @Easy曹某 @布吉岛我的世界 遛狗",
             "你怎么又在偷玩电脑？我没有啊爷爷，我在学习。那这个人脱衣服干什么？我真的在学习啊。我靠，我怎么没有关语音输入。",
             "爷爷叫你写作业，你又在偷玩电脑了。哎哟我去，我刚才语音输入忘记关了。",
             "反对奶酪客户瑞，之前我花了70找人帮忙安装水印，（注：电脑是我爷爷的） 安装完后我爷爷的电脑就蓝屏了，然后被我爷爷打了一顿，",
@@ -278,10 +311,20 @@ public final class AutoL extends Module {
             "这人太坏了，看着挺老实的原来坏事做尽",
             "空岛里不好打，起床里好打，四对四还是得看配合",
             "不是哥们，<target>都启动了你怎么还这么谨慎",
-            "这个也没多强啊，来刚毅联机房918496，信不信你打不过我？？"
+            "这个也没多强啊，来刚毅联机房918964，信不信你打不过我？？",
+            """
+ 尾号6883卡9月30日10:28工商银行收入(工资)1500.00元，余额1507.23元。【工商银行】
+尾号6883卡9月30日10:29工商银行向米哈游游戏支出648元，余额859.23元。【工商银行】
+尾号6883卡9月30日10:29工商银行向米哈游游戏支出648元，余额211.23元。【工商银行】
+尾号6883卡9月30日10:29工商银行向米哈游游戏支出198元，余额13.23元。【工商银行】
+尾号6883卡9月30日10:30工商银行向米哈游游戏支出6元，余额7.23元。【工商银行】
+尾号6883卡9月30日10:30工商银行向米哈游游戏支出6元，余额1.23元。【工商银行】
+不小心手滑发出来了 哈哈，有没有妹妹想网恋
+"""
     };
 
     private static final String[] TROLL2 = {
+            "@大佬萌茶 @Easy曹某 @布吉岛我的世界 遛狗",
             "我是药儿，所以没开。",
             "我是服主曼特。已经过花雨庭授权，正在吃饭，谢谢。",
             "食雪汉邀请我测试伺服器(意味深)",
@@ -330,7 +373,7 @@ public final class AutoL extends Module {
             "兄弟们，扛不住了，去庙里吃点共品吧，吃完继续玩迷你世界，哎，扛不住了。",
             "感谢大家一直以来对我的包容和支持，1月28日0点起我为大家申请了高速公路免费8天，大家可以随便使用，晚上19:30，我还为大家在中央电视台准备了春节联欢晚会节目，请大家各自提前安排好时间观看，不想看你也可以早睡，注意身体。不要问花了多少钱，那不重要，大家开心就好，祝大家新年快乐。",
             "这期视频是服主爆爆蛋叫我玩的，哦，那我我去洗个澡了，地心人你们怎么在这？？？？啊咧啊咧。",
-            "获取：3384327934",
+            "获取：9167678964",
             "哈哈哈哈，我也是用的罗技，但是看了一下，打了四五年pvp的我浅评一下，只能说是小儿科了，单纯是搭路，都要慢不少（不管是侧蹲搭，极限蹲搭，走搭等等都要慢），然后pvp也对中等偏上的人不起作用（因为pvp很多时候是靠控距，如果被连起来，喝药也没有），所以还是建议不要用这玩意，练又练不到，看起来还不好使。",
             "我也是迷你玩家\"",
             "我回来了，我就没走",

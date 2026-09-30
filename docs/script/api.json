@@ -12770,6 +12770,108 @@
     "line": 66
   },
   {
+    "owner": "cn.omix.util.world.AutoLSignals",
+    "name": "AutoLSignals",
+    "signature": "cn.omix.util.world.AutoLSignals",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/AutoLSignals.java"
+  },
+  {
+    "owner": "cn.omix.util.world.AutoLSignals",
+    "name": "AutoLSignals",
+    "signature": "public final class AutoLSignals",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/AutoLSignals.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.world.AutoLSignals",
+    "name": "status",
+    "signature": "public static void status(EntityStatusS2CPacket packet)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/AutoLSignals.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.util.world.AutoLSignals",
+    "name": "damage",
+    "signature": "public static void damage(EntityDamageS2CPacket packet)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/AutoLSignals.java",
+    "line": 31
+  },
+  {
+    "owner": "cn.omix.util.world.AutoLSignals",
+    "name": "metadata",
+    "signature": "public static void metadata(EntityTrackerUpdateS2CPacket packet)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/AutoLSignals.java",
+    "line": 43
+  },
+  {
+    "owner": "cn.omix.util.world.CombatDeathTracker",
+    "name": "CombatDeathTracker",
+    "signature": "cn.omix.util.world.CombatDeathTracker",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java"
+  },
+  {
+    "owner": "cn.omix.util.world.CombatDeathTracker",
+    "name": "HIT_WINDOW_MS",
+    "signature": "public static final long HIT_WINDOW_MS",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.world.CombatDeathTracker",
+    "name": "hit",
+    "signature": "public void hit(T entity, String name, long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.world.CombatDeathTracker",
+    "name": "death",
+    "signature": "public void death(T entity, long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.world.CombatDeathTracker",
+    "name": "targets",
+    "signature": "public List<T> targets(long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java",
+    "line": 30
+  },
+  {
+    "owner": "cn.omix.util.world.CombatDeathTracker",
+    "name": "removed",
+    "signature": "public void removed(T entity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java",
+    "line": 35
+  },
+  {
+    "owner": "cn.omix.util.world.CombatDeathTracker",
+    "name": "drainDeaths",
+    "signature": "public List<String> drainDeaths()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java",
+    "line": 40
+  },
+  {
+    "owner": "cn.omix.util.world.CombatDeathTracker",
+    "name": "clear",
+    "signature": "public void clear()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java",
+    "line": 46
+  },
+  {
     "owner": "cn.omix.util.world.ScaffoldMutex",
     "name": "ScaffoldMutex",
     "signature": "cn.omix.util.world.ScaffoldMutex",
