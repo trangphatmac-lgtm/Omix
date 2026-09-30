@@ -70,7 +70,7 @@ export async function createServer({gameDir, referenceDir = existsSync(localRefe
     ...JSON.parse(await readReference('tools.json')),
     ...JSON.parse(await readReference('game-tools.json')),
   ];
-  const server = new McpServer({name: 'omix-script', version: '1.1.0'}, {instructions:
+  const server = new McpServer({name: 'Omix Minecraft Sandbox', title: 'Omix Minecraft Sandbox', version: '1.1.0'}, {instructions:
     'Omix exposes the same Minecraft game tools as its in-game AI, plus Java script development. '
     + 'Call omix_status before game work for current gameContext, toolContext, worldEpoch and available tools. '
     + 'Read omix_reference for the same client/module/command reference supplied to the in-game AI. '
