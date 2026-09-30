@@ -11,6 +11,7 @@ Omix Client source reference (defaults are not live configuration):
 - [Move 移动模块](modules/move.md)
 - [Player 玩家与背包模块](modules/player.md)
 - [Render 画面与界面模块](modules/render.md)
+- [Skeet ClickGUI 操作与移植说明](skeet-clickgui.md)
 - [World 世界交互模块](modules/world.md)
 - [AI Tools 及每个参数](ai-tools.md)
 - [Java 脚本、开发面板与 MCP](script/README.md)
@@ -58,6 +59,7 @@ Web 和 Node 相关源码统一位于项目根目录 `src-web/`：`webui/`、`mu
 | `player/blockin/` | `BlockInPlanner` |
 | `player/chest/` | `ChestScreenState`、`ChestScreenGuard`、`ChestInteractionState` |
 | `world/` | `ScaffoldMutex`、`VictorySignalMatcher` |
+| `skeet/` | Gamesense 界面的布局、字体绘制、设置适配、文本编辑和本地配置面板 |
 
 本次迁移只调整包路径、导入和跨包调用所需的可见性，模块行为与配置保持不变。
 
@@ -1174,13 +1176,13 @@ GrimPlus 移植提供的 NoFall 逆向状态机：使用上一轮 PRE 采样的�
 
 ## ClickGui
 
-默认右 Shift 打开模块配置界面，打开后自动关闭模块。Web 模式使用现有 WebUI，启动失败时回退原生界面；Remix 模式直接打开原生 ClickGUI。WebUI 页面提前加载，重复打开时复用已加载的页面并后台刷新模块状态；记忆模块/配置页、分类、选中模块、搜索内容、选中配置及滚动位置，重启后也会恢复。已移除的模块或配置会自动回退到有效选项。 Sigma 打开 Jello 原生分类面板，支持拖动、滚动、右键设置、中键绑定及 Profiles；沿用原版字体、图片、模糊和动画，不含 Jello Music。Profiles 使用本地 Omix 配置，Sigma 旧在线配置不兼容。
+默认右 Shift 打开模块配置界面，打开后自动关闭模块。Web 模式使用现有 WebUI，启动失败时回退原生界面；Remix 模式直接打开原生 ClickGUI。WebUI 页面提前加载，重复打开时复用已加载的页面并后台刷新模块状态；记忆模块/配置页、分类、选中模块、搜索内容、选中配置及滚动位置，重启后也会恢复。已移除的模块或配置会自动回退到有效选项。 Sigma 打开 Jello 原生分类面板，支持拖动、滚动、右键设置、中键绑定及 Profiles；沿用原版字体、图片、模糊和动画，不含 Jello Music。Profiles 使用本地 Omix 配置，Sigma 旧在线配置不兼容。 Skeet 打开移植自 Exhibition-Reborn 的 Gamesense 原生界面，使用纹理背景、图标分类和双列设置框，支持全部 Value 类型、动态脚本设置、模块绑定及本地配置管理；关闭时保存当前配置。操作详见 docs/skeet-clickgui.md。
 
 源码：`src/main/java/cn/omix/module/impl/render/ClickGui.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Web 打开 WebUI；Remix 打开原原生 ClickGUI；Sigma 打开 Jello ClickGUI。 | 模式；默认 Web；可选 Web / Remix / Sigma |
+| Mode | Web 打开 WebUI；Remix 打开原生 ClickGUI；Sigma 打开 Jello ClickGUI；Skeet 打开 Gamesense 风格 ClickGUI。 | 模式；默认 Web；可选 Web / Remix / Sigma / Skeet |
 
 ## AIScreen
 

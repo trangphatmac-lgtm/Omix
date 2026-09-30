@@ -404,7 +404,7 @@ processResources {
 
     // Ship the user-facing reference verbatim; Agent has no separate documentation copy.
     from("docs") {
-        include "README.md", "commands.md", "ai-tools.md", "rotation-manager.md", "projectileaura.md", "modules/*.md"
+        include "README.md", "commands.md", "ai-tools.md", "rotation-manager.md", "projectileaura.md", "skeet-clickgui.md", "modules/*.md"
         into "assets/omix/ai/reference"
     }
 

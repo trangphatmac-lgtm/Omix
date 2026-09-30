@@ -12731,6 +12731,767 @@
     "line": 139
   },
   {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "SkeetDraw",
+    "signature": "cn.omix.util.skeet.SkeetDraw",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java"
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "SkeetDraw",
+    "signature": "public final class SkeetDraw",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "TEXT",
+    "signature": "public static final int TEXT",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "BACKGROUND",
+    "signature": "public static final Identifier BACKGROUND",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "SkeetDraw",
+    "signature": "public SkeetDraw(int density, float opacity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "color",
+    "signature": "public int color(int rgb)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "font",
+    "signature": "public TrueTypeFont font()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "header",
+    "signature": "public TrueTypeFont header()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "icons",
+    "signature": "public TrueTypeFont icons()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 27
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "rect",
+    "signature": "public void rect(DrawContext c, float x, float y, float w, float h, int rgb)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 46
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "gradient",
+    "signature": "public void gradient(DrawContext c, float x, float y, float w, float h, int a, int b, boolean horizontal)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 49
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "text",
+    "signature": "public void text(DrawContext c, String text, float x, float y, int rgb)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 52
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "clipped",
+    "signature": "public void clipped(DrawContext c, String text, SkeetLayout.Rect bounds, int rgb)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 55
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "scissor",
+    "signature": "public static void scissor(DrawContext c, SkeetLayout.Rect r)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 60
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "group",
+    "signature": "public void group(DrawContext c, String title, SkeetLayout.Rect r)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 65
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "field",
+    "signature": "public void field(DrawContext c, SkeetLayout.Rect r, boolean hovered)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 76
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "checkbox",
+    "signature": "public void checkbox(DrawContext c, float x, float y, boolean checked, boolean hovered)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 82
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "button",
+    "signature": "public void button(DrawContext c, String label, SkeetLayout.Rect r, boolean hovered, boolean enabled)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 87
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetDraw",
+    "name": "scrollbar",
+    "signature": "public void scrollbar(DrawContext c, SkeetLayout.Rect r, float content, float scroll)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetDraw.java",
+    "line": 92
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout",
+    "name": "SkeetLayout",
+    "signature": "cn.omix.util.skeet.SkeetLayout",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java"
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout",
+    "name": "SkeetLayout",
+    "signature": "public final class SkeetLayout",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout",
+    "name": "WIDTH",
+    "signature": "public static final float WIDTH",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java",
+    "line": 5
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout",
+    "name": "GROUP_WIDTH",
+    "signature": "public static final float GROUP_WIDTH",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java",
+    "line": 6
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout",
+    "name": "Rect",
+    "signature": "public record Rect(float x, float y, float width, float height)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout.Rect",
+    "name": "contains",
+    "signature": "public boolean contains(double mx, double my)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout.Rect",
+    "name": "intersects",
+    "signature": "public boolean intersects(Rect other)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout.Rect",
+    "name": "inset",
+    "signature": "public Rect inset(float amount)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout",
+    "name": "Viewport",
+    "signature": "public record Viewport(float width, float height, float scaleX, float scaleY, float mouseScaleX, float mouseScaleY, int fontDensity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout.Viewport",
+    "name": "mouseX",
+    "signature": "public float mouseX(double x)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout.Viewport",
+    "name": "mouseY",
+    "signature": "public float mouseY(double y)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout",
+    "name": "viewport",
+    "signature": "public static Viewport viewport(int windowWidth, int windowHeight, int framebufferWidth, int framebufferHeight, int scaledWidth, int scaledHeight, float guiScale)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java",
+    "line": 29
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout",
+    "name": "scroll",
+    "signature": "public static float scroll(float requested, float content, float visible)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java",
+    "line": 41
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout",
+    "name": "popup",
+    "signature": "public static Rect popup(Rect anchor, float width, float height, Rect viewport)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java",
+    "line": 46
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout",
+    "name": "sliderValue",
+    "signature": "public static float sliderValue(float fraction, float min, float max, float step)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java",
+    "line": 55
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetLayout",
+    "name": "format",
+    "signature": "public static String format(float value)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetLayout.java",
+    "line": 65
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetModules",
+    "name": "SkeetModules",
+    "signature": "cn.omix.util.skeet.SkeetModules",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetModules.java"
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetModules",
+    "name": "SkeetModules",
+    "signature": "public final class SkeetModules",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetModules.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetModules",
+    "name": "Group",
+    "signature": "public record Group(Module module, Rect bounds, List<SkeetSettings.Row> rows)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetModules.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetModules.Group",
+    "name": "enable",
+    "signature": "public Rect enable()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetModules.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetModules.Group",
+    "name": "bind",
+    "signature": "public Rect bind()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetModules.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetModules",
+    "name": "Layout",
+    "signature": "public record Layout(List<Group> groups, List<SkeetSettings.Row> rows, float height)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetModules.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetModules",
+    "name": "visibleValues",
+    "signature": "public static List<Value> visibleValues(Module module)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetModules.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetModules",
+    "name": "layout",
+    "signature": "public static Layout layout(List<Module> modules, float x, float y, float scroll)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetModules.java",
+    "line": 27
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetProfiles",
+    "name": "SkeetProfiles",
+    "signature": "cn.omix.util.skeet.SkeetProfiles",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetProfiles.java"
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetProfiles",
+    "name": "IMinecraft",
+    "signature": "public final class SkeetProfiles implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetProfiles.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetProfiles",
+    "name": "SkeetProfiles",
+    "signature": "public SkeetProfiles()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetProfiles.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetProfiles",
+    "name": "refresh",
+    "signature": "public void refresh()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetProfiles.java",
+    "line": 28
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetProfiles",
+    "name": "layout",
+    "signature": "public void layout(float x, float y, float height)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetProfiles.java",
+    "line": 39
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetProfiles",
+    "name": "draw",
+    "signature": "public void draw(DrawContext c, SkeetDraw draw, float mx, float my)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetProfiles.java",
+    "line": 49
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetProfiles",
+    "name": "click",
+    "signature": "public boolean click(float mx, float my, int button)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetProfiles.java",
+    "line": 85
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetProfiles",
+    "name": "key",
+    "signature": "public boolean key(KeyInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetProfiles.java",
+    "line": 136
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetProfiles",
+    "name": "type",
+    "signature": "public boolean type(CharInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetProfiles.java",
+    "line": 146
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetProfiles",
+    "name": "blur",
+    "signature": "public void blur()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetProfiles.java",
+    "line": 147
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetProfiles",
+    "name": "scroll",
+    "signature": "public void scroll(float mx, float my, double amount)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetProfiles.java",
+    "line": 148
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetProfiles",
+    "name": "validName",
+    "signature": "public static boolean validName(String name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetProfiles.java",
+    "line": 152
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "SkeetSettings",
+    "signature": "cn.omix.util.skeet.SkeetSettings",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java"
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "SkeetSettings",
+    "signature": "public final class SkeetSettings",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "Row",
+    "signature": "public record Row(Value value, Rect bounds)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "message",
+    "signature": "public String message()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 34
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "height",
+    "signature": "public static float height(Value value)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 36
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "layout",
+    "signature": "public void layout(List<Row> rows, Rect clip, Rect window)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 42
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "drawRow",
+    "signature": "public void drawRow(DrawContext c, SkeetDraw draw, Row row, float mx, float my)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 68
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "drawOverlay",
+    "signature": "public void drawOverlay(DrawContext c, SkeetDraw draw, float mx, float my)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 127
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "overlayClick",
+    "signature": "public boolean overlayClick(float mx, float my, int button)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 166
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "click",
+    "signature": "public boolean click(float mx, float my, int button)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 197
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "drag",
+    "signature": "public boolean drag(float mx, float my)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 218
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "release",
+    "signature": "public void release()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 230
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "scrollPopup",
+    "signature": "public boolean scrollPopup(double amount)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 231
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "key",
+    "signature": "public boolean key(KeyInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 236
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "type",
+    "signature": "public boolean type(CharInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 250
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "blur",
+    "signature": "public void blur()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 258
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetSettings",
+    "name": "reset",
+    "signature": "public void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetSettings.java",
+    "line": 259
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextBuffer",
+    "name": "SkeetTextBuffer",
+    "signature": "cn.omix.util.skeet.SkeetTextBuffer",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextBuffer.java"
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextBuffer",
+    "name": "SkeetTextBuffer",
+    "signature": "public final class SkeetTextBuffer",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextBuffer.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextBuffer",
+    "name": "SkeetTextBuffer",
+    "signature": "public SkeetTextBuffer(int limit)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextBuffer.java",
+    "line": 9
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextBuffer",
+    "name": "value",
+    "signature": "public String value()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextBuffer.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextBuffer",
+    "name": "cursor",
+    "signature": "public int cursor()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextBuffer.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextBuffer",
+    "name": "anchor",
+    "signature": "public int anchor()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextBuffer.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextBuffer",
+    "name": "set",
+    "signature": "public void set(String text)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextBuffer.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextBuffer",
+    "name": "selectAll",
+    "signature": "public void selectAll()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextBuffer.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextBuffer",
+    "name": "selection",
+    "signature": "public String selection()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextBuffer.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextBuffer",
+    "name": "move",
+    "signature": "public void move(int direction, boolean selecting)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextBuffer.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextBuffer",
+    "name": "home",
+    "signature": "public void home(boolean selecting)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextBuffer.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextBuffer",
+    "name": "end",
+    "signature": "public void end(boolean selecting)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextBuffer.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextBuffer",
+    "name": "erase",
+    "signature": "public void erase(boolean backwards)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextBuffer.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextBuffer",
+    "name": "replace",
+    "signature": "public void replace(String text)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextBuffer.java",
+    "line": 31
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextField",
+    "name": "SkeetTextField",
+    "signature": "cn.omix.util.skeet.SkeetTextField",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextField.java"
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextField",
+    "name": "IMinecraft",
+    "signature": "public final class SkeetTextField implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextField.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextField",
+    "name": "SkeetTextField",
+    "signature": "public SkeetTextField(int limit, boolean sensitive)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextField.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextField",
+    "name": "value",
+    "signature": "public String value()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextField.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextField",
+    "name": "focused",
+    "signature": "public boolean focused()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextField.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextField",
+    "name": "set",
+    "signature": "public void set(String text)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextField.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextField",
+    "name": "focus",
+    "signature": "public void focus(boolean focus)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextField.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextField",
+    "name": "key",
+    "signature": "public boolean key(KeyInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextField.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextField",
+    "name": "type",
+    "signature": "public boolean type(CharInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextField.java",
+    "line": 47
+  },
+  {
+    "owner": "cn.omix.util.skeet.SkeetTextField",
+    "name": "draw",
+    "signature": "public void draw(DrawContext c, SkeetDraw draw, SkeetLayout.Rect bounds, String placeholder)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/skeet/SkeetTextField.java",
+    "line": 51
+  },
+  {
     "owner": "cn.omix.util.webui.WebPanelLayout",
     "name": "WebPanelLayout",
     "signature": "cn.omix.util.webui.WebPanelLayout",

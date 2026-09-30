@@ -1626,6 +1626,102 @@
 - `cn.omix.util.sigma.SigmaWorldRender` — `public static void shadowSprite(Render3DEvent event, Entity entity)`
 - `cn.omix.util.sigma.SigmaWorldRender` — `public static Vec3d[] corners(Box box)`
 - `cn.omix.util.sigma.SigmaWorldRender` — `public static void silhouette(Render3DEvent event, Box box, int color, float width)`
+- `cn.omix.util.skeet.SkeetDraw` — `cn.omix.util.skeet.SkeetDraw`
+- `cn.omix.util.skeet.SkeetDraw` — `public final class SkeetDraw`
+- `cn.omix.util.skeet.SkeetDraw` — `public static final int TEXT`
+- `cn.omix.util.skeet.SkeetDraw` — `public static final Identifier BACKGROUND`
+- `cn.omix.util.skeet.SkeetDraw` — `public SkeetDraw(int density, float opacity)`
+- `cn.omix.util.skeet.SkeetDraw` — `public int color(int rgb)`
+- `cn.omix.util.skeet.SkeetDraw` — `public TrueTypeFont font()`
+- `cn.omix.util.skeet.SkeetDraw` — `public TrueTypeFont header()`
+- `cn.omix.util.skeet.SkeetDraw` — `public TrueTypeFont icons()`
+- `cn.omix.util.skeet.SkeetDraw` — `public void rect(DrawContext c, float x, float y, float w, float h, int rgb)`
+- `cn.omix.util.skeet.SkeetDraw` — `public void gradient(DrawContext c, float x, float y, float w, float h, int a, int b, boolean horizontal)`
+- `cn.omix.util.skeet.SkeetDraw` — `public void text(DrawContext c, String text, float x, float y, int rgb)`
+- `cn.omix.util.skeet.SkeetDraw` — `public void clipped(DrawContext c, String text, SkeetLayout.Rect bounds, int rgb)`
+- `cn.omix.util.skeet.SkeetDraw` — `public static void scissor(DrawContext c, SkeetLayout.Rect r)`
+- `cn.omix.util.skeet.SkeetDraw` — `public void group(DrawContext c, String title, SkeetLayout.Rect r)`
+- `cn.omix.util.skeet.SkeetDraw` — `public void field(DrawContext c, SkeetLayout.Rect r, boolean hovered)`
+- `cn.omix.util.skeet.SkeetDraw` — `public void checkbox(DrawContext c, float x, float y, boolean checked, boolean hovered)`
+- `cn.omix.util.skeet.SkeetDraw` — `public void button(DrawContext c, String label, SkeetLayout.Rect r, boolean hovered, boolean enabled)`
+- `cn.omix.util.skeet.SkeetDraw` — `public void scrollbar(DrawContext c, SkeetLayout.Rect r, float content, float scroll)`
+- `cn.omix.util.skeet.SkeetLayout` — `cn.omix.util.skeet.SkeetLayout`
+- `cn.omix.util.skeet.SkeetLayout` — `public final class SkeetLayout`
+- `cn.omix.util.skeet.SkeetLayout` — `public static final float WIDTH`
+- `cn.omix.util.skeet.SkeetLayout` — `public static final float GROUP_WIDTH`
+- `cn.omix.util.skeet.SkeetLayout` — `public record Rect(float x, float y, float width, float height)`
+- `cn.omix.util.skeet.SkeetLayout.Rect` — `public boolean contains(double mx, double my)`
+- `cn.omix.util.skeet.SkeetLayout.Rect` — `public boolean intersects(Rect other)`
+- `cn.omix.util.skeet.SkeetLayout.Rect` — `public Rect inset(float amount)`
+- `cn.omix.util.skeet.SkeetLayout` — `public record Viewport(float width, float height, float scaleX, float scaleY, float mouseScaleX, float mouseScaleY, int fontDensity)`
+- `cn.omix.util.skeet.SkeetLayout.Viewport` — `public float mouseX(double x)`
+- `cn.omix.util.skeet.SkeetLayout.Viewport` — `public float mouseY(double y)`
+- `cn.omix.util.skeet.SkeetLayout` — `public static Viewport viewport(int windowWidth, int windowHeight, int framebufferWidth, int framebufferHeight, int scaledWidth, int scaledHeight, float guiScale)`
+- `cn.omix.util.skeet.SkeetLayout` — `public static float scroll(float requested, float content, float visible)`
+- `cn.omix.util.skeet.SkeetLayout` — `public static Rect popup(Rect anchor, float width, float height, Rect viewport)`
+- `cn.omix.util.skeet.SkeetLayout` — `public static float sliderValue(float fraction, float min, float max, float step)`
+- `cn.omix.util.skeet.SkeetLayout` — `public static String format(float value)`
+- `cn.omix.util.skeet.SkeetModules` — `cn.omix.util.skeet.SkeetModules`
+- `cn.omix.util.skeet.SkeetModules` — `public final class SkeetModules`
+- `cn.omix.util.skeet.SkeetModules` — `public record Group(Module module, Rect bounds, List<SkeetSettings.Row> rows)`
+- `cn.omix.util.skeet.SkeetModules.Group` — `public Rect enable()`
+- `cn.omix.util.skeet.SkeetModules.Group` — `public Rect bind()`
+- `cn.omix.util.skeet.SkeetModules` — `public record Layout(List<Group> groups, List<SkeetSettings.Row> rows, float height)`
+- `cn.omix.util.skeet.SkeetModules` — `public static List<Value> visibleValues(Module module)`
+- `cn.omix.util.skeet.SkeetModules` — `public static Layout layout(List<Module> modules, float x, float y, float scroll)`
+- `cn.omix.util.skeet.SkeetProfiles` — `cn.omix.util.skeet.SkeetProfiles`
+- `cn.omix.util.skeet.SkeetProfiles` — `public final class SkeetProfiles implements IMinecraft`
+- `cn.omix.util.skeet.SkeetProfiles` — `public SkeetProfiles()`
+- `cn.omix.util.skeet.SkeetProfiles` — `public void refresh()`
+- `cn.omix.util.skeet.SkeetProfiles` — `public void layout(float x, float y, float height)`
+- `cn.omix.util.skeet.SkeetProfiles` — `public void draw(DrawContext c, SkeetDraw draw, float mx, float my)`
+- `cn.omix.util.skeet.SkeetProfiles` — `public boolean click(float mx, float my, int button)`
+- `cn.omix.util.skeet.SkeetProfiles` — `public boolean key(KeyInput input)`
+- `cn.omix.util.skeet.SkeetProfiles` — `public boolean type(CharInput input)`
+- `cn.omix.util.skeet.SkeetProfiles` — `public void blur()`
+- `cn.omix.util.skeet.SkeetProfiles` — `public void scroll(float mx, float my, double amount)`
+- `cn.omix.util.skeet.SkeetProfiles` — `public static boolean validName(String name)`
+- `cn.omix.util.skeet.SkeetSettings` — `cn.omix.util.skeet.SkeetSettings`
+- `cn.omix.util.skeet.SkeetSettings` — `public final class SkeetSettings`
+- `cn.omix.util.skeet.SkeetSettings` — `public record Row(Value value, Rect bounds)`
+- `cn.omix.util.skeet.SkeetSettings` — `public String message()`
+- `cn.omix.util.skeet.SkeetSettings` — `public static float height(Value value)`
+- `cn.omix.util.skeet.SkeetSettings` — `public void layout(List<Row> rows, Rect clip, Rect window)`
+- `cn.omix.util.skeet.SkeetSettings` — `public void drawRow(DrawContext c, SkeetDraw draw, Row row, float mx, float my)`
+- `cn.omix.util.skeet.SkeetSettings` — `public void drawOverlay(DrawContext c, SkeetDraw draw, float mx, float my)`
+- `cn.omix.util.skeet.SkeetSettings` — `public boolean overlayClick(float mx, float my, int button)`
+- `cn.omix.util.skeet.SkeetSettings` — `public boolean click(float mx, float my, int button)`
+- `cn.omix.util.skeet.SkeetSettings` — `public boolean drag(float mx, float my)`
+- `cn.omix.util.skeet.SkeetSettings` — `public void release()`
+- `cn.omix.util.skeet.SkeetSettings` — `public boolean scrollPopup(double amount)`
+- `cn.omix.util.skeet.SkeetSettings` — `public boolean key(KeyInput input)`
+- `cn.omix.util.skeet.SkeetSettings` — `public boolean type(CharInput input)`
+- `cn.omix.util.skeet.SkeetSettings` — `public void blur()`
+- `cn.omix.util.skeet.SkeetSettings` — `public void reset()`
+- `cn.omix.util.skeet.SkeetTextBuffer` — `cn.omix.util.skeet.SkeetTextBuffer`
+- `cn.omix.util.skeet.SkeetTextBuffer` — `public final class SkeetTextBuffer`
+- `cn.omix.util.skeet.SkeetTextBuffer` — `public SkeetTextBuffer(int limit)`
+- `cn.omix.util.skeet.SkeetTextBuffer` — `public String value()`
+- `cn.omix.util.skeet.SkeetTextBuffer` — `public int cursor()`
+- `cn.omix.util.skeet.SkeetTextBuffer` — `public int anchor()`
+- `cn.omix.util.skeet.SkeetTextBuffer` — `public void set(String text)`
+- `cn.omix.util.skeet.SkeetTextBuffer` — `public void selectAll()`
+- `cn.omix.util.skeet.SkeetTextBuffer` — `public String selection()`
+- `cn.omix.util.skeet.SkeetTextBuffer` — `public void move(int direction, boolean selecting)`
+- `cn.omix.util.skeet.SkeetTextBuffer` — `public void home(boolean selecting)`
+- `cn.omix.util.skeet.SkeetTextBuffer` — `public void end(boolean selecting)`
+- `cn.omix.util.skeet.SkeetTextBuffer` — `public void erase(boolean backwards)`
+- `cn.omix.util.skeet.SkeetTextBuffer` — `public void replace(String text)`
+- `cn.omix.util.skeet.SkeetTextField` — `cn.omix.util.skeet.SkeetTextField`
+- `cn.omix.util.skeet.SkeetTextField` — `public final class SkeetTextField implements IMinecraft`
+- `cn.omix.util.skeet.SkeetTextField` — `public SkeetTextField(int limit, boolean sensitive)`
+- `cn.omix.util.skeet.SkeetTextField` — `public String value()`
+- `cn.omix.util.skeet.SkeetTextField` — `public boolean focused()`
+- `cn.omix.util.skeet.SkeetTextField` — `public void set(String text)`
+- `cn.omix.util.skeet.SkeetTextField` — `public void focus(boolean focus)`
+- `cn.omix.util.skeet.SkeetTextField` — `public boolean key(KeyInput input)`
+- `cn.omix.util.skeet.SkeetTextField` — `public boolean type(CharInput input)`
+- `cn.omix.util.skeet.SkeetTextField` — `public void draw(DrawContext c, SkeetDraw draw, SkeetLayout.Rect bounds, String placeholder)`
 - `cn.omix.util.webui.WebPanelLayout` — `cn.omix.util.webui.WebPanelLayout`
 - `cn.omix.util.webui.WebPanelLayout` — `public record WebPanelLayout( int x, int y, int width, int height, int cornerRadius )`
 - `cn.omix.util.webui.WebPanelLayout` — `public static WebPanelLayout current()`
