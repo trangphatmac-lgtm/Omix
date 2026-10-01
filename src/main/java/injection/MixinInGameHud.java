@@ -2,6 +2,7 @@ package injection;
 
 import cn.omix.event.impl.Render2DEvent;
 import cn.omix.module.impl.render.HUD;
+import cn.omix.module.impl.render.KillEffect;
 import cn.omix.util.IMinecraft;
 import cn.omix.util.misc.TimerUtil;
 import net.minecraft.client.gui.DrawContext;
@@ -50,6 +51,12 @@ public abstract class MixinInGameHud implements IMinecraft {
         cachedHudState.forEachItemElement(context.state::addItem);
         cachedHudState.forEachSpecialElement(context.state::addSpecialElement);
         cn.omix.util.sigma.SigmaRearView.get().draw(context);
+    }
+
+    @Inject(method = "render", at = @At("TAIL"))
+    private void omix$killMemeOverlay(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+        KillEffect killEffect = instance.getModuleManager().getModule(KillEffect.class);
+        if (killEffect != null) killEffect.renderMeme(context);
     }
 
     @Inject(method = "renderStatusEffectOverlay", at = @At("HEAD"), cancellable = true)

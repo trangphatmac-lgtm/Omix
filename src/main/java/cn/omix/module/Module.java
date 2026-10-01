@@ -2,6 +2,7 @@ package cn.omix.module;
 
 import cn.omix.Client;
 import cn.omix.module.impl.render.Notify;
+import cn.omix.module.impl.render.ToggleSounds;
 import cn.omix.module.value.Value;
 import cn.omix.util.IMinecraft;
 import cn.omix.util.Util;
@@ -47,12 +48,20 @@ public abstract class Module implements IMinecraft {
             }
 
             if (this.enabled == enabled
-                    && !(this instanceof Notify)
                     && Client.instance != null
                     && Client.instance.getModuleManager() != null
                     && Client.instance.getModuleManager().getModuleMap().containsValue(this)) {
-                Util.log(getName() + ": " + (isEnabled() ? "&a&lON" : "&c&lOFF"));
-                cn.omix.util.sigma.SigmaSounds.toggled(isEnabled());
+                if (!(this instanceof Notify)) {
+                    Util.log(getName() + ": " + (isEnabled() ? "&a&lON" : "&c&lOFF"));
+                }
+                ToggleSounds sounds = Client.instance.getModuleManager().getModule(ToggleSounds.class);
+                // Also play the final OFF sound when ToggleSounds itself is disabled.
+                if (sounds != null && (sounds.isNativeBehaviorActive()
+                        || (this == sounds && sounds.getScriptMode() == null))) {
+                    sounds.playToggle(isEnabled());
+                } else if (!(this instanceof Notify)) {
+                    cn.omix.util.sigma.SigmaSounds.toggled(isEnabled());
+                }
             }
         }
     }

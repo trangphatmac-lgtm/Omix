@@ -1317,6 +1317,15 @@
 - `cn.omix.util.render.ColorUtil` — `public static int getFade(int counter, int alpha)`
 - `cn.omix.util.render.ColorUtil` — `public static int getFade(int firstColor, int secondColor, int counter, int alpha)`
 - `cn.omix.util.render.ColorUtil` — `public static int getRainbow(int counter, int alpha)`
+- `cn.omix.util.render.KillMemeOverlay` — `cn.omix.util.render.KillMemeOverlay`
+- `cn.omix.util.render.KillMemeOverlay` — `public final class KillMemeOverlay`
+- `cn.omix.util.render.KillMemeOverlay` — `public void spawn(double x, double y, double z, long now, float seconds)`
+- `cn.omix.util.render.KillMemeOverlay` — `public void clear()`
+- `cn.omix.util.render.KillMemeOverlay` — `public void project(Render3DEvent event, long now)`
+- `cn.omix.util.render.KillMemeOverlay` — `public void draw(DrawContext context, long now)`
+- `cn.omix.util.render.KillMemeOverlay.MeshState` — `public RenderPipeline pipeline()`
+- `cn.omix.util.render.KillMemeOverlay.MeshState` — `public TextureSetup textureSetup()`
+- `cn.omix.util.render.KillMemeOverlay.MeshState` — `public void setupVertices(VertexConsumer buffer)`
 - `cn.omix.util.render.LivingEntityRenderStateExtension` — `cn.omix.util.render.LivingEntityRenderStateExtension`
 - `cn.omix.util.render.LivingEntityRenderStateExtension` — `public interface LivingEntityRenderStateExtension`
 - `cn.omix.util.render.Pipelines` — `cn.omix.util.render.Pipelines`
@@ -1722,6 +1731,9 @@
 - `cn.omix.util.skeet.SkeetTextField` — `public boolean key(KeyInput input)`
 - `cn.omix.util.skeet.SkeetTextField` — `public boolean type(CharInput input)`
 - `cn.omix.util.skeet.SkeetTextField` — `public void draw(DrawContext c, SkeetDraw draw, SkeetLayout.Rect bounds, String placeholder)`
+- `cn.omix.util.sound.WavSounds` — `cn.omix.util.sound.WavSounds`
+- `cn.omix.util.sound.WavSounds` — `public final class WavSounds`
+- `cn.omix.util.sound.WavSounds` — `public static void play(String resource)`
 - `cn.omix.util.webui.WebPanelLayout` — `cn.omix.util.webui.WebPanelLayout`
 - `cn.omix.util.webui.WebPanelLayout` — `public record WebPanelLayout( int x, int y, int width, int height, int cornerRadius )`
 - `cn.omix.util.webui.WebPanelLayout` — `public static WebPanelLayout current()`

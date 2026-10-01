@@ -133,6 +133,7 @@ public class ModuleManager implements IMinecraft {
                 new ViewClip(),
                 new ItemPhysics(),
                 new Notify(),
+                new ToggleSounds(),
                 new KeepSprint(),
                 new Animation(),
                 new ESP(),

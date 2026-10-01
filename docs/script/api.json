@@ -10300,6 +10300,77 @@
     "line": 59
   },
   {
+    "owner": "cn.omix.util.render.KillMemeOverlay",
+    "name": "KillMemeOverlay",
+    "signature": "cn.omix.util.render.KillMemeOverlay",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/render/KillMemeOverlay.java"
+  },
+  {
+    "owner": "cn.omix.util.render.KillMemeOverlay",
+    "name": "KillMemeOverlay",
+    "signature": "public final class KillMemeOverlay",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/KillMemeOverlay.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.render.KillMemeOverlay",
+    "name": "spawn",
+    "signature": "public void spawn(double x, double y, double z, long now, float seconds)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/KillMemeOverlay.java",
+    "line": 29
+  },
+  {
+    "owner": "cn.omix.util.render.KillMemeOverlay",
+    "name": "clear",
+    "signature": "public void clear()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/KillMemeOverlay.java",
+    "line": 35
+  },
+  {
+    "owner": "cn.omix.util.render.KillMemeOverlay",
+    "name": "project",
+    "signature": "public void project(Render3DEvent event, long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/KillMemeOverlay.java",
+    "line": 45
+  },
+  {
+    "owner": "cn.omix.util.render.KillMemeOverlay",
+    "name": "draw",
+    "signature": "public void draw(DrawContext context, long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/KillMemeOverlay.java",
+    "line": 55
+  },
+  {
+    "owner": "cn.omix.util.render.KillMemeOverlay.MeshState",
+    "name": "pipeline",
+    "signature": "public RenderPipeline pipeline()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/KillMemeOverlay.java",
+    "line": 91
+  },
+  {
+    "owner": "cn.omix.util.render.KillMemeOverlay.MeshState",
+    "name": "textureSetup",
+    "signature": "public TextureSetup textureSetup()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/KillMemeOverlay.java",
+    "line": 92
+  },
+  {
+    "owner": "cn.omix.util.render.KillMemeOverlay.MeshState",
+    "name": "setupVertices",
+    "signature": "public void setupVertices(VertexConsumer buffer)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/KillMemeOverlay.java",
+    "line": 94
+  },
+  {
     "owner": "cn.omix.util.render.LivingEntityRenderStateExtension",
     "name": "LivingEntityRenderStateExtension",
     "signature": "cn.omix.util.render.LivingEntityRenderStateExtension",
@@ -13490,6 +13561,29 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/skeet/SkeetTextField.java",
     "line": 51
+  },
+  {
+    "owner": "cn.omix.util.sound.WavSounds",
+    "name": "WavSounds",
+    "signature": "cn.omix.util.sound.WavSounds",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/sound/WavSounds.java"
+  },
+  {
+    "owner": "cn.omix.util.sound.WavSounds",
+    "name": "WavSounds",
+    "signature": "public final class WavSounds",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sound/WavSounds.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.sound.WavSounds",
+    "name": "play",
+    "signature": "public static void play(String resource)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/sound/WavSounds.java",
+    "line": 26
   },
   {
     "owner": "cn.omix.util.webui.WebPanelLayout",

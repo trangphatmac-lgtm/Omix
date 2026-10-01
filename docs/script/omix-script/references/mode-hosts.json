@@ -415,6 +415,11 @@
     "source": "src/main/java/cn/omix/module/impl/render/TargetHUD.java"
   },
   {
+    "module": "ToggleSounds",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/render/ToggleSounds.java"
+  },
+  {
     "module": "Tracers",
     "selector": "Behavior",
     "source": "src/main/java/cn/omix/module/impl/render/Tracers.java"

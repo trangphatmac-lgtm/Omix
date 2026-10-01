@@ -3,7 +3,7 @@ Omix Client source reference (defaults are not live configuration):
 --- docs/README.md ---
 # Omix Client 使用参考
 
-本参考依据仓库中实际注册和执行的源码编写，覆盖内置命令、通用模块命令、99 个内置模块，以及 22 个游戏工具和 14 个脚本开发工具。脚本运行时还可动态增加模块、模式与命令。命令拼写和模块名称保留源码原样，介绍使用中文。
+本参考依据仓库中实际注册和执行的源码编写，覆盖内置命令、通用模块命令、100 个内置模块，以及 22 个游戏工具和 14 个脚本开发工具。脚本运行时还可动态增加模块、模式与命令。命令拼写和模块名称保留源码原样，介绍使用中文。
 
 - [命令及每个选项](commands.md)
 - [Combat 战斗模块](modules/combat.md)
@@ -1321,6 +1321,16 @@ GrimPlus 移植提供的 NoFall 逆向状态机：使用上一轮 PRE 采样的�
 | --- | --- | --- |
 | Mode | Chat 聊天；HUD 屏幕；Both 同时显示。 | 模式；默认 HUD；可选 Chat / HUD / Both |
 
+## ToggleSounds
+
+开启后，在模块状态实际切换时播放本地音效，覆盖界面、快捷键与命令，包括 Notify 和自身开关；重复设置相同状态不播放。默认关闭。启用时优先于 Sigma HUD 的 Active Mods Sound，避免叠音；关闭后恢复原有 Sigma 音效设置。
+
+源码：`src/main/java/cn/omix/module/impl/render/ToggleSounds.java`。
+
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| Mode | XinXin：开启播放 enable.wav，关闭播放 disable.wav，使用内置原始 WAV，通过系统音频设备异步播放，快速切换时替换上一段，不受游戏音量滑块控制；Myau：开关均播放旧版 random.click 在 1.21.11 中对应的 ui.button.click，使用游戏声音管理器。 | 模式；默认 XinXin；可选 XinXin / Myau |
+
 ## Animation
 
 调整第一人称挥手、格挡及装备切换动画；默认开启并隐藏，关闭时会自动重新开启。
@@ -1529,6 +1539,10 @@ Classic 保留二维框、血条、护甲和姓名；Sigma 移植 Jello 的 Shad
 | Lightning | 闪电特效。 | 布尔；默认 true |
 | Explosion | 爆炸特效。 | 布尔；默认 true |
 | Blood | 血液风格粒子。 | 布尔；默认 true |
+| Sound | 按 KillEffect 原有击杀判定播放 Sound Mode 选择的音效，独立于粒子选项和 ToggleSounds 模块；通过系统音频设备异步播放，不受游戏音量滑块控制，不影响闪电与爆炸原有音效。 | 布尔；默认 false |
+| Sound Mode | XinXin：原有 kill.wav；bing-bing-bing：由提供的 MP3 转换为 16 位 PCM WAV 的音效。 | 模式；默认 XinXin；可选 XinXin / bing-bing-bing；显示条件：Sound 开启 |
+| Meme | 按原有击杀判定在目标死亡时的身体中心留下红圈与弯箭头迷因图案；始终朝向相机，绘制在场景和普通 HUD 上层，不受方块遮挡。前 0.5 秒保持显示，随后每 0.25 秒交替显隐，结束后移除。独立于音效和其他粒子；最多同时保留 16 个，关闭选项、模块或切换世界时清除。 | 布尔；默认 false |
+| Meme Duration | 红圈箭头的总显示时长，单位秒；在生成时确定，包含最初保持显示的 0.5 秒。 | 数值；默认 3；1–10；步长 .5；显示条件：Meme 开启 |
 
 --- docs/modules/world.md ---
 # World 模块
