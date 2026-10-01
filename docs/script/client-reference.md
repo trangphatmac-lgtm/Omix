@@ -843,13 +843,15 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 
 GrimPlus 移植提供的 NoFall 逆向状态机：使用上一轮 PRE 采样的原生 fallDistance ≥ 3，在落地且 NoSlow 无活动阶段时先将当前移动事件改为未落地、再补发落地包，随后取消一次玩家更新，下一次输入冻结水平移动并请求跳跃。执行细节、生命周期与验证范围见 [GrimPlus 实现说明](../modules/nofall-grimplus.md)。
 
+CubeCraft 沿用 AntiVoid 的 Cubecraft 处理：在移动事件中，仅当垂直速度低于 -0.08 时累计下落距离，累计值达到 Distance 即触发，不要求下方为虚空。触发时发送当前位置 X/Z、Y=3.2E7、未落地的位置包并关闭 Fly；在非 cubecraft.net 服务器或单人世界中改为将本次移动及玩家垂直速度设为 0.1。触发、落地、启用飞行权限或 Fly、关闭模块、切换模式、换世界及收到位置修正时清零累计值。此模式不使用 Delay。
+
 源码：`src/main/java/cn/omix/module/impl/move/NoFall.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Packet 发送落地包；Blink 暂存落下过程；NoGround 报告未落地；Spoof 修改落地标志；CubeCraft Reduce 专用减伤；MLG 水桶落地与回收；Grim 专用落地恢复流程；Grim2 按 GrimServer19 参考实现处理落地与受击跳跃；GrimPlus 按提供的逆向实现协调落地标志、更新取消与一次跳跃输入；Heypixel 下落偏移并在位置修正后跳跃。 | 模式；默认 Packet；可选 Packet / Blink / NoGround / Spoof / CubeCraft Reduce / MLG / Grim / Grim2 / GrimPlus / Heypixel |
-| Distance | 触发保护时的下落距离阈值，单位方块；Grim2 与 Heypixel 固定为累计下落距离大于 3；GrimPlus 固定为上一轮 PRE 的原生 fallDistance ≥ 3。这三个模式不使用此设置。 | 数值；默认 3.0；0.0–20.0；步长 0.5；显示条件：非 Mode = Grim2 且 非 Mode = GrimPlus 且 非 Mode = Heypixel |
-| Delay | 允许使用延迟的模式中，两次保护之间的间隔，单位毫秒。 | 数值；默认 0；0–10000；步长 50；显示条件：非 Mode = NoGround 且 非 Mode = CubeCraft Reduce 且 非 Mode = MLG 且 非 Mode = Grim 且 非 Mode = Grim2 且 非 Mode = GrimPlus 且 非 Mode = Heypixel |
+| Mode | Packet 发送落地包；Blink 暂存落下过程；NoGround 报告未落地；Spoof 修改落地标志；CubeCraft 累计下落达到 Distance 后执行 AntiVoid 同款处理；CubeCraft Reduce 专用减伤；MLG 水桶落地与回收；Grim 专用落地恢复流程；Grim2 按 GrimServer19 参考实现处理落地与受击跳跃；GrimPlus 按提供的逆向实现协调落地标志、更新取消与一次跳跃输入；Heypixel 下落偏移并在位置修正后跳跃。 | 模式；默认 Packet；可选 Packet / Blink / NoGround / Spoof / CubeCraft / CubeCraft Reduce / MLG / Grim / Grim2 / GrimPlus / Heypixel |
+| Distance | 触发保护时的下落距离阈值，单位方块；CubeCraft 在累计下落距离达到此值时触发，触发后重新累计；Grim2 与 Heypixel 固定为累计下落距离大于 3；GrimPlus 固定为上一轮 PRE 的原生 fallDistance ≥ 3。这三个模式不使用此设置。 | 数值；默认 3.0；0.0–20.0；步长 0.5；显示条件：非 Mode = Grim2 且 非 Mode = GrimPlus 且 非 Mode = Heypixel |
+| Delay | 允许使用延迟的模式中，两次保护之间的间隔，单位毫秒。 | 数值；默认 0；0–10000；步长 50；显示条件：非 Mode = NoGround 且 非 Mode = CubeCraft 且 非 Mode = CubeCraft Reduce 且 非 Mode = MLG 且 非 Mode = Grim 且 非 Mode = Grim2 且 非 Mode = GrimPlus 且 非 Mode = Heypixel |
 | Rotation | MLG 使用旋转瞄准放水位置。 | 布尔；默认 false；显示条件：Mode = MLG |
 | Newest Grim, may flag the anticheat | Grim2 的参考选项，默认关闭；开启时落地先发送 Y + 0.01 的落地位置包，并在离地第 9 tick、距位置修正超过 200 tick、距地面大于 5 格时预测 10 tick 的垂直速度。该选项可能触发反作弊。 | 布尔；默认 false；显示条件：Mode = Grim2 |
 

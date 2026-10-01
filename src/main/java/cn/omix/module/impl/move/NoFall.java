@@ -6,6 +6,7 @@ import cn.omix.event.base.annotation.EventPriority;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.JumpEvent;
 import cn.omix.event.impl.MotionEvent;
+import cn.omix.event.impl.MoveEvent;
 import cn.omix.event.impl.MoveInputEvent;
 import cn.omix.event.impl.PacketEvent;
 import cn.omix.event.impl.PlayerPositionLookEvent;
@@ -20,6 +21,7 @@ import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
 import cn.omix.util.misc.TimerSpeedUtil;
 import cn.omix.util.misc.TimerUtil;
+import cn.omix.util.network.GameConnectionContext;
 import cn.omix.util.network.PacketUtil;
 import cn.omix.util.player.RayCastUtil;
 import cn.omix.util.player.nofall.GrimPlusState;
@@ -49,6 +51,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.Locale;
+
 public final class NoFall extends Module {
     private static final long PLACE_DELAY = 500L;
     private static final long PICKUP_WAIT = 20L;
@@ -65,6 +69,7 @@ public final class NoFall extends Module {
             "Blink",
             "NoGround",
             "Spoof",
+            "CubeCraft",
             "CubeCraft Reduce",
             "MLG",
             "Grim",
@@ -76,6 +81,7 @@ public final class NoFall extends Module {
             () -> !mode.is("Grim2") && !mode.is("GrimPlus") && !mode.is("Heypixel"));
     private final NumberValue delay = new NumberValue("Delay", 0, 0, 10000, 50,
             () -> !mode.is("NoGround")
+                    && !mode.is("CubeCraft")
                     && !mode.is("CubeCraft Reduce")
                     && !mode.is("MLG")
                     && !mode.is("Grim")
@@ -103,6 +109,7 @@ public final class NoFall extends Module {
     private boolean slowFalling;
     private boolean blinking;
     private boolean blinkArmed;
+    private double cubeCraftFallDistance;
     private String activeMode;
     private int lastSlot = -1;
     private long lastPlace;
@@ -346,6 +353,45 @@ public final class NoFall extends Module {
 
     @EventTarget
     @EventPriority(1000)
+    public void onMove(MoveEvent event) {
+        syncModeState();
+        if (!mode.is("CubeCraft")) return;
+        if (mc.player == null || mc.world == null) {
+            cubeCraftFallDistance = 0.0;
+            return;
+        }
+        if (event.isCancelled()) return;
+
+        Fly fly = getModule(Fly.class);
+        if (mc.player.isOnGround() || mc.player.getAbilities().allowFlying
+                || (fly != null && fly.isEnabled())) {
+            cubeCraftFallDistance = 0.0;
+            return;
+        }
+
+        // Match AntiVoid's accumulation, but trigger over any terrain at Distance.
+        double motionY = mc.player.getVelocity().y;
+        if (motionY >= -0.08) return;
+        cubeCraftFallDistance -= motionY;
+        if (cubeCraftFallDistance < distance.getValue()) return;
+        cubeCraftFallDistance = 0.0;
+
+        String serverAddress = GameConnectionContext.serverAddress(mc);
+        if (mc.isInSingleplayer() || serverAddress == null
+                || !serverAddress.toLowerCase(Locale.ROOT).contains("cubecraft.net")) {
+            event.setY(0.1);
+            Vec3d velocity = mc.player.getVelocity();
+            mc.player.setVelocity(velocity.x, event.getY(), velocity.z);
+            return;
+        }
+
+        mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
+                mc.player.getX(), 3.2E7, mc.player.getZ(), false, mc.player.horizontalCollision));
+        if (fly != null) fly.setEnabled(false);
+    }
+
+    @EventTarget
+    @EventPriority(1000)
     public void onMoveInput(MoveInputEvent event) {
         if (mc.player == null || !mode.is("Grim")) return;
 
@@ -378,6 +424,7 @@ public final class NoFall extends Module {
 
     @EventTarget
     public void onWorld(WorldEvent event) {
+        cubeCraftFallDistance = 0.0;
         resetReferenceState();
         resetGrimState();
         grimLastGroundHeight = 0.0;
@@ -1319,6 +1366,7 @@ public final class NoFall extends Module {
     }
 
     private void resetState(boolean releaseBlink) {
+        cubeCraftFallDistance = 0.0;
         resetReferenceState();
         blinkArmed = false;
         slowFalling = false;
