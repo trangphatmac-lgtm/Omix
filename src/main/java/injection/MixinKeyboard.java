@@ -34,6 +34,9 @@ public class MixinKeyboard implements IMinecraft {
                 if (mc.currentScreen instanceof cn.omix.ui.skeet.SkeetClickGuiScreen skeet) {
                     skeet.ignoreOpeningKeyUntilRelease(input.key());
                 }
+                if (mc.currentScreen instanceof cn.omix.ui.setsuna.SetsunaClickGuiScreen setsuna) {
+                    setsuna.ignoreOpeningKeyUntilRelease(input.key());
+                }
                 ci.cancel();
             }
         }

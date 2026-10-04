@@ -10646,6 +10646,634 @@
     "line": 135
   },
   {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "SetsunaDraw",
+    "signature": "cn.omix.util.setsuna.SetsunaDraw",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java"
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "SetsunaDraw",
+    "signature": "public final class SetsunaDraw",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "accent",
+    "signature": "public final int accent",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 30
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "SetsunaDraw",
+    "signature": "public SetsunaDraw(int density, float opacity, float daylight, int accent)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 32
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "faded",
+    "signature": "public SetsunaDraw faded(float amount)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 38
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "panel",
+    "signature": "public int panel()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 39
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "inner",
+    "signature": "public int inner()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 40
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "text",
+    "signature": "public int text()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 41
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "dim",
+    "signature": "public int dim()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 42
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "faint",
+    "signature": "public int faint()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 43
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "track",
+    "signature": "public int track()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 44
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "hover",
+    "signature": "public int hover()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 45
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "color",
+    "signature": "public int color(int argb)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 46
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "font",
+    "signature": "public TrueTypeFont font(int size, boolean bold)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 48
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "text",
+    "signature": "public void text(DrawContext c, String label, float x, float y, int color, int size, boolean bold)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 63
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "label",
+    "signature": "public void label(DrawContext c, String label, Rect r, int color, int size, boolean bold)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 66
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "centered",
+    "signature": "public void centered(DrawContext c, String label, float cx, float cy, int color, int size, boolean bold)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 72
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "icon",
+    "signature": "public void icon(DrawContext c, String glyph, float cx, float cy, int color, int size)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 76
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "right",
+    "signature": "public void right(DrawContext c, String label, Rect r, int color, int size)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 80
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "rect",
+    "signature": "public void rect(DrawContext c, float x, float y, float w, float h, int color)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 87
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "rounded",
+    "signature": "public void rounded(DrawContext c, Rect r, float radius, int color)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 88
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "circle",
+    "signature": "public void circle(DrawContext c, float x, float y, float radius, int color)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 93
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "ring",
+    "signature": "public void ring(DrawContext c, float x, float y, float radius, int color)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 96
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "panel",
+    "signature": "public void panel(DrawContext c, Rect r, float radius, int edge)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 99
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "slider",
+    "signature": "public void slider(DrawContext c, Rect r, float progress, int color)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 104
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "scrollbar",
+    "signature": "public void scrollbar(DrawContext c, Rect r, float content, float scroll, int color)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 110
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "scissor",
+    "signature": "public static void scissor(DrawContext c, Rect r)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 117
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "alpha",
+    "signature": "public static int alpha(int argb, float opacity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 120
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw",
+    "name": "mix",
+    "signature": "public static int mix(int a, int b, float t)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 121
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw.Shape",
+    "name": "pipeline",
+    "signature": "public RenderPipeline pipeline()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 139
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw.Shape",
+    "name": "textureSetup",
+    "signature": "public TextureSetup textureSetup()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 140
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaDraw.Shape",
+    "name": "setupVertices",
+    "signature": "public void setupVertices(VertexConsumer v)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaDraw.java",
+    "line": 150
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "SetsunaLayout",
+    "signature": "cn.omix.util.setsuna.SetsunaLayout",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java"
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "SetsunaLayout",
+    "signature": "public final class SetsunaLayout",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "BUBBLE_RADIUS",
+    "signature": "public static final float BUBBLE_RADIUS",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 5
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "Rect",
+    "signature": "public record Rect(float x, float y, float width, float height)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout.Rect",
+    "name": "right",
+    "signature": "public float right()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 9
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout.Rect",
+    "name": "bottom",
+    "signature": "public float bottom()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout.Rect",
+    "name": "contains",
+    "signature": "public boolean contains(float mx, float my)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout.Rect",
+    "name": "intersects",
+    "signature": "public boolean intersects(Rect other)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout.Rect",
+    "name": "body",
+    "signature": "public Rect body()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "Point",
+    "signature": "public record Point(float x, float y)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "Panels",
+    "signature": "public record Panels(Rect modules, Rect settings)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "Viewport",
+    "signature": "public record Viewport(float width, float height, float inputScale, float renderX, float renderY, int density)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout.Viewport",
+    "name": "mouse",
+    "signature": "public float mouse(double coordinate)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "viewport",
+    "signature": "public static Viewport viewport(int width, int height, int framebufferWidth, int framebufferHeight, float guiScale, float configured)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "ringRadius",
+    "signature": "public static float ringRadius(float width, float height)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 35
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "bubble",
+    "signature": "public static Point bubble(int index, int count, float width, float height)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 36
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "panels",
+    "signature": "public static Panels panels(float width, float height, float settingsProgress)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 41
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "expand",
+    "signature": "public static Rect expand(Point origin, Rect target, float progress)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 52
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "scroll",
+    "signature": "public static float scroll(float value, float content, float visible)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 57
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "smooth",
+    "signature": "public static float smooth(float value)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 58
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "lerp",
+    "signature": "public static float lerp(float a, float b, float t)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 59
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaLayout",
+    "name": "animate",
+    "signature": "public static float animate(float value, float target, float speed, float delta)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaLayout.java",
+    "line": 60
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "SetsunaSettings",
+    "signature": "cn.omix.util.setsuna.SetsunaSettings",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java"
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "SetsunaSettings",
+    "signature": "public final class SetsunaSettings",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "Row",
+    "signature": "public record Row(Value value, Rect bounds, boolean child)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "height",
+    "signature": "public static float height(Value value)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 36
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "supported",
+    "signature": "public static boolean supported(Value value)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 41
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "contentHeight",
+    "signature": "public float contentHeight(List<Value> values)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 46
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "layout",
+    "signature": "public void layout(List<Value> values, Rect clip, float scroll)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 55
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "hint",
+    "signature": "public String hint()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 89
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "draw",
+    "signature": "public void draw(DrawContext c, SetsunaDraw draw, float mx, float my, float delta)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 95
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "format",
+    "signature": "public static String format(float value)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 155
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "click",
+    "signature": "public boolean click(float mx, float my, int button)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 158
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "captureMouse",
+    "signature": "public boolean captureMouse(int button)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 187
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "drag",
+    "signature": "public boolean drag(float mx)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 195
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "release",
+    "signature": "public void release()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 209
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "reset",
+    "signature": "public void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 210
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "blur",
+    "signature": "public void blur()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 211
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "key",
+    "signature": "public boolean key(KeyInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 212
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaSettings",
+    "name": "type",
+    "signature": "public boolean type(CharInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaSettings.java",
+    "line": 227
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaTextField",
+    "name": "SetsunaTextField",
+    "signature": "cn.omix.util.setsuna.SetsunaTextField",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaTextField.java"
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaTextField",
+    "name": "IMinecraft",
+    "signature": "public final class SetsunaTextField implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaTextField.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaTextField",
+    "name": "SetsunaTextField",
+    "signature": "public SetsunaTextField(String text, boolean sensitive)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaTextField.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaTextField",
+    "name": "value",
+    "signature": "public String value()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaTextField.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaTextField",
+    "name": "type",
+    "signature": "public boolean type(CharInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaTextField.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaTextField",
+    "name": "key",
+    "signature": "public void key(KeyInput input)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaTextField.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.setsuna.SetsunaTextField",
+    "name": "draw",
+    "signature": "public void draw(DrawContext c, SetsunaDraw draw, Rect r)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/setsuna/SetsunaTextField.java",
+    "line": 45
+  },
+  {
     "owner": "cn.omix.util.sigma.SigmaAnimation",
     "name": "SigmaAnimation",
     "signature": "cn.omix.util.sigma.SigmaAnimation",
@@ -10785,7 +11413,7 @@
     "signature": "public static void draw(DrawContext context, float x, float y, float width, float height, float opacity)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/sigma/SigmaBlur.java",
-    "line": 95
+    "line": 103
   },
   {
     "owner": "cn.omix.util.sigma.SigmaBlur",
@@ -10793,7 +11421,7 @@
     "signature": "public static void close()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/sigma/SigmaBlur.java",
-    "line": 104
+    "line": 112
   },
   {
     "owner": "cn.omix.util.sigma.SigmaBrainFreeze",

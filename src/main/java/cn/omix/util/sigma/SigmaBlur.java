@@ -45,14 +45,14 @@ public final class SigmaBlur implements IMinecraft {
 
     public static void releaseUnused() {
         var hud = SigmaHud.active();
-        boolean screen = mc.currentScreen instanceof cn.omix.ui.sigma.SigmaClickGuiScreen || mc.currentScreen instanceof cn.omix.ui.sigma.SigmaMapsScreen;
+        boolean screen = usesScreenBlur();
         boolean tab = mc.world != null && hud != null && hud.getSigmaTabGui().getValue() && !mc.options.hudHidden && !mc.getDebugHud().shouldShowDebugHud();
         if (result != null && !screen && !tab && System.nanoTime() - updated > 2_000_000_000L) close();
     }
 
     public static void capture() {
         var hud = SigmaHud.active();
-        boolean screen = mc.currentScreen instanceof cn.omix.ui.sigma.SigmaClickGuiScreen || mc.currentScreen instanceof cn.omix.ui.sigma.SigmaMapsScreen;
+        boolean screen = usesScreenBlur();
         boolean tab = hud != null && hud.getSigmaTabGui().getValue() && !mc.options.hudHidden && !mc.getDebugHud().shouldShowDebugHud();
         if (!screen && !tab) { if (result != null && System.nanoTime() - updated > 2_000_000_000L) close(); return; }
         var source = mc.getFramebuffer();
@@ -72,9 +72,17 @@ public final class SigmaBlur implements IMinecraft {
         updated = now;
         // HUD blur is confined to the two possible TabGUI columns plus its filter border.
         int right = screen ? width : Math.min(width, (int) Math.ceil(375.0 * width / SigmaDraw.width()));
-        int radius = mc.currentScreen instanceof cn.omix.ui.sigma.SigmaClickGuiScreen gui ? gui.blurRadius() : screen ? 20 : 35;
+        int radius = mc.currentScreen instanceof cn.omix.ui.sigma.SigmaClickGuiScreen gui ? gui.blurRadius()
+                : mc.currentScreen instanceof cn.omix.ui.setsuna.SetsunaClickGuiScreen setsuna && setsuna.usesBlur() ? setsuna.blurRadius()
+                : screen ? 20 : 35;
         pass(source.getColorAttachmentView(), horizontal, 1f / width, 0, right, radius);
         pass(horizontal.getColorAttachmentView(), result, 0, 1f / height, right, radius);
+    }
+
+    private static boolean usesScreenBlur() {
+        return mc.currentScreen instanceof cn.omix.ui.sigma.SigmaClickGuiScreen
+                || mc.currentScreen instanceof cn.omix.ui.sigma.SigmaMapsScreen
+                || mc.currentScreen instanceof cn.omix.ui.setsuna.SetsunaClickGuiScreen setsuna && setsuna.usesBlur();
     }
 
     private static void pass(GpuTextureView source, SimpleFramebuffer target, float dx, float dy, int right, int radius) {

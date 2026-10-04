@@ -1,0 +1,17 @@
+Setsuna Pop ClickGUI port for Omix
+
+Adapted from the user-supplied SetsunaClient source tree:
+  com.setsuna.ui.clickgui.PopClickGuiScreen
+  com.setsuna.ui.CategoryGlyphs
+  assets/setsuna/textures/hud/watermark_logo.png
+Upstream authors listed in fabric.mod.json: ShiYi, FS_Oracle.
+Upstream gradle.properties declares GPL-3.0-or-later. Its LICENSE and
+LICENSE-APACHE are preserved here verbatim. This notice does not relicense
+the upstream material under Omix's project license.
+
+Modifications: Minecraft 1.21.11 native GUI rendering, Omix categories,
+module/value/key/configuration integration, responsive input geometry,
+and Omix text font rendering. Only the Pop menu is included.
+
+lucide.ttf is the unchanged Lucide icon font shipped by SetsunaClient.
+See SOURCE-lucide.txt and LICENSE-lucide.txt for its separate ISC license.

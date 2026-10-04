@@ -70,7 +70,11 @@
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Web 打开 WebUI；Remix 打开原生 ClickGUI；Sigma 打开 Jello ClickGUI；Skeet 打开 Gamesense 风格 ClickGUI。 | 模式；默认 Web；可选 Web / Remix / Sigma / Skeet |
+| Mode | Web 打开 WebUI；Remix 打开原生 ClickGUI；Sigma 打开 Jello ClickGUI；Skeet 打开 Gamesense 风格 ClickGUI；Setsuna 打开 Pop 环形菜单（详见 docs/setsuna-clickgui.md），直接使用 Omix 模块、Value 和当前配置，关闭时保存。 | 模式；默认 Web；可选 Web / Remix / Sigma / Skeet / Setsuna |
+| Setsuna Daylight | Setsuna Pop 菜单的日间主题，支持配色过渡动画。 | 布尔；默认 false；显示条件：Mode = Setsuna |
+| Setsuna Blur | Setsuna Pop 菜单的背景模糊强度；0 关闭模糊。 | 数值；默认 5；0–10；步长 1；显示条件：Mode = Setsuna |
+| Setsuna Accent | Setsuna Pop 环线与设置控件的强调色；分类气泡沿用原版分类配色。 | 颜色；默认 new Color(166, 86, 238)；显示条件：Mode = Setsuna |
+| Setsuna Scale | Setsuna Pop 菜单的缩放百分比；小窗口自动缩小以容纳双栏。 | 数值；默认 100；65–125；步长 5；显示条件：Mode = Setsuna |
 
 ## AIScreen
 

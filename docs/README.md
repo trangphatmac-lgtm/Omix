@@ -9,6 +9,7 @@
 - [Player 玩家与背包模块](modules/player.md)
 - [Render 画面与界面模块](modules/render.md)
 - [Skeet ClickGUI 操作与移植说明](skeet-clickgui.md)
+- [Setsuna Pop 环形菜单操作与移植说明](setsuna-clickgui.md)
 - [World 世界交互模块](modules/world.md)
 - [AI Tools 及每个参数](ai-tools.md)
 - [Java 脚本、开发面板与 MCP](script/README.md)
@@ -57,6 +58,7 @@ Web 和 Node 相关源码统一位于项目根目录 `src-web/`：`webui/`、`mu
 | `player/chest/` | `ChestScreenState`、`ChestScreenGuard`、`ChestInteractionState` |
 | `world/` | `ScaffoldMutex`、`VictorySignalMatcher` |
 | `skeet/` | Gamesense 界面的布局、字体绘制、设置适配、文本编辑和本地配置面板 |
+| `setsuna/` | Pop 环形菜单的布局、原生圆角绘制、设置适配和文本编辑 |
 
 本次迁移只调整包路径、导入和跨包调用所需的可见性，模块行为与配置保持不变。
 

@@ -1361,6 +1361,85 @@
 - `cn.omix.util.render.Render3D` — `public static void drawBox(Render3DEvent event, Box box, Color color, boolean fill, boolean outline, float lineWidth)`
 - `cn.omix.util.render.Render3D` — `public static void drawLine(Render3DEvent event, Vec3d start, Vec3d end, Color color)`
 - `cn.omix.util.render.Render3D` — `public static void drawLine(Render3DEvent event, Vec3d start, Vec3d end, Color color, float lineWidth)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `cn.omix.util.setsuna.SetsunaDraw`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public final class SetsunaDraw`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public final int accent`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public SetsunaDraw(int density, float opacity, float daylight, int accent)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public SetsunaDraw faded(float amount)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public int panel()`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public int inner()`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public int text()`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public int dim()`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public int faint()`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public int track()`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public int hover()`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public int color(int argb)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public TrueTypeFont font(int size, boolean bold)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public void text(DrawContext c, String label, float x, float y, int color, int size, boolean bold)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public void label(DrawContext c, String label, Rect r, int color, int size, boolean bold)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public void centered(DrawContext c, String label, float cx, float cy, int color, int size, boolean bold)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public void icon(DrawContext c, String glyph, float cx, float cy, int color, int size)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public void right(DrawContext c, String label, Rect r, int color, int size)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public void rect(DrawContext c, float x, float y, float w, float h, int color)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public void rounded(DrawContext c, Rect r, float radius, int color)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public void circle(DrawContext c, float x, float y, float radius, int color)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public void ring(DrawContext c, float x, float y, float radius, int color)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public void panel(DrawContext c, Rect r, float radius, int edge)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public void slider(DrawContext c, Rect r, float progress, int color)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public void scrollbar(DrawContext c, Rect r, float content, float scroll, int color)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public static void scissor(DrawContext c, Rect r)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public static int alpha(int argb, float opacity)`
+- `cn.omix.util.setsuna.SetsunaDraw` — `public static int mix(int a, int b, float t)`
+- `cn.omix.util.setsuna.SetsunaDraw.Shape` — `public RenderPipeline pipeline()`
+- `cn.omix.util.setsuna.SetsunaDraw.Shape` — `public TextureSetup textureSetup()`
+- `cn.omix.util.setsuna.SetsunaDraw.Shape` — `public void setupVertices(VertexConsumer v)`
+- `cn.omix.util.setsuna.SetsunaLayout` — `cn.omix.util.setsuna.SetsunaLayout`
+- `cn.omix.util.setsuna.SetsunaLayout` — `public final class SetsunaLayout`
+- `cn.omix.util.setsuna.SetsunaLayout` — `public static final float BUBBLE_RADIUS`
+- `cn.omix.util.setsuna.SetsunaLayout` — `public record Rect(float x, float y, float width, float height)`
+- `cn.omix.util.setsuna.SetsunaLayout.Rect` — `public float right()`
+- `cn.omix.util.setsuna.SetsunaLayout.Rect` — `public float bottom()`
+- `cn.omix.util.setsuna.SetsunaLayout.Rect` — `public boolean contains(float mx, float my)`
+- `cn.omix.util.setsuna.SetsunaLayout.Rect` — `public boolean intersects(Rect other)`
+- `cn.omix.util.setsuna.SetsunaLayout.Rect` — `public Rect body()`
+- `cn.omix.util.setsuna.SetsunaLayout` — `public record Point(float x, float y)`
+- `cn.omix.util.setsuna.SetsunaLayout` — `public record Panels(Rect modules, Rect settings)`
+- `cn.omix.util.setsuna.SetsunaLayout` — `public record Viewport(float width, float height, float inputScale, float renderX, float renderY, int density)`
+- `cn.omix.util.setsuna.SetsunaLayout.Viewport` — `public float mouse(double coordinate)`
+- `cn.omix.util.setsuna.SetsunaLayout` — `public static Viewport viewport(int width, int height, int framebufferWidth, int framebufferHeight, float guiScale, float configured)`
+- `cn.omix.util.setsuna.SetsunaLayout` — `public static float ringRadius(float width, float height)`
+- `cn.omix.util.setsuna.SetsunaLayout` — `public static Point bubble(int index, int count, float width, float height)`
+- `cn.omix.util.setsuna.SetsunaLayout` — `public static Panels panels(float width, float height, float settingsProgress)`
+- `cn.omix.util.setsuna.SetsunaLayout` — `public static Rect expand(Point origin, Rect target, float progress)`
+- `cn.omix.util.setsuna.SetsunaLayout` — `public static float scroll(float value, float content, float visible)`
+- `cn.omix.util.setsuna.SetsunaLayout` — `public static float smooth(float value)`
+- `cn.omix.util.setsuna.SetsunaLayout` — `public static float lerp(float a, float b, float t)`
+- `cn.omix.util.setsuna.SetsunaLayout` — `public static float animate(float value, float target, float speed, float delta)`
+- `cn.omix.util.setsuna.SetsunaSettings` — `cn.omix.util.setsuna.SetsunaSettings`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public final class SetsunaSettings`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public record Row(Value value, Rect bounds, boolean child)`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public static float height(Value value)`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public static boolean supported(Value value)`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public float contentHeight(List<Value> values)`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public void layout(List<Value> values, Rect clip, float scroll)`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public String hint()`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public void draw(DrawContext c, SetsunaDraw draw, float mx, float my, float delta)`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public static String format(float value)`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public boolean click(float mx, float my, int button)`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public boolean captureMouse(int button)`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public boolean drag(float mx)`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public void release()`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public void reset()`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public void blur()`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public boolean key(KeyInput input)`
+- `cn.omix.util.setsuna.SetsunaSettings` — `public boolean type(CharInput input)`
+- `cn.omix.util.setsuna.SetsunaTextField` — `cn.omix.util.setsuna.SetsunaTextField`
+- `cn.omix.util.setsuna.SetsunaTextField` — `public final class SetsunaTextField implements IMinecraft`
+- `cn.omix.util.setsuna.SetsunaTextField` — `public SetsunaTextField(String text, boolean sensitive)`
+- `cn.omix.util.setsuna.SetsunaTextField` — `public String value()`
+- `cn.omix.util.setsuna.SetsunaTextField` — `public boolean type(CharInput input)`
+- `cn.omix.util.setsuna.SetsunaTextField` — `public void key(KeyInput input)`
+- `cn.omix.util.setsuna.SetsunaTextField` — `public void draw(DrawContext c, SetsunaDraw draw, Rect r)`
 - `cn.omix.util.sigma.SigmaAnimation` — `cn.omix.util.sigma.SigmaAnimation`
 - `cn.omix.util.sigma.SigmaAnimation` — `public final class SigmaAnimation`
 - `cn.omix.util.sigma.SigmaAnimation` — `public SigmaAnimation()`

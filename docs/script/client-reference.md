@@ -12,6 +12,7 @@ Omix Client source reference (defaults are not live configuration):
 - [Player 玩家与背包模块](modules/player.md)
 - [Render 画面与界面模块](modules/render.md)
 - [Skeet ClickGUI 操作与移植说明](skeet-clickgui.md)
+- [Setsuna Pop 环形菜单操作与移植说明](setsuna-clickgui.md)
 - [World 世界交互模块](modules/world.md)
 - [AI Tools 及每个参数](ai-tools.md)
 - [Java 脚本、开发面板与 MCP](script/README.md)
@@ -60,6 +61,7 @@ Web 和 Node 相关源码统一位于项目根目录 `src-web/`：`webui/`、`mu
 | `player/chest/` | `ChestScreenState`、`ChestScreenGuard`、`ChestInteractionState` |
 | `world/` | `ScaffoldMutex`、`VictorySignalMatcher` |
 | `skeet/` | Gamesense 界面的布局、字体绘制、设置适配、文本编辑和本地配置面板 |
+| `setsuna/` | Pop 环形菜单的布局、原生圆角绘制、设置适配和文本编辑 |
 
 本次迁移只调整包路径、导入和跨包调用所需的可见性，模块行为与配置保持不变。
 
@@ -1184,7 +1186,11 @@ CubeCraft 沿用 AntiVoid 的 Cubecraft 处理：在移动事件中，仅当垂�
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Web 打开 WebUI；Remix 打开原生 ClickGUI；Sigma 打开 Jello ClickGUI；Skeet 打开 Gamesense 风格 ClickGUI。 | 模式；默认 Web；可选 Web / Remix / Sigma / Skeet |
+| Mode | Web 打开 WebUI；Remix 打开原生 ClickGUI；Sigma 打开 Jello ClickGUI；Skeet 打开 Gamesense 风格 ClickGUI；Setsuna 打开 Pop 环形菜单（详见 docs/setsuna-clickgui.md），直接使用 Omix 模块、Value 和当前配置，关闭时保存。 | 模式；默认 Web；可选 Web / Remix / Sigma / Skeet / Setsuna |
+| Setsuna Daylight | Setsuna Pop 菜单的日间主题，支持配色过渡动画。 | 布尔；默认 false；显示条件：Mode = Setsuna |
+| Setsuna Blur | Setsuna Pop 菜单的背景模糊强度；0 关闭模糊。 | 数值；默认 5；0–10；步长 1；显示条件：Mode = Setsuna |
+| Setsuna Accent | Setsuna Pop 环线与设置控件的强调色；分类气泡沿用原版分类配色。 | 颜色；默认 new Color(166, 86, 238)；显示条件：Mode = Setsuna |
+| Setsuna Scale | Setsuna Pop 菜单的缩放百分比；小窗口自动缩小以容纳双栏。 | 数值；默认 100；65–125；步长 5；显示条件：Mode = Setsuna |
 
 ## AIScreen
 
