@@ -369,7 +369,33 @@ def testScriptMcp = tasks.register("testScriptMcp", NpmTask) {
     args = ["--prefix", file("src-web/src-script-mcp").absolutePath, "test"]
 }
 
+// Resolve only libraries and mods that belong to this build, never arbitrary installed mods.
+def generateScriptDependencies = tasks.register("generateScriptDependencies") {
+    inputs.files(sourceSets.main.compileClasspath, configurations.runtimeClasspath)
+    outputs.dir(layout.buildDirectory.dir("generated/script-dependencies"))
+    doLast {
+        def mods = new TreeSet<String>(["minecraft", "fabricloader", "fabric-api", "omix"])
+        def libraries = new TreeSet<String>()
+        files(sourceSets.main.compileClasspath, configurations.runtimeClasspath).each { archive ->
+            if (!archive.isFile() || !archive.name.endsWith(".jar")) return
+            new ZipFile(archive).withCloseable { zip ->
+                def metadata = zip.getEntry("fabric.mod.json")
+                if (metadata != null) {
+                    zip.getInputStream(metadata).withCloseable { input -> mods.add(new JsonSlurper().parse(input).id.toString()) }
+                } else if (zip.getEntry("net/minecraft/client/main/Main.class") == null &&
+                        zip.entries().find { it.name.endsWith(".class") && !it.name.startsWith("META-INF/") && it.name != "module-info.class" } != null) {
+                    libraries.add(archive.name)
+                }
+            }
+        }
+        def output = layout.buildDirectory.file("generated/script-dependencies/assets/omix/script/dependencies.json").get().asFile
+        output.parentFile.mkdirs()
+        output.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([mods: mods, libraries: libraries])) + "\n", "UTF-8")
+    }
+}
+
 processResources {
+    from(generateScriptDependencies)
     inputs.property("harnessPlatform", harnessPlatform)
     doFirst {
         // Copy tasks retain removed inputs. Remove only obsolete generated Harness
@@ -499,7 +525,7 @@ def verifyWebUiRuntimeBundle = tasks.register("verifyWebUiRuntimeBundle") {
             if (manifest.archives.keySet() != harnessArchives.toSet() || actualHarnessArchives != harnessArchives.toSet()) {
                 throw new GradleException("Harness archives do not match ${harnessPlatform}: expected ${harnessArchives}, manifest ${manifest.archives.keySet()}, JAR ${actualHarnessArchives}")
             }
-            ["developer-kit.zip", "mappings/mappings.tiny", "reference/README.md", "reference/api.json", "reference/tools.json", "reference/game-tools.json", "reference/client-reference.md", "reference/omix-script/SKILL.md"].each { resource ->
+            ["developer-kit.zip", "dependencies.json", "mappings/mappings.tiny", "reference/README.md", "reference/api.json", "reference/tools.json", "reference/game-tools.json", "reference/client-reference.md", "reference/omix-script/SKILL.md"].each { resource ->
                 if (zip.getEntry("assets/omix/script/${resource}") == null) throw new GradleException("Script distribution missing: ${resource}")
             }
             if (zip.getEntry("org/fisproxy/Client.class") == null) {

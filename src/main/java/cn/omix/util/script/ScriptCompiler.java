@@ -58,7 +58,8 @@ public final class ScriptCompiler {
                 return new Compiled(previous.source(), jar, previous.diagnostics());
             }
             progress.accept("dependencies");
-            var environment = classpath.environment();
+            String dependencyHeader = body.lines().skip(leadingLines).collect(java.util.stream.Collectors.joining("\n"));
+            var environment = classpath.environment(ScriptDependencies.parse(dependencyHeader));
             checkCancelled(cancelled);
             Path request = directory.resolve("request.json"), response = directory.resolve("response.json"), phase = directory.resolve("phase.txt");
             Path output = directory.resolve("compiler.log");

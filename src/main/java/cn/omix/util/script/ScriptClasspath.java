@@ -4,6 +4,7 @@ import cn.omix.Client;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.tinyremapper.*;
 import java.io.*;
+import java.net.URI;
 import java.nio.file.*;
 import java.util.*;
 import java.util.jar.*;
@@ -13,14 +14,28 @@ public final class ScriptClasspath {
     private final Path cache;
     /** Only paths and namespace cross the process boundary; the worker never starts Fabric/Minecraft. */
     public record Environment(String namespace, List<String> entries, String mappings) {}
-    private Environment environment;
+    @FunctionalInterface interface EnvironmentProvider { Environment get(Set<String> requested) throws IOException; }
+    private final EnvironmentProvider environmentProvider;
+    private final Map<Set<String>, Environment> environments = new HashMap<>();
     private List<Path> named;
     private Path mappings;
     private String namespace;
-    public ScriptClasspath(Path cache) { this.cache = cache; }
-    ScriptClasspath(Path cache, Environment environment) { this.cache = cache; this.environment = environment; }
-    public synchronized Environment environment() throws IOException {
-        if (environment != null) return environment;
+    public ScriptClasspath(Path cache) { this.cache = cache; this.environmentProvider = this::collectEnvironment; }
+    ScriptClasspath(Path cache, Environment environment) { this(cache, requested -> environment); }
+    ScriptClasspath(Path cache, EnvironmentProvider provider) { this.cache = cache; this.environmentProvider = provider; }
+    public Environment environment() throws IOException { return environment(Set.of()); }
+    public synchronized Environment environment(Set<String> requested) throws IOException {
+        Set<String> key = Set.copyOf(requested);
+        Environment result = environments.get(key);
+        if (result == null) {
+            result = environmentProvider.get(key);
+            // Bound per-session combinations; disk mapping caches remain reusable.
+            if (environments.size() >= 32) environments.clear();
+            environments.put(key, result);
+        }
+        return result;
+    }
+    private Environment collectEnvironment(Set<String> requested) throws IOException {
         Files.createDirectories(cache);
         namespace = FabricLoader.getInstance().getMappingResolver().getCurrentRuntimeNamespace();
         mappings = cache.resolve("yarn.tiny").toAbsolutePath();
@@ -32,18 +47,11 @@ public final class ScriptClasspath {
             }
         }
         var entries = new LinkedHashSet<Path>();
-        Set<String> loadedMods = new HashSet<>();
-        for (var mod : FabricLoader.getInstance().getAllMods()) {
-            loadedMods.add(mod.getMetadata().getId());
+        var defaults = ScriptDependencies.defaults();
+        for (var mod : ScriptDependencies.selectMods(defaults.mods(), requested, FabricLoader.getInstance()::getModContainer)) {
             for (Path root : mod.getRootPaths()) entries.add(materialize(root));
         }
-        for (String entry : System.getProperty("java.class.path", "").split(File.pathSeparator)) {
-            if (entry.isBlank() || !Files.exists(Path.of(entry))) continue;
-            Path path = Path.of(entry).toRealPath();
-            // Fabric may transform a mod into a different physical jar. The loaded root owns class identity.
-            if (!entries.contains(path) && loadedMods.contains(modId(path))) continue;
-            entries.add(path);
-        }
+        entries.addAll(ScriptDependencies.selectLibraries(System.getProperty("java.class.path", ""), defaults.libraries()));
         for (Class<?> type : List.of(Client.class, net.minecraft.client.MinecraftClient.class,
                 ScriptCompiler.class, org.eclipse.jdt.internal.compiler.tool.EclipseCompiler.class)) {
             try {
@@ -53,7 +61,7 @@ public final class ScriptClasspath {
         }
         List<Path> originals = new ArrayList<>();
         for (Path entry : entries) if (Files.exists(entry) && isRuntimeMinecraft(entry, namespace)) originals.add(entry);
-        return environment = new Environment(namespace, originals.stream().map(path -> path.toAbsolutePath().toString()).toList(), mappings.toString());
+        return new Environment(namespace, originals.stream().map(path -> path.toAbsolutePath().toString()).toList(), mappings.toString());
     }
     public synchronized List<Path> prepare() throws IOException {
         if (named != null) return named;
@@ -113,16 +121,6 @@ public final class ScriptClasspath {
     private static boolean classEntry(String name) {
         return name.endsWith(".class") && !name.startsWith("META-INF/") && !name.equals("module-info.class");
     }
-    private static String modId(Path path) throws IOException {
-        if (!Files.isRegularFile(path) || !path.toString().endsWith(".jar")) return "";
-        try (JarFile jar = new JarFile(path.toFile())) {
-            var metadata = jar.getJarEntry("fabric.mod.json");
-            if (metadata == null) return "";
-            try (var reader = new InputStreamReader(jar.getInputStream(metadata), java.nio.charset.StandardCharsets.UTF_8)) {
-                return com.google.gson.JsonParser.parseReader(reader).getAsJsonObject().get("id").getAsString();
-            } catch (RuntimeException ignored) { return ""; }
-        }
-    }
     /** Launchers retain the official game jar on java.class.path even after Fabric remaps it.
      * Its default-package classes (for example cn.class) shadow script package expressions. */
     public static boolean isRuntimeMinecraft(Path path, String namespace) throws IOException {
@@ -143,14 +141,19 @@ public final class ScriptClasspath {
         }
         return value.toString();
     }
-    private Path materialize(Path root) throws IOException {
+    Path materialize(Path root) throws IOException {
         if (root.getFileSystem().equals(FileSystems.getDefault())) return root.toRealPath();
         // Prefer the physical Fabric jar over a duplicate extraction of the same classpath root.
         var uri = root.toUri();
         if (uri.getScheme().equals("jar") && root.toString().equals("/")) {
-            String archiveUri = uri.getSchemeSpecificPart(); int separator = archiveUri.indexOf("!/");
-            if (separator >= 0) {
-                Path archive = Path.of(java.net.URI.create(archiveUri.substring(0, separator)));
+            // Opaque jar URIs allow [] and ? unescaped, unlike a hierarchical file URI's path.
+            // Keep existing escapes: decoding the opaque URI also leaves escapes inside [] intact.
+            // Strip only the root suffix: a directory name may itself end with '!'.
+            String archiveUri = uri.getRawSchemeSpecificPart();
+            if (archiveUri.startsWith("file:") && archiveUri.endsWith("!/")) {
+                String fileUri = archiveUri.substring(0, archiveUri.length() - 2)
+                        .replace("[", "%5B").replace("]", "%5D").replace("?", "%3F");
+                Path archive = Path.of(URI.create(fileUri));
                 if (Files.isRegularFile(archive)) return archive.toRealPath();
             }
         }

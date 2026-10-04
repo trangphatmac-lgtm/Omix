@@ -8,11 +8,52 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ScriptCompilerTest {
     @TempDir Path temp;
-    private ScriptCompiler isolatedCompiler() {
+    private ScriptCompiler isolatedCompiler() throws Exception {
         Path cache = temp.resolve("cache with spaces");
-        var cp = Arrays.asList(System.getProperty("omix.test.classpath").split(java.io.File.pathSeparator));
+        var cp = ScriptDependenciesTest.baselineClasspath().stream().map(Path::toString).toList();
         return new ScriptCompiler(cache, new ScriptClasspath(cache.resolve("classpath"),
                 new ScriptClasspath.Environment("named", cp, temp.resolve("unused.tiny").toString())));
+    }
+    @Test void explicitModDependencyCompilesAndRemovingItDoesNotLeakIntoOtherScripts() throws Exception {
+        Path archive = temp.resolve("Release 2.2.11/mods/[钠 · 扩展] dependency 100%20 #+!.jar");
+        Files.createDirectories(archive.getParent());
+        var writer = new org.objectweb.asm.ClassWriter(0);
+        writer.visit(org.objectweb.asm.Opcodes.V21, org.objectweb.asm.Opcodes.ACC_PUBLIC, "sample/Value", null, "java/lang/Object", null);
+        var method = writer.visitMethod(org.objectweb.asm.Opcodes.ACC_PUBLIC | org.objectweb.asm.Opcodes.ACC_STATIC, "answer", "()I", null, null);
+        method.visitCode(); method.visitIntInsn(org.objectweb.asm.Opcodes.BIPUSH, 42); method.visitInsn(org.objectweb.asm.Opcodes.IRETURN);
+        method.visitMaxs(1, 0); method.visitEnd(); writer.visitEnd();
+        Path cache = temp.resolve("cache with spaces");
+        Path dependency;
+        try (var zip = FileSystems.newFileSystem(archive, Map.of("create", "true"))) {
+            Files.createDirectories(zip.getPath("/sample"));
+            Files.write(zip.getPath("/sample/Value.class"), writer.toByteArray());
+        }
+        try (var zip = FileSystems.newFileSystem(archive)) {
+            dependency = new ScriptClasspath(cache.resolve("classpath")).materialize(zip.getPath("/"));
+        }
+        var baseline = ScriptDependenciesTest.baselineClasspath().stream().map(Path::toString).toList();
+        var compiler = new ScriptCompiler(cache, new ScriptClasspath(cache.resolve("classpath"), requested -> {
+            var cp = new ArrayList<>(baseline);
+            for (String id : requested) {
+                if (!id.equals("extra_mod")) throw new java.io.IOException("Script dependency Mod is not loaded: " + id);
+                cp.add(dependency.toString());
+            }
+            return new ScriptClasspath.Environment("named", cp, temp.resolve("unused.tiny").toString());
+        }));
+        String body = "public static int answer() { return sample.Value.answer(); }";
+        assertThrows(ScriptCompiler.CompileFailure.class, () -> compiler.compile("BracketDependency", 1, body));
+        var compiled = compiler.compile("BracketDependency", 2, "// @depends extra_mod\n" + body);
+        try (var parent = new java.net.URLClassLoader(new java.net.URL[]{dependency.toUri().toURL()}, getClass().getClassLoader());
+             var loader = compiled.loader(parent)) {
+            assertEquals(42, loader.loadClass(compiled.source().className()).getMethod("answer").invoke(null));
+        } finally { compiled.discard(); }
+        assertThrows(ScriptCompiler.CompileFailure.class, () -> compiler.compile("BracketDependency", 3, body));
+        assertThrows(ScriptCompiler.CompileFailure.class, () -> compiler.compile("OtherScript", 4, body));
+        var missing = assertThrows(java.io.IOException.class, () -> compiler.compile("Missing", 5, "// @depends missing_mod\n" + body));
+        assertTrue(missing.getMessage().contains("missing_mod"));
+        var ordinary = compiler.compile("Ordinary", 6, "int answer() { return 42; }"); ordinary.discard();
+        var evaluation = compiler.compile("@evaluation", 7, "Object evaluate() {\n// @depends extra_mod\nreturn sample.Value.answer();\n}", 1);
+        evaluation.discard();
     }
     @Test void isolatedCompilerCachesUnchangedBytecodeButKeepsGenerationArtifactsIndependent() throws Exception {
         ScriptCompiler compiler = isolatedCompiler();
@@ -42,7 +83,7 @@ class ScriptCompilerTest {
         Path progress = temp.resolve("blocked-progress");
         Files.createDirectories(progress);
         Files.writeString(progress.resolve("occupied"), "prevent replacement on every platform");
-        var cp = Arrays.asList(System.getProperty("omix.test.classpath").split(java.io.File.pathSeparator));
+        var cp = ScriptDependenciesTest.baselineClasspath().stream().map(Path::toString).toList();
         var environment = new ScriptClasspath.Environment("named", cp, temp.resolve("unused.tiny").toString());
         var gson = new com.google.gson.Gson();
         for (int generation = 1; generation <= 2; generation++) {
@@ -62,7 +103,7 @@ class ScriptCompilerTest {
     private List<ScriptCompiler.Problem> compile(String name, String body) throws Exception {
         var source = ScriptSource.wrap(name, body); Path input = temp.resolve(name + ".java"); Files.writeString(input, source.source());
         Path output = temp.resolve(name); Files.createDirectories(output);
-        var cp = Arrays.stream(System.getProperty("omix.test.classpath").split(java.io.File.pathSeparator)).map(Path::of).toList();
+        var cp = ScriptDependenciesTest.baselineClasspath();
         return ScriptCompiler.compileSource(source, input, output, cp);
     }
     @Test void bundledExamplesCompileAgainstActualMinecraftAndClientClasses() throws Exception {
