@@ -25,7 +25,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public final class AutoL extends Module {
     private final ModeValue wordPattern = new ModeValue("Word Pattern", "Poem",
             "Poem", "Ma Ma", "Pride Plus", "Ci xiao gui", "Crystal PVP", "Clear", "English", "San Guo",
-            "Classic", "Bratty", "Troll", "Troll2", "Custom");
+            "Classic", "Bratty", "Troll", "Troll2", "PanPan", "Custom");
     private final BoolValue nameInFront = new BoolValue("NameInFront", true);
     private final BoolValue sendL = new BoolValue("SendL", false);
     private final TextValue content = new TextValue("Content", "", () -> wordPattern.is("Custom"));
@@ -150,6 +150,7 @@ public final class AutoL extends Module {
             case "Bratty" -> BRATTY;
             case "Troll" -> TROLL;
             case "Troll2" -> TROLL2;
+            case "PanPan" -> PANPAN;
             default -> POEMS;
         };
         return randomMessage(messages);
@@ -166,6 +167,8 @@ public final class AutoL extends Module {
     private static String randomMessage(String[] messages) {
         return messages[ThreadLocalRandom.current().nextInt(messages.length)];
     }
+
+    private static final String[] PANPAN = "盘盘急哭了、也够、文明、放学了、细节、开动脑筋了、天黑了、这下看懂了、对上了全都对上了、我也没看什么，起码挺热闹的、赢麻了、懂你意思、最后一期、太敢说了、你至少比我们多20个脑袋、爆、哈哈哈、说的好，我完全同意、基本胜利[打call][打call][打call]".split("、");
 
     private static final String[] CLASSIC_PREFIXES = {
             "你玩的很强",

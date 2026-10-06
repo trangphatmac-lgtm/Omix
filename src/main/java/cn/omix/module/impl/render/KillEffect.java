@@ -105,7 +105,7 @@ public final class KillEffect extends Module {
         }
 
         if (sound.getValue()) {
-            WavSounds.play(soundMode.is("bing-bing-bing")
+            WavSounds.play(WavSounds.Channel.KILL_EFFECT, soundMode.is("bing-bing-bing")
                     ? "/assets/omix/sounds/killeffect/bing-bing-bing.wav"
                     : "/assets/omix/sounds/xinxin/kill.wav");
         }

@@ -20,7 +20,8 @@ public final class ToggleSounds extends Module {
             mc.execute(() -> mc.getSoundManager().play(
                     PositionedSoundInstance.ui(SoundEvents.UI_BUTTON_CLICK, 1.0F)));
         } else {
-            WavSounds.play("/assets/omix/sounds/xinxin/" + (enabled ? "enable" : "disable") + ".wav");
+            WavSounds.play(WavSounds.Channel.TOGGLE,
+                    "/assets/omix/sounds/xinxin/" + (enabled ? "enable" : "disable") + ".wav");
         }
     }
 }

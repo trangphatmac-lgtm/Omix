@@ -1810,9 +1810,12 @@
 - `cn.omix.util.skeet.SkeetTextField` — `public boolean key(KeyInput input)`
 - `cn.omix.util.skeet.SkeetTextField` — `public boolean type(CharInput input)`
 - `cn.omix.util.skeet.SkeetTextField` — `public void draw(DrawContext c, SkeetDraw draw, SkeetLayout.Rect bounds, String placeholder)`
+- `cn.omix.util.sound.WavSoundPlayer` — `cn.omix.util.sound.WavSoundPlayer`
 - `cn.omix.util.sound.WavSounds` — `cn.omix.util.sound.WavSounds`
 - `cn.omix.util.sound.WavSounds` — `public final class WavSounds`
+- `cn.omix.util.sound.WavSounds` — `public enum Channel`
 - `cn.omix.util.sound.WavSounds` — `public static void play(String resource)`
+- `cn.omix.util.sound.WavSounds` — `public static void play(Channel channel, String resource)`
 - `cn.omix.util.webui.WebPanelLayout` — `cn.omix.util.webui.WebPanelLayout`
 - `cn.omix.util.webui.WebPanelLayout` — `public record WebPanelLayout( int x, int y, int width, int height, int cornerRadius )`
 - `cn.omix.util.webui.WebPanelLayout` — `public static WebPanelLayout current()`

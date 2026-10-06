@@ -1337,7 +1337,7 @@ CubeCraft 沿用 AntiVoid 的 Cubecraft 处理：在移动事件中，仅当垂�
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | XinXin：开启播放 enable.wav，关闭播放 disable.wav，使用内置原始 WAV，通过系统音频设备异步播放，快速切换时替换上一段，不受游戏音量滑块控制；Myau：开关均播放旧版 random.click 在 1.21.11 中对应的 ui.button.click，使用游戏声音管理器。 | 模式；默认 XinXin；可选 XinXin / Myau |
+| Mode | XinXin：开启播放 enable.wav，关闭播放 disable.wav，使用内置原始 WAV，通过系统音频设备异步播放并缓存音频数据；快速切换允许重叠，与 KillEffect 独立，最多同时播放 8 段，超限仅替换本模块最早的音效；最多接收 32 个尚未处理完成的播放请求，队列满时忽略新增请求；不受游戏音量滑块控制。Myau：开关均播放旧版 random.click 在 1.21.11 中对应的 ui.button.click，使用游戏声音管理器。 | 模式；默认 XinXin；可选 XinXin / Myau |
 
 ## Animation
 
@@ -1547,7 +1547,7 @@ Classic 保留二维框、血条、护甲和姓名；Sigma 移植 Jello 的 Shad
 | Lightning | 闪电特效。 | 布尔；默认 true |
 | Explosion | 爆炸特效。 | 布尔；默认 true |
 | Blood | 血液风格粒子。 | 布尔；默认 true |
-| Sound | 按 KillEffect 原有击杀判定播放 Sound Mode 选择的音效，独立于粒子选项和 ToggleSounds 模块；通过系统音频设备异步播放，不受游戏音量滑块控制，不影响闪电与爆炸原有音效。 | 布尔；默认 false |
+| Sound | 按 KillEffect 原有击杀判定播放 Sound Mode 选择的音效，独立于粒子选项和 ToggleSounds 模块；通过系统音频设备异步播放并缓存音频数据，连续击杀允许重叠，两个模块不会互相打断；最多同时播放 8 段，超限仅替换本模块最早的音效，最多接收 32 个尚未处理完成的播放请求，队列满时忽略新增请求；不受游戏音量滑块控制，不影响闪电与爆炸原有音效。 | 布尔；默认 false |
 | Sound Mode | XinXin：原有 kill.wav；bing-bing-bing：由提供的 MP3 转换为 16 位 PCM WAV 的音效。 | 模式；默认 XinXin；可选 XinXin / bing-bing-bing；显示条件：Sound 开启 |
 | Meme | 按原有击杀判定在目标死亡时的身体中心留下红圈与弯箭头迷因图案；始终朝向相机，绘制在场景和普通 HUD 上层，不受方块遮挡。前 0.5 秒保持显示，随后每 0.25 秒交替显隐，结束后移除。独立于音效和其他粒子；最多同时保留 16 个，关闭选项、模块或切换世界时清除。 | 布尔；默认 false |
 | Meme Duration | 红圈箭头的总显示时长，单位秒；在生成时确定，包含最初保持显示的 0.5 秒。 | 数值；默认 3；1–10；步长 .5；显示条件：Meme 开启 |
@@ -1653,7 +1653,7 @@ Classic 保留二维框、血条、护甲和姓名；Sigma 移植 Jello 的 Shad
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Word Pattern | 选择内置文本集合或 Custom；Classic 组合前后句；Troll2 随机使用所提供 CSV 每条记录的首列文案，换行合并为空格。 | 模式；默认 Poem；可选 Poem / Ma Ma / Pride Plus / Ci xiao gui / Crystal PVP / Clear / English / San Guo / Classic / Bratty / Troll / Troll2 / Custom |
+| Word Pattern | 选择内置文本集合或 Custom；Classic 组合前后句；Troll2 随机使用所提供 CSV 每条记录的首列文案，换行合并为空格。 | 模式；默认 Poem；可选 Poem / Ma Ma / Pride Plus / Ci xiao gui / Crystal PVP / Clear / English / San Guo / Classic / Bratty / Troll / Troll2 / PanPan / Custom |
 | NameInFront | 文本前加被击杀玩家名。 | 布尔；默认 true |
 | SendL | 70% 概率在文本前加全角 Ｌ。 | 布尔；默认 false |
 | Content | 自定义文本，支持 <target>；空白时发送未设置提示。 | 文本；默认 空文本；显示条件：Word Pattern = Custom |
