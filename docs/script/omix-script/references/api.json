@@ -12361,7 +12361,7 @@
     "signature": "public final class DynamicIslandManager",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/island/DynamicIslandManager.java",
-    "line": 20
+    "line": 21
   },
   {
     "owner": "cn.omix.util.opai.island.DynamicIslandManager",
@@ -12369,7 +12369,7 @@
     "signature": "public static synchronized boolean shouldRender(Screen current)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/island/DynamicIslandManager.java",
-    "line": 37
+    "line": 39
   },
   {
     "owner": "cn.omix.util.opai.island.DynamicIslandManager",
@@ -12377,7 +12377,7 @@
     "signature": "public static synchronized void onModuleToggled(Module module)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/island/DynamicIslandManager.java",
-    "line": 64
+    "line": 66
   },
   {
     "owner": "cn.omix.util.opai.island.DynamicIslandManager",
@@ -12385,7 +12385,7 @@
     "signature": "public static synchronized void notifySuccess(String title, String description)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/island/DynamicIslandManager.java",
-    "line": 82
+    "line": 88
   },
   {
     "owner": "cn.omix.util.opai.island.DynamicIslandManager",
@@ -12393,7 +12393,7 @@
     "signature": "public static synchronized void notifyWarning(String title, String description)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/island/DynamicIslandManager.java",
-    "line": 86
+    "line": 92
   },
   {
     "owner": "cn.omix.util.opai.island.DynamicIslandManager",
@@ -12401,7 +12401,7 @@
     "signature": "public static synchronized void notifyInfo(String title, String description)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/island/DynamicIslandManager.java",
-    "line": 90
+    "line": 96
   },
   {
     "owner": "cn.omix.util.opai.island.DynamicIslandManager",
@@ -12409,7 +12409,7 @@
     "signature": "public static synchronized void beginExtraction()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/island/DynamicIslandManager.java",
-    "line": 110
+    "line": 116
   },
   {
     "owner": "cn.omix.util.opai.island.DynamicIslandManager",
@@ -12417,7 +12417,7 @@
     "signature": "public static synchronized boolean replacesContainer(Screen screen)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/island/DynamicIslandManager.java",
-    "line": 112
+    "line": 118
   },
   {
     "owner": "cn.omix.util.opai.island.DynamicIslandManager",
@@ -12425,7 +12425,7 @@
     "signature": "public static synchronized boolean extractChestItems(Screen screen, DrawContext graphics)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/island/DynamicIslandManager.java",
-    "line": 117
+    "line": 123
   },
   {
     "owner": "cn.omix.util.opai.island.DynamicIslandManager",
@@ -12433,7 +12433,7 @@
     "signature": "public static synchronized void renderNano()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/island/DynamicIslandManager.java",
-    "line": 159
+    "line": 164
   },
   {
     "owner": "cn.omix.util.opai.island.DynamicIslandManager",
@@ -12441,7 +12441,7 @@
     "signature": "public static synchronized boolean hasChestOverlay()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/island/DynamicIslandManager.java",
-    "line": 185
+    "line": 190
   },
   {
     "owner": "cn.omix.util.opai.island.DynamicIslandManager",
@@ -12449,7 +12449,7 @@
     "signature": "public static synchronized void renderChestOverlay()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/island/DynamicIslandManager.java",
-    "line": 190
+    "line": 195
   },
   {
     "owner": "cn.omix.util.opai.island.DynamicIslandManager",
@@ -12457,7 +12457,7 @@
     "signature": "public static synchronized void sampleScaffoldMovement()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/island/DynamicIslandManager.java",
-    "line": 260
+    "line": 265
   },
   {
     "owner": "cn.omix.util.opai.island.DynamicIslandManager",
@@ -12465,7 +12465,7 @@
     "signature": "public static synchronized void postBreaking(String name, float progress)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/island/DynamicIslandManager.java",
-    "line": 286
+    "line": 304
   },
   {
     "owner": "cn.omix.util.opai.island.DynamicIslandNanoSurface",
@@ -15650,6 +15650,195 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
     "line": 286
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraProgress",
+    "name": "BedAuraProgress",
+    "signature": "cn.omix.util.player.bed.BedAuraProgress",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java"
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraProgress",
+    "name": "BedAuraProgress",
+    "signature": "public final class BedAuraProgress",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraProgress",
+    "name": "Rate",
+    "signature": "public record Rate(float delta, float goal)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
+    "line": 5
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraProgress",
+    "name": "rate",
+    "signature": "public static Rate rate(float vanillaDelta, float speed, boolean watchdog, boolean submerged, boolean onGround)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraProgress",
+    "name": "waiting",
+    "signature": "public boolean waiting()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraProgress",
+    "name": "readyToFinish",
+    "signature": "public boolean readyToFinish(Rate rate)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraProgress",
+    "name": "advance",
+    "signature": "public void advance(Rate rate)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
+    "line": 29
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraProgress",
+    "name": "interpolated",
+    "signature": "public float interpolated(float tickDelta)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
+    "line": 35
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraProgress",
+    "name": "finish",
+    "signature": "public void finish(int delayTicks)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
+    "line": 39
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraProgress",
+    "name": "resetProgress",
+    "signature": "public void resetProgress()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
+    "line": 44
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraProgress",
+    "name": "reset",
+    "signature": "public void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
+    "line": 49
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraTargeting",
+    "name": "BedAuraTargeting",
+    "signature": "cn.omix.util.player.bed.BedAuraTargeting",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraTargeting.java"
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraTargeting",
+    "name": "BedAuraTargeting",
+    "signature": "public final class BedAuraTargeting",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraTargeting.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraTargeting",
+    "name": "World",
+    "signature": "public interface World",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraTargeting.java",
+    "line": 9
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraTargeting",
+    "name": "Target",
+    "signature": "public record Target(BlockPos bed, BlockPos block)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraTargeting.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraTargeting",
+    "name": "find",
+    "signature": "public static Target find(World world, Vec3d player, double range, boolean surrounding, BlockPos previousBed)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraTargeting.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraTargeting",
+    "name": "inRange",
+    "signature": "public static boolean inRange(Vec3d player, BlockPos pos, double range)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraTargeting.java",
+    "line": 59
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraWhitelist",
+    "name": "BedAuraWhitelist",
+    "signature": "cn.omix.util.player.bed.BedAuraWhitelist",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraWhitelist.java"
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraWhitelist",
+    "name": "BedAuraWhitelist",
+    "signature": "public final class BedAuraWhitelist",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraWhitelist.java",
+    "line": 6
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraWhitelist",
+    "name": "INSTANCE",
+    "signature": "public static final BedAuraWhitelist INSTANCE",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraWhitelist.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraWhitelist",
+    "name": "onGameMessage",
+    "signature": "public void onGameMessage(String message)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraWhitelist.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraWhitelist",
+    "name": "onPositionApplied",
+    "signature": "public void onPositionApplied(Vec3d position)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraWhitelist.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraWhitelist",
+    "name": "isProtected",
+    "signature": "public boolean isProtected(Vec3d playerPosition)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraWhitelist.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.player.bed.BedAuraWhitelist",
+    "name": "clear",
+    "signature": "public void clear()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/bed/BedAuraWhitelist.java",
+    "line": 30
   },
   {
     "owner": "cn.omix.util.player.blockin.BlockInPlanner",

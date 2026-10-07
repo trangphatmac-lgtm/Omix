@@ -245,6 +245,11 @@
     "source": "src/main/java/cn/omix/module/impl/player/AutoTool.java"
   },
   {
+    "module": "BedAura",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/player/BedAura.java"
+  },
+  {
     "module": "ChestArua",
     "selector": "Mode",
     "source": "src/main/java/cn/omix/module/impl/player/ChestArua.java"

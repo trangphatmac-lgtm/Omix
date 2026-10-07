@@ -3,7 +3,7 @@ Omix Client source reference (defaults are not live configuration):
 --- docs/README.md ---
 # Omix Client 使用参考
 
-本参考依据仓库中实际注册和执行的源码编写，覆盖内置命令、通用模块命令、100 个内置模块，以及 22 个游戏工具和 14 个脚本开发工具。脚本运行时还可动态增加模块、模式与命令。命令拼写和模块名称保留源码原样，介绍使用中文。
+本参考依据仓库中实际注册和执行的源码编写，覆盖内置命令、通用模块命令、101 个内置模块，以及 22 个游戏工具和 14 个脚本开发工具。脚本运行时还可动态增加模块、模式与命令。命令拼写和模块名称保留源码原样，介绍使用中文。
 
 - [命令及每个选项](commands.md)
 - [Combat 战斗模块](modules/combat.md)
@@ -58,6 +58,7 @@ Web 和 Node 相关源码统一位于项目根目录 `src-web/`：`webui/`、`mu
 | `combat/projectile/` | `ProjectileAuraEngine`、`ProjectileAuraHost`、`ProjectileSlotState`、`ProjectileAuraRendering`、`ProjectileItemPolicy` |
 | `move/` | `PredictionTimerBalance` |
 | `network/` | `PacketLogHooks`、`PacketLogBuffer`、`PacketLogFormatter`、`PacketLogContent`、`PacketLogFilter`、`PacketLogRules`、`PacketLogHistory`（PacketsLogger 的观察桥接、有界内容快照、双向过滤与自定义名单） |
+| `player/bed/` | `BedAuraTargeting`、`BedAuraProgress`、`BedAuraWhitelist`（床/防护块选择、挖掘进度与间隔、开局出生点保护） |
 | `player/blockin/` | `BlockInPlanner` |
 | `player/chest/` | `ChestScreenState`、`ChestScreenGuard`、`ChestInteractionState` |
 | `world/` | `ScaffoldMutex`、`VictorySignalMatcher` |
@@ -954,6 +955,23 @@ CubeCraft 沿用 AntiVoid 的 Cubecraft 处理：在移动事件中，仅当垂�
 | Through Walls | 允许寻找被墙遮挡的箱子。 | 布尔；默认 false |
 | Ender Chests | 把末影箱也列为目标。 | 布尔；默认 true |
 | Swing | 交互成功后显示挥手动作。 | 布尔；默认 true |
+
+## BedAura
+
+自动寻找范围内的床并持续挖掘，沿用 Samsara BedAura 的速度、阈值、挥手、声音和红色目标框。优先保留当前有效目标，否则选择最近的可挖目标；范围同时限制床和实际防护块。旋转以优先级 450 提交统一仲裁，在正常移动包发出后发送带序号的 START/STOP/ABORT。完成后等待 Break Delay 个玩家 tick；中止、换目标、打开界面、死亡或换世界会清理裂纹和进度，并仅在仍持有模块工具槽时切回。暂停使用物品、Scaffold/ScaffoldX、Freecam、AutoBlockIn 放置、LongJump 使用物品和 Grim NoSlow 忙状态。Opai HUD 的 DynamicIsland 仅在实际开始挖掘后显示当前方块名称和插值百分比，防护块与床共用面板；结束或中止恢复普通状态。Whitelist 默认开启，沿用 Samsara 的开局提示 → 下一次服务端传送 → 出生点距离保护：玩家距记录位置的三维距离平方小于 600（约 24.5 格）时暂停整个 BedAura，包括拆防护块；返回保护区会中止当前挖掘并收起 HUD 进度。开局记录独立于模块/选项开关，支持开局后才启用 BedAura；后续普通传送或同世界死亡重生不更新记录，新开局提示可重新记录。换世界或断线清空位置及待记录状态，相对传送使用原版已应用的绝对坐标。保护依赖英文开局提示，不按床颜色或队伍识别；未收到提示及其后的传送时没有保护位置。
+
+源码：`src/main/java/cn/omix/module/impl/player/BedAura.java`。
+
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| Range | 扫描和挖掘距离，按玩家位置到方块中心计算，单位方块。 | 数值；默认 5；1–8；步长 0.5 |
+| Speed | 原版每 tick 挖掘进度的倍率；STOP 保留源实现的目标阈值加当前步长判定。 | 数值；默认 1；1–2；步长 0.05 |
+| Break Delay | 完成一个方块后暂停的玩家 tick 数；默认 2 tick。 | 数值；默认 2；1–4；步长 1 |
+| Surrounding | 床两部分的水平邻接格都没有空气时，优先拆所选床部分正上方的非空气防护块，并从快捷栏选择挖掘倍率最高的工具；防护块完成后重新找床。 | 布尔；默认 false |
+| Whitelist | 保护自己床所在的出生区域。收到服务端系统提示 Protect your bed and destroy the enemy beds. 后，记录下一次实际应用的传送位置；玩家距该点的三维距离平方 < 600 时暂停挖掘。默认开启；关闭只跳过距离限制，不清除当前场次记录。 | 布尔；默认 true |
+| Allow KillAura | 允许与 Aura 并行；关闭时 Aura 有目标或正在格挡便暂停。BedAura 需要旋转时优先级高于 Aura，可能影响 Aura 的射线命中。 | 布尔；默认 false |
+| Only S/S Rotate | 只在开始和完成挖掘时请求旋转；关闭时每个挖掘 tick 请求旋转。 | 布尔；默认 false |
+| Watchdog Mode | 沿用源实现：水下每 tick 进度乘 5，离地再乘 5 且完成目标改为 5；HUD 以实际目标归一化进度。模式名称不代表服务端兼容性保证。 | 布尔；默认 false |
 
 ## ChestStealer
 

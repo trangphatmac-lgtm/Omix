@@ -9,6 +9,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import cn.omix.event.impl.TickEvent;
 import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.impl.player.ChestArua;
+import cn.omix.module.impl.player.BedAura;
+import cn.omix.util.player.bed.BedAuraWhitelist;
 import cn.omix.util.player.chest.ChestScreenGuard;
 import cn.omix.util.IMinecraft;
 import cn.omix.util.Util;
@@ -104,6 +106,16 @@ public abstract class MixinMinecraftClient implements IMinecraft {
         if (grim != null && grim.blockUseThisTick()) ci.cancel();
     }
 
+    @Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
+    private void omix$bedAuraAttack(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Boolean> cir) {
+        if (BedAura.blocksBreakingInput()) cir.setReturnValue(false);
+    }
+
+    @Inject(method = "handleBlockBreaking", at = @At("HEAD"), cancellable = true)
+    private void omix$bedAuraBreaking(boolean breaking, CallbackInfo ci) {
+        if (BedAura.blocksBreakingInput()) ci.cancel();
+    }
+
     @Inject(method = "doItemUse", at = @At("HEAD"), cancellable = true)
     private void omix$chestAruaManualUse(CallbackInfo ci) {
         if (instance == null || instance.getModuleManager() == null) return;
@@ -117,6 +129,7 @@ public abstract class MixinMinecraftClient implements IMinecraft {
     // The one-argument overload delegates here, while normal disconnect calls this overload directly.
     @Inject(method = "setWorld(Lnet/minecraft/client/world/ClientWorld;Z)V", at = @At("HEAD"))
     private void setWorld(ClientWorld world, boolean stopSounds, CallbackInfo ci) {
+        if (world == null || world != mc.world) BedAuraWhitelist.INSTANCE.clear();
         ChestScreenGuard.clear();
         instance.getEventManager().call(new WorldEvent(world));
     }

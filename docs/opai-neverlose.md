@@ -53,7 +53,7 @@ DynamicIsland 的 Ping 使用当前连接的原生 ping/pong，停止使用组�
 
 Inventory 先绘制背景，再绘制全部物品模型，最后在独立的顶层绘制数量、耐久条和冷却遮罩，避免模型遮挡数量文字；拖动与缩放沿用同一分层顺序。
 
-Samsara 的 BedAura 在当前客户端没有对应模块，保留 DynamicIsland 的挖掘进度状态与绘制接口 `DynamicIslandManager.postBreaking`，不生成虚假的挖掘数据。
+Player 分类现已提供 BedAura，配置说明见 [BedAura](modules/player.md#bedaura)。开启 HUD 的 Opai 模式和 Status Bar 后，DynamicIsland 从 BedAura 的实际挖掘会话逐帧读取目标方块名称和归一化进度；发送 START 后才显示，拆防护块时显示防护块名称。完成、取消、目标消失/超距、打开界面、关闭模块或切换世界后移除挖掘面板。BedAura 的 Whitelist 默认开启；记录开局出生点后，在保护范围内暂停挖掘并移除进度面板，离开保护范围后恢复正常找床。沿用床图标、原有字体、进度条和主题色；红色世界目标框由 BedAura 自身绘制。箱子面板保持原有优先级，Scaffold 状态在没有挖掘任务时显示。
 
 HUD 的 Opai Color 会实时更新 ArrayList 的后缀/侧线、TargetHUD 的血条/血量、DynamicIsland 的品牌/图标/进度/开关，Opai ClickGui 分类面板/设置控件/配置面板/编辑入口，以及编辑器选框；Default 列表样式和 Classic 目标的主题色选项也读取同一颜色。中性背景、白色正文、药水效果色、信息/成功/警告通知色及启停红绿状态色保留各自的含义。该值随原生普通/加密配置保存，加载后立即生效。
 

@@ -35,7 +35,7 @@ Omix 基于 DSJ 的 Remix base 和 Minecraft 1.21.11 / Fabric 开发的我的世
 
 ## 核心特色
 
-- **99 个内置模块**：覆盖战斗、协议、移动、玩家、画面与世界交互，支持快捷键和个性化配置。
+- **101 个内置模块**：覆盖战斗、协议、移动、玩家、画面与世界交互，支持快捷键和个性化配置。
 - **7 种视觉模式**：我们提供 Remix、Myau、Sigma、Skeet、Setsuna、Opai、 Neverlose 七种视觉模式模块。
 - **游戏内 AI Agent**：在游戏面板或系统浏览器中使用同一个 Harness，管理模型、工作区、会话和插件。
 - **游戏工具接入**：提供 22 个游戏工具与 14 个脚本开发工具，支持状态查询、命令执行、容器交互、数据包观察和脚本开发。
@@ -53,8 +53,8 @@ Omix 基于 DSJ 的 Remix base 和 Minecraft 1.21.11 / Fabric 开发的我的世
 | [Combat](docs/modules/combat.md) | 16 | 战斗、武器与攻击辅助 |
 | [Exploits](docs/modules/exploits.md) | 9 | 协议控制、数据包观察与路径功能 |
 | [Move](docs/modules/move.md) | 18 | 移动、跳跃、速度与防坠落 |
-| [Player](docs/modules/player.md) | 17 | 目标筛选、背包、装备与生存辅助 |
-| [Render](docs/modules/render.md) | 29 | HUD、WebUI、脚本入口与视觉效果 |
+| [Player](docs/modules/player.md) | 18 | 目标筛选、背包、装备与生存辅助 |
+| [Render](docs/modules/render.md) | 30 | HUD、WebUI、脚本入口与视觉效果 |
 | [World](docs/modules/world.md) | 10 | 搭路、世界交互与自动化 |
 
 ## 快速开始

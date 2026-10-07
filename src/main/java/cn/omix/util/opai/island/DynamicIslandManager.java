@@ -1,6 +1,7 @@
 package cn.omix.util.opai.island;
 
 import cn.omix.module.Module;
+import cn.omix.module.impl.player.BedAura;
 import cn.omix.module.impl.render.ClickGui;
 import cn.omix.util.opai.OpaiHud;
 import cn.omix.ui.neverlose.NeverloseClickGuiScreen;
@@ -27,6 +28,7 @@ public final class DynamicIslandManager {
       return cn.omix.Client.instance.getModuleManager().getModule(cn.omix.module.impl.world.Scaffold.class);
    }
    private static Sample extracted;
+   private static boolean bedAuraBreaking;
    private record Sample(DynamicIslandState.Frame frame, float viewportWidth, float scale,
                          IslandView chest, Screen screen) {
       IslandGeometry geometry() { return new IslandGeometry(frame, viewportWidth, scale); }
@@ -70,6 +72,10 @@ public final class DynamicIslandManager {
          if (!module.isNativeBehaviorActive()) {
             STATE.remove("scaffold");
          }
+      }
+      if (module instanceof BedAura && !module.isNativeBehaviorActive() && bedAuraBreaking) {
+         STATE.remove("bed-aura");
+         bedAuraBreaking = false;
       }
       if (MC.player == null || !OpaiHud.enabled(OpaiHud.Widget.STATUS_BAR)) {
          return;
@@ -136,8 +142,7 @@ public final class DynamicIslandManager {
       IslandView chest = CHEST == null ? null
          : CHEST.islandView(screen, now, reducedMotion);
       if (chest == null) {
-         updateScaffold(now);
-
+         if (!updateBreaking(now)) updateScaffold(now);
       }
       float screenWidth = MC.getWindow().getScaledWidth();
       float scale = cn.omix.util.opai.layout.HudLayouts.INSTANCE.get(cn.omix.util.opai.layout.HudLayouts.Element.ISLAND).scale();
@@ -282,8 +287,22 @@ public final class DynamicIslandManager {
       STATE.postScaffold(detail, Math.min(1, blocks / 100f), now);
    }
 
-   /** Integration point for a block-breaking module; retains the original island state. */
+   private static boolean updateBreaking(long now) {
+      BedAura module = cn.omix.Client.instance.getModuleManager().getModule(BedAura.class);
+      var target = module == null ? null : module.diggingTarget(MC.getRenderTickCounter().getTickProgress(false));
+      if (target == null) {
+         if (bedAuraBreaking) STATE.remove("bed-aura");
+         bedAuraBreaking = false;
+         return false;
+      }
+      STATE.postBreaking(target.state().getBlock().getName().getString(), target.progress(), now);
+      bedAuraBreaking = true;
+      return true;
+   }
+
+   /** Public integration point retained for script/external progress producers. */
    public static synchronized void postBreaking(String name, float progress) {
       STATE.postBreaking(name, progress, now());
+      bedAuraBreaking = false;
    }
 }

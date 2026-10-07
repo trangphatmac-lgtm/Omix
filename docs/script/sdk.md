@@ -1991,6 +1991,30 @@
 - `cn.omix.util.player.RotationUtil` — `public static float[] applySensitivityPatch(float[] rotations)`
 - `cn.omix.util.player.RotationUtil` — `public static float[] applySensitivityPatch(float[] rotation, float[] previousRotation)`
 - `cn.omix.util.player.RotationUtil` — `public static Vec3d getVectorForRotation(float yaw, float pitch)`
+- `cn.omix.util.player.bed.BedAuraProgress` — `cn.omix.util.player.bed.BedAuraProgress`
+- `cn.omix.util.player.bed.BedAuraProgress` — `public final class BedAuraProgress`
+- `cn.omix.util.player.bed.BedAuraProgress` — `public record Rate(float delta, float goal)`
+- `cn.omix.util.player.bed.BedAuraProgress` — `public static Rate rate(float vanillaDelta, float speed, boolean watchdog, boolean submerged, boolean onGround)`
+- `cn.omix.util.player.bed.BedAuraProgress` — `public boolean waiting()`
+- `cn.omix.util.player.bed.BedAuraProgress` — `public boolean readyToFinish(Rate rate)`
+- `cn.omix.util.player.bed.BedAuraProgress` — `public void advance(Rate rate)`
+- `cn.omix.util.player.bed.BedAuraProgress` — `public float interpolated(float tickDelta)`
+- `cn.omix.util.player.bed.BedAuraProgress` — `public void finish(int delayTicks)`
+- `cn.omix.util.player.bed.BedAuraProgress` — `public void resetProgress()`
+- `cn.omix.util.player.bed.BedAuraProgress` — `public void reset()`
+- `cn.omix.util.player.bed.BedAuraTargeting` — `cn.omix.util.player.bed.BedAuraTargeting`
+- `cn.omix.util.player.bed.BedAuraTargeting` — `public final class BedAuraTargeting`
+- `cn.omix.util.player.bed.BedAuraTargeting` — `public interface World`
+- `cn.omix.util.player.bed.BedAuraTargeting` — `public record Target(BlockPos bed, BlockPos block)`
+- `cn.omix.util.player.bed.BedAuraTargeting` — `public static Target find(World world, Vec3d player, double range, boolean surrounding, BlockPos previousBed)`
+- `cn.omix.util.player.bed.BedAuraTargeting` — `public static boolean inRange(Vec3d player, BlockPos pos, double range)`
+- `cn.omix.util.player.bed.BedAuraWhitelist` — `cn.omix.util.player.bed.BedAuraWhitelist`
+- `cn.omix.util.player.bed.BedAuraWhitelist` — `public final class BedAuraWhitelist`
+- `cn.omix.util.player.bed.BedAuraWhitelist` — `public static final BedAuraWhitelist INSTANCE`
+- `cn.omix.util.player.bed.BedAuraWhitelist` — `public void onGameMessage(String message)`
+- `cn.omix.util.player.bed.BedAuraWhitelist` — `public void onPositionApplied(Vec3d position)`
+- `cn.omix.util.player.bed.BedAuraWhitelist` — `public boolean isProtected(Vec3d playerPosition)`
+- `cn.omix.util.player.bed.BedAuraWhitelist` — `public void clear()`
 - `cn.omix.util.player.blockin.BlockInPlanner` — `cn.omix.util.player.blockin.BlockInPlanner`
 - `cn.omix.util.player.blockin.BlockInPlanner` — `public final class BlockInPlanner`
 - `cn.omix.util.player.blockin.BlockInPlanner` — `public interface Environment`
