@@ -37,7 +37,9 @@ import java.util.Locale;
 
 @Getter
 public class HUD extends Module {
-    private final ModeValue hudMode = new ModeValue("Mode", "Omix", "Classic", "Omix", "Sigma");
+    private final ModeValue hudMode = new ModeValue("Mode", "Omix", "Classic", "Omix", "Sigma", "Opai");
+    private final ColorValue opaiColor = new ColorValue("Opai Color", new Color(187, 195, 255), () -> hudMode.is("Opai"));
+    private final cn.omix.util.opai.OpaiHud opai = new cn.omix.util.opai.OpaiHud(this);
     private final BoolValue sigmaActiveMods = new BoolValue("ActiveMods", true, () -> hudMode.is("Sigma"));
     private final ModeValue sigmaActiveModsSize = new ModeValue("ActiveMods Size", "Normal", () -> hudMode.is("Sigma") && sigmaActiveMods.getValue(), "Normal", "Small", "Tiny");
     private final BoolValue sigmaActiveModsAnimations = new BoolValue("ActiveMods Animations", true, () -> hudMode.is("Sigma") && sigmaActiveMods.getValue());
@@ -116,8 +118,25 @@ public class HUD extends Module {
     }
 
     @EventTarget
+    public void onOpaiTick(cn.omix.event.impl.UpdateEvent event) { if (hudMode.is("Opai")) cn.omix.util.opai.OpaiHud.SessionHud.SessionTracker.tick(); }
+    @EventTarget
+    public void onOpaiMotion(cn.omix.event.impl.MotionEvent event) {
+        if (event.isPost() && hudMode.is("Opai")) cn.omix.util.opai.island.DynamicIslandManager.sampleScaffoldMovement();
+    }
+    @EventTarget
+    public void onOpaiAttack(cn.omix.event.impl.AttackEvent event) { if (hudMode.is("Opai")) cn.omix.util.opai.OpaiHud.SessionHud.SessionTracker.attack(event.getEntity()); }
+    @EventTarget
+    public void onOpaiPacket(cn.omix.event.impl.PacketEvent event) {
+        if (hudMode.is("Opai") && event.getType() == cn.omix.event.impl.PacketEvent.Type.Received
+                && event.getPacket() instanceof net.minecraft.network.packet.s2c.play.TitleS2CPacket title)
+            cn.omix.util.opai.OpaiHud.SessionHud.SessionTracker.title(title.text().getString());
+    }
+    @Override public void onDisable() { opai.onDisable(); }
+    @EventTarget
     public void onRender2D(Render2DEvent event) {
         if (mc.player == null || mc.world == null) return;
+
+        if (hudMode.is("Opai") || mc.currentScreen instanceof cn.omix.ui.opai.HudEditorScreen) { opai.render(event); return; }
 
         if (hudMode.is("Sigma")) {
             sigma.render(this, event.getContext());
@@ -291,7 +310,7 @@ public class HUD extends Module {
             if (event.getAction() == 1 && mc.currentScreen == null && sigmaTabGui.getValue()) sigma.key(event.getKey());
             return;
         }
-        if (event.getAction() != 1 || mc.currentScreen != null || hudMode.is("Classic")) return;
+        if (event.getAction() != 1 || mc.currentScreen != null || !hudMode.is("Omix")) return;
         int code = event.getKey();
         List<Module> modules = instance.getModuleManager().getModuleMap().values().stream().filter(m -> m.getCategory() == categories.get(current)).toList();
 
@@ -316,6 +335,7 @@ public class HUD extends Module {
     }
 
     public int getColor(int counter, int alpha) {
+        if (hudMode.is("Opai")) return ColorUtil.applyAlpha(opaiColor.getValue().getRGB(), alpha);
         if (hudMode.is("Sigma")) return (Math.clamp(alpha, 0, 255) << 24) | 0xfefefe;
         if (hudMode.is("Classic")) {
             return ColorUtil.applyAlpha(getClassicColor(System.currentTimeMillis(), counter).getRGB(), alpha);

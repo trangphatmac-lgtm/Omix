@@ -54,6 +54,7 @@ public abstract class Module implements IMinecraft {
                 if (!(this instanceof Notify)) {
                     Util.log(getName() + ": " + (isEnabled() ? "&a&lON" : "&c&lOFF"));
                 }
+                cn.omix.util.opai.island.DynamicIslandManager.onModuleToggled(this);
                 ToggleSounds sounds = Client.instance.getModuleManager().getModule(ToggleSounds.class);
                 // Also play the final OFF sound when ToggleSounds itself is disabled.
                 if (sounds != null && (sounds.isNativeBehaviorActive()

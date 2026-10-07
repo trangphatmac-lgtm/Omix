@@ -55,47 +55,51 @@ public final class ModuleConfig extends Config {
     }
 
     private void saveWithCurrentMode() {
-        try {
-            String serialized = this.gson.toJson(serializeCurrentState(false));
-            Files.writeString(
-                    this.getFile().toPath(),
-                    storageMode.encode(serialized),
-                    StandardCharsets.UTF_8
-            );
-        } catch (final Exception exception) {
-            Client.logger.debug("Failed to save config: {}. Error: {}", this.getName(), exception.getMessage());
-        }
+        try { writeChecked(serializeCurrentState(false)); }
+        catch (Exception exception) { Client.logger.debug("Failed to save config: {}. Error: {}", getName(), exception.getMessage()); }
     }
 
-    @Override
-    public void load() {
-        if (!this.getFile().exists()) {
-            return;
-        }
+    public void saveChecked() throws java.io.IOException {
+        if (!storageModeKnown) { storageMode = detectStoredMode(); storageModeKnown = true; }
+        writeChecked(serializeCurrentState(false));
+    }
 
+    /** Writes a native snapshot atomically, retaining this profile's encryption mode. */
+    public void writeChecked(JsonObject snapshot) throws java.io.IOException {
+        if (!storageModeKnown) { storageMode = detectStoredMode(); storageModeKnown = true; }
+        var target = getFile().toPath().toAbsolutePath();
+        if (Files.isSymbolicLink(target)) throw new java.io.IOException("Linked configuration files are not supported");
+        cn.omix.util.script.ScriptFiles.atomicWrite(target, storageMode.encode(gson.toJson(snapshot)));
+    }
+
+    @Override public void load() {
+        if (!getFile().exists()) return;
+        try { loadChecked(); }
+        catch (Exception exception) { Client.logger.debug("Failed to load config: {}. Error: {}", getName(), exception.getMessage()); }
+    }
+
+    public void loadChecked() throws java.io.IOException {
+        if (!getFile().isFile() || Files.isSymbolicLink(getFile().toPath()))
+            throw new java.io.IOException("Configuration no longer exists or is linked");
         try {
-            String storedValue = Files.readString(this.getFile().toPath(), StandardCharsets.UTF_8);
-            storageMode = ConfigStorageMode.detect(storedValue);
-            storageModeKnown = true;
-
-            final JsonElement jsonElement = JsonParser.parseString(storageMode.decode(storedValue));
-            if (jsonElement == null || !jsonElement.isJsonObject()) {
-                return;
+            String storedValue = Files.readString(getFile().toPath(), StandardCharsets.UTF_8);
+            ConfigStorageMode nextMode = ConfigStorageMode.detect(storedValue);
+            JsonElement parsed = JsonParser.parseString(nextMode.decode(storedValue));
+            if (!parsed.isJsonObject()) throw new IllegalArgumentException("Expected a configuration object");
+            JsonObject jsonObject = parsed.getAsJsonObject();
+            // Geometry is validated before any live state is changed.
+            if (jsonObject.has("_opaiHud")) new cn.omix.util.opai.layout.HudLayouts().load(jsonObject.getAsJsonObject("_opaiHud"));
+            if (jsonObject.has("_opaiClickGui")) cn.omix.util.opai.layout.ClickGuiLayouts.validate(jsonObject.getAsJsonObject("_opaiClickGui"));
+            for (Module module : instance.getModuleManager().getModuleMap().values()) {
+                var state = jsonObject.get(configKey(module));
+                if (state != null && !state.isJsonObject()) throw new IllegalArgumentException("Invalid module: " + module.getName());
             }
-            final JsonObject jsonObject = jsonElement.getAsJsonObject();
-            retained = jsonObject.deepCopy();
-
-            for (final Module module : instance.getModuleManager().getModuleMap().values()) {
-                if (!jsonObject.has(configKey(module))) {
-                    continue;
-                }
-
-                final JsonObject moduleObject = jsonObject.getAsJsonObject(configKey(module));
-                this.deserializeModule(module, moduleObject);
-            }
-        } catch (final Exception exception) {
-            Client.logger.debug("Failed to load config: {}. Error: {}", this.getName(), exception.getMessage());
-        }
+            storageMode = nextMode; storageModeKnown = true; retained = jsonObject.deepCopy();
+            if (jsonObject.has("_opaiHud")) cn.omix.util.opai.layout.HudLayouts.INSTANCE.load(jsonObject.getAsJsonObject("_opaiHud"));
+            if (jsonObject.has("_opaiClickGui")) cn.omix.util.opai.layout.ClickGuiLayouts.load(jsonObject.getAsJsonObject("_opaiClickGui"));
+            for (Module module : instance.getModuleManager().getModuleMap().values())
+                if (jsonObject.has(configKey(module))) deserializeModule(module, jsonObject.getAsJsonObject(configKey(module)));
+        } catch (RuntimeException error) { throw new java.io.IOException("Invalid configuration: " + error.getMessage(), error); }
     }
 
     private ConfigStorageMode detectStoredMode() {
@@ -140,6 +144,8 @@ public final class ModuleConfig extends Config {
 
     private JsonObject serializeCurrentState(boolean redactSensitive) {
         final JsonObject jsonObject = retained.deepCopy();
+        jsonObject.add("_opaiHud", cn.omix.util.opai.layout.HudLayouts.INSTANCE.snapshot());
+        jsonObject.add("_opaiClickGui", cn.omix.util.opai.layout.ClickGuiLayouts.snapshot());
         for (Module module : instance.getModuleManager().getModuleMap().values()) {
             final JsonObject moduleObject = new JsonObject();
             moduleObject.addProperty("enabled", !module.isHoldToUse() && module.isEnabled());

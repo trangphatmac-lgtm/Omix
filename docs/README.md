@@ -10,6 +10,7 @@
 - [Render 画面与界面模块](modules/render.md)
 - [Skeet ClickGUI 操作与移植说明](skeet-clickgui.md)
 - [Setsuna Pop 环形菜单操作与移植说明](setsuna-clickgui.md)
+- [Opai / Neverlose 与 Opai HUD 操作及移植说明](opai-neverlose.md)
 - [World 世界交互模块](modules/world.md)
 - [AI Tools 及每个参数](ai-tools.md)
 - [Java 脚本、开发面板与 MCP](script/README.md)
@@ -57,6 +58,7 @@ Web 和 Node 相关源码统一位于项目根目录 `src-web/`：`webui/`、`mu
 | `player/blockin/` | `BlockInPlanner` |
 | `player/chest/` | `ChestScreenState`、`ChestScreenGuard`、`ChestInteractionState` |
 | `world/` | `ScaffoldMutex`、`VictorySignalMatcher` |
+| `opai/` | Opai / Neverlose 设置适配、绘制、配置、六种 HUD、DynamicIsland 与编辑器 |
 | `skeet/` | Gamesense 界面的布局、字体绘制、设置适配、文本编辑和本地配置面板 |
 | `setsuna/` | Pop 环形菜单的布局、原生圆角绘制、设置适配和文本编辑 |
 

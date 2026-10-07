@@ -20,13 +20,17 @@ class SetsunaModeTest {
         }
         var mode = (ModeValue) values.stream().filter(value -> value.getName().equals("Mode")).findFirst().orElseThrow();
         assertEquals("Web", mode.getValue());
-        assertArrayEquals(new String[]{"Web", "Remix", "Sigma", "Skeet", "Setsuna"}, mode.getModes());
-        List<Value> options = values.stream().filter(value -> value != mode).toList();
+        assertArrayEquals(new String[]{"Web", "Remix", "Sigma", "Skeet", "Setsuna", "Opai", "Neverlose"}, mode.getModes());
+        List<Value> options = values.stream().filter(value -> value.getName().startsWith("Setsuna ")).toList();
         assertEquals(4, options.size()); assertTrue(options.stream().noneMatch(Value::isVisible));
         mode.setValue("Setsuna"); assertTrue(options.stream().allMatch(Value::isVisible));
         assertEquals(5, gui.setsunaBlur()); assertEquals(1, gui.setsunaScale());
         assertFalse(gui.setsunaDaylight()); assertEquals(0xffa656ee, gui.setsunaAccent());
         mode.setValue("Skeet"); assertTrue(options.stream().noneMatch(Value::isVisible));
+        assertTrue(values.stream().noneMatch(value -> value.getName().equals("Opai Color")),
+                "Opai ClickGUI must use the HUD ColorValue instead of a separate selector");
+        mode.setValue("Opai"); assertTrue(options.stream().noneMatch(Value::isVisible));
+        mode.setValue("Neverlose"); assertTrue(options.stream().noneMatch(Value::isVisible));
     }
     @Test void bundledIconFontContainsEveryCategoryGlyph() throws Exception {
         Path root = Path.of(System.getProperty("omix.test.root"));

@@ -31,6 +31,8 @@ public abstract class MixinGameRenderer implements IMinecraft {
 
     @Inject(method = "render", at = @At("HEAD"))
     private void omix$driveWebUi(CallbackInfo ci) {
+        cn.omix.util.opai.layout.HudLayouts.INSTANCE.beginFrame();
+        cn.omix.util.opai.island.DynamicIslandManager.beginExtraction();
         WebUiRuntime.getInstance().onFrame();
         cn.omix.util.sigma.SigmaRearView.get().prepareFrame();
         cn.omix.util.sigma.SigmaMaskEffect.releaseUnused();

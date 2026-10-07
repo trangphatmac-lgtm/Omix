@@ -50,6 +50,18 @@ public final class ConfigManager implements IMinecraft {
         return config;
     }
 
+    public Config loadConfigChecked(String name) throws java.io.IOException {
+        Config config = getConfig(name);
+        if (!(config instanceof ModuleConfig moduleConfig)) throw new java.io.IOException("Configuration no longer exists");
+        moduleConfig.loadChecked(); currentConfig = config; return config;
+    }
+
+    public Config saveConfigChecked(String name) throws java.io.IOException {
+        Config config = getConfig(name);
+        if (config == null) { config = new ModuleConfig(name); configs.add(config); }
+        ((ModuleConfig)config).saveChecked(); return config;
+    }
+
     public Config createConfig(final String name) {
         discoverConfigs();
         Config existing = findConfig(name);

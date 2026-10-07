@@ -92,6 +92,12 @@ dependencies {
 }
 
 dependencies {
+    implementation 'org.lwjgl:lwjgl-nanovg:3.3.3'
+    include 'org.lwjgl:lwjgl-nanovg:3.3.3'
+    ['linux', 'linux-arm64', 'windows', 'windows-arm64', 'macos', 'macos-arm64'].each { platform ->
+        runtimeOnly "org.lwjgl:lwjgl-nanovg:3.3.3:natives-${platform}"
+        include "org.lwjgl:lwjgl-nanovg:3.3.3:natives-${platform}"
+    }
     implementation 'org.eclipse.jdt:ecj:3.39.0'
     include 'org.eclipse.jdt:ecj:3.39.0'
     implementation 'net.fabricmc:tiny-remapper:0.12.3'
@@ -428,9 +434,15 @@ processResources {
                 "loader_version": project.loader_version
     }
 
+    // Minecraft TTF providers resolve files below font/. Reuse the existing CJK asset.
+    from("src/main/resources/assets/omix/fonts/MiSans-Medium.ttf") {
+        into "assets/omix/font/opai"
+        rename { "cjk.ttf" }
+    }
+
     // Ship the user-facing reference verbatim; Agent has no separate documentation copy.
     from("docs") {
-        include "README.md", "commands.md", "ai-tools.md", "rotation-manager.md", "projectileaura.md", "skeet-clickgui.md", "modules/*.md"
+        include "README.md", "commands.md", "ai-tools.md", "rotation-manager.md", "projectileaura.md", "skeet-clickgui.md", "opai-neverlose.md", "modules/*.md"
         into "assets/omix/ai/reference"
     }
 

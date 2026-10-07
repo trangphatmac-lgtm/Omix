@@ -1,0 +1,14 @@
+Opai / Neverlose UI and HUD port
+
+Adapted from the user-supplied Samsara checkout (base revision 06322f7).
+Original sources: com/samsara/ui/clickgui/opai, ui/clickgui/neverlose,
+ui/dynamicIsland, ui/hud, module/visual/Hud.java, module/player/ChestStealer.java,
+and util/render. The drawing geometry, fonts and HUD textures are preserved.
+Changes: Yarn 1.21.11 APIs, native Omix modules/settings/profiles, six categories,
+OpenGL GUI submission and inventory/target/session integration.
+
+Samsara supplies GNU GPL version 3; a verbatim copy is included at
+META-INF/licenses/samsara-gpl-3.0.txt. Original per-file notices are retained,
+including the Jon_awa MIT attribution in DynamicIsland code. Google Sans and
+Source Sans 3 font notices are retained beside the corresponding font files.
+Other font and texture files are copied from the supplied source assets.

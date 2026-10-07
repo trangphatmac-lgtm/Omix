@@ -14,7 +14,7 @@ import org.lwjgl.glfw.GLFW;
 import java.awt.Color;
 
 public final class ClickGui extends Module {
-    private final ModeValue mode = new ModeValue("Mode", "Web", "Web", "Remix", "Sigma", "Skeet", "Setsuna");
+    private final ModeValue mode = new ModeValue("Mode", "Web", "Web", "Remix", "Sigma", "Skeet", "Setsuna", "Opai", "Neverlose");
     private final BoolValue setsunaDaylight = new BoolValue("Setsuna Daylight", false, () -> mode.is("Setsuna"));
     private final NumberValue setsunaBlur = new NumberValue("Setsuna Blur", 5, 0, 10, 1, () -> mode.is("Setsuna"));
     private final ColorValue setsunaAccent = new ColorValue("Setsuna Accent", new Color(166, 86, 238), () -> mode.is("Setsuna"));
@@ -25,6 +25,11 @@ public final class ClickGui extends Module {
     public int setsunaAccent() { return setsunaAccent.getValue().getRGB(); }
     public float setsunaScale() { return setsunaScale.getValue() / 100f; }
 
+    private cn.omix.ui.opai.OpaiClickGuiScreen opaiScreen;
+    private cn.omix.ui.neverlose.NeverloseClickGuiScreen neverloseScreen;
+    public static cn.omix.util.opai.clickgui.OpaiStyle.Palette currentOpaiPalette() {
+        return cn.omix.util.opai.OpaiHudTheme.currentPalette();
+    }
     public ClickGui() {
         super("ClickGui", Category.Render);
         setKey(GLFW.GLFW_KEY_RIGHT_SHIFT);
@@ -32,7 +37,13 @@ public final class ClickGui extends Module {
 
     @Override
     public void onEnable() {
-        if (mode.is("Setsuna")) {
+        if (mode.is("Opai")) {
+            if (opaiScreen == null) opaiScreen = new cn.omix.ui.opai.OpaiClickGuiScreen();
+            mc.setScreen(opaiScreen);
+        } else if (mode.is("Neverlose")) {
+            if (neverloseScreen == null) neverloseScreen = new cn.omix.ui.neverlose.NeverloseClickGuiScreen();
+            mc.setScreen(neverloseScreen);
+        } else if (mode.is("Setsuna")) {
             mc.setScreen(new cn.omix.ui.setsuna.SetsunaClickGuiScreen());
         } else if (mode.is("Skeet")) {
             mc.setScreen(new cn.omix.ui.skeet.SkeetClickGuiScreen());

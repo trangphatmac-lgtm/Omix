@@ -35,7 +35,7 @@ public abstract class MixinInGameHud implements IMinecraft {
         int width = mc.getWindow().getWidth(), height = mc.getWindow().getHeight(), scale = mc.getWindow().getScaleFactor();
         int framebufferWidth = mc.getWindow().getFramebufferWidth(), framebufferHeight = mc.getWindow().getFramebufferHeight();
         int blurGeneration = cn.omix.util.sigma.SigmaBlur.generation();
-        if (sigma$cachedWorld != mc.world || sigma$width != width || sigma$height != height || sigma$scale != scale || sigma$blurGeneration != blurGeneration
+        if (instance.getModuleManager().getModule(HUD.class).getHudMode().is("Opai") || sigma$cachedWorld != mc.world || sigma$width != width || sigma$height != height || sigma$scale != scale || sigma$blurGeneration != blurGeneration
                 || sigma$framebufferWidth != framebufferWidth || sigma$framebufferHeight != framebufferHeight
                 || timer.hasTimeElapsed(1000L / instance.getModuleManager().getModule(HUD.class).getHudFps().getValue())) {
             sigma$cachedWorld = mc.world; sigma$width = width; sigma$height = height; sigma$scale = scale; sigma$blurGeneration = blurGeneration;
@@ -62,7 +62,7 @@ public abstract class MixinInGameHud implements IMinecraft {
     @Inject(method = "renderStatusEffectOverlay", at = @At("HEAD"), cancellable = true)
     private void renderStatusEffectOverlay(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         HUD hud = instance.getModuleManager().getModule(HUD.class);
-        if (hud.isNativeBehaviorActive() && hud.getHudMode().is("Omix") && hud.getNoPotionIcons().getValue()) {
+        if (cn.omix.util.opai.OpaiHud.enabled(cn.omix.util.opai.OpaiHud.Widget.POTION_STATUS) || hud.isNativeBehaviorActive() && hud.getHudMode().is("Omix") && hud.getNoPotionIcons().getValue()) {
             ci.cancel();
         }
     }

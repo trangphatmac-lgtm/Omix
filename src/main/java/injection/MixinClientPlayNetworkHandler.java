@@ -23,6 +23,9 @@ public abstract class MixinClientPlayNetworkHandler implements IMinecraft {
     @Inject(method = "onEntityStatus", at = @At("TAIL"))
     private void omix$autoLStatus(EntityStatusS2CPacket packet, CallbackInfo ci) {
         AutoLSignals.status(packet);
+        if (mc.world != null && packet.getStatus() == net.minecraft.entity.EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES
+                && cn.omix.util.opai.OpaiHud.enabled(cn.omix.util.opai.OpaiHud.Widget.SESSION_HUD))
+            cn.omix.util.opai.OpaiHud.SessionHud.SessionTracker.death(packet.getEntity(mc.world));
     }
 
     @Inject(method = "onEntityDamage", at = @At("TAIL"))

@@ -4,13 +4,14 @@
 
 ## HUD
 
-显示客户端水印与状态信息，并提供其他渲染模块使用的主题颜色。
+显示客户端水印与状态信息，并提供其他渲染模块使用的主题颜色。 Opai 模式提供 Samsara 的六种 Widgets 与统一拖拽/缩放编辑器，完整设置说明见 docs/opai-neverlose.md。
 
 源码：`src/main/java/cn/omix/module/impl/render/HUD.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Classic 经典样式；Omix 原有 HUD；Sigma 为 Jello HUD。 | 模式；默认 Omix；可选 Classic / Omix / Sigma |
+| Mode | Classic 经典样式；Omix 原有 HUD；Sigma 为 Jello HUD。 Opai 使用六组件 HUD。 | 模式；默认 Omix；可选 Classic / Omix / Sigma / Opai |
+| Opai Color | Opai HUD 与 Opai ClickGui 共用的主题强调色，默认 #BBC3FF；实时控制模块列表、目标血条/血量、灵动岛、分类面板、设置控件及编辑器选框，并随原生配置保存。ClickGui 不再提供独立的 Opai Color 配置。 | 颜色；默认 new Color(187, 195, 255)；显示条件：Mode = Opai |
 | ActiveMods | Sigma：右上角活动模块列表，默认开启。 | 布尔；默认 true；显示条件：Mode = Sigma |
 | ActiveMods Size | Sigma ActiveMods：Normal / Small / Tiny，原版 20 / 18 / 14 号字体。 | 模式；默认 Normal；可选 Normal / Small / Tiny；显示条件：Mode = Sigma 且 ActiveMods 开启 |
 | ActiveMods Animations | Sigma ActiveMods：开关列表动画，默认开启。 | 布尔；默认 true；显示条件：Mode = Sigma 且 ActiveMods 开启 |
@@ -40,7 +41,7 @@
 | Position | 显示坐标、FPS 和 TPS。 | 布尔；默认 true；属于 HUD Options；显示条件：Mode = Omix |
 | No Potion Icons | 隐藏原版药水图标。 | 布尔；默认 true；显示条件：Mode = Omix |
 | White Mode | Omix 使用白色风格。 | 布尔；默认 false；显示条件：Mode = Omix |
-| HUD FPS | HUD 缓存画面的刷新率上限，不是整个游戏的 FPS 上限。 | 数值；默认 60；5–360；步长 1 |
+| HUD FPS | HUD 缓存画面的刷新率上限，不是整个游戏的 FPS 上限。 Opai 使用逐帧更新以保持原版动画。 | 数值；默认 60；5–360；步长 1 |
 | Classic Color | Rainbow 彩虹、Chroma 色相变化、Astolfo 往返色相、Custom 单色、Fade 两色、Triple 三色。 | 模式；默认 Custom；可选 Rainbow / Chroma / Astolfo / Custom / Fade / Triple；显示条件：Mode = Classic |
 | Classic Color Speed | 动态颜色变化速度。 | 数值；默认 1；.5–1.5；步长 .05；显示条件：Mode = Classic 且 非 Classic Color = Custom |
 | Classic Saturation | 颜色饱和度百分比。 | 数值；默认 50；0–100；步长 1；显示条件：Mode = Classic |
@@ -64,13 +65,13 @@
 
 ## ClickGui
 
-默认右 Shift 打开模块配置界面，打开后自动关闭模块。Web 模式使用现有 WebUI，启动失败时回退原生界面；Remix 模式直接打开原生 ClickGUI。WebUI 页面提前加载，重复打开时复用已加载的页面并后台刷新模块状态；记忆模块/配置页、分类、选中模块、搜索内容、选中配置及滚动位置，重启后也会恢复。已移除的模块或配置会自动回退到有效选项。 Sigma 打开 Jello 原生分类面板，支持拖动、滚动、右键设置、中键绑定及 Profiles；沿用原版字体、图片、模糊和动画，不含 Jello Music。Profiles 使用本地 Omix 配置，Sigma 旧在线配置不兼容。 Skeet 打开移植自 Exhibition-Reborn 的 Gamesense 原生界面，使用纹理背景、图标分类和双列设置框，支持全部 Value 类型、动态脚本设置、模块绑定及本地配置管理；关闭时保存当前配置。操作详见 docs/skeet-clickgui.md。
+默认右 Shift 打开模块配置界面，打开后自动关闭模块。Web 模式使用现有 WebUI，启动失败时回退原生界面；Remix 模式直接打开原生 ClickGUI。WebUI 页面提前加载，重复打开时复用已加载的页面并后台刷新模块状态；记忆模块/配置页、分类、选中模块、搜索内容、选中配置及滚动位置，重启后也会恢复。已移除的模块或配置会自动回退到有效选项。 Sigma 打开 Jello 原生分类面板，支持拖动、滚动、右键设置、中键绑定及 Profiles；沿用原版字体、图片、模糊和动画，不含 Jello Music。Profiles 使用本地 Omix 配置，Sigma 旧在线配置不兼容。 Skeet 打开移植自 Exhibition-Reborn 的 Gamesense 原生界面，使用纹理背景、图标分类和双列设置框，支持全部 Value 类型、动态脚本设置、模块绑定及本地配置管理；关闭时保存当前配置。操作详见 docs/skeet-clickgui.md。 Opai/Neverlose 移植 Samsara 的 NanoVG 绘制、字体、布局和动画，适配 1.21.11 与 Omix 系统。
 
 源码：`src/main/java/cn/omix/module/impl/render/ClickGui.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Web 打开 WebUI；Remix 打开原生 ClickGUI；Sigma 打开 Jello ClickGUI；Skeet 打开 Gamesense 风格 ClickGUI；Setsuna 打开 Pop 环形菜单（详见 docs/setsuna-clickgui.md），直接使用 Omix 模块、Value 和当前配置，关闭时保存。 | 模式；默认 Web；可选 Web / Remix / Sigma / Skeet / Setsuna |
+| Mode | Web 打开 WebUI；Remix 打开原生 ClickGUI；Sigma 打开 Jello ClickGUI；Skeet 打开 Gamesense 风格 ClickGUI；Setsuna 打开 Pop 环形菜单（详见 docs/setsuna-clickgui.md），直接使用 Omix 模块、Value 和当前配置，关闭时保存。 Opai 打开 Samsara 的多列面板；Neverlose 打开其双列侧栏界面。两者接入 Omix 原生模块、全部 Value 类型及配置，包含 HUD 编辑器入口，详见 docs/opai-neverlose.md。 | 模式；默认 Web；可选 Web / Remix / Sigma / Skeet / Setsuna / Opai / Neverlose |
 | Setsuna Daylight | Setsuna Pop 菜单的日间主题，支持配色过渡动画。 | 布尔；默认 false；显示条件：Mode = Setsuna |
 | Setsuna Blur | Setsuna Pop 菜单的背景模糊强度；0 关闭模糊。 | 数值；默认 5；0–10；步长 1；显示条件：Mode = Setsuna |
 | Setsuna Accent | Setsuna Pop 环线与设置控件的强调色；分类气泡沿用原版分类配色。 | 颜色；默认 new Color(166, 86, 238)；显示条件：Mode = Setsuna |

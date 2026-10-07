@@ -1054,6 +1054,832 @@
 - `cn.omix.util.node.NodeRuntimeManager` — `public Path prepare(Consumer<BrowserPreparationProgress> progress)`
 - `cn.omix.util.node.NodeRuntimeManager` — `public boolean verify(Path runtimeDirectory, NodeRuntimeDescriptor descriptor)`
 - `cn.omix.util.node.NodeRuntimeManager` — `public synchronized void clearCurrent()`
+- `cn.omix.util.opai.OpaiHud` — `cn.omix.util.opai.OpaiHud`
+- `cn.omix.util.opai.OpaiHud` — `public class OpaiHud extends Feature`
+- `cn.omix.util.opai.OpaiHud` — `public final MultiSelectSetting widgets`
+- `cn.omix.util.opai.OpaiHud` — `public OpaiHud(cn.omix.module.impl.render.HUD owner)`
+- `cn.omix.util.opai.OpaiHud` — `public boolean selected(Widget widget)`
+- `cn.omix.util.opai.OpaiHud` — `public boolean widgetEnabled(Widget widget)`
+- `cn.omix.util.opai.OpaiHud` — `public static boolean enabled(Widget widget)`
+- `cn.omix.util.opai.OpaiHud` — `public boolean modeActive()`
+- `cn.omix.util.opai.OpaiHud` — `public boolean isEnabled()`
+- `cn.omix.util.opai.OpaiHud` — `public void render(Render2DEvent event)`
+- `cn.omix.util.opai.OpaiHud` — `public void onDisable()`
+- `cn.omix.util.opai.OpaiHud` — `public void renderPreview(DrawContext graphics, float partialTick)`
+- `cn.omix.util.opai.OpaiHud` — `public void renderNano()`
+- `cn.omix.util.opai.OpaiHud` — `public void layout()`
+- `cn.omix.util.opai.OpaiHud` — `public float getScale()`
+- `cn.omix.util.opai.OpaiHud` — `public static final class ArraylistSettings`
+- `cn.omix.util.opai.OpaiHud.ArraylistSettings` — `public final ModeSetting bar`
+- `cn.omix.util.opai.OpaiHud.ArraylistSettings` — `public final BooleanSetting lowercase`
+- `cn.omix.util.opai.OpaiHud.ArraylistSettings` — `public final BooleanSetting suffix`
+- `cn.omix.util.opai.OpaiHud.ArraylistSettings` — `public final BooleanSetting background`
+- `cn.omix.util.opai.OpaiHud.ArraylistSettings` — `public final BooleanSetting shadow`
+- `cn.omix.util.opai.OpaiHud.ArraylistSettings` — `public final BooleanSetting edge`
+- `cn.omix.util.opai.OpaiHud.ArraylistSettings` — `public final MultiSelectSetting categories`
+- `cn.omix.util.opai.OpaiHud.ArraylistSettings` — `public ArraylistSettings(Feature owner, boolean opai, BooleanSupplier visible)`
+- `cn.omix.util.opai.OpaiHud.ArraylistSettings` — `public boolean shows(Category category)`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public static final float OFFSET`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public ArraylistEntry(Feature module)`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public void updateText(boolean suffix, boolean lowercase)`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public void updateOpaiText(boolean suffix, boolean lowercase, OpaiArraylistRenderer renderer)`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public void visibility(boolean visible, long now)`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public void position(float y, long now)`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public float contribution()`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public OpaiArraylistLayout.Row opaiRow(float right, float nextWidth)`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public void renderNano(int index, BarMode barMode, boolean background, float scale, int xOffset, int yOffset)`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public void resetLayout()`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public boolean isModuleVisible()`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public boolean isVisible()`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public Feature getModule()`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public float getWidth()`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public int compareTo(ArraylistEntry other)`
+- `cn.omix.util.opai.OpaiHud.ArraylistEntry` — `public enum BarMode`
+- `cn.omix.util.opai.OpaiHud` — `public static final class ArraylistMotion`
+- `cn.omix.util.opai.OpaiHud.ArraylistMotion` — `public static final class Spring`
+- `cn.omix.util.opai.OpaiHud.ArraylistMotion.Spring` — `public Spring(double value, double rate)`
+- `cn.omix.util.opai.OpaiHud.ArraylistMotion.Spring` — `public Spring(double value, double rate, boolean immediateDeparture)`
+- `cn.omix.util.opai.OpaiHud.ArraylistMotion.Spring` — `public double to(double target, long now)`
+- `cn.omix.util.opai.OpaiHud.ArraylistMotion.Spring` — `public void snap(double value, long now)`
+- `cn.omix.util.opai.OpaiHud.ArraylistMotion.Spring` — `public double value()`
+- `cn.omix.util.opai.OpaiHud.ArraylistMotion` — `public void visibility(boolean enabled, long now)`
+- `cn.omix.util.opai.OpaiHud.ArraylistMotion` — `public void position(float y, long now)`
+- `cn.omix.util.opai.OpaiHud.ArraylistMotion` — `public float progress()`
+- `cn.omix.util.opai.OpaiHud.ArraylistMotion` — `public float contribution()`
+- `cn.omix.util.opai.OpaiHud.ArraylistMotion` — `public float y()`
+- `cn.omix.util.opai.OpaiHud.ArraylistMotion` — `public boolean visible()`
+- `cn.omix.util.opai.OpaiHud` — `public static final class OpaiArraylistLayout`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public static final float FONT_SIZE`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public static final float ROW_HEIGHT`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public static final float LEFT_PAD`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public static final float RIGHT_PAD`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public static final float EDGE_WIDTH`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public static final float EDGE_INSET`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public static final float TOP_INSET`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public static final float RADIUS`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public static final float BASELINE`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public static final int BACKGROUND`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public static final int TEXT`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public static int suffixSetting(String moduleName, List<String> modeNames)`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public static String displayName(String name, boolean lowercase)`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public static Metrics measure(String name, String suffix, boolean lowercase, boolean showSuffix, ToDoubleFunction<String> measure)`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public static Row row(Metrics text, float right, float y, float nextWidth)`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public record Metrics(String name, String suffix, float nameWidth, float gap, float width)`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout` — `public record Row(Metrics text, float x, float y, float radius)`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout.Row` — `public float right()`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout.Row` — `public float textX()`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistLayout.Row` — `public float suffixX()`
+- `cn.omix.util.opai.OpaiHud` — `public static final class OpaiArraylistRenderer`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistRenderer` — `public OpaiArraylistRenderer(long vg, int fontId)`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistRenderer` — `public float measure(String text)`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistRenderer` — `public void draw(List<Row> rows, boolean background, boolean shadow, boolean edge)`
+- `cn.omix.util.opai.OpaiHud.OpaiArraylistRenderer` — `public void draw(List<Row> rows, boolean background, boolean shadow, boolean edge, OpaiStyle.Palette palette)`
+- `cn.omix.util.opai.OpaiHud` — `public enum Widget`
+- `cn.omix.util.opai.OpaiHud.Widget` — `public final String label`
+- `cn.omix.util.opai.OpaiHud.Widget` — `public static String[] labels()`
+- `cn.omix.util.opai.OpaiHud` — `public static final class InventoryHud`
+- `cn.omix.util.opai.OpaiHud.InventoryHud` — `public InventoryHud()`
+- `cn.omix.util.opai.OpaiHud.InventoryHud` — `public InventoryHudLayout.Bounds bounds(int viewportWidth, int viewportHeight)`
+- `cn.omix.util.opai.OpaiHud.InventoryHud` — `public void renderInventory(DrawContext graphics)`
+- `cn.omix.util.opai.OpaiHud.InventoryHud` — `public static final class InventoryHudLayout`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public static final int WIDTH`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public static final int HEIGHT`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public static final int HEADER_HEIGHT`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public static final int RADIUS`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public static final int SHADOW_MARGIN`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public static final int TEXTURE_SCALE`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public static final int TEXTURE_WIDTH`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public static final int TEXTURE_HEIGHT`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public static final int DEFAULT_X`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public static final int DEFAULT_Y`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public static final int BODY_COLOR`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public static final int HEADER_COLOR`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public static final String PANEL_RESOURCE`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public static final List<Slot> SLOTS`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public record Slot(int inventoryIndex, int x, int y)`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public record Bounds(float x, float y, float scale)`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout.Bounds` — `public float width()`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout.Bounds` — `public float height()`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout.Bounds` — `public boolean contains(double mouseX, double mouseY)`
+- `cn.omix.util.opai.OpaiHud.InventoryHud.InventoryHudLayout` — `public static Bounds bounds(int viewportWidth, int viewportHeight, double x, double y, double scale)`
+- `cn.omix.util.opai.OpaiHud` — `public static final class TargetHud`
+- `cn.omix.util.opai.OpaiHud.TargetHud` — `public final ModeSetting mode`
+- `cn.omix.util.opai.OpaiHud.TargetHud` — `public void m207(DrawContext var1, float var2, PlayerEntity var3)`
+- `cn.omix.util.opai.OpaiHud.TargetHud` — `public TargetHud(OpaiHud owner)`
+- `cn.omix.util.opai.OpaiHud.TargetHud` — `public void onDisable()`
+- `cn.omix.util.opai.OpaiHud.TargetHud` — `public static final class OpaiTargetHudHealth`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudHealth` — `public record Sample(float health, float trail, float maximum)`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudHealth.Sample` — `public float fraction()`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudHealth.Sample` — `public float trailFraction()`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudHealth.Sample` — `public String label()`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudHealth` — `public void reset(float health, float maximum, long now)`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudHealth` — `public Sample update(float health, float maximum, long now)`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudHealth` — `public Sample sample(long now)`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudHealth` — `public static String format(float health)`
+- `cn.omix.util.opai.OpaiHud.TargetHud` — `public static final class OpaiTargetHudPainter`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter` — `public static final int WIDTH`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter` — `public static final int HEIGHT`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter` — `public static final int RADIUS`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter` — `public static final int SHADOW_MARGIN`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter` — `public static final int TEXTURE_SCALE`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter` — `public static final float FACE_SIZE`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter` — `public static final float FACE_RADIUS`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter` — `public static final float TEXT_SIZE`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter` — `public static final String PANEL_RESOURCE`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter` — `public static final String BAR_RESOURCE`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter` — `public record Bounds(int x, int y, int width, int height)`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter.Bounds` — `public boolean contains(double x, double y)`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter` — `public interface Surface`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter` — `public static Bounds bounds(Surface surface, String name, float maximum, int viewportWidth, int viewportHeight, int offsetX, int offsetY)`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter` — `public static void paint(Surface surface, Bounds bounds, String name, OpaiTargetHudHealth.Sample health, boolean armor, OpaiStyle.Palette palette)`
+- `cn.omix.util.opai.OpaiHud.TargetHud` — `public static final class OpaiTargetHudSurface implements OpaiTargetHudPainter.Surface`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudSurface` — `public OpaiTargetHudSurface(DrawContext graphics, PlayerEntity player)`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudSurface` — `public OpaiTargetHudSurface(DrawContext graphics, PlayerEntity player, float fontSize, String panelResource, int panelWidth, int panelHeight, float panelRadius, float opacity)`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudSurface` — `public float measure(String text)`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudSurface` — `public void panel(OpaiTargetHudPainter.Bounds bounds)`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudSurface` — `public void face(float x, float y, float size, float radius)`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudSurface` — `public void armor(int slot, float x, float y)`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudSurface` — `public void text(String text, float x, float y, int color)`
+- `cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudSurface` — `public void bar(float x, float y, float width, float height, int color)`
+- `cn.omix.util.opai.OpaiHud.TargetHud` — `public static final class NativePlayerFace`
+- `cn.omix.util.opai.OpaiHud.TargetHud.NativePlayerFace` — `public static void extract(DrawContext graphics, Identifier skin, float x,float y,float size,float radius,float opacity)`
+- `cn.omix.util.opai.OpaiHud` — `public static final class SessionHud`
+- `cn.omix.util.opai.OpaiHud.SessionHud` — `public SessionHud()`
+- `cn.omix.util.opai.OpaiHud.SessionHud` — `public void renderSession(DrawContext graphics)`
+- `cn.omix.util.opai.OpaiHud.SessionHud` — `public float measure(String text)`
+- `cn.omix.util.opai.OpaiHud.SessionHud` — `public void panel(cn.omix.util.opai.OpaiHud.TargetHud.OpaiTargetHudPainter.Bounds bounds)`
+- `cn.omix.util.opai.OpaiHud.SessionHud` — `public void face(float x, float y, float size, float radius)`
+- `cn.omix.util.opai.OpaiHud.SessionHud` — `public void armor(int slot, float x, float y)`
+- `cn.omix.util.opai.OpaiHud.SessionHud` — `public void text(String text, float x, float y, int color)`
+- `cn.omix.util.opai.OpaiHud.SessionHud` — `public void bar(float x, float y, float w, float h, int color)`
+- `cn.omix.util.opai.OpaiHud.SessionHud` — `public void icon(boolean skull, float x, float y, float size)`
+- `cn.omix.util.opai.OpaiHud.SessionHud` — `public static final class SessionStats`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionStats` — `public void tick(long now, boolean playing)`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionStats` — `public void attack(UUID victim, long now)`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionStats` — `public void attack(UUID victim, int life, long now)`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionStats` — `public boolean death(UUID victim, long now)`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionStats` — `public boolean death(UUID victim, int life, long now)`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionStats` — `public UUID attacked()`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionStats` — `public void victory(String title, long now)`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionStats` — `public void clearCombat()`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionStats` — `public int kills()`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionStats` — `public int wins()`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionStats` — `public String time()`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionStats` — `public static String formatTime(long seconds)`
+- `cn.omix.util.opai.OpaiHud.SessionHud` — `public static final class SessionTracker`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionTracker` — `public static final SessionStats STATS`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionTracker` — `public static void tick()`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionTracker` — `public static void attack(Entity entity)`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionTracker` — `public static void death(Entity entity)`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionTracker` — `public static void title(String title)`
+- `cn.omix.util.opai.OpaiHud.SessionHud` — `public static final class SessionHudPainter`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionHudPainter` — `public static final int HEIGHT`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionHudPainter` — `public static final float RADIUS`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionHudPainter` — `public static final float FONT_SIZE`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionHudPainter` — `public interface Canvas extends Surface`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionHudPainter` — `public static int width(Canvas surface, String time, int kills, int wins)`
+- `cn.omix.util.opai.OpaiHud.SessionHud.SessionHudPainter` — `public static void paint(Canvas surface, int width, String time, int kills, int wins)`
+- `cn.omix.util.opai.OpaiHud` — `public static final class PotionStatus`
+- `cn.omix.util.opai.OpaiHud.PotionStatus` — `public PotionStatus()`
+- `cn.omix.util.opai.OpaiHud.PotionStatus` — `public void onDisable()`
+- `cn.omix.util.opai.OpaiHud.PotionStatus` — `public void renderStatus(DrawContext graphics)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus` — `public static final class PotionStatusData`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusData` — `public record Effect(String key, String name, int color, int ticks, int amplifier, boolean infinite)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusData.Effect` — `public String title()`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusData.Effect` — `public String timer()`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusData.Effect` — `public int timerColor()`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusData.Effect` — `public String icon()`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusData.Effect` — `public String titleTexture()`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusData.Effect` — `public float titleTextureX()`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusData` — `public static final Set<String> ICONS`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusData` — `public static int referenceAmplifier(String key)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusData` — `public static String englishName(String key)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusData` — `public static String duration(int ticks, boolean infinite)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusData` — `public static int order(String key)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus` — `public static final class PotionStatusMotion`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusMotion` — `public static final float HEIGHT`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusMotion` — `public record Row(PotionStatusData.Effect effect, float x, float y, float width, float opacity)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusMotion` — `public record Frame(List<Row> rows, float width, float height)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusMotion` — `public Frame update(List<PotionStatusData.Effect> effects, long now, ToDoubleFunction<String> measure)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusMotion` — `public void clear()`
+- `cn.omix.util.opai.OpaiHud.PotionStatus` — `public static final class PotionStatusPainter`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusPainter` — `public static final float DEFAULT_SCALE`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusPainter` — `public static final float FONT_SIZE`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusPainter` — `public interface Surface`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusPainter` — `public static float width(PotionStatusData.Effect effect,java.util.function.ToDoubleFunction<String> measure)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusPainter` — `public static void paint(Surface surface, PotionStatusMotion.Row row)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus` — `public static final class PotionStatusSurface implements PotionStatusPainter.Surface`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusSurface` — `public PotionStatusSurface(DrawContext graphics,float opacity)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusSurface` — `public float measure(String value)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusSurface` — `public void text(String value,float x,float y,int color)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusSurface` — `public void title(PotionStatusData.Effect effect,int color)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusSurface` — `public void timer(PotionStatusData.Effect effect)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusSurface` — `public void icon(String resource,int color)`
+- `cn.omix.util.opai.OpaiHud.PotionStatus.PotionStatusSurface` — `public void panel(float width,int color)`
+- `cn.omix.util.opai.OpaiHudTheme` — `cn.omix.util.opai.OpaiHudTheme`
+- `cn.omix.util.opai.OpaiHudTheme` — `public final class OpaiHudTheme`
+- `cn.omix.util.opai.OpaiHudTheme` — `public static final int DEFAULT_COLOR`
+- `cn.omix.util.opai.OpaiHudTheme` — `public static Palette currentPalette()`
+- `cn.omix.util.opai.OpaiHudTheme` — `public static Palette palette(int color)`
+- `cn.omix.util.opai.OpaiRuntime` — `cn.omix.util.opai.OpaiRuntime`
+- `cn.omix.util.opai.OpaiRuntime` — `public final class OpaiRuntime`
+- `cn.omix.util.opai.OpaiRuntime` — `public static void renderNano()`
+- `cn.omix.util.opai.bridge.BooleanSetting` — `cn.omix.util.opai.bridge.BooleanSetting`
+- `cn.omix.util.opai.bridge.BooleanSetting` — `public final class BooleanSetting extends Setting`
+- `cn.omix.util.opai.bridge.BooleanSetting` — `public BooleanSetting(BoolValue v)`
+- `cn.omix.util.opai.bridge.BooleanSetting` — `public BooleanSetting(String name,Feature owner,boolean initial)`
+- `cn.omix.util.opai.bridge.BooleanSetting` — `public boolean m215()`
+- `cn.omix.util.opai.bridge.BooleanSetting` — `public void m217(boolean next)`
+- `cn.omix.util.opai.bridge.ChoiceSetting` — `cn.omix.util.opai.bridge.ChoiceSetting`
+- `cn.omix.util.opai.bridge.ChoiceSetting` — `public interface ChoiceSetting`
+- `cn.omix.util.opai.bridge.ClientColors` — `cn.omix.util.opai.bridge.ClientColors`
+- `cn.omix.util.opai.bridge.ClientColors` — `public final class ClientColors`
+- `cn.omix.util.opai.bridge.ClientColors` — `public static int m52(int offset)`
+- `cn.omix.util.opai.bridge.ColorChannel` — `cn.omix.util.opai.bridge.ColorChannel`
+- `cn.omix.util.opai.bridge.ColorChannel` — `public final class ColorChannel extends NumberSetting`
+- `cn.omix.util.opai.bridge.ColorChannel` — `public ColorChannel(ColorValue color,int channel)`
+- `cn.omix.util.opai.bridge.ColorChannel` — `public String getDisplayName()`
+- `cn.omix.util.opai.bridge.ColorChannel` — `public double m220()`
+- `cn.omix.util.opai.bridge.ColorChannel` — `public double m218()`
+- `cn.omix.util.opai.bridge.ColorChannel` — `public double m219()`
+- `cn.omix.util.opai.bridge.ColorChannel` — `public double m222()`
+- `cn.omix.util.opai.bridge.ColorChannel` — `public void m223(double next)`
+- `cn.omix.util.opai.bridge.ColorUtil` — `cn.omix.util.opai.bridge.ColorUtil`
+- `cn.omix.util.opai.bridge.ColorUtil` — `public final class ColorUtil`
+- `cn.omix.util.opai.bridge.ColorUtil` — `public static int m27()`
+- `cn.omix.util.opai.bridge.ColorUtil` — `public static int m26(float health)`
+- `cn.omix.util.opai.bridge.ConfigManager` — `cn.omix.util.opai.bridge.ConfigManager`
+- `cn.omix.util.opai.bridge.ConfigManager` — `public final class ConfigManager`
+- `cn.omix.util.opai.bridge.ConfigManager` — `public static File getConfigDir()`
+- `cn.omix.util.opai.bridge.ConfigManager` — `public static String validName(String raw)`
+- `cn.omix.util.opai.bridge.ConfigManager` — `public static String[] getConfigNames()`
+- `cn.omix.util.opai.bridge.ConfigManager` — `public static void saveState()`
+- `cn.omix.util.opai.bridge.ConfigManager` — `public static void saveQuietly()`
+- `cn.omix.util.opai.bridge.ConfigManager` — `public static void m32(String name)`
+- `cn.omix.util.opai.bridge.ConfigManager` — `public static void m33(String name)`
+- `cn.omix.util.opai.bridge.ConfigManager` — `public static boolean m36(String name)`
+- `cn.omix.util.opai.bridge.ConfigManager` — `public static boolean m38(String name)`
+- `cn.omix.util.opai.bridge.EditableSetting` — `cn.omix.util.opai.bridge.EditableSetting`
+- `cn.omix.util.opai.bridge.EditableSetting` — `public final class EditableSetting extends Setting implements ChoiceSetting`
+- `cn.omix.util.opai.bridge.EditableSetting` — `public EditableSetting(Value value)`
+- `cn.omix.util.opai.bridge.EditableSetting` — `public String[] options()`
+- `cn.omix.util.opai.bridge.EditableSetting` — `public String selectionLabel()`
+- `cn.omix.util.opai.bridge.EditableSetting` — `public boolean selected(int index)`
+- `cn.omix.util.opai.bridge.EditableSetting` — `public void select(int index)`
+- `cn.omix.util.opai.bridge.Feature` — `cn.omix.util.opai.bridge.Feature`
+- `cn.omix.util.opai.bridge.Feature` — `public class Feature implements IMinecraft`
+- `cn.omix.util.opai.bridge.Feature` — `public final Module nativeModule`
+- `cn.omix.util.opai.bridge.Feature` — `public final List<Setting> settings`
+- `cn.omix.util.opai.bridge.Feature` — `public Feature(Module module)`
+- `cn.omix.util.opai.bridge.Feature` — `public void refresh()`
+- `cn.omix.util.opai.bridge.Feature` — `public String getName()`
+- `cn.omix.util.opai.bridge.Feature` — `public String getDisplayName()`
+- `cn.omix.util.opai.bridge.Feature` — `public Category getCategory()`
+- `cn.omix.util.opai.bridge.Feature` — `public boolean isEnabled()`
+- `cn.omix.util.opai.bridge.Feature` — `public boolean isHidden()`
+- `cn.omix.util.opai.bridge.Feature` — `public int getKey()`
+- `cn.omix.util.opai.bridge.Feature` — `public void setKey(int key)`
+- `cn.omix.util.opai.bridge.Feature` — `public void toggle()`
+- `cn.omix.util.opai.bridge.Feature` — `public void setEnabled(boolean enabled)`
+- `cn.omix.util.opai.bridge.Feature` — `public void onDisable()`
+- `cn.omix.util.opai.bridge.FeatureManager` — `cn.omix.util.opai.bridge.FeatureManager`
+- `cn.omix.util.opai.bridge.FeatureManager` — `public final class FeatureManager`
+- `cn.omix.util.opai.bridge.FeatureManager` — `public static Feature targets`
+- `cn.omix.util.opai.bridge.FeatureManager` — `public static List<Feature> getModules()`
+- `cn.omix.util.opai.bridge.FeatureManager` — `public static cn.omix.util.opai.OpaiHud hud()`
+- `cn.omix.util.opai.bridge.FeatureManager` — `public static Aura aura()`
+- `cn.omix.util.opai.bridge.FeatureManager` — `public static MultiSelectSetting targets()`
+- `cn.omix.util.opai.bridge.ModeSetting` — `cn.omix.util.opai.bridge.ModeSetting`
+- `cn.omix.util.opai.bridge.ModeSetting` — `public final class ModeSetting extends Setting implements ChoiceSetting`
+- `cn.omix.util.opai.bridge.ModeSetting` — `public ModeSetting(ModeValue v)`
+- `cn.omix.util.opai.bridge.ModeSetting` — `public ModeSetting(String n,Feature o,String initial,String[] choices)`
+- `cn.omix.util.opai.bridge.ModeSetting` — `public String m224()`
+- `cn.omix.util.opai.bridge.ModeSetting` — `public String[] m227()`
+- `cn.omix.util.opai.bridge.ModeSetting` — `public boolean m228(String s)`
+- `cn.omix.util.opai.bridge.ModeSetting` — `public void m226(String s)`
+- `cn.omix.util.opai.bridge.ModeSetting` — `public String[] options()`
+- `cn.omix.util.opai.bridge.ModeSetting` — `public String selectionLabel()`
+- `cn.omix.util.opai.bridge.ModeSetting` — `public boolean selected(int index)`
+- `cn.omix.util.opai.bridge.ModeSetting` — `public void select(int index)`
+- `cn.omix.util.opai.bridge.MultiSelectSetting` — `cn.omix.util.opai.bridge.MultiSelectSetting`
+- `cn.omix.util.opai.bridge.MultiSelectSetting` — `public final class MultiSelectSetting extends Setting implements ChoiceSetting`
+- `cn.omix.util.opai.bridge.MultiSelectSetting` — `public MultiSelectSetting(MultiBoolValue v)`
+- `cn.omix.util.opai.bridge.MultiSelectSetting` — `public MultiSelectSetting(String n,Feature o,String[] options,Collection<String> defaults)`
+- `cn.omix.util.opai.bridge.MultiSelectSetting` — `public String[] options()`
+- `cn.omix.util.opai.bridge.MultiSelectSetting` — `public List<String> selectedValues()`
+- `cn.omix.util.opai.bridge.MultiSelectSetting` — `public boolean contains(String name)`
+- `cn.omix.util.opai.bridge.MultiSelectSetting` — `public void setSelected(Collection<String> names)`
+- `cn.omix.util.opai.bridge.MultiSelectSetting` — `public String selectionLabel()`
+- `cn.omix.util.opai.bridge.MultiSelectSetting` — `public boolean selected(int i)`
+- `cn.omix.util.opai.bridge.MultiSelectSetting` — `public boolean multiple()`
+- `cn.omix.util.opai.bridge.MultiSelectSetting` — `public void select(int i)`
+- `cn.omix.util.opai.bridge.MultiSelectSetting` — `public void setLegacyBooleanPrefix(String prefix)`
+- `cn.omix.util.opai.bridge.NumberSetting` — `cn.omix.util.opai.bridge.NumberSetting`
+- `cn.omix.util.opai.bridge.NumberSetting` — `public class NumberSetting extends Setting`
+- `cn.omix.util.opai.bridge.NumberSetting` — `public NumberSetting(NumberValue v)`
+- `cn.omix.util.opai.bridge.NumberSetting` — `public NumberSetting(String n,Feature o,double initial,double min,double max,double step)`
+- `cn.omix.util.opai.bridge.NumberSetting` — `public double m220()`
+- `cn.omix.util.opai.bridge.NumberSetting` — `public double m218()`
+- `cn.omix.util.opai.bridge.NumberSetting` — `public double m219()`
+- `cn.omix.util.opai.bridge.NumberSetting` — `public double m222()`
+- `cn.omix.util.opai.bridge.NumberSetting` — `public void m223(double next)`
+- `cn.omix.util.opai.bridge.Setting` — `cn.omix.util.opai.bridge.Setting`
+- `cn.omix.util.opai.bridge.Setting` — `public abstract class Setting`
+- `cn.omix.util.opai.bridge.Setting` — `public Value value`
+- `cn.omix.util.opai.bridge.Setting` — `public String getName()`
+- `cn.omix.util.opai.bridge.Setting` — `public String getDisplayName()`
+- `cn.omix.util.opai.bridge.Setting` — `public Setting setDisplayName(String name)`
+- `cn.omix.util.opai.bridge.Setting` — `public Setting setVisible(BooleanSupplier visible)`
+- `cn.omix.util.opai.bridge.Setting` — `public boolean isVisible()`
+- `cn.omix.util.opai.bridge.Setting` — `public static java.util.List<Setting> wrapAll(Value value)`
+- `cn.omix.util.opai.bridge.Setting` — `public static Setting wrap(Value value)`
+- `cn.omix.util.opai.clickgui.OpaiCategoryRows` — `cn.omix.util.opai.clickgui.OpaiCategoryRows`
+- `cn.omix.util.opai.clickgui.OpaiCategoryRows` — `public OpaiCategoryRows(Category category, Function<R, Feature> module, Function<Feature, R> create)`
+- `cn.omix.util.opai.clickgui.OpaiCategoryRows` — `public List<R> rows()`
+- `cn.omix.util.opai.clickgui.OpaiCategoryRows` — `public void reconcile(List<Feature> modules)`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `cn.omix.util.opai.clickgui.OpaiConfigPanel`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public final class OpaiConfigPanel`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public interface Backend`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public enum Page`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public OpaiConfigPanel(Backend backend)`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public void position(float x, float y, float width)`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public void dock(float viewportWidth, float top)`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public void collapse()`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public void fitViewport(int viewportWidth, int viewportHeight)`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public void refresh()`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public void editor(String input, int cursor, int selection)`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public boolean focused()`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public void blur()`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public boolean adding()`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public String input()`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public int cursorAt(OpaiSurface surface, double mouseX)`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public String selected()`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public List<String> names()`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public boolean expanded()`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public boolean captured()`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public float bodyHeight()`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public void update(double now)`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public boolean contains(double mouseX, double mouseY)`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public void release()`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public void drag(double mouseX, double mouseY, int viewportWidth, int viewportHeight)`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public boolean wheel(double amount)`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public boolean escape()`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public boolean click(double mouseX, double mouseY, int button)`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public void create(boolean blank)`
+- `cn.omix.util.opai.clickgui.OpaiConfigPanel` — `public void paint(OpaiSurface s, OpaiStyle.Palette palette, double mouseX, double mouseY, double now)`
+- `cn.omix.util.opai.clickgui.OpaiConfigRepository` — `cn.omix.util.opai.clickgui.OpaiConfigRepository`
+- `cn.omix.util.opai.clickgui.OpaiConfigRepository` — `public final class OpaiConfigRepository implements OpaiConfigPanel.Backend`
+- `cn.omix.util.opai.clickgui.OpaiConfigRepository` — `public static String validName(String name)`
+- `cn.omix.util.opai.clickgui.OpaiConfigRepository` — `public List<String> names()`
+- `cn.omix.util.opai.clickgui.OpaiConfigRepository` — `public void create(String name,boolean blank)`
+- `cn.omix.util.opai.clickgui.OpaiConfigRepository` — `public void update(String name)`
+- `cn.omix.util.opai.clickgui.OpaiConfigRepository` — `public void load(String name)`
+- `cn.omix.util.opai.clickgui.OpaiConfigRepository` — `public void delete(String name)`
+- `cn.omix.util.opai.clickgui.OpaiConfigRepository` — `public void openFolder()`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `cn.omix.util.opai.clickgui.OpaiContentLayout`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public static final float BOOLEAN_H`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public static final float NUMBER_H`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public static final float MODE_H`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public static final float OPTION_H`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public static final float PADDING_H`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public static final float FIELD_Y`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public static final float FIELD_H`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public static final float SLIDER_Y`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public enum Kind`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout.Entry` — `public float visibleTop()`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout.Entry` — `public float visibleBottom()`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout.Entry` — `public boolean visible()`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public record Rect(float x, float y, float width, float height)`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout.Rect` — `public boolean contains(double mouseX, double mouseY)`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public record Scrollbar(float top, float height, float travel)`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public void add(T target, Kind kind)`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public void add(T target, Kind kind, float scale)`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public void addOptions(T target, int count)`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public void addOptions(T target, int count, float scale)`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public void reveal(OpaiContentLayout<T> section, float progress)`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public List<Entry<T>> entries()`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public float height()`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public float bodyHeight(float maximum)`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public float maxScroll(float bodyHeight)`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public Entry<T> hit(double localY, float scroll, float bodyHeight)`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public static Rect field(float x, float y, float width)`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public static Rect sliderHit(float x, float y, float width)`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public static double sliderFraction(double mouseX, float columnX, float columnWidth)`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public static Scrollbar scrollbar(float bodyHeight, float contentHeight, float scroll)`
+- `cn.omix.util.opai.clickgui.OpaiContentLayout` — `public static float scrollFromThumb(float thumbTop, float bodyHeight, float contentHeight)`
+- `cn.omix.util.opai.clickgui.OpaiFeedback` — `cn.omix.util.opai.clickgui.OpaiFeedback`
+- `cn.omix.util.opai.clickgui.OpaiFeedback` — `public final class OpaiFeedback`
+- `cn.omix.util.opai.clickgui.OpaiFeedback` — `public void click(float localX, float localY, float width, float height, double now)`
+- `cn.omix.util.opai.clickgui.OpaiFeedback` — `public float hover(boolean hovered, double now)`
+- `cn.omix.util.opai.clickgui.OpaiFeedback` — `public float press(double now)`
+- `cn.omix.util.opai.clickgui.OpaiFeedback` — `public void paint(OpaiSurface surface, float x, float y, float w, float h, float corner, int color, double now)`
+- `cn.omix.util.opai.clickgui.OpaiIcons` — `cn.omix.util.opai.clickgui.OpaiIcons`
+- `cn.omix.util.opai.clickgui.OpaiIcons` — `public final class OpaiIcons`
+- `cn.omix.util.opai.clickgui.OpaiIcons` — `public enum Icon`
+- `cn.omix.util.opai.clickgui.OpaiIcons` — `public static void draw(long vg, Icon icon, float x, float y, float size, int color)`
+- `cn.omix.util.opai.clickgui.OpaiInteraction` — `cn.omix.util.opai.clickgui.OpaiInteraction`
+- `cn.omix.util.opai.clickgui.OpaiInteraction` — `public final class OpaiInteraction`
+- `cn.omix.util.opai.clickgui.OpaiInteraction` — `public enum Action`
+- `cn.omix.util.opai.clickgui.OpaiInteraction` — `public static Action header(int button)`
+- `cn.omix.util.opai.clickgui.OpaiInteraction` — `public static Action content(OpaiContentLayout.Kind kind, int button)`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `cn.omix.util.opai.clickgui.OpaiLayout`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `public final class OpaiLayout`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `public static final float COL_W`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `public static final float COL_GAP`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `public static final float HEADER_H`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `public static final float ROW_H`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `public static final float FOOTER_H`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `public static final float RADIUS`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `public static final float TEXT_PAD`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `public static Viewport viewport(int width, int height, int columns)`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `public static float horizontalOverflow(int width, int columns, Viewport layout)`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `public static float bodyHeight(int rows, float maxHeight)`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `public static float maxScroll(int rows, float bodyHeight)`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `public static int rowIndex(double localY, float scroll, float bodyHeight, int rows)`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `public static String displayName(String name)`
+- `cn.omix.util.opai.clickgui.OpaiLayout` — `public record Viewport(float columnWidth, float left, float top, float maxBodyHeight)`
+- `cn.omix.util.opai.clickgui.OpaiMotion` — `cn.omix.util.opai.clickgui.OpaiMotion`
+- `cn.omix.util.opai.clickgui.OpaiMotion` — `public final class OpaiMotion`
+- `cn.omix.util.opai.clickgui.OpaiMotion` — `public static double now()`
+- `cn.omix.util.opai.clickgui.OpaiMotion` — `public OpaiMotion(float initial, double rate)`
+- `cn.omix.util.opai.clickgui.OpaiMotion` — `public float approach(float target, double now)`
+- `cn.omix.util.opai.clickgui.OpaiMotion` — `public float value()`
+- `cn.omix.util.opai.clickgui.OpaiMotion` — `public void snap(float value, double now)`
+- `cn.omix.util.opai.clickgui.OpaiMotion` — `public static float openingScale(double elapsedMs)`
+- `cn.omix.util.opai.clickgui.OpaiStyle` — `cn.omix.util.opai.clickgui.OpaiStyle`
+- `cn.omix.util.opai.clickgui.OpaiStyle` — `public final class OpaiStyle`
+- `cn.omix.util.opai.clickgui.OpaiStyle` — `public record Palette(int header, int body, int enabled, int enabledHover, int accent, int enabledText, int text, int hover, int field, int fieldLine, int track, int scrollbar, int selected, int toggleOutline, int tick, int hudProgress, int hudKnob)`
+- `cn.omix.util.opai.clickgui.OpaiStyle` — `public static final Palette LAVENDER`
+- `cn.omix.util.opai.clickgui.OpaiStyle` — `public static final Palette LIGHT_PINK`
+- `cn.omix.util.opai.clickgui.OpaiStyle` — `public static final float HEADER_TEXT_SIZE`
+- `cn.omix.util.opai.clickgui.OpaiStyle` — `public static final float ROW_TEXT_SIZE`
+- `cn.omix.util.opai.clickgui.OpaiStyle` — `public static final float TEXT_WEIGHT_OFFSET`
+- `cn.omix.util.opai.clickgui.OpaiStyle` — `public static Palette palette(String name)`
+- `cn.omix.util.opai.clickgui.OpaiSurface` — `cn.omix.util.opai.clickgui.OpaiSurface`
+- `cn.omix.util.opai.clickgui.OpaiSurface` — `public interface OpaiSurface`
+- `cn.omix.util.opai.clickgui.OpaiSurface` — `public default void plainText(String text, float x, float centerY, float size, float maximum, int color)`
+- `cn.omix.util.opai.clickgui.OpaiSurface` — `public default float plainTextWidth(String text, float size)`
+- `cn.omix.util.opai.clickgui.OpaiSurface` — `public static int mix(int from, int to, float amount)`
+- `cn.omix.util.opai.clickgui.OpaiTargetsPanel` — `cn.omix.util.opai.clickgui.OpaiTargetsPanel`
+- `cn.omix.util.opai.clickgui.OpaiTargetsPanel` — `public final class OpaiTargetsPanel`
+- `cn.omix.util.opai.clickgui.OpaiTargetsPanel` — `public void close()`
+- `cn.omix.util.opai.clickgui.OpaiTargetsPanel` — `public void update(float available, double now)`
+- `cn.omix.util.opai.clickgui.OpaiTargetsPanel` — `public float height()`
+- `cn.omix.util.opai.clickgui.OpaiTargetsPanel` — `public boolean wheel(double amount)`
+- `cn.omix.util.opai.clickgui.OpaiTargetsPanel` — `public void click(float x, float y, float width)`
+- `cn.omix.util.opai.clickgui.OpaiTargetsPanel` — `public void paint(OpaiSurface s, OpaiStyle.Palette p, float x, float y, float width)`
+- `cn.omix.util.opai.editor.HudEditButton` — `cn.omix.util.opai.editor.HudEditButton`
+- `cn.omix.util.opai.editor.HudEditButton` — `public final class HudEditButton`
+- `cn.omix.util.opai.editor.HudEditButton` — `public static final float SIZE`
+- `cn.omix.util.opai.editor.HudEditButton` — `public void open()`
+- `cn.omix.util.opai.editor.HudEditButton` — `public boolean click(double x, double y, int button)`
+- `cn.omix.util.opai.editor.HudEditButton` — `public void draw(int width, int height, float opacity, boolean closing)`
+- `cn.omix.util.opai.editor.HudEditButton` — `public static void paint(long vg, float x, float y, float opacity, int accent)`
+- `cn.omix.util.opai.editor.HudEditorGesture` — `cn.omix.util.opai.editor.HudEditorGesture`
+- `cn.omix.util.opai.editor.HudEditorGesture` — `public final class HudEditorGesture`
+- `cn.omix.util.opai.editor.HudEditorGesture` — `public HudEditorGesture(HudLayouts layouts)`
+- `cn.omix.util.opai.editor.HudEditorGesture` — `public boolean press(double x, double y, int button, long now)`
+- `cn.omix.util.opai.editor.HudEditorGesture` — `public boolean drag(double x, double y, int button, int viewportWidth, int viewportHeight)`
+- `cn.omix.util.opai.editor.HudEditorGesture` — `public boolean wheel(double amount, long now)`
+- `cn.omix.util.opai.editor.HudEditorGesture` — `public boolean release(int button)`
+- `cn.omix.util.opai.editor.HudEditorGesture` — `public HudLayouts.Element captured()`
+- `cn.omix.util.opai.island.ChestIsland` — `cn.omix.util.opai.island.ChestIsland`
+- `cn.omix.util.opai.island.ChestIsland` — `public final class ChestIsland`
+- `cn.omix.util.opai.island.ChestIsland` — `public boolean replacesContainer(Screen screen)`
+- `cn.omix.util.opai.island.ChestIsland` — `public IslandView islandView(Screen screen, long now, boolean reducedMotion)`
+- `cn.omix.util.opai.island.ChestIsland` — `public void clear()`
+- `cn.omix.util.opai.island.ChestIsland` — `public record IslandView(int rows, List<ItemStack> items, List<Feedback> feedback)`
+- `cn.omix.util.opai.island.ChestIsland.IslandView` — `public DynamicIslandState.Panel panel()`
+- `cn.omix.util.opai.island.ChestIsland` — `public record IslandGeometry(DynamicIslandState.Frame frame, float viewportWidth, float scale)`
+- `cn.omix.util.opai.island.ChestIsland.IslandGeometry` — `public float left()`
+- `cn.omix.util.opai.island.ChestIsland.IslandGeometry` — `public float contentLeft()`
+- `cn.omix.util.opai.island.ChestIsland.IslandGeometry` — `public static int slotX(int slot)`
+- `cn.omix.util.opai.island.ChestIsland.IslandGeometry` — `public static int slotY(int slot)`
+- `cn.omix.util.opai.island.ChestIsland.IslandGeometry` — `public static List<ShellSlice> shellSlices(float width, float height)`
+- `cn.omix.util.opai.island.ChestIsland` — `public record ShellSlice(float x, float y, float width, float height, int sourceX, int sourceY, int sourceWidth, int sourceHeight)`
+- `cn.omix.util.opai.island.ChestIsland` — `public void extractIslandItems(DrawContext graphics, IslandView view, IslandGeometry geometry)`
+- `cn.omix.util.opai.island.ChestIsland` — `public static void paintIslandOverlay(Surface surface, IslandView view, IslandGeometry geometry)`
+- `cn.omix.util.opai.island.ChestIsland` — `public record Feedback(int slot, float size, float radius, float opacity)`
+- `cn.omix.util.opai.island.ChestIsland` — `public static final class LootAnimation`
+- `cn.omix.util.opai.island.ChestIsland.LootAnimation` — `public void attach(Object menu, int rows)`
+- `cn.omix.util.opai.island.ChestIsland.LootAnimation` — `public void transferred(int slot, int before, int after, long now)`
+- `cn.omix.util.opai.island.ChestIsland.LootAnimation` — `public List<Feedback> feedback(long now)`
+- `cn.omix.util.opai.island.ChestIsland.LootAnimation` — `public void clear()`
+- `cn.omix.util.opai.island.DynamicIslandLatency` — `cn.omix.util.opai.island.DynamicIslandLatency`
+- `cn.omix.util.opai.island.DynamicIslandLatency` — `public final class DynamicIslandLatency`
+- `cn.omix.util.opai.island.DynamicIslandLatency` — `public static final long INTERVAL_MS`
+- `cn.omix.util.opai.island.DynamicIslandLatency` — `public static final long TIMEOUT_MS`
+- `cn.omix.util.opai.island.DynamicIslandLatency` — `public interface Source`
+- `cn.omix.util.opai.island.DynamicIslandLatency` — `public synchronized long request(long now)`
+- `cn.omix.util.opai.island.DynamicIslandLatency` — `public synchronized boolean receive(long token, long now)`
+- `cn.omix.util.opai.island.DynamicIslandLatency` — `public synchronized int latency(long now, int fallback)`
+- `cn.omix.util.opai.island.DynamicIslandLatency` — `public synchronized void reset()`
+- `cn.omix.util.opai.island.DynamicIslandManager` — `cn.omix.util.opai.island.DynamicIslandManager`
+- `cn.omix.util.opai.island.DynamicIslandManager` — `public final class DynamicIslandManager`
+- `cn.omix.util.opai.island.DynamicIslandManager` — `public static synchronized boolean shouldRender(Screen current)`
+- `cn.omix.util.opai.island.DynamicIslandManager` — `public static synchronized void onModuleToggled(Module module)`
+- `cn.omix.util.opai.island.DynamicIslandManager` — `public static synchronized void notifySuccess(String title, String description)`
+- `cn.omix.util.opai.island.DynamicIslandManager` — `public static synchronized void notifyWarning(String title, String description)`
+- `cn.omix.util.opai.island.DynamicIslandManager` — `public static synchronized void notifyInfo(String title, String description)`
+- `cn.omix.util.opai.island.DynamicIslandManager` — `public static synchronized void beginExtraction()`
+- `cn.omix.util.opai.island.DynamicIslandManager` — `public static synchronized boolean replacesContainer(Screen screen)`
+- `cn.omix.util.opai.island.DynamicIslandManager` — `public static synchronized boolean extractChestItems(Screen screen, DrawContext graphics)`
+- `cn.omix.util.opai.island.DynamicIslandManager` — `public static synchronized void renderNano()`
+- `cn.omix.util.opai.island.DynamicIslandManager` — `public static synchronized boolean hasChestOverlay()`
+- `cn.omix.util.opai.island.DynamicIslandManager` — `public static synchronized void renderChestOverlay()`
+- `cn.omix.util.opai.island.DynamicIslandManager` — `public static synchronized void sampleScaffoldMovement()`
+- `cn.omix.util.opai.island.DynamicIslandManager` — `public static synchronized void postBreaking(String name, float progress)`
+- `cn.omix.util.opai.island.DynamicIslandNanoSurface` — `cn.omix.util.opai.island.DynamicIslandNanoSurface`
+- `cn.omix.util.opai.island.DynamicIslandNanoSurface` — `public final class DynamicIslandNanoSurface implements DynamicIslandPainter.Surface`
+- `cn.omix.util.opai.island.DynamicIslandNanoSurface` — `public static final String FONT`
+- `cn.omix.util.opai.island.DynamicIslandNanoSurface` — `public static final String IDLE_FONT`
+- `cn.omix.util.opai.island.DynamicIslandNanoSurface` — `public DynamicIslandNanoSurface(long vg, int font, int idleFont)`
+- `cn.omix.util.opai.island.DynamicIslandNanoSurface` — `public static float letterSpacing(float size)`
+- `cn.omix.util.opai.island.DynamicIslandNanoSurface` — `public void symbol(DynamicIslandStatus.Symbol symbol, float x, float y, float size, int argb)`
+- `cn.omix.util.opai.island.DynamicIslandNanoSurface` — `public float measure(String text, float size)`
+- `cn.omix.util.opai.island.DynamicIslandNanoSurface` — `public float measureBreaking(String text, float size)`
+- `cn.omix.util.opai.island.DynamicIslandNanoSurface` — `public void rounded(float x, float y, float w, float h, float radius, int argb)`
+- `cn.omix.util.opai.island.DynamicIslandNanoSurface` — `public void line(float x1, float y1, float x2, float y2, float stroke, int argb)`
+- `cn.omix.util.opai.island.DynamicIslandNanoSurface` — `public void text(String text, float x, float centerY, float size, int argb)`
+- `cn.omix.util.opai.island.DynamicIslandNanoSurface` — `public void breakingText(String text, float x, float centerY, float size, int argb)`
+- `cn.omix.util.opai.island.DynamicIslandNanoSurface` — `public void shadow(float x, float y, float w, float h, float radius)`
+- `cn.omix.util.opai.island.DynamicIslandNanoSurface` — `public void clip(float x, float y, float w, float h, Runnable content)`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `cn.omix.util.opai.island.DynamicIslandPainter`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `public final class DynamicIslandPainter`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `public static final int BACKGROUND`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `public static final int TEXT`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `public static final int DETAIL`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `public static final int ENABLED`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `public static final int DISABLED`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `public static final float SHADOW_EXTENT`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `public static final float SHADOW_STEP`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `public interface Surface extends TextWidth`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `public static void paint(Surface surface, Frame frame, float viewportWidth)`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `public static void paint(Surface surface, Frame frame, float viewportWidth, Palette palette)`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `public static void paintShell(Surface surface, Frame frame, float viewportWidth)`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `public static void paintContent(Surface surface, Frame frame, float viewportWidth, Palette palette)`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `public static float shadowCoverage(float distance)`
+- `cn.omix.util.opai.island.DynamicIslandPainter` — `public static int shadowLayer(float spread)`
+- `cn.omix.util.opai.island.DynamicIslandState` — `cn.omix.util.opai.island.DynamicIslandState`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public final class DynamicIslandState`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final float TOP`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final float IDLE_TOP`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final float IDLE_HEIGHT`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final float ROW_HEIGHT`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final float SCAFFOLD_HEIGHT`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final float BREAKING_HEIGHT`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final float BREAKING_TITLE_FONT`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final float BREAKING_DETAIL_FONT`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final float SCAFFOLD_TEXT_X`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final float SCAFFOLD_RIGHT_PADDING`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final float RADIUS`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final float TITLE_FONT`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final float DETAIL_FONT`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final float NOTICE_TEXT_X`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final float NOTICE_RIGHT_PADDING`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final int MAX_NOTICES`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final long FADE_MS`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static final long TOGGLE_MS`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public enum Icon`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public interface TextWidth`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public record Row(String title, String detail, String status, Icon icon, boolean enabled, float toggle, float progress, float y, float height, float opacity)`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public record Frame(float width, float height, float idleOpacity, DynamicIslandStatus.Layout idle, List<Row> rows, float contentWidth, float top, float radius)`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public record DetailLine(String prefix, String status, float statusOffset)`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public record Panel(float width, float height, float top, float radius)`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public void post(String key, String title, String detail, String status, Icon icon, boolean enabled, long now, long duration)`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public void postScaffold(String detail, float progress, long now)`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public void postBreaking(String blockName, float progress, long now)`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public void remove(String key)`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public Frame frame(long now, float viewportWidth, DynamicIslandStatus status, TextWidth measure, boolean reducedMotion)`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public Frame frame(long now, float viewportWidth, DynamicIslandStatus status, TextWidth measure, boolean reducedMotion, Panel panel)`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static float radius(Frame frame)`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static float top(Frame frame)`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public void clear()`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static String fit(String text, float size, float width, TextWidth measure)`
+- `cn.omix.util.opai.island.DynamicIslandState` — `public static DetailLine detailLine(String detail, String status, float width, TextWidth measure)`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `cn.omix.util.opai.island.DynamicIslandStatus`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public record DynamicIslandStatus(String username, String server, int ping, int fps)`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public static final float FONT_SIZE`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public static final float INSET`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public static final float RIGHT_INSET`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public static final float ICON_SIZE`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public static final float ICON_GAP`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public static final int FOREGROUND`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public static final int LAVENDER`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public static final int ONLINE`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public static final int PING_ORANGE`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public static final int PING_RED`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public enum Symbol`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public record Part(String text, Symbol icon, int color, float x, float width)`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public record Layout(List<Part> parts, float width)`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public boolean singleplayer()`
+- `cn.omix.util.opai.island.DynamicIslandStatus` — `public Layout layout(DynamicIslandState.TextWidth measure, float available)`
+- `cn.omix.util.opai.island.ScaffoldBpsTracker` — `cn.omix.util.opai.island.ScaffoldBpsTracker`
+- `cn.omix.util.opai.island.ScaffoldBpsTracker` — `public final class ScaffoldBpsTracker`
+- `cn.omix.util.opai.island.ScaffoldBpsTracker` — `public void sample(Object player, Object world, long tick, double x, double z, double timerMultiplier)`
+- `cn.omix.util.opai.island.ScaffoldBpsTracker` — `public double blocksPerSecond(Object player, Object world)`
+- `cn.omix.util.opai.island.ScaffoldBpsTracker` — `public void reset()`
+- `cn.omix.util.opai.layout.ClickGuiLayouts` — `cn.omix.util.opai.layout.ClickGuiLayouts`
+- `cn.omix.util.opai.layout.ClickGuiLayouts` — `public final class ClickGuiLayouts`
+- `cn.omix.util.opai.layout.ClickGuiLayouts` — `public static long revision()`
+- `cn.omix.util.opai.layout.ClickGuiLayouts` — `public static JsonObject snapshot()`
+- `cn.omix.util.opai.layout.ClickGuiLayouts` — `public static JsonObject validate(JsonObject input)`
+- `cn.omix.util.opai.layout.ClickGuiLayouts` — `public static void load(JsonObject input)`
+- `cn.omix.util.opai.layout.ClickGuiLayouts` — `public static float x(String id, float fallback)`
+- `cn.omix.util.opai.layout.ClickGuiLayouts` — `public static float y(String id, float fallback)`
+- `cn.omix.util.opai.layout.ClickGuiLayouts` — `public static void put(String id, float x, float y)`
+- `cn.omix.util.opai.layout.HudLayouts` — `cn.omix.util.opai.layout.HudLayouts`
+- `cn.omix.util.opai.layout.HudLayouts` — `public final class HudLayouts`
+- `cn.omix.util.opai.layout.HudLayouts` — `public enum Element`
+- `cn.omix.util.opai.layout.HudLayouts.Element` — `public final boolean draggable`
+- `cn.omix.util.opai.layout.HudLayouts` — `public record Box(float x, float y, float width, float height)`
+- `cn.omix.util.opai.layout.HudLayouts.Box` — `public boolean contains(double x, double y)`
+- `cn.omix.util.opai.layout.HudLayouts` — `public static final class Placement`
+- `cn.omix.util.opai.layout.HudLayouts.Placement` — `public double x()`
+- `cn.omix.util.opai.layout.HudLayouts.Placement` — `public double y()`
+- `cn.omix.util.opai.layout.HudLayouts.Placement` — `public float scale()`
+- `cn.omix.util.opai.layout.HudLayouts.Placement` — `public void move(double x, double y)`
+- `cn.omix.util.opai.layout.HudLayouts.Placement` — `public void scale(double scale)`
+- `cn.omix.util.opai.layout.HudLayouts.Placement` — `public void resetScale()`
+- `cn.omix.util.opai.layout.HudLayouts` — `public static final HudLayouts INSTANCE`
+- `cn.omix.util.opai.layout.HudLayouts` — `public HudLayouts()`
+- `cn.omix.util.opai.layout.HudLayouts` — `public Placement get(Element element)`
+- `cn.omix.util.opai.layout.HudLayouts` — `public void drawn(Element element, Box box)`
+- `cn.omix.util.opai.layout.HudLayouts` — `public Box bounds(Element element)`
+- `cn.omix.util.opai.layout.HudLayouts` — `public void beginFrame()`
+- `cn.omix.util.opai.layout.HudLayouts` — `public Element hit(double x, double y)`
+- `cn.omix.util.opai.layout.HudLayouts` — `public Box fit(Element element, float width, float height, int viewportWidth, int viewportHeight, boolean centered)`
+- `cn.omix.util.opai.layout.HudLayouts` — `public JsonObject snapshot()`
+- `cn.omix.util.opai.layout.HudLayouts` — `public void load(JsonObject root)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `cn.omix.util.opai.neverlose.NeverloseLayout`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public final class NeverloseLayout`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static final float WIDTH`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static final float RADIUS`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static final Rect WINDOW`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static final Rect SIDEBAR_BACKDROP`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static final float ROW`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static final Rect CONTENT`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static final Rect SEARCH`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static final Rect SAVE`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static final Rect PRESET`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static final Rect CONFIG_INPUT`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static final Rect CREATE`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static final String[] NAV_NAMES`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public record Rect(float x, float y, float width, float height)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout.Rect` — `public float right()`
+- `cn.omix.util.opai.neverlose.NeverloseLayout.Rect` — `public float bottom()`
+- `cn.omix.util.opai.neverlose.NeverloseLayout.Rect` — `public boolean contains(double px, double py)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout.Rect` — `public Rect intersect(Rect other)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public record Viewport(float x, float y, float scale)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout.Viewport` — `public Rect screen(Rect local, float openingScale)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout.Viewport` — `public float localX(double screenX, float openingScale)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout.Viewport` — `public float localY(double screenY, float openingScale)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static Viewport viewport(int width, int height, float x, float y)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static Viewport centered(int width, int height)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static Rect navigation(int index)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static Rect control(Rect row)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static Rect slider(Rect row)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static Rect binding(Rect section)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public record Packed(List<Rect> sections, float height)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static Packed pack(List<Float> heights, float scroll)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static Packed pack(List<Float> heights, List<Integer> columns, float scroll)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static Rect dropdown(Rect anchor, int count)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static float fraction(double x, Rect track)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static Rect thumb(float scroll, float maximum)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static Rect thumb(float scroll, float maximum, Rect track)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static int mouseButton(int button)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout` — `public static final class Motion`
+- `cn.omix.util.opai.neverlose.NeverloseLayout.Motion` — `public Motion(float value, double rate)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout.Motion` — `public float to(float target, double now)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout.Motion` — `public void snap(float value, double now)`
+- `cn.omix.util.opai.neverlose.NeverloseLayout.Motion` — `public float value()`
+- `cn.omix.util.opai.neverlose.NeverloseLayout.Motion` — `public double velocity()`
+- `cn.omix.util.opai.neverlose.NeverloseRenderer` — `cn.omix.util.opai.neverlose.NeverloseRenderer`
+- `cn.omix.util.opai.neverlose.NeverloseRenderer` — `public final class NeverloseRenderer`
+- `cn.omix.util.opai.neverlose.NeverloseRenderer` — `public static final int ACCENT`
+- `cn.omix.util.opai.neverlose.NeverloseRenderer` — `public static final String REGULAR_FONT`
+- `cn.omix.util.opai.neverlose.NeverloseRenderer` — `public enum Kind`
+- `cn.omix.util.opai.neverlose.NeverloseRenderer` — `public record Editor(String value, int cursor, int selection, boolean focused)`
+- `cn.omix.util.opai.neverlose.NeverloseRenderer` — `public record Row(Kind kind, Rect bounds, String label, String value, float progress, float feedback, boolean hovered)`
+- `cn.omix.util.opai.neverlose.NeverloseRenderer` — `public record Section(Rect bounds, String title, String binding, float reveal, List<Row> rows)`
+- `cn.omix.util.opai.neverlose.NeverloseRenderer` — `public record Config(Rect bounds, String name, String detail, boolean active, boolean confirmingDelete)`
+- `cn.omix.util.opai.neverlose.NeverloseRenderer` — `public record Option(String label, boolean selected, boolean highlighted)`
+- `cn.omix.util.opai.neverlose.NeverloseRenderer` — `public record Dropdown(Rect bounds, float reveal, float scroll, List<Option> options)`
+- `cn.omix.util.opai.neverlose.NeverloseRenderer` — `public record Frame(Viewport viewport, float opacity, float openingScale, int navigation, float selectionY, String username, String version, Editor search, String preset, List<Section> sections, List<Config> configs, Editor configName, Dropdown dropdown, float scroll, float maximumScroll, float pageReveal, String status, boolean error, float mouseX, float mouseY, Map<String, Float> buttonFeedback)`
+- `cn.omix.util.opai.neverlose.NeverloseRenderer` — `public static float textWidth(long vg, int font, String text, float size)`
+- `cn.omix.util.opai.neverlose.NeverloseRenderer` — `public static float editorOffset(long vg, int font, Editor editor, Rect box, float padding)`
+- `cn.omix.util.opai.neverlose.NeverloseRenderer` — `public static void paint(long vg, int regular, int medium, int bold, Frame frame)`
+- `cn.omix.util.opai.render.ColorUtility` — `cn.omix.util.opai.render.ColorUtility`
+- `cn.omix.util.opai.render.ColorUtility` — `public final class ColorUtility`
+- `cn.omix.util.opai.render.ColorUtility` — `public static int getShadowColor(int color)`
+- `cn.omix.util.opai.render.ColorUtility` — `public static int[] hexToRGBA(int hex)`
+- `cn.omix.util.opai.render.ColorUtility` — `public static int rgbaToHex(int red, int green, int blue, int alpha)`
+- `cn.omix.util.opai.render.ColorUtility` — `public static int applyOpacity(int color, float opacityFactor)`
+- `cn.omix.util.opai.render.ColorUtility` — `public static int interpolateColors(int color1, int color2, float amount)`
+- `cn.omix.util.opai.render.ColorUtility` — `public static int rainbow(int speed, int index, float saturation, float brightness)`
+- `cn.omix.util.opai.render.ColorUtility` — `public static int interpolateColorsBackAndForth(int speed, int index, int startColor, int endColor)`
+- `cn.omix.util.opai.render.FontRepository` — `cn.omix.util.opai.render.FontRepository`
+- `cn.omix.util.opai.render.FontRepository` — `public final class FontRepository`
+- `cn.omix.util.opai.render.FontRepository` — `public static final String CJK_RESOURCE`
+- `cn.omix.util.opai.render.FontRepository` — `public static NVGTextRenderer getFont(String name)`
+- `cn.omix.util.opai.render.GLUtility` — `cn.omix.util.opai.render.GLUtility`
+- `cn.omix.util.opai.render.GLUtility` — `public final class GLUtility`
+- `cn.omix.util.opai.render.GLUtility` — `public static void setup()`
+- `cn.omix.util.opai.render.GLUtility` — `public static void push()`
+- `cn.omix.util.opai.render.GLUtility` — `public static void pop()`
+- `cn.omix.util.opai.render.GLUtility` — `public static void prepareNanoVG()`
+- `cn.omix.util.opai.render.HudBackdrop` — `cn.omix.util.opai.render.HudBackdrop`
+- `cn.omix.util.opai.render.HudBackdrop` — `public final class HudBackdrop`
+- `cn.omix.util.opai.render.HudBackdrop` — `public enum Blur`
+- `cn.omix.util.opai.render.HudBackdrop.Blur` — `public float sigma()`
+- `cn.omix.util.opai.render.HudBackdrop` — `public static void inventory(InventoryHudLayout.Bounds bounds)`
+- `cn.omix.util.opai.render.HudBackdrop` — `public static void target(OpaiTargetHudPainter.Bounds bounds)`
+- `cn.omix.util.opai.render.HudBackdrop` — `public static void widget(HudLayouts.Box box, float radius)`
+- `cn.omix.util.opai.render.HudBackdrop` — `public static void widget(HudLayouts.Box box, float radius, float opacity)`
+- `cn.omix.util.opai.render.HudBackdrop` — `public static void widget(HudLayouts.Box box, float radius, float opacity, Blur blur)`
+- `cn.omix.util.opai.render.HudBackdrop` — `public static void prepare()`
+- `cn.omix.util.opai.render.HudBackdrop` — `public static void island(float x, float y, float width, float height, float radius)`
+- `cn.omix.util.opai.render.HudBackdrop` — `public static void close()`
+- `cn.omix.util.opai.render.HudBlurRenderer` — `cn.omix.util.opai.render.HudBlurRenderer`
+- `cn.omix.util.opai.render.HudBlurRenderer` — `public final class HudBlurRenderer implements AutoCloseable`
+- `cn.omix.util.opai.render.HudBlurRenderer` — `public record Region(float x, float y, float width, float height)`
+- `cn.omix.util.opai.render.HudBlurRenderer` — `public void invalidate()`
+- `cn.omix.util.opai.render.HudBlurRenderer` — `public void capture(int width, int height, float guiWidth)`
+- `cn.omix.util.opai.render.HudBlurRenderer` — `public void capture(int width, int height, float guiWidth, List<Region> regions)`
+- `cn.omix.util.opai.render.HudBlurRenderer` — `public void capture(int width, int height, float guiWidth, List<Region> regions, float blurSigma)`
+- `cn.omix.util.opai.render.HudBlurRenderer` — `public void panel(float x, float y, float w, float h, float radius, float guiWidth, float guiHeight)`
+- `cn.omix.util.opai.render.HudBlurRenderer` — `public void panel(float x, float y, float w, float h, float radius, float guiWidth, float guiHeight, float opacity)`
+- `cn.omix.util.opai.render.HudBlurRenderer` — `public void close()`
+- `cn.omix.util.opai.render.HudGlassStyle` — `cn.omix.util.opai.render.HudGlassStyle`
+- `cn.omix.util.opai.render.HudGlassStyle` — `public final class HudGlassStyle`
+- `cn.omix.util.opai.render.HudGlassStyle` — `public static final int BODY`
+- `cn.omix.util.opai.render.HudGlassStyle` — `public static final int HEADER`
+- `cn.omix.util.opai.render.HudGlassStyle` — `public static final float BLUR_SIGMA`
+- `cn.omix.util.opai.render.HudGlassStyle` — `public static final float BLUR_PADDING`
+- `cn.omix.util.opai.render.IOUtility` — `cn.omix.util.opai.render.IOUtility`
+- `cn.omix.util.opai.render.IOUtility` — `public final class IOUtility`
+- `cn.omix.util.opai.render.IOUtility` — `public static ByteBuffer ioResourceToByteBuffer(InputStream inputStream, int bufferSize)`
+- `cn.omix.util.opai.render.ModTextures` — `cn.omix.util.opai.render.ModTextures`
+- `cn.omix.util.opai.render.ModTextures` — `public final class ModTextures`
+- `cn.omix.util.opai.render.ModTextures` — `public static Identifier register(String path)`
+- `cn.omix.util.opai.render.ModTextures` — `public static NativeImage read(Identifier id)`
+- `cn.omix.util.opai.render.NVGRenderer` — `cn.omix.util.opai.render.NVGRenderer`
+- `cn.omix.util.opai.render.NVGRenderer` — `public final class NVGRenderer`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static final NVGPaint NVG_PAINT`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static final NVGColor NVG_COLOR_1`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static final NVGColor NVG_COLOR_2`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static float globalAlpha`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void ensureContext()`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void close()`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static boolean isAvailable()`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static boolean usesGpuBackend()`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static boolean beginFrame()`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void endFrame()`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void clearScissors()`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void globalAlpha(float alpha)`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void rect(float x, float y, float width, float height, int color)`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void rect(float x, float y, float width, float height, NVGPaint nvgPaint)`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void scale(float factor, float x, float y, float width, float height, Runnable content)`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void rectStroke(float x, float y, float width, float height, float strokeThickness, int color, int strokeColor)`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void rotate(double degrees, float x, float y, float width, float height, Runnable content)`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void rectOutline(float x, float y, float width, float height, float thickness, int color)`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void scissor(float x, float y, float width, float height, Runnable content)`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void roundedRect(float x, float y, float width, float height, float radius, int color)`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void roundedRectGradient(float x, float y, float width, float height, float radius, int color1, int color2, float angleDegrees)`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void roundedRectVarying(float x, float y, float width, float height, float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, int color)`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static void applyColor(int color, NVGColor nvgColor)`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static MinecraftClient getMinecraft()`
+- `cn.omix.util.opai.render.NVGRenderer` — `public static long getContext()`
+- `cn.omix.util.opai.render.NVGTextRenderer` — `cn.omix.util.opai.render.NVGTextRenderer`
+- `cn.omix.util.opai.render.NVGTextRenderer` — `public final class NVGTextRenderer`
+- `cn.omix.util.opai.render.NVGTextRenderer` — `public NVGTextRenderer(String name, InputStream inputStream)`
+- `cn.omix.util.opai.render.NVGTextRenderer` — `public int getFontId()`
+- `cn.omix.util.opai.render.NVGTextRenderer` — `public int getDataSize()`
+- `cn.omix.util.opai.render.NVGTextRenderer` — `public float drawStringWithShadow(String text, float x, float y, float size, int color)`
+- `cn.omix.util.opai.render.NVGTextRenderer` — `public float drawString(String text, float x, float y, float size, int color)`
+- `cn.omix.util.opai.render.NVGTextRenderer` — `public float drawString(String text, float x, float y, float size, int color, boolean shadow, int alignment)`
+- `cn.omix.util.opai.render.NVGTextRenderer` — `public float getStringWidth(String text, float size)`
+- `cn.omix.util.opai.render.NVGTextRenderer` — `public float getStringHeight(String text, float size)`
+- `cn.omix.util.opai.render.NanoGui` — `cn.omix.util.opai.render.NanoGui`
+- `cn.omix.util.opai.render.NanoGui` — `public interface NanoGui`
+- `cn.omix.util.opai.render.NanoVGStencilBuffer` — `cn.omix.util.opai.render.NanoVGStencilBuffer`
+- `cn.omix.util.opai.render.NanoVGStencilBuffer` — `public final class NanoVGStencilBuffer implements AutoCloseable`
+- `cn.omix.util.opai.render.NanoVGStencilBuffer` — `public void render(int width, int height, Runnable draw)`
+- `cn.omix.util.opai.render.NanoVGStencilBuffer` — `public void close()`
+- `cn.omix.util.opai.render.ScreenPosition` — `cn.omix.util.opai.render.ScreenPosition`
+- `cn.omix.util.opai.render.ScreenPosition` — `public class ScreenPosition`
+- `cn.omix.util.opai.render.ScreenPosition` — `public ScreenPosition(float x, float y, float width, float height)`
+- `cn.omix.util.opai.render.ScreenPosition` — `public ScreenPosition(float x, float y)`
+- `cn.omix.util.opai.render.ScreenPosition` — `public ScreenPosition()`
+- `cn.omix.util.opai.render.ScreenPosition` — `public float getX()`
+- `cn.omix.util.opai.render.ScreenPosition` — `public void setX(float x)`
+- `cn.omix.util.opai.render.ScreenPosition` — `public float getY()`
+- `cn.omix.util.opai.render.ScreenPosition` — `public void setY(float y)`
+- `cn.omix.util.opai.render.ScreenPosition` — `public float getWidth()`
+- `cn.omix.util.opai.render.ScreenPosition` — `public void setWidth(float width)`
+- `cn.omix.util.opai.render.ScreenPosition` — `public float getHeight()`
+- `cn.omix.util.opai.render.ScreenPosition` — `public void setHeight(float height)`
+- `cn.omix.util.opai.render.ScreenPosition` — `public void setDimensions(float x, float y, float width, float height)`
 - `cn.omix.util.player.BlockUtil` — `cn.omix.util.player.BlockUtil`
 - `cn.omix.util.player.BlockUtil` — `public class BlockUtil implements IMinecraft`
 - `cn.omix.util.player.BlockUtil` — `public static int getBlockSlot(boolean maxStack)`
