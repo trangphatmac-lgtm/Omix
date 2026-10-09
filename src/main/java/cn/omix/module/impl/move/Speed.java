@@ -11,10 +11,12 @@ import cn.omix.event.impl.MoveInputEvent;
 import cn.omix.event.impl.PacketEvent;
 import cn.omix.event.impl.StrafeEvent;
 import cn.omix.event.impl.TickEvent;
+import cn.omix.event.impl.WorldEvent;
 import cn.omix.management.RotationManager;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
 import cn.omix.module.impl.combat.Aura;
+import cn.omix.module.impl.combat.Velocity;
 import cn.omix.module.impl.world.Scaffold;
 import cn.omix.module.impl.world.ScaffoldX;
 import cn.omix.module.value.impl.BoolValue;
@@ -23,6 +25,7 @@ import cn.omix.module.value.impl.NumberValue;
 import cn.omix.util.Util;
 import cn.omix.util.misc.TimerSpeedUtil;
 import cn.omix.util.move.PredictionTimerBalance;
+import cn.omix.util.move.HypixelPrediction;
 import cn.omix.util.player.MovementUtil;
 import cn.omix.util.network.PacketUtil;
 import net.minecraft.block.SlabBlock;
@@ -39,7 +42,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 
 public class Speed extends Module {
-    private final ModeValue mode = new ModeValue("Mode", "Ground", "Ground", "Vulcan", "Prediction", "Prediction2", "Normal",
+    private final ModeValue mode = new ModeValue("Mode", "Ground", "Ground", "Vulcan", "Prediction", "Prediction2", "HypixelPrediction", "Normal",
             "Vanilla", "Smooth Vanilla", "Hypixel NCP Hop", "Modern MMC",
             "Boost", "Flag Boost", "NCP", "Verus", "Miniblox");
     private final BoolValue damageBoost = new BoolValue("Damage Boost", false,  () -> mode.is("Vulcan"));
@@ -49,6 +52,9 @@ public class Speed extends Module {
     private final NumberValue timerBoostMultiplier = new NumberValue("Timer Boost Multiplier", 0.75F, 0.1F, 1.0F, 0.05F, this::isPredictionMode);
     private final NumberValue lowTimerTicks = new NumberValue("Low Timer Ticks", 6, 1, 10, 1, this::isPredictionMode);
     private final BoolValue rotation = new BoolValue("Rotation", false, this::isPredictionMode);
+    private final BoolValue hypixelRotate = new BoolValue("45° Degree", true, () -> mode.is("HypixelPrediction"));
+    private final BoolValue hypixelOnlyWhenSpace = new BoolValue("Only when space pressed", true, () -> mode.is("HypixelPrediction"));
+    private final BoolValue hypixelPauseVelocity = new BoolValue("Pause while velocity working", true, () -> mode.is("HypixelPrediction"));
     private final NumberValue multiplier = new NumberValue("Multiplier", 1.0F, 0.0F, 10.0F, 0.1F, () -> mode.is("Normal"));
     private final NumberValue friction = new NumberValue("Friction", 1.0F, 0.0F, 10.0F, 0.1F, () -> mode.is("Normal"));
     private final NumberValue strafe = new NumberValue("Strafe", 0, 0, 100, 1, () -> mode.is("Normal"));
@@ -67,6 +73,8 @@ public class Speed extends Module {
     private YawOffsetMode yawOffsetMode = YawOffsetMode.AIR;
     private final PredictionTimerBalance prediction2Timer = new PredictionTimerBalance();
     private String lastPredictionMode;
+    private final HypixelPrediction hypixelPrediction = new HypixelPrediction();
+    private RotationRequest hypixelRotationRequest;
 
     public Speed() {
         super("Speed", Category.Move);
@@ -102,6 +110,11 @@ public class Speed extends Module {
     @EventTarget
     public void onRotationRequest(RotationRequestEvent event) {
         if (!isNativeBehaviorActive() || mc.player == null || mc.world == null) return;
+        syncMode();
+        if (mode.is("HypixelPrediction")) {
+            submitHypixelPredictionRotation(event);
+            return;
+        }
         if (!isPredictionRotationActive()) return;
         // Prediction and movement correction must use exactly the same yaw this tick.
         event.submit(RotationRequest.builder(getName(),
@@ -112,6 +125,15 @@ public class Speed extends Module {
     @EventTarget
     public void onTick(TickEvent event) {
         syncMode();
+        if (mode.is("HypixelPrediction")) {
+            boolean moving = isHypixelPredictionMoving();
+            Velocity velocity = getModule(Velocity.class);
+            // Amunix's Hypixel.handleVelocity has no direct counterpart here.
+            boolean handlingVelocity = hypixelPauseVelocity.getValue() && velocity != null
+                    && velocity.isNativeBehaviorActive() && velocity.isAttacking();
+            TimerSpeedUtil.setTimerSpeed(hypixelPrediction.tick(moving && !handlingVelocity));
+            return;
+        }
         String predictionMode = isPredictionMode() ? mode.getValue() : null;
         if (mc.player == null || predictionMode == null) {
             if (lastPredictionMode != null) {
@@ -133,6 +155,42 @@ public class Speed extends Module {
             handlePredictionTimer();
         }
         handlePredictionRotation();
+    }
+
+    @EventTarget
+    public void onWorld(WorldEvent event) {
+        if (mode.is("HypixelPrediction")) {
+            resetHypixelPrediction();
+            TimerSpeedUtil.reset();
+        }
+    }
+
+    private boolean isHypixelPredictionMoving() {
+        return mc.player != null && mc.world != null
+                && (mc.options.jumpKey.isPressed() || !hypixelOnlyWhenSpace.getValue())
+                && MovementUtil.isMoving();
+    }
+
+    private void submitHypixelPredictionRotation(RotationRequestEvent event) {
+        if (!hypixelRotate.getValue() || !isHypixelPredictionMoving() || isScaffoldActive()) return;
+        Aura aura = getModule(Aura.class);
+        int priority = aura != null && aura.isEnabled() && aura.getTarget() != null
+                && mc.player.isOnGround() ? 450 : 100;
+        var options = mc.options;
+        int forward = (options.forwardKey.isPressed() ? 1 : 0) - (options.backKey.isPressed() ? 1 : 0);
+        int right = (options.rightKey.isPressed() ? 1 : 0) - (options.leftKey.isPressed() ? 1 : 0);
+        float yaw = HypixelPrediction.movementYaw(mc.player.getYaw(), forward, right, mc.player.isOnGround());
+        float pitch = RotationManager.currentRotations == null
+                ? mc.player.getPitch() : RotationManager.currentRotations[1];
+        hypixelRotationRequest = RotationRequest.builder(getName(), new float[]{yaw, pitch}, priority)
+                .speed(0).movementCorrection(MovementCorrection.Silent).build();
+        event.submit(hypixelRotationRequest);
+    }
+
+    private void resetHypixelPrediction() {
+        hypixelPrediction.reset();
+        RotationManager.release(hypixelRotationRequest);
+        hypixelRotationRequest = null;
     }
 
     private void handlePredictionTimer() {
@@ -215,6 +273,14 @@ public class Speed extends Module {
     @EventTarget
     public void onMoveInput(MoveInputEvent event) {
         syncMode();
+        if (mode.is("HypixelPrediction")) {
+            if (mc.player != null && mc.world != null
+                    && (mc.options.jumpKey.isPressed() || !hypixelOnlyWhenSpace.getValue())
+                    && (event.getForward() != 0 || event.getStrafe() != 0)) {
+                event.setJumping(true);
+            }
+            return;
+        }
         if (mc.player != null && mc.player.isOnGround()
                 && (event.getForward() != 0 || event.getStrafe() != 0) && usesAutoHop()) {
             // Suppress only this tick's input; never overwrite the physical jump key.
@@ -501,6 +567,7 @@ public class Speed extends Module {
     }
 
     private void resetAddedModes() {
+        resetHypixelPrediction();
         airTicks = 0;
         flagBoostTicks = 0;
         boostSpeed = 0;

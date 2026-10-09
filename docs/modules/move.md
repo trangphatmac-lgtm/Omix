@@ -86,19 +86,22 @@
 
 ## Speed
 
-提供地面加速、连续跳跃、预测与定时器等移动加速实现；模式按源码中的具体移动流程执行。Prediction 旋转以优先级 100 提交并立即应用，使用 Prediction 移动修正。
+提供地面加速、连续跳跃、预测与定时器等移动加速实现；模式按源码中的具体移动流程执行。Prediction 旋转以优先级 100 提交并立即应用，使用 Prediction 移动修正。HypixelPrediction 移植 AmunixNext HypixelSpeed：移动时默认需按住跳跃键，自动连续跳跃，并循环使用 1.00、0.85、0.70、0.63、0.55、1.70、1.52、1.50、1.47、1.44 倍时钟，每 tick 前进一步，落地不重启循环。停止移动、松开所需跳跃键或 Velocity 主动减速攻击期间恢复 1x 并重置循环；本项目没有原版 Hypixel.handleVelocity，暂停适配为原生 Velocity.isAttacking()（Reduce / Heypixel Reduce）。旋转按方向键计算 yaw，空中减 45°，保留旋转管理器上一组 pitch，并使用 Silent 移动修正；通常优先级 100，Aura 有目标且在地面时为 450。Scaffold/ScaffoldX 开启时只暂停该旋转，自动跳跃与时钟循环仍按参考实现执行；Velocity 暂停也仅影响时钟。切模式、关闭或切换世界时清理循环、时钟与该模式旋转请求。时钟沿用项目共享 Timer 接口，Timer 模块及临时覆盖仍有更高优先级。
 
 源码：`src/main/java/cn/omix/module/impl/move/Speed.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | 选择 Ground 地面加速、Vanilla 直接速度、Smooth Vanilla 平滑加速、Normal 自定义移动、Prediction/Prediction2 预测流程，或各服务器命名的跳跃与加速流程。 | 模式；默认 Ground；可选 Ground / Vulcan / Prediction / Prediction2 / Normal / Vanilla / Smooth Vanilla / Hypixel NCP Hop / Modern MMC / Boost / Flag Boost / NCP / Verus / Miniblox |
+| Mode | 选择 Ground 地面加速、Vanilla 直接速度、Smooth Vanilla 平滑加速、Normal 自定义移动、Prediction/Prediction2 预测流程、HypixelPrediction 固定时钟循环，或各服务器命名的跳跃与加速流程。 | 模式；默认 Ground；可选 Ground / Vulcan / Prediction / Prediction2 / HypixelPrediction / Normal / Vanilla / Smooth Vanilla / Hypixel NCP Hop / Modern MMC / Boost / Flag Boost / NCP / Verus / Miniblox |
 | Damage Boost | Vulcan 模式受击时利用受伤状态加速。 | 布尔；默认 false；显示条件：Mode = Vulcan |
 | Speed | 所选直接速度模式的移动强度；Ground 与 Smooth Vanilla 在实现中使用该值的四分之一。 | 数值；默认 1；0.1–10；步长 0.1；显示条件：Mode = Ground 或 Mode = Vanilla 或 Mode = Smooth Vanilla 或 Mode = Flag Boost |
 | Auto BHop | Vanilla 移动时自动连续起跳。 | 布尔；默认 true；显示条件：Mode = Vanilla |
 | Timer Boost Multiplier | Prediction 系列减速阶段的游戏时钟倍率。 | 数值；默认 0.75；0.1–1.0；步长 0.05；显示条件：Prediction 或 Prediction2 模式 |
 | Low Timer Ticks | Prediction 系列保持低速时钟的 tick 数。 | 数值；默认 6；1–10；步长 1；显示条件：Prediction 或 Prediction2 模式 |
 | Rotation | Prediction 系列按移动键调整旋转方向。 | 布尔；默认 false；显示条件：Prediction 或 Prediction2 模式 |
+| 45° Degree | HypixelPrediction 按移动方向旋转，空中偏转 −45°，使用 Silent 移动修正。 | 布尔；默认 true；显示条件：Mode = HypixelPrediction |
+| Only when space pressed | 仅按住已绑定的跳跃键时启动 HypixelPrediction；关闭后移动即自动跳跃并运行时钟循环。 | 布尔；默认 true；显示条件：Mode = HypixelPrediction |
+| Pause while velocity working | 原生 Velocity 的 Reduce / Heypixel Reduce 主动减速攻击期间恢复 1x 并重置时钟循环；不因仅开启 Velocity 就暂停。 | 布尔；默认 true；显示条件：Mode = HypixelPrediction |
 | Multiplier | Normal 模式的起跳水平加速倍率。 | 数值；默认 1.0；0.0–10.0；步长 0.1；显示条件：Mode = Normal |
 | Friction | Normal 模式对移动事件摩擦系数的倍率。 | 数值；默认 1.0；0.0–10.0；步长 0.1；显示条件：Mode = Normal |
 | Strafe | Normal 模式重新对齐侧向移动的比例，单位百分比。 | 数值；默认 0；0–100；步长 1；显示条件：Mode = Normal |
