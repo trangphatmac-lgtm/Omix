@@ -42,6 +42,33 @@ CEF 直接访问 Harness 独立的本机动态端口。启动 token 通过上游
 
 ## 专用插件开发
 
+### InGameTranslation 游戏内翻译
+
+Render 分类的 `InGameTranslation` 默认关闭。先在 Harness 中配置 Provider、模型和 API Key，再开启模块，在模块的 **Provider / Model** 中单独选择翻译模型；不会使用当前 AI 会话或默认模型兜底。开启模块只在后台准备 Harness，不弹出 AI 页面。模型列表约每 10 秒刷新，模型 ID 区分大小写，已保存的选择在离线、启动中或模型暂时不在列表时仍保留。更换 Provider 后需要重新选 Model。
+
+Language 支持简中、繁中、英语、日语、韩语、俄语、德语、法语、西班牙语、葡萄牙语、意大利语、土耳其语、印尼语，默认简中；源语言自动识别。Chat、Scoreboard、Name Tags 分别控制启停及 `Translated` / `Bilingual` 显示。聊天默认原文下方显示译文，另外两项默认完全译文；界面双语使用同行 `原文 · 译文`，相同内容只显示一次。等待或失败时显示原文，模块后缀显示准备中、请选择模型、可用或重试状态；缺失配置和错误在进入世界时通过本地通知提示，同一次启用期间相同提示只显示一次。
+
+聊天只处理启用后收到的玩家聊天和服务器系统消息，不翻译客户端自身提示。原始消息、签名、日志、聊天删除流程和 `getchatmessage` 继续使用原文，刷新译文只重建显示副本，保留当前消息滚动锚点。侧栏翻译在计算文本宽度之前完成，分数、排序、隐藏条目和 Sigma 偏移不变；名牌只改变原本可见的显示标签。玩家 ID、链接、命令片段、数字和时间在本地替换为占位符，模型不接收点击/悬停事件，译文恢复原样式和事件；好友、队伍和徽章识别继续用原始身份。已有 NameTags 显示的玩家/宠物主人 ID 同样保留。Tab 列表、物品说明、菜单、发送聊天与命令不在此模块范围内。
+
+`cn.omix.util.translation` 提供文本模板、队列、缓存、显示控制及测试；`plugin/translation.mjs` 是独立 Harness 插件，通过锁定版本的 `llm.prepareCall/stream` 单次调用指定模型。它不创建会话、不组装 Agent 游戏上下文、不提供工具，不写 AI 对话历史。每批先通过 `llm.resolveModelInfo` 获取所选模型的推理能力，再将最低可用 `reasoningEffort` 传入 `prepareCall`：优先 off / none，其次 minimal / low，直到该模型支持的最低档；适配器自定义档位沿用其目录顺序。没有推理能力元数据时不发送未知档位，保留 Provider 行为。这个覆盖仅作用于翻译，不修改 Harness 或其他会话的默认设置。Provider 仍按自身配置访问网络，使用量和等待时间取决于指定模型。
+
+插件监听独立的 `127.0.0.1` 动态端口，使用每次 Harness 运行生成的独立 bearer token、精确 Host 校验，拒绝 Origin 并不提供 CORS。端口由受管理的子进程输出交给 Java，密钥不出现在输出中，关闭或重启失效；Java 不读取模型密钥。内部接口（不注册为 AI Tools）：
+
+| 接口 | 内容 |
+| --- | --- |
+| GET /v1/models | `providers: [{id, models: [{id, name}]}]`，只含模型目录元数据 |
+| POST /v1/translate | `provider`、`model`、`target`、`items: [{id, kind, text}]`；kind 为 chat/scoreboard/nametag，text 是带样式与保护标记的模板；返回 `items: [{id, text}]` |
+
+翻译只接受匹配的条目 ID 与原始标记序列；模型返回工具调用、截断、额外说明、非法 JSON 或缺失占位符时整批丢弃并保留原文。最多每批 16 项、8,000 字符，合并窗口 200ms，最多两个并发翻译请求、256 个等待项，请求超时 15 秒。故障退避从 2 秒增加至最多 60 秒；取消、换世界、换模型或语言后旧结果不会回写，翻译关闭不终止其他 AI 会话。持续故障可查看模块后缀，Harness 启动故障通过 `.ai status` / `.ai restart` 处理。
+
+聊天缓存只保存在本次运行内，换世界或关闭模块清除。记分板和名牌模板持久保存在游戏目录 `Omix/translation/ui-cache.json`；缓存按服务器、Provider/Model、目标语言、内容类别、模板及版本隔离，动态数字与被保护的玩家 ID 不写入模板。最多 5,000 项、10 MiB，30 天过期，后台原子写入；损坏或不兼容的缓存忽略重建。改变数字只替换本地占位符，无需再次调用模型。需要清除持久译文时先退出游戏，再删除该缓存文件。
+
+验证命令：Java 翻译与显示契约测试为 `cn.omix.util.translation.*`；`npm --prefix src-web/src-ai-harness test` 覆盖插件鉴权、批量映射、无会话调用、超时、限流和取消；打包后的 `scripts/smoke.mjs` 同时验证翻译插件激活、目录访问和无凭据拒绝。游戏内字形、聊天滚动、服务器内容和其他渲染模块的兼容性还需实际客户端验收，模拟 Provider 测试不代表真实模型翻译质量。
+
+2026-10-08 验证：`./gradlew check -x syncModVersion` 通过 495 项 Java 测试（其中 19 项翻译测试）、21 项 Harness 插件测试及其他既有检查；跳过版本日期同步以免修改无关发布元数据。macOS ARM64 打包归档解压后完成隔离 Harness 首次启动及重启检查。独立 Minecraft 测试目录实际启动成功，并通过客户端 Java 探针验证已应用的接收聊天 Mixin、双语/纯译文、原始历史不变、本地提示排除、侧栏/名牌显示入口、数字复用及 13 种语言字体宽度。尚未用真实模型评估翻译质量，也未完成真实服务器场景、全部 GUI 和 13 种语言排版的逐项目视验收。
+
+2026-10-08 显示修复补充验证：`check remapJar -x syncModVersion` 通过 502 项 Java 测试、24 项 Harness 测试；新增最低推理档选择和真实 `LlmRuntime.prepareCall` 适配器调用测试。独立客户端已复现并修复与翻译无关的 NanoVG 纹理状态不同步导致的 `2/L` 缺字，实机截图确认 Classic 模块列表与带双语标题的侧栏不再重叠。
+
 ### PacketsLogger 管线
 
 `AiPacketTools` 将 `configurepacketslogger`、`getpacketlogs`、`clearpacketlogs` 注册到现有 Java schema；Harness 插件通过 snapshot 自动发现，并沿用 POST /v2/calls 的鉴权、worldEpoch、调用去重、Agent 独占与主线程执行，不新增网络端口或工具传输协议。系统上下文提供工具使用说明，包正文仅在显式读取工具结果中返回，不自动注入每一步上下文。

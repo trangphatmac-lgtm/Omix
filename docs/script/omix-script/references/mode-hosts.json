@@ -360,6 +360,11 @@
     "source": "src/main/java/cn/omix/module/impl/render/HUD.java"
   },
   {
+    "module": "InGameTranslation",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/render/InGameTranslation.java"
+  },
+  {
     "module": "ItemPhysics",
     "selector": "Behavior",
     "source": "src/main/java/cn/omix/module/impl/render/ItemPhysics.java"

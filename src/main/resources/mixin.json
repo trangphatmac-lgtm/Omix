@@ -16,6 +16,7 @@
     "MixinBlockCollisionSpliterator",
     "MixinCamera",
     "MixinChatHud",
+    "MixinTranslationMessageHandler",
     "MixinChatInputSuggestor",
     "MixinChatScreen",
     "MixinChunkOcclusionDataBuilder",

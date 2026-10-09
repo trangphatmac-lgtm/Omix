@@ -3185,7 +3185,7 @@
     "signature": "public ModeValue(String name, String defaultValue, Supplier<Boolean> visible, String... modes)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/module/value/impl/ModeValue.java",
-    "line": 13
+    "line": 14
   },
   {
     "owner": "cn.omix.module.value.impl.ModeValue",
@@ -3193,7 +3193,7 @@
     "signature": "public ModeValue(String name, String defaultValue, String... modes)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/module/value/impl/ModeValue.java",
-    "line": 16
+    "line": 17
   },
   {
     "owner": "cn.omix.module.value.impl.ModeValue",
@@ -3201,7 +3201,31 @@
     "signature": "public String[] getModes()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/module/value/impl/ModeValue.java",
-    "line": 17
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.module.value.impl.ModeValue",
+    "name": "dynamic",
+    "signature": "public ModeValue dynamic()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/module/value/impl/ModeValue.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.module.value.impl.ModeValue",
+    "name": "isDynamic",
+    "signature": "public boolean isDynamic()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/module/value/impl/ModeValue.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.module.value.impl.ModeValue",
+    "name": "replaceModes",
+    "signature": "public void replaceModes(Collection<String> choices)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/module/value/impl/ModeValue.java",
+    "line": 26
   },
   {
     "owner": "cn.omix.module.value.impl.ModeValue",
@@ -3209,7 +3233,7 @@
     "signature": "public String getValue()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/module/value/impl/ModeValue.java",
-    "line": 18
+    "line": 32
   },
   {
     "owner": "cn.omix.module.value.impl.ModeValue",
@@ -3217,7 +3241,7 @@
     "signature": "public boolean is(String mode)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/module/value/impl/ModeValue.java",
-    "line": 19
+    "line": 33
   },
   {
     "owner": "cn.omix.module.value.impl.ModeValue",
@@ -3225,7 +3249,7 @@
     "signature": "public void setValue(String mode)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/module/value/impl/ModeValue.java",
-    "line": 20
+    "line": 34
   },
   {
     "owner": "cn.omix.module.value.impl.ModeValue",
@@ -3233,7 +3257,7 @@
     "signature": "public Registration onChange(BiConsumer<String, String> listener)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/module/value/impl/ModeValue.java",
-    "line": 27
+    "line": 42
   },
   {
     "owner": "cn.omix.module.value.impl.ModeValue",
@@ -3241,7 +3265,7 @@
     "signature": "public Registration addMode(String mode)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/module/value/impl/ModeValue.java",
-    "line": 30
+    "line": 45
   },
   {
     "owner": "cn.omix.module.value.impl.MultiBoolValue",
@@ -4809,11 +4833,27 @@
   },
   {
     "owner": "cn.omix.util.ai.HarnessRuntime",
+    "name": "TranslationEndpoint",
+    "signature": "public record TranslationEndpoint(URI uri, String token, long generation)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/ai/HarnessRuntime.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.ai.HarnessRuntime.TranslationEndpoint",
+    "name": "toString",
+    "signature": "public String toString()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/ai/HarnessRuntime.java",
+    "line": 27
+  },
+  {
+    "owner": "cn.omix.util.ai.HarnessRuntime",
     "name": "HarnessRuntime",
     "signature": "public HarnessRuntime(Path root, Path existingNodeCache, Path workspace)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/ai/HarnessRuntime.java",
-    "line": 32
+    "line": 38
   },
   {
     "owner": "cn.omix.util.ai.HarnessRuntime",
@@ -4821,7 +4861,7 @@
     "signature": "public State getState()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/ai/HarnessRuntime.java",
-    "line": 37
+    "line": 43
   },
   {
     "owner": "cn.omix.util.ai.HarnessRuntime",
@@ -4829,7 +4869,7 @@
     "signature": "public Throwable getFailure()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/ai/HarnessRuntime.java",
-    "line": 38
+    "line": 44
   },
   {
     "owner": "cn.omix.util.ai.HarnessRuntime",
@@ -4837,7 +4877,23 @@
     "signature": "public BrowserPreparationProgress getProgress()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/ai/HarnessRuntime.java",
-    "line": 39
+    "line": 45
+  },
+  {
+    "owner": "cn.omix.util.ai.HarnessRuntime",
+    "name": "getTranslationEndpoint",
+    "signature": "public TranslationEndpoint getTranslationEndpoint()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/ai/HarnessRuntime.java",
+    "line": 46
+  },
+  {
+    "owner": "cn.omix.util.ai.HarnessRuntime",
+    "name": "getGeneration",
+    "signature": "public long getGeneration()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/ai/HarnessRuntime.java",
+    "line": 47
   },
   {
     "owner": "cn.omix.util.ai.HarnessRuntime",
@@ -4845,7 +4901,7 @@
     "signature": "public URI getUrl()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/ai/HarnessRuntime.java",
-    "line": 40
+    "line": 48
   },
   {
     "owner": "cn.omix.util.ai.HarnessRuntime",
@@ -4853,7 +4909,7 @@
     "signature": "public synchronized CompletableFuture<URI> startAsync()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/ai/HarnessRuntime.java",
-    "line": 45
+    "line": 53
   },
   {
     "owner": "cn.omix.util.ai.HarnessRuntime",
@@ -4861,7 +4917,7 @@
     "signature": "public synchronized CompletableFuture<URI> restartAsync()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/ai/HarnessRuntime.java",
-    "line": 140
+    "line": 156
   },
   {
     "owner": "cn.omix.util.ai.HarnessRuntime",
@@ -4869,7 +4925,7 @@
     "signature": "public synchronized void close()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/ai/HarnessRuntime.java",
-    "line": 144
+    "line": 160
   },
   {
     "owner": "cn.omix.util.ai.HarnessStartupLog",
@@ -14013,7 +14069,7 @@
     "signature": "public final class GLUtility",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/render/GLUtility.java",
-    "line": 64
+    "line": 60
   },
   {
     "owner": "cn.omix.util.opai.render.GLUtility",
@@ -14021,7 +14077,7 @@
     "signature": "public static void setup()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/render/GLUtility.java",
-    "line": 104
+    "line": 99
   },
   {
     "owner": "cn.omix.util.opai.render.GLUtility",
@@ -14029,7 +14085,7 @@
     "signature": "public static void push()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/render/GLUtility.java",
-    "line": 113
+    "line": 108
   },
   {
     "owner": "cn.omix.util.opai.render.GLUtility",
@@ -14037,7 +14093,7 @@
     "signature": "public static void pop()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/render/GLUtility.java",
-    "line": 166
+    "line": 159
   },
   {
     "owner": "cn.omix.util.opai.render.GLUtility",
@@ -14045,7 +14101,7 @@
     "signature": "public static void prepareNanoVG()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/opai/render/GLUtility.java",
-    "line": 220
+    "line": 212
   },
   {
     "owner": "cn.omix.util.opai.render.HudBackdrop",
@@ -17040,6 +17096,164 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/render/ColorUtil.java",
     "line": 59
+  },
+  {
+    "owner": "cn.omix.util.render.GlTextureState",
+    "name": "GlTextureState",
+    "signature": "cn.omix.util.render.GlTextureState",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/render/GlTextureState.java"
+  },
+  {
+    "owner": "cn.omix.util.render.GlTextureState",
+    "name": "GlTextureState",
+    "signature": "public final class GlTextureState",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/GlTextureState.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.render.GlTextureState",
+    "name": "active",
+    "signature": "public int active()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/GlTextureState.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.render.GlTextureState",
+    "name": "texture",
+    "signature": "public int texture()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/GlTextureState.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.render.GlTextureState",
+    "name": "cachedActive",
+    "signature": "public void cachedActive(int unit)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/GlTextureState.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.render.GlTextureState",
+    "name": "nativeActive",
+    "signature": "public void nativeActive(int unit)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/GlTextureState.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.render.GlTextureState",
+    "name": "cachedBind",
+    "signature": "public void cachedBind(int texture)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/GlTextureState.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.render.GlTextureState",
+    "name": "nativeBind",
+    "signature": "public void nativeBind(int texture)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/GlTextureState.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.util.render.GlTextureState",
+    "name": "capture",
+    "signature": "public static GlTextureState capture()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/GlTextureState.java",
+    "line": 37
+  },
+  {
+    "owner": "cn.omix.util.render.GlTextureState",
+    "name": "activateTexture",
+    "signature": "public static void activateTexture(int unit)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/GlTextureState.java",
+    "line": 40
+  },
+  {
+    "owner": "cn.omix.util.render.GlTextureState",
+    "name": "restore",
+    "signature": "public void restore()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/GlTextureState.java",
+    "line": 48
+  },
+  {
+    "owner": "cn.omix.util.render.HudSidebarLayout",
+    "name": "HudSidebarLayout",
+    "signature": "cn.omix.util.render.HudSidebarLayout",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/render/HudSidebarLayout.java"
+  },
+  {
+    "owner": "cn.omix.util.render.HudSidebarLayout",
+    "name": "HudSidebarLayout",
+    "signature": "public final class HudSidebarLayout",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/HudSidebarLayout.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.render.HudSidebarLayout",
+    "name": "Bounds",
+    "signature": "public record Bounds(float left, float top, float right, float bottom)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/HudSidebarLayout.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.render.HudSidebarLayout.Bounds",
+    "name": "union",
+    "signature": "public Bounds union(Bounds other)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/HudSidebarLayout.java",
+    "line": 9
+  },
+  {
+    "owner": "cn.omix.util.render.HudSidebarLayout",
+    "name": "Offset",
+    "signature": "public record Offset(float x, float y)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/HudSidebarLayout.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.render.HudSidebarLayout.Offset",
+    "name": "NONE",
+    "signature": "public static final Offset NONE",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/HudSidebarLayout.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.render.HudSidebarLayout",
+    "name": "clearClassicModules",
+    "signature": "public static void clearClassicModules()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/HudSidebarLayout.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.render.HudSidebarLayout",
+    "name": "addClassicModule",
+    "signature": "public static void addClassicModule(Bounds row)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/HudSidebarLayout.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.render.HudSidebarLayout",
+    "name": "avoidClassicModules",
+    "signature": "public static Offset avoidClassicModules(Bounds sidebar, int width, int height)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/HudSidebarLayout.java",
+    "line": 22
   },
   {
     "owner": "cn.omix.util.render.KillMemeOverlay",
@@ -20977,6 +21191,518 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/sound/WavSounds.java",
     "line": 26
+  },
+  {
+    "owner": "cn.omix.util.translation.StyledTranslation",
+    "name": "StyledTranslation",
+    "signature": "cn.omix.util.translation.StyledTranslation",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/translation/StyledTranslation.java"
+  },
+  {
+    "owner": "cn.omix.util.translation.StyledTranslation",
+    "name": "StyledTranslation",
+    "signature": "public record StyledTranslation(TranslationTemplate template, List<Style> styles)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/StyledTranslation.java",
+    "line": 6
+  },
+  {
+    "owner": "cn.omix.util.translation.StyledTranslation",
+    "name": "capture",
+    "signature": "public static StyledTranslation capture(Text text, Collection<String> playerNames)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/StyledTranslation.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.translation.StyledTranslation",
+    "name": "restore",
+    "signature": "public Text restore(String translation)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/StyledTranslation.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.translation.StyledTranslation",
+    "name": "display",
+    "signature": "public Text display(Text original, String translation, boolean bilingual, boolean chat)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/StyledTranslation.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationCache",
+    "name": "TranslationCache",
+    "signature": "cn.omix.util.translation.TranslationCache",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/translation/TranslationCache.java"
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationCache",
+    "name": "AutoCloseable",
+    "signature": "public final class TranslationCache implements AutoCloseable",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationCache.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationCache",
+    "name": "TranslationCache",
+    "signature": "public TranslationCache(Path file)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationCache.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationCache",
+    "name": "get",
+    "signature": "public synchronized String get(String key, long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationCache.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationCache",
+    "name": "put",
+    "signature": "public synchronized void put(String key, String value, boolean persistent, long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationCache.java",
+    "line": 32
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationCache",
+    "name": "clearChat",
+    "signature": "public synchronized void clearChat()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationCache.java",
+    "line": 40
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationCache",
+    "name": "close",
+    "signature": "public void close()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationCache.java",
+    "line": 100
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationChatAnchor",
+    "name": "TranslationChatAnchor",
+    "signature": "cn.omix.util.translation.TranslationChatAnchor",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/translation/TranslationChatAnchor.java"
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationChatAnchor",
+    "name": "TranslationChatAnchor",
+    "signature": "public record TranslationChatAnchor(Text message, int offset, int oldScroll, boolean unread)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationChatAnchor.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationChatAnchor",
+    "name": "capture",
+    "signature": "public static TranslationChatAnchor capture(ChatHudAccessor hud)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationChatAnchor.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationChatAnchor",
+    "name": "restore",
+    "signature": "public void restore(ChatHudAccessor hud)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationChatAnchor.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationClient",
+    "name": "TranslationClient",
+    "signature": "cn.omix.util.translation.TranslationClient",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/translation/TranslationClient.java"
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationClient",
+    "name": "TranslationClient",
+    "signature": "public final class TranslationClient",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationClient.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationClient",
+    "name": "TranslationClient",
+    "signature": "public TranslationClient(HarnessRuntime.TranslationEndpoint endpoint)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationClient.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationClient",
+    "name": "models",
+    "signature": "public CompletableFuture<Map<String, List<String>>> models()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationClient.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationClient",
+    "name": "translate",
+    "signature": "public CompletableFuture<Map<String, String>> translate(TranslationQueue.Context context, List<TranslationQueue.Item> items)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationClient.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationController",
+    "name": "TranslationController",
+    "signature": "cn.omix.util.translation.TranslationController",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/translation/TranslationController.java"
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationController",
+    "name": "AutoCloseable",
+    "signature": "public final class TranslationController implements IMinecraft, AutoCloseable",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationController.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationController",
+    "name": "TranslationController",
+    "signature": "public TranslationController(InGameTranslation module)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationController.java",
+    "line": 41
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationController",
+    "name": "enable",
+    "signature": "public void enable()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationController.java",
+    "line": 46
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationController",
+    "name": "disable",
+    "signature": "public void disable()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationController.java",
+    "line": 54
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationController",
+    "name": "worldChanged",
+    "signature": "public void worldChanged()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationController.java",
+    "line": 60
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationController",
+    "name": "tick",
+    "signature": "public void tick()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationController.java",
+    "line": 64
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationController",
+    "name": "providerChanged",
+    "signature": "public void providerChanged()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationController.java",
+    "line": 135
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationController",
+    "name": "protectPlayer",
+    "signature": "public void protectPlayer(String name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationController.java",
+    "line": 139
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationController",
+    "name": "received",
+    "signature": "public void received(Text message)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationController.java",
+    "line": 150
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationController",
+    "name": "chat",
+    "signature": "public Text chat(Text message)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationController.java",
+    "line": 160
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationController",
+    "name": "scoreboard",
+    "signature": "public Text scoreboard(Text message)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationController.java",
+    "line": 164
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationController",
+    "name": "nameTag",
+    "signature": "public Text nameTag(Text message, String protectedName)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationController.java",
+    "line": 167
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationController",
+    "name": "close",
+    "signature": "public void close()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationController.java",
+    "line": 204
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationHooks",
+    "name": "TranslationHooks",
+    "signature": "cn.omix.util.translation.TranslationHooks",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/translation/TranslationHooks.java"
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationHooks",
+    "name": "TranslationHooks",
+    "signature": "public final class TranslationHooks",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationHooks.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationHooks",
+    "name": "received",
+    "signature": "public static Text received(Text text)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationHooks.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationHooks",
+    "name": "protectPlayer",
+    "signature": "public static void protectPlayer(String name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationHooks.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationHooks",
+    "name": "chat",
+    "signature": "public static Text chat(Text text)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationHooks.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationHooks",
+    "name": "scoreboard",
+    "signature": "public static Text scoreboard(Text text)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationHooks.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationHooks",
+    "name": "nameTag",
+    "signature": "public static Text nameTag(Text text, Entity entity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationHooks.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationHooks",
+    "name": "customNameTag",
+    "signature": "public static Text customNameTag(Text text, String identity)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationHooks.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationQueue",
+    "name": "TranslationQueue",
+    "signature": "cn.omix.util.translation.TranslationQueue",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/translation/TranslationQueue.java"
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationQueue",
+    "name": "TranslationQueue",
+    "signature": "public final class TranslationQueue",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationQueue.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationQueue",
+    "name": "Context",
+    "signature": "public record Context(String server, String provider, String model, String target, long runtime)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationQueue.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationQueue",
+    "name": "Item",
+    "signature": "public record Item(String id, String kind, String text)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationQueue.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationQueue",
+    "name": "Backend",
+    "signature": "public interface Backend",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationQueue.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationQueue",
+    "name": "TranslationQueue",
+    "signature": "public TranslationQueue(TranslationCache cache, Backend backend)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationQueue.java",
+    "line": 27
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationQueue",
+    "name": "configure",
+    "signature": "public synchronized void configure(Context next)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationQueue.java",
+    "line": 31
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationQueue",
+    "name": "reset",
+    "signature": "public synchronized void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationQueue.java",
+    "line": 35
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationQueue",
+    "name": "lookup",
+    "signature": "public synchronized String lookup(String kind, TranslationTemplate template, long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationQueue.java",
+    "line": 42
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationQueue",
+    "name": "tick",
+    "signature": "public synchronized void tick(long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationQueue.java",
+    "line": 52
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationQueue",
+    "name": "revision",
+    "signature": "public synchronized long revision()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationQueue.java",
+    "line": 90
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationQueue",
+    "name": "error",
+    "signature": "public synchronized String error()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationQueue.java",
+    "line": 91
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationQueue",
+    "name": "queuedCount",
+    "signature": "public synchronized int queuedCount()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationQueue.java",
+    "line": 92
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationQueue",
+    "name": "key",
+    "signature": "public static String key(Context context, String kind, String template)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationQueue.java",
+    "line": 93
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationTemplate",
+    "name": "TranslationTemplate",
+    "signature": "cn.omix.util.translation.TranslationTemplate",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/translation/TranslationTemplate.java"
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationTemplate",
+    "name": "TranslationTemplate",
+    "signature": "public final class TranslationTemplate",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationTemplate.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationTemplate",
+    "name": "VERSION",
+    "signature": "public static final int VERSION",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationTemplate.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationTemplate",
+    "name": "of",
+    "signature": "public static TranslationTemplate of(List<String> spans, Collection<String> playerNames)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationTemplate.java",
+    "line": 27
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationTemplate",
+    "name": "source",
+    "signature": "public String source()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationTemplate.java",
+    "line": 65
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationTemplate",
+    "name": "translatable",
+    "signature": "public boolean translatable()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationTemplate.java",
+    "line": 66
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationTemplate",
+    "name": "accepts",
+    "signature": "public boolean accepts(String translated)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationTemplate.java",
+    "line": 68
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationTemplate",
+    "name": "restore",
+    "signature": "public List<String> restore(String translated)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationTemplate.java",
+    "line": 83
   },
   {
     "owner": "cn.omix.util.webui.WebPanelLayout",

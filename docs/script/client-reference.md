@@ -3,7 +3,7 @@ Omix Client source reference (defaults are not live configuration):
 --- docs/README.md ---
 # Omix Client 使用参考
 
-本参考依据仓库中实际注册和执行的源码编写，覆盖内置命令、通用模块命令、101 个内置模块，以及 22 个游戏工具和 14 个脚本开发工具。脚本运行时还可动态增加模块、模式与命令。命令拼写和模块名称保留源码原样，介绍使用中文。
+本参考依据仓库中实际注册和执行的源码编写，覆盖内置命令、通用模块命令、102 个内置模块，以及 22 个游戏工具和 14 个脚本开发工具。脚本运行时还可动态增加模块、模式与命令。命令拼写和模块名称保留源码原样，介绍使用中文。
 
 - [命令及每个选项](commands.md)
 - [Combat 战斗模块](modules/combat.md)
@@ -1140,7 +1140,7 @@ CubeCraft 沿用 AntiVoid 的 Cubecraft 处理：在移动事件中，仅当垂�
 
 ## HUD
 
-显示客户端水印与状态信息，并提供其他渲染模块使用的主题颜色。 Opai 模式提供 Samsara 的六种 Widgets 与统一拖拽/缩放编辑器，完整设置说明见 docs/opai-neverlose.md。
+显示客户端水印与状态信息，并提供其他渲染模块使用的主题颜色。 Classic 模块列表与记分板相交时，按实际显示宽度优先将记分板移到列表左侧；横向空间不足时尝试上下避让，兼容翻译后的宽度。 Opai 模式提供 Samsara 的六种 Widgets 与统一拖拽/缩放编辑器，完整设置说明见 docs/opai-neverlose.md。
 
 源码：`src/main/java/cn/omix/module/impl/render/HUD.java`。
 
@@ -1404,6 +1404,24 @@ Classic 保留二维框、血条、护甲和姓名；Sigma 移植 Jello 的 Shad
 | Magnify | 随距离放大标签，沿用原版公式。 | 布尔；默认 true |
 | Furnaces | 首次打开熔炉后显示物品、估算数量、燃料和烧炼进度；最多跟踪 256 个，切世界清空。 | 布尔；默认 true |
 | Mob Owners | 显示驯服生物主人；优先玩家列表/本地缓存，缺失时后台解析 UUID。 | 布尔；默认 true |
+
+## InGameTranslation
+
+使用 Harness 中单独选定的 LLM，异步翻译收到的聊天、侧栏记分板和可见名牌，按模型声明的能力选择最低推理档。默认关闭，启用后后台准备模型列表；不自动选择默认模型。三类内容可独立设置完全译文或双语，玩家 ID、数字、链接及命令片段保留。原始游戏数据和 AI 工具结果不变；失败时显示原文。聊天仅内存缓存，记分板/名牌译文按服务器和模型等隔离持久缓存。配置与内部接口见 [游戏内翻译](../ai-system.md#ingametranslation-游戏内翻译)。
+
+源码：`src/main/java/cn/omix/module/impl/render/InGameTranslation.java`。
+
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| Language | 目标语言，共 13 种；自动识别源语言。 | 模式；默认 Simplified Chinese；可选 Simplified Chinese / Traditional Chinese / English / Japanese / Korean / Russian / German / French / Spanish / Portuguese / Italian / Turkish / Indonesian |
+| Provider | 从 Harness 动态获取的 Provider ID；必须单独选择，更换后需重新选择 Model。 | 动态模式；默认 (Select)；选项在运行时加载，保留已保存的选择 |
+| Model | 所选 Provider 的模型 ID；不使用默认模型兜底，离线时保留已保存的精确 ID。 | 动态模式；默认 (Select)；选项在运行时加载，保留已保存的选择 |
+| Chat | 翻译开启后收到的玩家聊天与服务器系统消息；不处理客户端自身提示。 | 布尔；默认 true |
+| Chat Display | Translated 仅译文；Bilingual 在原消息下方显示译文。 | 模式；默认 Bilingual；可选 Translated / Bilingual；显示条件：Chat 开启 |
+| Scoreboard | 翻译可见侧栏标题和条目，保留分数及排序，动态数字复用译文。 | 布尔；默认 true |
+| Scoreboard Display | Translated 仅译文；Bilingual 同行显示原文 · 译文。 | 模式；默认 Translated；可选 Translated / Bilingual；显示条件：Scoreboard 开启 |
+| Name Tags | 翻译原本可见的 NPC/自定义名称和队伍称号；保护玩家 ID，兼容 NameTags 原有身份显示。 | 布尔；默认 true |
+| Name Tags Display | Translated 仅译文；Bilingual 同行显示原文 · 译文。 | 模式；默认 Translated；可选 Translated / Bilingual；显示条件：Name Tags 开启 |
 
 ## Waypoint
 

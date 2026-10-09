@@ -18,6 +18,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(InGameHud.class)
 public abstract class MixinInGameHud implements IMinecraft {
 
+    @com.llamalad7.mixinextras.injector.ModifyExpressionValue(
+            method = "renderScoreboardSidebar(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/scoreboard/ScoreboardObjective;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/scoreboard/ScoreboardObjective;getDisplayName()Lnet/minecraft/text/Text;"))
+    private net.minecraft.text.Text omix$translateSidebarTitle(net.minecraft.text.Text text) {
+        return cn.omix.util.translation.TranslationHooks.scoreboard(text);
+    }
+
+    // The stream mapper is a synthetic method; match its invocation, not its unstable generated name.
+    @com.llamalad7.mixinextras.injector.ModifyExpressionValue(method = "*",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/scoreboard/Team;decorateName(Lnet/minecraft/scoreboard/AbstractTeam;Lnet/minecraft/text/Text;)Lnet/minecraft/text/MutableText;"))
+    private net.minecraft.text.MutableText omix$translateSidebarEntry(net.minecraft.text.MutableText text) {
+        return cn.omix.util.translation.TranslationHooks.scoreboard(text).copy();
+    }
+
     @Unique
     private final GuiRenderState cachedHudState = new GuiRenderState();
 
@@ -76,5 +90,23 @@ public abstract class MixinInGameHud implements IMinecraft {
     @Inject(method = "renderScoreboardSidebar(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/scoreboard/ScoreboardObjective;)V", at = @At("RETURN"))
     private void omix$sigmaRestoreScoreboard(DrawContext context, net.minecraft.scoreboard.ScoreboardObjective objective, CallbackInfo ci) {
         context.getMatrices().popMatrix();
+    }
+
+    // The first fill is the title background. Its bounds already include vanilla's
+    // final measurements, including translation and NickHider replacements.
+    @org.spongepowered.asm.mixin.injection.ModifyArgs(
+            method = "renderScoreboardSidebar(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/scoreboard/ScoreboardObjective;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;fill(IIIII)V", ordinal = 0))
+    private void omix$avoidClassicModuleList(org.spongepowered.asm.mixin.injection.invoke.arg.Args args,
+            DrawContext context, net.minecraft.scoreboard.ScoreboardObjective objective) {
+        HUD hud = instance.getModuleManager().getModule(HUD.class);
+        if (!hud.isNativeBehaviorActive() || !hud.getHudMode().is("Classic") || mc.getDebugHud().shouldShowDebugHud()) return;
+        int rows = (int) objective.getScoreboard().getScoreboardEntries(objective).stream()
+                .filter(entry -> !entry.hidden()).limit(15).count();
+        var bounds = new cn.omix.util.render.HudSidebarLayout.Bounds(
+                (int) args.get(0), (int) args.get(1), (int) args.get(2), (int) args.get(3) + rows * 9 + 1);
+        var offset = cn.omix.util.render.HudSidebarLayout.avoidClassicModules(bounds,
+                context.getScaledWindowWidth(), context.getScaledWindowHeight());
+        context.getMatrices().translate(offset.x(), offset.y());
     }
 }

@@ -60,6 +60,7 @@ def extract(p):
                 field=field[1] if field else "",
                 start=m.start(),
                 end=end,
+                dynamic=s[end + 1:].lstrip().startswith(".dynamic()"),
             )
         )
     return vals
@@ -177,9 +178,9 @@ def render(module, review):
             groups.append(v)
         elif kind == "ModeValue":
             meta = [
-                "模式",
+                "动态模式" if v["dynamic"] else "模式",
                 "默认 " + literal(a[1]),
-                "可选 " + " / ".join(literal(x) for x in a[2:] if x.startswith('"')),
+                "选项在运行时加载，保留已保存的选择" if v["dynamic"] else "可选 " + " / ".join(literal(x) for x in a[2:] if x.startswith('"')),
             ]
         elif kind == "NumberValue":
             meta = [

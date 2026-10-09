@@ -417,6 +417,9 @@
 - `cn.omix.module.value.impl.ModeValue` — `public ModeValue(String name, String defaultValue, Supplier<Boolean> visible, String... modes)`
 - `cn.omix.module.value.impl.ModeValue` — `public ModeValue(String name, String defaultValue, String... modes)`
 - `cn.omix.module.value.impl.ModeValue` — `public String[] getModes()`
+- `cn.omix.module.value.impl.ModeValue` — `public ModeValue dynamic()`
+- `cn.omix.module.value.impl.ModeValue` — `public boolean isDynamic()`
+- `cn.omix.module.value.impl.ModeValue` — `public void replaceModes(Collection<String> choices)`
 - `cn.omix.module.value.impl.ModeValue` — `public String getValue()`
 - `cn.omix.module.value.impl.ModeValue` — `public boolean is(String mode)`
 - `cn.omix.module.value.impl.ModeValue` — `public void setValue(String mode)`
@@ -622,10 +625,14 @@
 - `cn.omix.util.ai.HarnessRuntime` — `cn.omix.util.ai.HarnessRuntime`
 - `cn.omix.util.ai.HarnessRuntime` — `public final class HarnessRuntime implements AutoCloseable`
 - `cn.omix.util.ai.HarnessRuntime` — `public enum State`
+- `cn.omix.util.ai.HarnessRuntime` — `public record TranslationEndpoint(URI uri, String token, long generation)`
+- `cn.omix.util.ai.HarnessRuntime.TranslationEndpoint` — `public String toString()`
 - `cn.omix.util.ai.HarnessRuntime` — `public HarnessRuntime(Path root, Path existingNodeCache, Path workspace)`
 - `cn.omix.util.ai.HarnessRuntime` — `public State getState()`
 - `cn.omix.util.ai.HarnessRuntime` — `public Throwable getFailure()`
 - `cn.omix.util.ai.HarnessRuntime` — `public BrowserPreparationProgress getProgress()`
+- `cn.omix.util.ai.HarnessRuntime` — `public TranslationEndpoint getTranslationEndpoint()`
+- `cn.omix.util.ai.HarnessRuntime` — `public long getGeneration()`
 - `cn.omix.util.ai.HarnessRuntime` — `public URI getUrl()`
 - `cn.omix.util.ai.HarnessRuntime` — `public synchronized CompletableFuture<URI> startAsync()`
 - `cn.omix.util.ai.HarnessRuntime` — `public synchronized CompletableFuture<URI> restartAsync()`
@@ -2167,6 +2174,26 @@
 - `cn.omix.util.render.ColorUtil` — `public static int getFade(int counter, int alpha)`
 - `cn.omix.util.render.ColorUtil` — `public static int getFade(int firstColor, int secondColor, int counter, int alpha)`
 - `cn.omix.util.render.ColorUtil` — `public static int getRainbow(int counter, int alpha)`
+- `cn.omix.util.render.GlTextureState` — `cn.omix.util.render.GlTextureState`
+- `cn.omix.util.render.GlTextureState` — `public final class GlTextureState`
+- `cn.omix.util.render.GlTextureState` — `public int active()`
+- `cn.omix.util.render.GlTextureState` — `public int texture()`
+- `cn.omix.util.render.GlTextureState` — `public void cachedActive(int unit)`
+- `cn.omix.util.render.GlTextureState` — `public void nativeActive(int unit)`
+- `cn.omix.util.render.GlTextureState` — `public void cachedBind(int texture)`
+- `cn.omix.util.render.GlTextureState` — `public void nativeBind(int texture)`
+- `cn.omix.util.render.GlTextureState` — `public static GlTextureState capture()`
+- `cn.omix.util.render.GlTextureState` — `public static void activateTexture(int unit)`
+- `cn.omix.util.render.GlTextureState` — `public void restore()`
+- `cn.omix.util.render.HudSidebarLayout` — `cn.omix.util.render.HudSidebarLayout`
+- `cn.omix.util.render.HudSidebarLayout` — `public final class HudSidebarLayout`
+- `cn.omix.util.render.HudSidebarLayout` — `public record Bounds(float left, float top, float right, float bottom)`
+- `cn.omix.util.render.HudSidebarLayout.Bounds` — `public Bounds union(Bounds other)`
+- `cn.omix.util.render.HudSidebarLayout` — `public record Offset(float x, float y)`
+- `cn.omix.util.render.HudSidebarLayout.Offset` — `public static final Offset NONE`
+- `cn.omix.util.render.HudSidebarLayout` — `public static void clearClassicModules()`
+- `cn.omix.util.render.HudSidebarLayout` — `public static void addClassicModule(Bounds row)`
+- `cn.omix.util.render.HudSidebarLayout` — `public static Offset avoidClassicModules(Bounds sidebar, int width, int height)`
 - `cn.omix.util.render.KillMemeOverlay` — `cn.omix.util.render.KillMemeOverlay`
 - `cn.omix.util.render.KillMemeOverlay` — `public final class KillMemeOverlay`
 - `cn.omix.util.render.KillMemeOverlay` — `public void spawn(double x, double y, double z, long now, float seconds)`
@@ -2666,6 +2693,71 @@
 - `cn.omix.util.sound.WavSounds` — `public enum Channel`
 - `cn.omix.util.sound.WavSounds` — `public static void play(String resource)`
 - `cn.omix.util.sound.WavSounds` — `public static void play(Channel channel, String resource)`
+- `cn.omix.util.translation.StyledTranslation` — `cn.omix.util.translation.StyledTranslation`
+- `cn.omix.util.translation.StyledTranslation` — `public record StyledTranslation(TranslationTemplate template, List<Style> styles)`
+- `cn.omix.util.translation.StyledTranslation` — `public static StyledTranslation capture(Text text, Collection<String> playerNames)`
+- `cn.omix.util.translation.StyledTranslation` — `public Text restore(String translation)`
+- `cn.omix.util.translation.StyledTranslation` — `public Text display(Text original, String translation, boolean bilingual, boolean chat)`
+- `cn.omix.util.translation.TranslationCache` — `cn.omix.util.translation.TranslationCache`
+- `cn.omix.util.translation.TranslationCache` — `public final class TranslationCache implements AutoCloseable`
+- `cn.omix.util.translation.TranslationCache` — `public TranslationCache(Path file)`
+- `cn.omix.util.translation.TranslationCache` — `public synchronized String get(String key, long now)`
+- `cn.omix.util.translation.TranslationCache` — `public synchronized void put(String key, String value, boolean persistent, long now)`
+- `cn.omix.util.translation.TranslationCache` — `public synchronized void clearChat()`
+- `cn.omix.util.translation.TranslationCache` — `public void close()`
+- `cn.omix.util.translation.TranslationChatAnchor` — `cn.omix.util.translation.TranslationChatAnchor`
+- `cn.omix.util.translation.TranslationChatAnchor` — `public record TranslationChatAnchor(Text message, int offset, int oldScroll, boolean unread)`
+- `cn.omix.util.translation.TranslationChatAnchor` — `public static TranslationChatAnchor capture(ChatHudAccessor hud)`
+- `cn.omix.util.translation.TranslationChatAnchor` — `public void restore(ChatHudAccessor hud)`
+- `cn.omix.util.translation.TranslationClient` — `cn.omix.util.translation.TranslationClient`
+- `cn.omix.util.translation.TranslationClient` — `public final class TranslationClient`
+- `cn.omix.util.translation.TranslationClient` — `public TranslationClient(HarnessRuntime.TranslationEndpoint endpoint)`
+- `cn.omix.util.translation.TranslationClient` — `public CompletableFuture<Map<String, List<String>>> models()`
+- `cn.omix.util.translation.TranslationClient` — `public CompletableFuture<Map<String, String>> translate(TranslationQueue.Context context, List<TranslationQueue.Item> items)`
+- `cn.omix.util.translation.TranslationController` — `cn.omix.util.translation.TranslationController`
+- `cn.omix.util.translation.TranslationController` — `public final class TranslationController implements IMinecraft, AutoCloseable`
+- `cn.omix.util.translation.TranslationController` — `public TranslationController(InGameTranslation module)`
+- `cn.omix.util.translation.TranslationController` — `public void enable()`
+- `cn.omix.util.translation.TranslationController` — `public void disable()`
+- `cn.omix.util.translation.TranslationController` — `public void worldChanged()`
+- `cn.omix.util.translation.TranslationController` — `public void tick()`
+- `cn.omix.util.translation.TranslationController` — `public void providerChanged()`
+- `cn.omix.util.translation.TranslationController` — `public void protectPlayer(String name)`
+- `cn.omix.util.translation.TranslationController` — `public void received(Text message)`
+- `cn.omix.util.translation.TranslationController` — `public Text chat(Text message)`
+- `cn.omix.util.translation.TranslationController` — `public Text scoreboard(Text message)`
+- `cn.omix.util.translation.TranslationController` — `public Text nameTag(Text message, String protectedName)`
+- `cn.omix.util.translation.TranslationController` — `public void close()`
+- `cn.omix.util.translation.TranslationHooks` — `cn.omix.util.translation.TranslationHooks`
+- `cn.omix.util.translation.TranslationHooks` — `public final class TranslationHooks`
+- `cn.omix.util.translation.TranslationHooks` — `public static Text received(Text text)`
+- `cn.omix.util.translation.TranslationHooks` — `public static void protectPlayer(String name)`
+- `cn.omix.util.translation.TranslationHooks` — `public static Text chat(Text text)`
+- `cn.omix.util.translation.TranslationHooks` — `public static Text scoreboard(Text text)`
+- `cn.omix.util.translation.TranslationHooks` — `public static Text nameTag(Text text, Entity entity)`
+- `cn.omix.util.translation.TranslationHooks` — `public static Text customNameTag(Text text, String identity)`
+- `cn.omix.util.translation.TranslationQueue` — `cn.omix.util.translation.TranslationQueue`
+- `cn.omix.util.translation.TranslationQueue` — `public final class TranslationQueue`
+- `cn.omix.util.translation.TranslationQueue` — `public record Context(String server, String provider, String model, String target, long runtime)`
+- `cn.omix.util.translation.TranslationQueue` — `public record Item(String id, String kind, String text)`
+- `cn.omix.util.translation.TranslationQueue` — `public interface Backend`
+- `cn.omix.util.translation.TranslationQueue` — `public TranslationQueue(TranslationCache cache, Backend backend)`
+- `cn.omix.util.translation.TranslationQueue` — `public synchronized void configure(Context next)`
+- `cn.omix.util.translation.TranslationQueue` — `public synchronized void reset()`
+- `cn.omix.util.translation.TranslationQueue` — `public synchronized String lookup(String kind, TranslationTemplate template, long now)`
+- `cn.omix.util.translation.TranslationQueue` — `public synchronized void tick(long now)`
+- `cn.omix.util.translation.TranslationQueue` — `public synchronized long revision()`
+- `cn.omix.util.translation.TranslationQueue` — `public synchronized String error()`
+- `cn.omix.util.translation.TranslationQueue` — `public synchronized int queuedCount()`
+- `cn.omix.util.translation.TranslationQueue` — `public static String key(Context context, String kind, String template)`
+- `cn.omix.util.translation.TranslationTemplate` — `cn.omix.util.translation.TranslationTemplate`
+- `cn.omix.util.translation.TranslationTemplate` — `public final class TranslationTemplate`
+- `cn.omix.util.translation.TranslationTemplate` — `public static final int VERSION`
+- `cn.omix.util.translation.TranslationTemplate` — `public static TranslationTemplate of(List<String> spans, Collection<String> playerNames)`
+- `cn.omix.util.translation.TranslationTemplate` — `public String source()`
+- `cn.omix.util.translation.TranslationTemplate` — `public boolean translatable()`
+- `cn.omix.util.translation.TranslationTemplate` — `public boolean accepts(String translated)`
+- `cn.omix.util.translation.TranslationTemplate` — `public List<String> restore(String translated)`
 - `cn.omix.util.webui.WebPanelLayout` — `cn.omix.util.webui.WebPanelLayout`
 - `cn.omix.util.webui.WebPanelLayout` — `public record WebPanelLayout( int x, int y, int width, int height, int cornerRadius )`
 - `cn.omix.util.webui.WebPanelLayout` — `public static WebPanelLayout current()`

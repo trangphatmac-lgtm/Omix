@@ -29,7 +29,7 @@ public class Client implements IMinecraft {
     public static Logger logger;
 
     public static String name = "Omix";
-    public static String version = "261007-SNAPSHOT";
+    public static String version = "261009-SNAPSHOT";
 
     private cn.omix.script.ScriptManager scriptManager;
     private cn.omix.util.ai.MinecraftGameBridge gameBridge;
@@ -82,6 +82,10 @@ public class Client implements IMinecraft {
         if (shuttingDown) return;
         shuttingDown = true;
         if (configManager != null) configManager.saveAll();
+        if (moduleManager != null) {
+            var translation = moduleManager.getModule(cn.omix.module.impl.render.InGameTranslation.class);
+            if (translation != null) translation.close();
+        }
         if (gameBridge != null) gameBridge.close();
         if (scriptManager != null) scriptManager.close();
         WebUiRuntime.getInstance().stop();

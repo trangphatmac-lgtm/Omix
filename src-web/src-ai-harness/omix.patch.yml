@@ -5,3 +5,5 @@
       name: './plugin/workspace/index.mjs'
     - id: omix-session-activation
       name: './plugin/session-activation.mjs'
+    - id: omix-translation
+      name: './plugin/translation.mjs'

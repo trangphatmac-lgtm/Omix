@@ -1,6 +1,7 @@
 package cn.omix.util.opai.render;
 
 import com.mojang.blaze3d.opengl.GlStateManager;
+import cn.omix.util.render.GlTextureState;
 import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
@@ -12,14 +13,11 @@ import static org.lwjgl.opengl.GL11.GL_POLYGON_MODE;
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_BOX;
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
 import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_BINDING_2D;
 import static org.lwjgl.opengl.GL11.GL_UNPACK_ALIGNMENT;
 import static org.lwjgl.opengl.GL11.GL_UNPACK_ROW_LENGTH;
 import static org.lwjgl.opengl.GL11.GL_UNPACK_SKIP_PIXELS;
 import static org.lwjgl.opengl.GL11.GL_UNPACK_SKIP_ROWS;
 import static org.lwjgl.opengl.GL11.GL_VIEWPORT;
-import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glDepthMask;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
@@ -29,9 +27,7 @@ import static org.lwjgl.opengl.GL11.glIsEnabled;
 import static org.lwjgl.opengl.GL11.glPixelStorei;
 import static org.lwjgl.opengl.GL11.glPolygonMode;
 import static org.lwjgl.opengl.GL11.glScissor;
-import static org.lwjgl.opengl.GL13.GL_ACTIVE_TEXTURE;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL14.GL_BLEND_DST_ALPHA;
 import static org.lwjgl.opengl.GL14.GL_BLEND_DST_RGB;
 import static org.lwjgl.opengl.GL14.GL_BLEND_SRC_ALPHA;
@@ -63,9 +59,8 @@ import static org.lwjgl.opengl.GL33.glBindSampler;
 
 public final class GLUtility {
 
-   private static final int[] lastActiveTexture = new int[1];
+   private static GlTextureState lastTextureState;
    private static final int[] lastProgram = new int[1];
-   private static final int[] lastTexture = new int[1];
    private static final int[] lastSampler = new int[1];
    private static final int[] lastArrayBuffer = new int[1];
    private static final int[] lastVertexArrayObject = new int[1];
@@ -115,11 +110,9 @@ public final class GLUtility {
          throw new IllegalStateException("GlStateUtility.setup(glVersion) must be called before push/pop!");
       }
 
-      glGetIntegerv(GL_ACTIVE_TEXTURE, lastActiveTexture);
-      glActiveTexture(GL_TEXTURE0);
+      lastTextureState = GlTextureState.capture();
 
       glGetIntegerv(GL_CURRENT_PROGRAM, lastProgram);
-      glGetIntegerv(GL_TEXTURE_BINDING_2D, lastTexture);
 
       if (glVersion >= 330 || GL.getCapabilities().GL_ARB_sampler_objects) {
          glGetIntegerv(GL_SAMPLER_BINDING, lastSampler);
@@ -171,14 +164,13 @@ public final class GLUtility {
       glUseProgram(lastProgram[0]);
       GlStateManager._glBindFramebuffer(GL_DRAW_FRAMEBUFFER, lastDrawFramebuffer[0]);
       GlStateManager._glBindFramebuffer(GL_READ_FRAMEBUFFER, lastReadFramebuffer[0]);
-      glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, lastTexture[0]);
+      GlTextureState.activateTexture(GL_TEXTURE0);
 
       if (glVersion >= 330 || GL.getCapabilities().GL_ARB_sampler_objects) {
          glBindSampler(0, lastSampler[0]);
       }
 
-      glActiveTexture(lastActiveTexture[0]);
+      lastTextureState.restore();
       glBindVertexArray(lastVertexArrayObject[0]);
       glBindBuffer(GL_ARRAY_BUFFER, lastArrayBuffer[0]);
       glBindBuffer(GL_PIXEL_UNPACK_BUFFER, lastUnpackBuffer[0]);
@@ -218,7 +210,7 @@ public final class GLUtility {
     * texture object, so an external sampler would silently override them.
     */
    public static void prepareNanoVG() {
-      glActiveTexture(GL_TEXTURE0);
+      GlTextureState.activateTexture(GL_TEXTURE0);
       glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
       if (glVersion >= 330 || GL.getCapabilities().GL_ARB_sampler_objects) {
          glBindSampler(0, 0);

@@ -13,6 +13,13 @@ public interface ChatHudAccessor {
     @Accessor("messages")
     List<ChatHudLine> omix$getMessages();
 
+    @Accessor("visibleMessages") List<ChatHudLine.Visible> omix$getVisibleMessages();
+    @Accessor("scrolledLines") int omix$getScrolledLines();
+    @Accessor("scrolledLines") void omix$setScrolledLines(int lines);
+    @Accessor("hasUnreadNewMessages") boolean omix$getHasUnreadNewMessages();
+    @Accessor("hasUnreadNewMessages") void omix$setHasUnreadNewMessages(boolean unread);
+    @Invoker("getVisibleLineCount") int omix$getVisibleLineCount();
+
     @Invoker("refresh")
     void omix$refresh();
 }

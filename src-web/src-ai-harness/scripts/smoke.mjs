@@ -19,8 +19,9 @@ const bridge = createServer((req, res) => {
 bridge.listen(0, '127.0.0.1');
 await once(bridge, 'listening');
 async function launchAndCheck(serve = false) {
+  const translationToken = 'smoke-translation-only-token-123456';
   const child = spawn(process.execPath, [join(runtime, 'launch.mjs')], {
-    env: { ...process.env, DSH_HOME: home, OMIX_AI_WORKSPACE: workspace, OMIX_AI_BRIDGE: `http://127.0.0.1:${bridge.address().port}`, OMIX_AI_TOKEN: 'smoke-only' },
+    env: { ...process.env, DSH_HOME: home, OMIX_AI_WORKSPACE: workspace, OMIX_AI_BRIDGE: `http://127.0.0.1:${bridge.address().port}`, OMIX_AI_TOKEN: 'smoke-only', OMIX_TRANSLATION_TOKEN: translationToken },
     stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32',
   });
   let output = '';
@@ -33,6 +34,13 @@ async function launchAndCheck(serve = false) {
     const deadline = Date.now() + 90000;
     while (!url && child.exitCode === null && Date.now() < deadline) await new Promise(r => setTimeout(r, 100));
     if (!url) throw new Error('Startup failed: ' + output.slice(-12000));
+    const translationEndpoint = output.match(/omix translation: (http:\/\/127\.0\.0\.1:\d+)/)?.[1];
+    if (!translationEndpoint) throw new Error('Translation plugin did not announce its endpoint');
+    const noTranslationAuth = await fetch(translationEndpoint + '/v1/models');
+    if (noTranslationAuth.status !== 403) throw new Error('Translation API accepted missing credentials');
+    const translationModels = await fetch(translationEndpoint + '/v1/models', { headers: { Authorization: `Bearer ${translationToken}` } });
+    if (translationModels.status !== 200 || !Array.isArray((await translationModels.json()).providers))
+      throw new Error('Translation model catalog is unavailable');
     const exchange = await fetch(url, { redirect: 'manual' });
     if (![302, 303].includes(exchange.status)) throw new Error(`Token exchange HTTP ${exchange.status}`);
     const cookie = exchange.headers.getSetCookie().map(c => c.split(';')[0]).join('; ');

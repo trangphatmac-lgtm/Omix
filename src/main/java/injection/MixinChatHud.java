@@ -12,6 +12,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ChatHud.class)
 public class MixinChatHud {
+    @org.spongepowered.asm.mixin.injection.ModifyVariable(method = "addVisibleMessage", at = @At("HEAD"), argsOnly = true)
+    private net.minecraft.client.gui.hud.ChatHudLine omix$translatedDisplay(net.minecraft.client.gui.hud.ChatHudLine line) {
+        Text display = cn.omix.util.translation.TranslationHooks.chat(line.content());
+        return display == line.content() ? line : new net.minecraft.client.gui.hud.ChatHudLine(line.creationTick(), display, line.signature(), line.indicator());
+    }
+
     @org.spongepowered.asm.mixin.injection.ModifyVariable(
             method = "render(Lnet/minecraft/client/gui/hud/ChatHud$Backend;IIZ)V", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private int omix$sigmaInfoHudChatOffset(int height) {

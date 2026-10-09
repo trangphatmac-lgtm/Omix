@@ -22,6 +22,12 @@ public final class HarnessRuntime implements AutoCloseable {
     private volatile BrowserPreparationProgress progress = BrowserPreparationProgress.IDLE;
     private volatile Throwable failure;
     private volatile URI url;
+    private static final Pattern TRANSLATION_READY = Pattern.compile("^omix translation: (http://127\\.0\\.0\\.1:[0-9]+)$");
+    public record TranslationEndpoint(URI uri, String token, long generation) {
+        @Override public String toString() { return "TranslationEndpoint[" + uri + ", generation=" + generation + "]"; }
+    }
+    private volatile TranslationEndpoint translationEndpoint;
+    private String translationToken;
     private CompletableFuture<URI> startup;
     private volatile long generation;
     private Process process;
@@ -37,6 +43,8 @@ public final class HarnessRuntime implements AutoCloseable {
     public State getState() { return state; }
     public Throwable getFailure() { return failure; }
     public BrowserPreparationProgress getProgress() { return progress; }
+    public TranslationEndpoint getTranslationEndpoint() { return translationEndpoint; }
+    public long getGeneration() { return generation; }
     public URI getUrl() {
         if (state != State.READY || url == null) throw new IllegalStateException("Harness is not ready");
         return url;
@@ -82,6 +90,9 @@ public final class HarnessRuntime implements AutoCloseable {
                 builder.environment().put("OMIX_AI_WORKSPACE", workspace.toString());
                 builder.environment().put("OMIX_AI_BRIDGE", bridge.endpoint());
                 builder.environment().put("OMIX_AI_TOKEN", bridge.token());
+                translationToken = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(
+                        new java.security.SecureRandom().generateSeed(32));
+                builder.environment().put("OMIX_TRANSLATION_TOKEN", translationToken);
                 builder.environment().put("NODE_ENV", "production");
                 process = launched = builder.start();
                 state = State.STARTING;
@@ -111,6 +122,11 @@ public final class HarnessRuntime implements AutoCloseable {
                 log.append(line);
                 var matcher = READY.matcher(line);
                 if (matcher.find()) ready.complete(URI.create(matcher.group(1)));
+                var translation = TRANSLATION_READY.matcher(line);
+                if (translation.matches()) synchronized (this) {
+                    if (process == child && translationToken != null)
+                        translationEndpoint = new TranslationEndpoint(URI.create(translation.group(1)), translationToken, generation);
+                }
             }
             ready.completeExceptionally(new IOException(log.summary() + "\nDetails: Omix/ai/harness.log"));
         } catch (IOException error) {
@@ -150,6 +166,8 @@ public final class HarnessRuntime implements AutoCloseable {
         progress = BrowserPreparationProgress.IDLE;
     }
     private void cleanup() {
+        translationEndpoint = null;
+        translationToken = null;
         bridge = null;
         if (process != null) {
             var descendants = process.descendants().toList();

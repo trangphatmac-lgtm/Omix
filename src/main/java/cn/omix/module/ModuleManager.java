@@ -139,6 +139,7 @@ public class ModuleManager implements IMinecraft {
                 new Animation(),
                 new ESP(),
                 new NameTags(),
+                new InGameTranslation(),
                 new Waypoint(),
                 new Maps(),
                 new BedESP(),

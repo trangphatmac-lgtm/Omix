@@ -19,5 +19,6 @@ public abstract class MixinSigmaEntityRenderer {
         if (esp != null && esp.sigmaOutline(entity)) state.outlineColor = esp.sigmaOutlineColor(entity);
         var tags = Client.instance.getModuleManager().getModule(cn.omix.module.impl.render.NameTags.class);
         if (tags != null && tags.hidesVanillaLabel(entity)) state.displayName = null;
+        if (state.displayName != null) state.displayName = cn.omix.util.translation.TranslationHooks.nameTag(state.displayName, entity);
     }
 }

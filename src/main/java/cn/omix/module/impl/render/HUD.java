@@ -349,6 +349,7 @@ public class HUD extends Module {
     }
 
     private void renderClassic(DrawContext context) {
+        cn.omix.util.render.HudSidebarLayout.clearClassicModules();
         if (mc.options.hudHidden || mc.getDebugHud().shouldShowDebugHud()) return;
 
         float scale = classicScale.getValue();
@@ -380,6 +381,9 @@ public class HUD extends Module {
             float drawX = right ? (x - width * scale) / scale : x / scale;
             float drawY = y / scale;
             int color = getClassicColor(time, row).getRGB();
+            cn.omix.util.render.HudSidebarLayout.addClassicModule(new cn.omix.util.render.HudSidebarLayout.Bounds(
+                    (drawX - 4) * scale, (drawY - 1) * scale,
+                    (drawX + width + 4) * scale, (drawY + fontHeight + 1) * scale));
 
             if (classicBackground.getValue() > 0) {
                 int background = Math.round(255 * classicBackground.getValue() / 100) << 24;
