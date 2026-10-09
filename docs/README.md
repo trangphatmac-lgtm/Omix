@@ -55,7 +55,8 @@ Web 和 Node 相关源码统一位于项目根目录 `src-web/`：`webui/`、`mu
 | `combat/projectile/` | `ProjectileAuraEngine`、`ProjectileAuraHost`、`ProjectileSlotState`、`ProjectileAuraRendering`、`ProjectileItemPolicy` |
 | `move/` | `PredictionTimerBalance` |
 | `network/` | `PacketLogHooks`、`PacketLogBuffer`、`PacketLogFormatter`、`PacketLogContent`、`PacketLogFilter`、`PacketLogRules`、`PacketLogHistory`（PacketsLogger 的观察桥接、有界内容快照、双向过滤与自定义名单） |
-| `player/bed/` | `BedAuraTargeting`、`BedAuraProgress`、`BedAuraWhitelist`（床/防护块选择、挖掘进度与间隔、开局出生点保护） |
+| `player/` | `AutoToolMining`（模块托管的工具选择、挖掘速度估算与槽位归还） |
+| `world/bed/` | `BedBreakerTargeting`、`BedBreakerProgress`、`BedBreakerDigging`、`BedBreakerTeams`、`BedBreakerAim`（床/防护块选择、挖掘阈值与间隔、交互阶段挖掘动作、头盔队伍颜色、目标射线） |
 | `player/blockin/` | `BlockInPlanner` |
 | `player/chest/` | `ChestScreenState`、`ChestScreenGuard`、`ChestInteractionState` |
 | `world/` | `ScaffoldMutex`、`VictorySignalMatcher` |

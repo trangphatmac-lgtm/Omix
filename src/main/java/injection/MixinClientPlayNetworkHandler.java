@@ -3,11 +3,9 @@ package injection;
 import cn.omix.util.ai.AiContainerTools;
 import cn.omix.event.impl.PlayerPositionLookEvent;
 import cn.omix.util.IMinecraft;
-import cn.omix.util.player.bed.BedAuraWhitelist;
 import cn.omix.util.world.AutoLSignals;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
-import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityDamageS2CPacket;
@@ -20,12 +18,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler implements IMinecraft {
-
-    // Observe applied server messages even when BedAura is disabled at match start.
-    @Inject(method = "onGameMessage", at = @At("TAIL"))
-    private void omix$bedAuraGameMessage(GameMessageS2CPacket packet, CallbackInfo ci) {
-        BedAuraWhitelist.INSTANCE.onGameMessage(packet.content().getString());
-    }
 
     // TAIL runs after forceMainThread and before the next packet can remove/reset the entity.
     @Inject(method = "onEntityStatus", at = @At("TAIL"))
@@ -68,7 +60,6 @@ public abstract class MixinClientPlayNetworkHandler implements IMinecraft {
                 mc.player.getY(),
                 mc.player.getZ()
         );
-        BedAuraWhitelist.INSTANCE.onPositionApplied(position);
         instance.getEventManager().call(new PlayerPositionLookEvent(position));
     }
 }

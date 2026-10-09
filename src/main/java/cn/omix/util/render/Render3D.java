@@ -112,6 +112,10 @@ public final class Render3D implements IMinecraft {
     }
 
     public void drawBox(Render3DEvent event, Box box, Color color, boolean fill, boolean outline, float lineWidth) {
+        drawBox(event, box, color, new Color(color.getRed(), color.getGreen(), color.getBlue(), 255), fill, outline, lineWidth);
+    }
+
+    public void drawBox(Render3DEvent event, Box box, Color color, Color outlineColor, boolean fill, boolean outline, float lineWidth) {
         if ((!fill && !outline) || mc.gameRenderer == null) return;
 
         Vec3d camera = mc.gameRenderer.getCamera().getCameraPos();
@@ -123,7 +127,6 @@ public final class Render3D implements IMinecraft {
         }
 
         if (outline) {
-            Color outlineColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), 255);
             drawBoxLines(entry, event.getConsumers().getBuffer(SEE_THROUGH_LINES), relative, outlineColor, lineWidth);
         }
     }

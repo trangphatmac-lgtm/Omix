@@ -3,12 +3,14 @@ package cn.omix.module.impl.player;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.TickEvent;
 import cn.omix.event.impl.UpdateEvent;
+import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
 import cn.omix.util.player.ItemSpoofUtil;
+import cn.omix.util.player.AutoToolMining;
 import net.minecraft.block.BlockState;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.Enchantment;
@@ -17,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockPos;
 
 public final class AutoTool extends Module {
     private final ModeValue implementation = new ModeValue("Implementation", "Classic", "Classic", "Omix");
@@ -40,6 +43,7 @@ public final class AutoTool extends Module {
     private boolean omixMining;
     private int omixOldSlot;
     private String activeImplementation = "Classic";
+    private final AutoToolMining managedMining = new AutoToolMining();
 
     public AutoTool() {
         super("AutoTool", Category.Player);
@@ -56,12 +60,14 @@ public final class AutoTool extends Module {
 
     @Override
     public void onDisable() {
+        managedMining.release(mc);
         cleanupClassic();
         cleanupOmix();
     }
 
     @EventTarget
     public void onTick(TickEvent event) {
+        if (managedMining.active()) return;
         syncImplementation();
         setSuffix(implementation.is("Omix") ? "Omix " + omixSwitchMode.getValue() : "Classic");
         if (!implementation.is("Classic")) return;
@@ -103,6 +109,7 @@ public final class AutoTool extends Module {
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
+        if (managedMining.active()) return;
         syncImplementation();
         if (!implementation.is("Omix") || mc.player == null || mc.world == null) return;
 
@@ -138,6 +145,26 @@ public final class AutoTool extends Module {
         } else {
             resetOmix();
         }
+    }
+
+    /** A module-owned target uses the fastest hotbar tool in either implementation. */
+    public boolean switchSlot(Object owner, BlockPos target) {
+        if (!isNativeBehaviorActive()) return false;
+        if (!managedMining.active()) {
+            cleanupClassic();
+            cleanupOmix();
+        }
+        return managedMining.select(mc, owner, target);
+    }
+
+    public void releaseTool(Object owner) {
+        managedMining.release(mc, owner);
+    }
+
+    @EventTarget
+    public void onWorld(WorldEvent event) {
+        // Never restore a previous world's slot into the newly joined world.
+        managedMining.clear();
     }
 
     private void syncImplementation() {

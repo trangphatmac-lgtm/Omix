@@ -3,7 +3,7 @@ package cn.omix.util.opai.island;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class BedAuraIslandTest {
+class BedBreakerIslandTest {
     private static final DynamicIslandStatus STATUS = new DynamicIslandStatus("Player", "localhost", 0, 60);
     private static final DynamicIslandState.TextWidth WIDTH = (text, size) -> text.length() * size / 2;
 
@@ -27,7 +27,7 @@ class BedAuraIslandTest {
         var state = new DynamicIslandState();
         state.postBreaking("Red Bed", 2, 0);
         assertEquals(1, state.frame(0, 800, STATUS, WIDTH, true).rows().getFirst().progress());
-        state.remove("bed-aura");
+        state.remove("bed-breaker");
         assertEquals(1, state.frame(1, 800, STATUS, WIDTH, true).idleOpacity());
         state.postBreaking("Oak Planks", .3f, 10);
         assertTrue(state.frame(510, 800, STATUS, WIDTH, true).rows().isEmpty());

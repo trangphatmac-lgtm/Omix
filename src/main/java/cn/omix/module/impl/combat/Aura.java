@@ -13,6 +13,7 @@ import cn.omix.module.Module;
 import cn.omix.module.impl.move.KeepSprint;
 import cn.omix.module.impl.world.ScaffoldX;
 import cn.omix.module.impl.world.Scaffold;
+import cn.omix.module.impl.world.BedBreaker;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
@@ -106,6 +107,7 @@ public class Aura extends Module {
     @EventTarget
     public void onRotationRequest(RotationRequestEvent event) {
         if (!isNativeBehaviorActive() || mc.player == null || mc.world == null) return;
+        if (BedBreaker.pausesAura()) return;
         if (target == null || rotations == null) return;
         event.submit(RotationRequest.builder(getName(), rotations, 400)
                 .speed(rotationSpeed.getValue())
@@ -117,6 +119,10 @@ public class Aura extends Module {
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
+        if (BedBreaker.pausesAura()) {
+            reset();
+            return;
+        }
         if (mc.player == null || check()) return;
 
         updateTargets();
@@ -377,6 +383,7 @@ public class Aura extends Module {
 
     private boolean check() {
         if (mc.player == null || mc.world == null) return true;
+        if (BedBreaker.pausesAura()) return true;
 
         if ((getModule(ScaffoldX.class).isEnabled() && getModule(ScaffoldX.class).isCanRotation())
                 || (getModule(Scaffold.class).isEnabled() && getModule(Scaffold.class).isCanRotation())) {

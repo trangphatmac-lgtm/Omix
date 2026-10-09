@@ -110,7 +110,7 @@ public class ModuleManager implements IMinecraft {
                 new NoFall(),
                 new Velocity(),
                 new ChestArua(),
-                new BedAura(),
+                new BedBreaker(),
                 new ChestStealer(),
                 new InventoryManager(),
                 new AutoTool(),

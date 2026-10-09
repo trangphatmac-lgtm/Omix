@@ -9,8 +9,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import cn.omix.event.impl.TickEvent;
 import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.impl.player.ChestArua;
-import cn.omix.module.impl.player.BedAura;
-import cn.omix.util.player.bed.BedAuraWhitelist;
+import cn.omix.module.impl.world.BedBreaker;
 import cn.omix.util.player.chest.ChestScreenGuard;
 import cn.omix.util.IMinecraft;
 import cn.omix.util.Util;
@@ -107,13 +106,13 @@ public abstract class MixinMinecraftClient implements IMinecraft {
     }
 
     @Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
-    private void omix$bedAuraAttack(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Boolean> cir) {
-        if (BedAura.blocksBreakingInput()) cir.setReturnValue(false);
+    private void omix$bedBreakerAttack(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Boolean> cir) {
+        if (BedBreaker.blocksBreakingInput()) cir.setReturnValue(false);
     }
 
     @Inject(method = "handleBlockBreaking", at = @At("HEAD"), cancellable = true)
-    private void omix$bedAuraBreaking(boolean breaking, CallbackInfo ci) {
-        if (BedAura.blocksBreakingInput()) ci.cancel();
+    private void omix$bedBreakerBreaking(boolean breaking, CallbackInfo ci) {
+        if (BedBreaker.blocksBreakingInput()) ci.cancel();
     }
 
     @Inject(method = "doItemUse", at = @At("HEAD"), cancellable = true)
@@ -129,7 +128,6 @@ public abstract class MixinMinecraftClient implements IMinecraft {
     // The one-argument overload delegates here, while normal disconnect calls this overload directly.
     @Inject(method = "setWorld(Lnet/minecraft/client/world/ClientWorld;Z)V", at = @At("HEAD"))
     private void setWorld(ClientWorld world, boolean stopSounds, CallbackInfo ci) {
-        if (world == null || world != mc.world) BedAuraWhitelist.INSTANCE.clear();
         ChestScreenGuard.clear();
         instance.getEventManager().call(new WorldEvent(world));
     }

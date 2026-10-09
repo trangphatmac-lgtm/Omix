@@ -64,9 +64,9 @@ public final class DynamicIslandState {
    public void postBreaking(String blockName, float progress, long now) {
       String title = "Breaking " + blockName;
       // A new defense block retargets the same shell, without carrying the old block's width.
-      this.notices.removeIf(item -> !item.key.equals("bed-aura") || !title.equals(item.title));
+      this.notices.removeIf(item -> !item.key.equals("bed-breaker") || !title.equals(item.title));
       float clamped = Math.clamp(progress, 0, 1);
-      post("bed-aura", title, "Break Progress: " + (int)(clamped * 100) + "%", "", Icon.BREAKING, true,
+      post("bed-breaker", title, "Break Progress: " + (int)(clamped * 100) + "%", "", Icon.BREAKING, true,
          clamped, now, 500);
    }
 

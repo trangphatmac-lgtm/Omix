@@ -1,7 +1,7 @@
 package cn.omix.util.opai.island;
 
 import cn.omix.module.Module;
-import cn.omix.module.impl.player.BedAura;
+import cn.omix.module.impl.world.BedBreaker;
 import cn.omix.module.impl.render.ClickGui;
 import cn.omix.util.opai.OpaiHud;
 import cn.omix.ui.neverlose.NeverloseClickGuiScreen;
@@ -28,7 +28,7 @@ public final class DynamicIslandManager {
       return cn.omix.Client.instance.getModuleManager().getModule(cn.omix.module.impl.world.Scaffold.class);
    }
    private static Sample extracted;
-   private static boolean bedAuraBreaking;
+   private static boolean bedBreakerBreaking;
    private record Sample(DynamicIslandState.Frame frame, float viewportWidth, float scale,
                          IslandView chest, Screen screen) {
       IslandGeometry geometry() { return new IslandGeometry(frame, viewportWidth, scale); }
@@ -73,9 +73,9 @@ public final class DynamicIslandManager {
             STATE.remove("scaffold");
          }
       }
-      if (module instanceof BedAura && !module.isNativeBehaviorActive() && bedAuraBreaking) {
-         STATE.remove("bed-aura");
-         bedAuraBreaking = false;
+      if (module instanceof BedBreaker && !module.isNativeBehaviorActive() && bedBreakerBreaking) {
+         STATE.remove("bed-breaker");
+         bedBreakerBreaking = false;
       }
       if (MC.player == null || !OpaiHud.enabled(OpaiHud.Widget.STATUS_BAR)) {
          return;
@@ -288,21 +288,21 @@ public final class DynamicIslandManager {
    }
 
    private static boolean updateBreaking(long now) {
-      BedAura module = cn.omix.Client.instance.getModuleManager().getModule(BedAura.class);
+      BedBreaker module = cn.omix.Client.instance.getModuleManager().getModule(BedBreaker.class);
       var target = module == null ? null : module.diggingTarget(MC.getRenderTickCounter().getTickProgress(false));
       if (target == null) {
-         if (bedAuraBreaking) STATE.remove("bed-aura");
-         bedAuraBreaking = false;
+         if (bedBreakerBreaking) STATE.remove("bed-breaker");
+         bedBreakerBreaking = false;
          return false;
       }
       STATE.postBreaking(target.state().getBlock().getName().getString(), target.progress(), now);
-      bedAuraBreaking = true;
+      bedBreakerBreaking = true;
       return true;
    }
 
    /** Public integration point retained for script/external progress producers. */
    public static synchronized void postBreaking(String name, float progress) {
       STATE.postBreaking(name, progress, now());
-      bedAuraBreaking = false;
+      bedBreakerBreaking = false;
    }
 }

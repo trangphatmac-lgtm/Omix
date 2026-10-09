@@ -58,7 +58,8 @@ Web 和 Node 相关源码统一位于项目根目录 `src-web/`：`webui/`、`mu
 | `combat/projectile/` | `ProjectileAuraEngine`、`ProjectileAuraHost`、`ProjectileSlotState`、`ProjectileAuraRendering`、`ProjectileItemPolicy` |
 | `move/` | `PredictionTimerBalance` |
 | `network/` | `PacketLogHooks`、`PacketLogBuffer`、`PacketLogFormatter`、`PacketLogContent`、`PacketLogFilter`、`PacketLogRules`、`PacketLogHistory`（PacketsLogger 的观察桥接、有界内容快照、双向过滤与自定义名单） |
-| `player/bed/` | `BedAuraTargeting`、`BedAuraProgress`、`BedAuraWhitelist`（床/防护块选择、挖掘进度与间隔、开局出生点保护） |
+| `player/` | `AutoToolMining`（模块托管的工具选择、挖掘速度估算与槽位归还） |
+| `world/bed/` | `BedBreakerTargeting`、`BedBreakerProgress`、`BedBreakerDigging`、`BedBreakerTeams`、`BedBreakerAim`（床/防护块选择、挖掘阈值与间隔、交互阶段挖掘动作、头盔队伍颜色、目标射线） |
 | `player/blockin/` | `BlockInPlanner` |
 | `player/chest/` | `ChestScreenState`、`ChestScreenGuard`、`ChestInteractionState` |
 | `world/` | `ScaffoldMutex`、`VictorySignalMatcher` |
@@ -287,7 +288,7 @@ Text、Color、Key 和 MultiBool 父组不支持此命令直接赋值。模块�
 
 ## Aura
 
-自动筛选附近目标、转向并进行近战攻击，支持旧版 CPS 与新版攻击冷却；目标过滤同时受 Targets、Teams 和 AntiBot 等模块影响。旋转通过每 tick 请求参与统一仲裁，默认优先级 400；Rotation Speed 为 0 时仍使用原有随机微量速度和平滑处理。
+自动筛选附近目标、转向并进行近战攻击，支持旧版 CPS 与新版攻击冷却；目标过滤同时受 Targets、Teams 和 AntiBot 等模块影响。旋转通过每 tick 请求参与统一仲裁，默认优先级 400；Rotation Speed 为 0 时仍使用原有随机微量速度和平滑处理。 BedBreaker 的 Priority 设为 BedBreaker 且找到床时，清理目标及格挡，暂停攻击与旋转；设为 KillAura 时由 BedBreaker 为 Aura 让行。
 
 源码：`src/main/java/cn/omix/module/impl/combat/Aura.java`。
 
@@ -537,13 +538,13 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 
 ## Disabler
 
-集中处理特定协议或服务器场景的数据包兼容逻辑，按模式选择 Heypixel、CubeCraft 或 MiniBlox 实现。
+集中处理特定协议或服务器场景的数据包兼容逻辑，按模式选择 Heypixel、CubeCraft、MiniBlox 或 Hypixel 实现。Hypixel 按参考实现对单轴转头添加标准差 0.001° 的高斯扰动，对 0.1° / 0.25° 整数倍角度变化添加标准差 0.005° 的高斯扰动，并将 pitch 限制在 -90° 至 90°；仅处理未取消且携带转头的发送移动包，启停、切模式和换世界时重置历史角度。
 
 源码：`src/main/java/cn/omix/module/impl/exploits/Disabler.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | 选择 Heypixel、CubeCraft 或 MiniBlox 的数据包处理流程；模式名称不代表对任意服务器都有效。 | 模式；默认 Heypixel；可选 Heypixel / CubeCraft / MiniBlox |
+| Mode | 选择 Heypixel、CubeCraft、MiniBlox 或 Hypixel 的数据包处理流程；模式名称不代表对任意服务器都有效。 | 模式；默认 Heypixel；可选 Heypixel / CubeCraft / MiniBlox / Hypixel |
 | Wait After Lag (ms) | CubeCraft 遇到延迟或回弹后恢复处理前的等待时间，单位毫秒。 | 数值；默认 5000.0；0.0–30000.0；步长 100.0；显示条件：Mode = CubeCraft |
 | Debug | 输出 MiniBlox 调试信息。 | 布尔；默认 false；显示条件：Mode = MiniBlox |
 | Options | Heypixel 的细分数据包处理开关组，子项可单独设置。 | 布尔选项组；显示条件：Mode = Heypixel |
@@ -959,23 +960,6 @@ CubeCraft 沿用 AntiVoid 的 Cubecraft 处理：在移动事件中，仅当垂�
 | Ender Chests | 把末影箱也列为目标。 | 布尔；默认 true |
 | Swing | 交互成功后显示挥手动作。 | 布尔；默认 true |
 
-## BedAura
-
-自动寻找范围内的床并持续挖掘，沿用 Samsara BedAura 的速度、阈值、挥手、声音和红色目标框。优先保留当前有效目标，否则选择最近的可挖目标；范围同时限制床和实际防护块。旋转以优先级 450 提交统一仲裁，在正常移动包发出后发送带序号的 START/STOP/ABORT。完成后等待 Break Delay 个玩家 tick；中止、换目标、打开界面、死亡或换世界会清理裂纹和进度，并仅在仍持有模块工具槽时切回。暂停使用物品、Scaffold/ScaffoldX、Freecam、AutoBlockIn 放置、LongJump 使用物品和 Grim NoSlow 忙状态。Opai HUD 的 DynamicIsland 仅在实际开始挖掘后显示当前方块名称和插值百分比，防护块与床共用面板；结束或中止恢复普通状态。Whitelist 默认开启，沿用 Samsara 的开局提示 → 下一次服务端传送 → 出生点距离保护：玩家距记录位置的三维距离平方小于 600（约 24.5 格）时暂停整个 BedAura，包括拆防护块；返回保护区会中止当前挖掘并收起 HUD 进度。开局记录独立于模块/选项开关，支持开局后才启用 BedAura；后续普通传送或同世界死亡重生不更新记录，新开局提示可重新记录。换世界或断线清空位置及待记录状态，相对传送使用原版已应用的绝对坐标。保护依赖英文开局提示，不按床颜色或队伍识别；未收到提示及其后的传送时没有保护位置。
-
-源码：`src/main/java/cn/omix/module/impl/player/BedAura.java`。
-
-| 配置项 | 简介 | 类型、默认值与限制 |
-| --- | --- | --- |
-| Range | 扫描和挖掘距离，按玩家位置到方块中心计算，单位方块。 | 数值；默认 5；1–8；步长 0.5 |
-| Speed | 原版每 tick 挖掘进度的倍率；STOP 保留源实现的目标阈值加当前步长判定。 | 数值；默认 1；1–2；步长 0.05 |
-| Break Delay | 完成一个方块后暂停的玩家 tick 数；默认 2 tick。 | 数值；默认 2；1–4；步长 1 |
-| Surrounding | 床两部分的水平邻接格都没有空气时，优先拆所选床部分正上方的非空气防护块，并从快捷栏选择挖掘倍率最高的工具；防护块完成后重新找床。 | 布尔；默认 false |
-| Whitelist | 保护自己床所在的出生区域。收到服务端系统提示 Protect your bed and destroy the enemy beds. 后，记录下一次实际应用的传送位置；玩家距该点的三维距离平方 < 600 时暂停挖掘。默认开启；关闭只跳过距离限制，不清除当前场次记录。 | 布尔；默认 true |
-| Allow KillAura | 允许与 Aura 并行；关闭时 Aura 有目标或正在格挡便暂停。BedAura 需要旋转时优先级高于 Aura，可能影响 Aura 的射线命中。 | 布尔；默认 false |
-| Only S/S Rotate | 只在开始和完成挖掘时请求旋转；关闭时每个挖掘 tick 请求旋转。 | 布尔；默认 false |
-| Watchdog Mode | 沿用源实现：水下每 tick 进度乘 5，离地再乘 5 且完成目标改为 5；HUD 以实际目标归一化进度。模式名称不代表服务端兼容性保证。 | 布尔；默认 false |
-
 ## ChestStealer
 
 打开容器后自动把选中的物品快捷转移到背包。箱子界面内暂停真实移动、跳跃、潜行和疾跑输入；经正常玩家 tick 同步停止后才开始取物和关箱，Instant 或零延迟同样适用。手动提前关箱也会等待同步完成，关闭后恢复输入及原有疾跑。
@@ -1019,7 +1003,7 @@ CubeCraft 沿用 AntiVoid 的 Cubecraft 处理：在移动事件中，仅当垂�
 
 ## AutoTool
 
-挖掘时自动选择适合目标方块的工具。
+挖掘时自动选择适合目标方块的工具。 BedBreaker 可提交明确的挖掘目标，在 Classic/Omix 下均按工具适用性、速度和效率附魔选择最快快捷栏工具；该会话独立于手动模式的按键、潜行、Delay、Switch Back 和 Spoof 设置。结束时仅在仍持有自动选择的槽位时恢复原槽位，用户主动换槽时交还控制。
 
 源码：`src/main/java/cn/omix/module/impl/player/AutoTool.java`。
 
@@ -1750,6 +1734,27 @@ Classic 保留二维框、血条、护甲和姓名；Sigma 移植 Jello 的 Shad
 | --- | --- | --- |
 | Through Wall | 忽略普通方块遮挡，选择箱子、门、按钮等可交互目标，不是任意方块。 | 布尔；默认 false |
 | Distance | 交互射线距离，单位方块。 | 数值；默认 4.5；4.5–6.0；步长 0.1 |
+
+## BedBreaker
+
+移植 Amunix BedBreaker，在 World 分类寻找最近的床并拆除床或防护方块。保留 Instant/Hypixel/Legit、Normal/Snap、客户端/服务端挥手、头盔颜色队伍过滤、自动工具、Aura 优先级、拆除路径与 1 秒床双部分去重。床锚点与当前防护块独立保存，Hypixel 锁定防护块直到完成；床与实际方块都必须在范围内，不选择不可破坏的防护块。旋转以优先级 450 和 Silent 移动修正接入统一仲裁。LivingUpdate 只规划目标与旋转；下一次 RotationAppliedEvent 原版交互阶段使用上一玩家 tick 已实际发送的 yaw/pitch 验证命中，再切工具并发送带序号的 START/STOP、随后挥手，完成时归还工具槽，全部发生在当前 tick 的移动包之前。这样避免在 movement 与 CLIENT_TICK_END 之间追加 ANIMATION/PLAYER_DIGGING/HELD_ITEM_CHANGE，修复所提供 Grim 源码的 PacketOrderO 与 Post 检查所报告的顺序问题。取消/覆盖的旋转不能仅凭请求值开始挖掘；仍通过交互管理器预测方块破坏。创造、零硬度或原版单 tick 进度 ≥ 1 的瞬时破坏只发送 START，不再追加 STOP。换目标、打开界面、死亡、超距、停用或换世界时清理进度、裂纹、旋转与工具槽；Blink、数据包缓存/延迟、Freecam、Scaffold/ScaffoldX、AutoBlockIn 放置、LongJump 使用物品及 Grim NoSlow 忙状态会暂停。当前方块使用 HUD 主题色，已拆防护块路径使用白色，拆床完成或中止后清空。Opai DynamicIsland 在 START 后显示目标方块及归一化插值进度。已删除旧 BedAura；旧配置项不自动迁移，不再使用出生点 Whitelist，不携带参考客户端的防篡改检查或 /lang English 命令。
+
+源码：`src/main/java/cn/omix/module/impl/world/BedBreaker.java`。
+
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| BreakMode | Instant 直接挖床，沿用邻接非完整方块检查；床的另一半通常即可满足，仍按方块硬度累计进度，并非无条件秒破。Hypixel 检查床两半的上、北、南、东、西五面，存在空气便直接挖床，否则选择预计挖掘时间最短的范围内防护块，同速时优先距离近者；脚下空气不算露床。Legit 沿眼睛至床中心的世界射线选择第一个阻挡方块。Instant/Hypixel 对目标形状直接射线检测，允许遮挡；Legit 同时检查世界遮挡。 | 模式；默认 Hypixel；可选 Instant / Hypixel / Legit |
+| RotationMode | Normal 全程瞄准；Snap 在开始和即将完成时瞄准，中间释放旋转。使用 3×3×3 采样寻找最近的可命中点，失败时退回中心；发送 START/STOP 前验证上一次实际发送的旋转与当前射线，避免源实现 Snap 完成时卡住。 | 模式；默认 Normal；可选 Normal / Snap |
+| SwingMode | Client 在开始和结束时，先发挖掘动作再本地挥手并发包；Server 仅发送主手挥手包。两种方式都在原版交互阶段、当前 tick 移动包之前执行。 | 模式；默认 Client；可选 Client / Server |
+| Teams | Hypixel 读取皮革头盔 DYED_COLOR，按 RGB 距离匹配 16 种床色并跳过同队床；合并浅绿/绿、淡蓝/青、浅灰/灰。无皮革头盔时不保护任何颜色；未染色皮革头盔按参考值 0xA06540 匹配。None 关闭颜色过滤。 | 模式；默认 Hypixel；可选 None / Hypixel |
+| Box | 分别开关填充和轮廓；填充透明度 80、轮廓透明度 160、线宽 2，当前目标随 HUD 主题色，已拆路径为白色。 | 布尔选项组 |
+| Fill | 绘制当前目标与已拆路径的半透明填充。 | 布尔；默认 true；属于 Box |
+| Outline | 绘制当前目标与已拆路径的半透明轮廓。 | 布尔；默认 true；属于 Box |
+| Range | 按玩家位置到方块中心计算扫描和挖掘范围，单位方块；实际射线也受同一距离上限限制。 | 数值；默认 4.5；0–7；步长 .01 |
+| Speed | 百分比，完成阈值为 1 − 0.3 × Speed/100：0 为完整原版进度，100 为 70% 进度。HUD 按此阈值归一化。 | 数值；默认 0；0–100；步长 1 |
+| Ignore Break Delay | 开启后下一 tick 可继续；关闭后每次完成破坏等待 4 个完整 tick。间隔仅在客户端 tick 开始时递减，完成当次交互不提前消耗一次，期间不旋转或发送挖掘包。 | 布尔；默认 true |
+| Priority | KillAura 对应本项目 Aura：Aura 有目标、候选目标或正在格挡时中止拆床。BedBreaker 对应原参考的 BedNuker：找到范围内床时 Aura 清理目标和格挡，并暂停攻击及旋转，拆床结束后恢复。 | 模式；默认 KillAura；可选 BedBreaker / KillAura |
+| Auto Tool | 开启时管理 AutoTool 的启用状态，并向它提交当前床/防护块目标；快捷栏按效率附魔、挖掘速度和工具适用性选槽，不受手动模式的按键、潜行或延迟限制。完成或中止时仅在仍持有模块选中槽位时切回；只关闭由 BedBreaker 自动开启的 AutoTool。此项关闭但 AutoTool 原本已开启时仍使用其工具能力，沿用参考语义。 | 布尔；默认 true |
 
 ## Maps
 

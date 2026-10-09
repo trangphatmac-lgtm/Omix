@@ -869,6 +869,12 @@
 - `cn.omix.util.combat.projectile.ProjectileSlotState` — `public int flush(int current)`
 - `cn.omix.util.combat.projectile.ProjectileSlotState` — `public int release(int current)`
 - `cn.omix.util.combat.projectile.ProjectileSlotState` — `public void clear()`
+- `cn.omix.util.exploits.disabler.HypixelDisabler` — `cn.omix.util.exploits.disabler.HypixelDisabler`
+- `cn.omix.util.exploits.disabler.HypixelDisabler` — `public final class HypixelDisabler implements DisablerMode, IMinecraft`
+- `cn.omix.util.exploits.disabler.HypixelDisabler` — `public void onPacket(PacketEvent event)`
+- `cn.omix.util.exploits.disabler.HypixelDisabler` — `public void onEnable()`
+- `cn.omix.util.exploits.disabler.HypixelDisabler` — `public void onDisable()`
+- `cn.omix.util.exploits.disabler.HypixelDisabler` — `public void onWorld(WorldEvent event)`
 - `cn.omix.util.misc.KeyUtil` — `cn.omix.util.misc.KeyUtil`
 - `cn.omix.util.misc.KeyUtil` — `public final class KeyUtil`
 - `cn.omix.util.misc.KeyUtil` — `public static int mouseKeyCode(int button)`
@@ -909,6 +915,11 @@
 - `cn.omix.util.misc.TimerUtil` — `public boolean hasTimeElapsed(long time)`
 - `cn.omix.util.misc.TimerUtil` — `public boolean hasTimeElapsed(double time)`
 - `cn.omix.util.misc.TimerUtil` — `public long getTime()`
+- `cn.omix.util.move.HypixelPrediction` — `cn.omix.util.move.HypixelPrediction`
+- `cn.omix.util.move.HypixelPrediction` — `public final class HypixelPrediction`
+- `cn.omix.util.move.HypixelPrediction` — `public float tick(boolean active)`
+- `cn.omix.util.move.HypixelPrediction` — `public void reset()`
+- `cn.omix.util.move.HypixelPrediction` — `public static float movementYaw(float cameraYaw, int forward, int right, boolean onGround)`
 - `cn.omix.util.move.PredictionTimerBalance` — `cn.omix.util.move.PredictionTimerBalance`
 - `cn.omix.util.move.PredictionTimerBalance` — `public final class PredictionTimerBalance`
 - `cn.omix.util.move.PredictionTimerBalance` — `public float boost()`
@@ -1887,6 +1898,15 @@
 - `cn.omix.util.opai.render.ScreenPosition` — `public float getHeight()`
 - `cn.omix.util.opai.render.ScreenPosition` — `public void setHeight(float height)`
 - `cn.omix.util.opai.render.ScreenPosition` — `public void setDimensions(float x, float y, float width, float height)`
+- `cn.omix.util.player.AutoToolMining` — `cn.omix.util.player.AutoToolMining`
+- `cn.omix.util.player.AutoToolMining` — `public final class AutoToolMining`
+- `cn.omix.util.player.AutoToolMining` — `public boolean active()`
+- `cn.omix.util.player.AutoToolMining` — `public boolean select(MinecraftClient mc, Object requester, BlockPos pos)`
+- `cn.omix.util.player.AutoToolMining` — `public void release(MinecraftClient mc, Object requester)`
+- `cn.omix.util.player.AutoToolMining` — `public void release(MinecraftClient mc)`
+- `cn.omix.util.player.AutoToolMining` — `public void clear()`
+- `cn.omix.util.player.AutoToolMining` — `public static int bestSlot(ClientPlayerEntity player, BlockState state)`
+- `cn.omix.util.player.AutoToolMining` — `public static float breakingDelta(ClientPlayerEntity player, ClientWorld world, BlockPos pos, boolean autoTool)`
 - `cn.omix.util.player.BlockUtil` — `cn.omix.util.player.BlockUtil`
 - `cn.omix.util.player.BlockUtil` — `public class BlockUtil implements IMinecraft`
 - `cn.omix.util.player.BlockUtil` — `public static int getBlockSlot(boolean maxStack)`
@@ -1998,30 +2018,6 @@
 - `cn.omix.util.player.RotationUtil` — `public static float[] applySensitivityPatch(float[] rotations)`
 - `cn.omix.util.player.RotationUtil` — `public static float[] applySensitivityPatch(float[] rotation, float[] previousRotation)`
 - `cn.omix.util.player.RotationUtil` — `public static Vec3d getVectorForRotation(float yaw, float pitch)`
-- `cn.omix.util.player.bed.BedAuraProgress` — `cn.omix.util.player.bed.BedAuraProgress`
-- `cn.omix.util.player.bed.BedAuraProgress` — `public final class BedAuraProgress`
-- `cn.omix.util.player.bed.BedAuraProgress` — `public record Rate(float delta, float goal)`
-- `cn.omix.util.player.bed.BedAuraProgress` — `public static Rate rate(float vanillaDelta, float speed, boolean watchdog, boolean submerged, boolean onGround)`
-- `cn.omix.util.player.bed.BedAuraProgress` — `public boolean waiting()`
-- `cn.omix.util.player.bed.BedAuraProgress` — `public boolean readyToFinish(Rate rate)`
-- `cn.omix.util.player.bed.BedAuraProgress` — `public void advance(Rate rate)`
-- `cn.omix.util.player.bed.BedAuraProgress` — `public float interpolated(float tickDelta)`
-- `cn.omix.util.player.bed.BedAuraProgress` — `public void finish(int delayTicks)`
-- `cn.omix.util.player.bed.BedAuraProgress` — `public void resetProgress()`
-- `cn.omix.util.player.bed.BedAuraProgress` — `public void reset()`
-- `cn.omix.util.player.bed.BedAuraTargeting` — `cn.omix.util.player.bed.BedAuraTargeting`
-- `cn.omix.util.player.bed.BedAuraTargeting` — `public final class BedAuraTargeting`
-- `cn.omix.util.player.bed.BedAuraTargeting` — `public interface World`
-- `cn.omix.util.player.bed.BedAuraTargeting` — `public record Target(BlockPos bed, BlockPos block)`
-- `cn.omix.util.player.bed.BedAuraTargeting` — `public static Target find(World world, Vec3d player, double range, boolean surrounding, BlockPos previousBed)`
-- `cn.omix.util.player.bed.BedAuraTargeting` — `public static boolean inRange(Vec3d player, BlockPos pos, double range)`
-- `cn.omix.util.player.bed.BedAuraWhitelist` — `cn.omix.util.player.bed.BedAuraWhitelist`
-- `cn.omix.util.player.bed.BedAuraWhitelist` — `public final class BedAuraWhitelist`
-- `cn.omix.util.player.bed.BedAuraWhitelist` — `public static final BedAuraWhitelist INSTANCE`
-- `cn.omix.util.player.bed.BedAuraWhitelist` — `public void onGameMessage(String message)`
-- `cn.omix.util.player.bed.BedAuraWhitelist` — `public void onPositionApplied(Vec3d position)`
-- `cn.omix.util.player.bed.BedAuraWhitelist` — `public boolean isProtected(Vec3d playerPosition)`
-- `cn.omix.util.player.bed.BedAuraWhitelist` — `public void clear()`
 - `cn.omix.util.player.blockin.BlockInPlanner` — `cn.omix.util.player.blockin.BlockInPlanner`
 - `cn.omix.util.player.blockin.BlockInPlanner` — `public final class BlockInPlanner`
 - `cn.omix.util.player.blockin.BlockInPlanner` — `public interface Environment`
@@ -2236,6 +2232,7 @@
 - `cn.omix.util.render.Render3D` — `public static void drawBox(MatrixStack stack, BlockPos pos, int color)`
 - `cn.omix.util.render.Render3D` — `public static void drawBox(Render3DEvent event, Box box, Color color, boolean fill, boolean outline)`
 - `cn.omix.util.render.Render3D` — `public static void drawBox(Render3DEvent event, Box box, Color color, boolean fill, boolean outline, float lineWidth)`
+- `cn.omix.util.render.Render3D` — `public static void drawBox(Render3DEvent event, Box box, Color color, Color outlineColor, boolean fill, boolean outline, float lineWidth)`
 - `cn.omix.util.render.Render3D` — `public static void drawLine(Render3DEvent event, Vec3d start, Vec3d end, Color color)`
 - `cn.omix.util.render.Render3D` — `public static void drawLine(Render3DEvent event, Vec3d start, Vec3d end, Color color, float lineWidth)`
 - `cn.omix.util.setsuna.SetsunaDraw` — `cn.omix.util.setsuna.SetsunaDraw`
@@ -2783,3 +2780,46 @@
 - `cn.omix.util.world.VictorySignalMatcher` — `public final class VictorySignalMatcher`
 - `cn.omix.util.world.VictorySignalMatcher` — `public static boolean matchesTitle(String text)`
 - `cn.omix.util.world.VictorySignalMatcher` — `public static boolean matchesChat(String text)`
+- `cn.omix.util.world.bed.BedBreakerAim` — `cn.omix.util.world.bed.BedBreakerAim`
+- `cn.omix.util.world.bed.BedBreakerAim` — `public final class BedBreakerAim`
+- `cn.omix.util.world.bed.BedBreakerAim` — `public static float[] find(ClientWorld world, ClientPlayerEntity player, BlockPos pos, double range, boolean legit)`
+- `cn.omix.util.world.bed.BedBreakerAim` — `public static BlockHitResult raycast(ClientWorld world, ClientPlayerEntity player, BlockPos pos, float yaw, float pitch, double range, boolean legit)`
+- `cn.omix.util.world.bed.BedBreakerDigging` — `cn.omix.util.world.bed.BedBreakerDigging`
+- `cn.omix.util.world.bed.BedBreakerDigging` — `public final class BedBreakerDigging`
+- `cn.omix.util.world.bed.BedBreakerDigging` — `public interface Effects`
+- `cn.omix.util.world.bed.BedBreakerDigging` — `public BedBreakerDigging(BedBreakerProgress progress)`
+- `cn.omix.util.world.bed.BedBreakerDigging` — `public boolean started()`
+- `cn.omix.util.world.bed.BedBreakerDigging` — `public void interact(float delta, boolean instant, boolean aimed, double speed, Effects effects)`
+- `cn.omix.util.world.bed.BedBreakerDigging` — `public void reset()`
+- `cn.omix.util.world.bed.BedBreakerProgress` — `cn.omix.util.world.bed.BedBreakerProgress`
+- `cn.omix.util.world.bed.BedBreakerProgress` — `public final class BedBreakerProgress`
+- `cn.omix.util.world.bed.BedBreakerProgress` — `public enum State`
+- `cn.omix.util.world.bed.BedBreakerProgress` — `public static float threshold(double speedPercent)`
+- `cn.omix.util.world.bed.BedBreakerProgress` — `public void prepare()`
+- `cn.omix.util.world.bed.BedBreakerProgress` — `public void start()`
+- `cn.omix.util.world.bed.BedBreakerProgress` — `public State state()`
+- `cn.omix.util.world.bed.BedBreakerProgress` — `public void advance(float delta, double speedPercent)`
+- `cn.omix.util.world.bed.BedBreakerProgress` — `public boolean ready(double speedPercent)`
+- `cn.omix.util.world.bed.BedBreakerProgress` — `public boolean willFinish(float delta, double speedPercent)`
+- `cn.omix.util.world.bed.BedBreakerProgress` — `public float progress(double speedPercent, float tickDelta)`
+- `cn.omix.util.world.bed.BedBreakerProgress` — `public boolean waiting(boolean ignoreDelay)`
+- `cn.omix.util.world.bed.BedBreakerProgress` — `public void finish()`
+- `cn.omix.util.world.bed.BedBreakerProgress` — `public void resetDamage()`
+- `cn.omix.util.world.bed.BedBreakerProgress` — `public void reset()`
+- `cn.omix.util.world.bed.BedBreakerTargeting` — `cn.omix.util.world.bed.BedBreakerTargeting`
+- `cn.omix.util.world.bed.BedBreakerTargeting` — `public final class BedBreakerTargeting`
+- `cn.omix.util.world.bed.BedBreakerTargeting` — `public enum Mode`
+- `cn.omix.util.world.bed.BedBreakerTargeting` — `public interface World`
+- `cn.omix.util.world.bed.BedBreakerTargeting` — `public static boolean inRange(Vec3d player, BlockPos pos, double range)`
+- `cn.omix.util.world.bed.BedBreakerTargeting` — `public static BlockPos findBed(World world, Vec3d player, double range, Mode mode, int teamColor, Predicate<BlockPos> recentlyBroken)`
+- `cn.omix.util.world.bed.BedBreakerTargeting` — `public static BlockPos selectBlock(World world, Vec3d player, double range, Mode mode, BlockPos bed)`
+- `cn.omix.util.world.bed.BedBreakerTargeting` — `public static boolean hittable(World world, BlockPos bed)`
+- `cn.omix.util.world.bed.BedBreakerTargeting` — `public static final class RecentBeds`
+- `cn.omix.util.world.bed.BedBreakerTargeting.RecentBeds` — `public void mark(BlockPos bed, Direction partner, long now)`
+- `cn.omix.util.world.bed.BedBreakerTargeting.RecentBeds` — `public boolean contains(BlockPos pos, long now)`
+- `cn.omix.util.world.bed.BedBreakerTargeting.RecentBeds` — `public void prune(long now)`
+- `cn.omix.util.world.bed.BedBreakerTargeting.RecentBeds` — `public void clear()`
+- `cn.omix.util.world.bed.BedBreakerTeams` — `cn.omix.util.world.bed.BedBreakerTeams`
+- `cn.omix.util.world.bed.BedBreakerTeams` — `public final class BedBreakerTeams`
+- `cn.omix.util.world.bed.BedBreakerTeams` — `public static int nearestColor(int rgb)`
+- `cn.omix.util.world.bed.BedBreakerTeams` — `public static boolean sameTeam(int bedColor, int helmetColor)`

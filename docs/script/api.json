@@ -6763,6 +6763,53 @@
     "line": 34
   },
   {
+    "owner": "cn.omix.util.exploits.disabler.HypixelDisabler",
+    "name": "HypixelDisabler",
+    "signature": "cn.omix.util.exploits.disabler.HypixelDisabler",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/HypixelDisabler.java"
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.HypixelDisabler",
+    "name": "IMinecraft",
+    "signature": "public final class HypixelDisabler implements DisablerMode, IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/HypixelDisabler.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.HypixelDisabler",
+    "name": "onPacket",
+    "signature": "public void onPacket(PacketEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/HypixelDisabler.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.HypixelDisabler",
+    "name": "onEnable",
+    "signature": "public void onEnable()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/HypixelDisabler.java",
+    "line": 133
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.HypixelDisabler",
+    "name": "onDisable",
+    "signature": "public void onDisable()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/HypixelDisabler.java",
+    "line": 138
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.HypixelDisabler",
+    "name": "onWorld",
+    "signature": "public void onWorld(WorldEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/HypixelDisabler.java",
+    "line": 143
+  },
+  {
     "owner": "cn.omix.util.misc.KeyUtil",
     "name": "KeyUtil",
     "signature": "cn.omix.util.misc.KeyUtil",
@@ -7074,6 +7121,45 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/misc/TimerUtil.java",
     "line": 29
+  },
+  {
+    "owner": "cn.omix.util.move.HypixelPrediction",
+    "name": "HypixelPrediction",
+    "signature": "cn.omix.util.move.HypixelPrediction",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/move/HypixelPrediction.java"
+  },
+  {
+    "owner": "cn.omix.util.move.HypixelPrediction",
+    "name": "HypixelPrediction",
+    "signature": "public final class HypixelPrediction",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/HypixelPrediction.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.move.HypixelPrediction",
+    "name": "tick",
+    "signature": "public float tick(boolean active)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/HypixelPrediction.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.move.HypixelPrediction",
+    "name": "reset",
+    "signature": "public void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/HypixelPrediction.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.move.HypixelPrediction",
+    "name": "movementYaw",
+    "signature": "public static float movementYaw(float cameraYaw, int forward, int right, boolean onGround)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/HypixelPrediction.java",
+    "line": 26
   },
   {
     "owner": "cn.omix.util.move.PredictionTimerBalance",
@@ -14830,6 +14916,77 @@
     "line": 56
   },
   {
+    "owner": "cn.omix.util.player.AutoToolMining",
+    "name": "AutoToolMining",
+    "signature": "cn.omix.util.player.AutoToolMining",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/player/AutoToolMining.java"
+  },
+  {
+    "owner": "cn.omix.util.player.AutoToolMining",
+    "name": "AutoToolMining",
+    "signature": "public final class AutoToolMining",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/AutoToolMining.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.player.AutoToolMining",
+    "name": "active",
+    "signature": "public boolean active()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/AutoToolMining.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.util.player.AutoToolMining",
+    "name": "select",
+    "signature": "public boolean select(MinecraftClient mc, Object requester, BlockPos pos)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/AutoToolMining.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.player.AutoToolMining",
+    "name": "release",
+    "signature": "public void release(MinecraftClient mc, Object requester)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/AutoToolMining.java",
+    "line": 46
+  },
+  {
+    "owner": "cn.omix.util.player.AutoToolMining",
+    "name": "release",
+    "signature": "public void release(MinecraftClient mc)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/AutoToolMining.java",
+    "line": 57
+  },
+  {
+    "owner": "cn.omix.util.player.AutoToolMining",
+    "name": "clear",
+    "signature": "public void clear()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/AutoToolMining.java",
+    "line": 58
+  },
+  {
+    "owner": "cn.omix.util.player.AutoToolMining",
+    "name": "bestSlot",
+    "signature": "public static int bestSlot(ClientPlayerEntity player, BlockState state)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/AutoToolMining.java",
+    "line": 60
+  },
+  {
+    "owner": "cn.omix.util.player.AutoToolMining",
+    "name": "breakingDelta",
+    "signature": "public static float breakingDelta(ClientPlayerEntity player, ClientWorld world, BlockPos pos, boolean autoTool)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/AutoToolMining.java",
+    "line": 85
+  },
+  {
     "owner": "cn.omix.util.player.BlockUtil",
     "name": "BlockUtil",
     "signature": "cn.omix.util.player.BlockUtil",
@@ -15706,195 +15863,6 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
     "line": 286
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraProgress",
-    "name": "BedAuraProgress",
-    "signature": "cn.omix.util.player.bed.BedAuraProgress",
-    "kind": "type",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java"
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraProgress",
-    "name": "BedAuraProgress",
-    "signature": "public final class BedAuraProgress",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
-    "line": 4
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraProgress",
-    "name": "Rate",
-    "signature": "public record Rate(float delta, float goal)",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
-    "line": 5
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraProgress",
-    "name": "rate",
-    "signature": "public static Rate rate(float vanillaDelta, float speed, boolean watchdog, boolean submerged, boolean onGround)",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
-    "line": 12
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraProgress",
-    "name": "waiting",
-    "signature": "public boolean waiting()",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
-    "line": 19
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraProgress",
-    "name": "readyToFinish",
-    "signature": "public boolean readyToFinish(Rate rate)",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
-    "line": 25
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraProgress",
-    "name": "advance",
-    "signature": "public void advance(Rate rate)",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
-    "line": 29
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraProgress",
-    "name": "interpolated",
-    "signature": "public float interpolated(float tickDelta)",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
-    "line": 35
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraProgress",
-    "name": "finish",
-    "signature": "public void finish(int delayTicks)",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
-    "line": 39
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraProgress",
-    "name": "resetProgress",
-    "signature": "public void resetProgress()",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
-    "line": 44
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraProgress",
-    "name": "reset",
-    "signature": "public void reset()",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraProgress.java",
-    "line": 49
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraTargeting",
-    "name": "BedAuraTargeting",
-    "signature": "cn.omix.util.player.bed.BedAuraTargeting",
-    "kind": "type",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraTargeting.java"
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraTargeting",
-    "name": "BedAuraTargeting",
-    "signature": "public final class BedAuraTargeting",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraTargeting.java",
-    "line": 8
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraTargeting",
-    "name": "World",
-    "signature": "public interface World",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraTargeting.java",
-    "line": 9
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraTargeting",
-    "name": "Target",
-    "signature": "public record Target(BlockPos bed, BlockPos block)",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraTargeting.java",
-    "line": 16
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraTargeting",
-    "name": "find",
-    "signature": "public static Target find(World world, Vec3d player, double range, boolean surrounding, BlockPos previousBed)",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraTargeting.java",
-    "line": 20
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraTargeting",
-    "name": "inRange",
-    "signature": "public static boolean inRange(Vec3d player, BlockPos pos, double range)",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraTargeting.java",
-    "line": 59
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraWhitelist",
-    "name": "BedAuraWhitelist",
-    "signature": "cn.omix.util.player.bed.BedAuraWhitelist",
-    "kind": "type",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraWhitelist.java"
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraWhitelist",
-    "name": "BedAuraWhitelist",
-    "signature": "public final class BedAuraWhitelist",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraWhitelist.java",
-    "line": 6
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraWhitelist",
-    "name": "INSTANCE",
-    "signature": "public static final BedAuraWhitelist INSTANCE",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraWhitelist.java",
-    "line": 7
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraWhitelist",
-    "name": "onGameMessage",
-    "signature": "public void onGameMessage(String message)",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraWhitelist.java",
-    "line": 14
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraWhitelist",
-    "name": "onPositionApplied",
-    "signature": "public void onPositionApplied(Vec3d position)",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraWhitelist.java",
-    "line": 19
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraWhitelist",
-    "name": "isProtected",
-    "signature": "public boolean isProtected(Vec3d playerPosition)",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraWhitelist.java",
-    "line": 25
-  },
-  {
-    "owner": "cn.omix.util.player.bed.BedAuraWhitelist",
-    "name": "clear",
-    "signature": "public void clear()",
-    "kind": "declaration",
-    "source": "src/main/java/cn/omix/util/player/bed/BedAuraWhitelist.java",
-    "line": 30
   },
   {
     "owner": "cn.omix.util.player.blockin.BlockInPlanner",
@@ -17587,11 +17555,19 @@
   },
   {
     "owner": "cn.omix.util.render.Render3D",
+    "name": "drawBox",
+    "signature": "public static void drawBox(Render3DEvent event, Box box, Color color, Color outlineColor, boolean fill, boolean outline, float lineWidth)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/render/Render3D.java",
+    "line": 118
+  },
+  {
+    "owner": "cn.omix.util.render.Render3D",
     "name": "drawLine",
     "signature": "public static void drawLine(Render3DEvent event, Vec3d start, Vec3d end, Color color)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/render/Render3D.java",
-    "line": 131
+    "line": 134
   },
   {
     "owner": "cn.omix.util.render.Render3D",
@@ -17599,7 +17575,7 @@
     "signature": "public static void drawLine(Render3DEvent event, Vec3d start, Vec3d end, Color color, float lineWidth)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/render/Render3D.java",
-    "line": 135
+    "line": 138
   },
   {
     "owner": "cn.omix.util.setsuna.SetsunaDraw",
@@ -21898,5 +21874,344 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/world/VictorySignalMatcher.java",
     "line": 27
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerAim",
+    "name": "BedBreakerAim",
+    "signature": "cn.omix.util.world.bed.BedBreakerAim",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerAim.java"
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerAim",
+    "name": "BedBreakerAim",
+    "signature": "public final class BedBreakerAim",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerAim.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerAim",
+    "name": "find",
+    "signature": "public static float[] find(ClientWorld world, ClientPlayerEntity player, BlockPos pos, double range, boolean legit)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerAim.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerAim",
+    "name": "raycast",
+    "signature": "public static BlockHitResult raycast(ClientWorld world, ClientPlayerEntity player, BlockPos pos, float yaw, float pitch, double range, boolean legit)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerAim.java",
+    "line": 33
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerDigging",
+    "name": "BedBreakerDigging",
+    "signature": "cn.omix.util.world.bed.BedBreakerDigging",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerDigging.java"
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerDigging",
+    "name": "BedBreakerDigging",
+    "signature": "public final class BedBreakerDigging",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerDigging.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerDigging",
+    "name": "Effects",
+    "signature": "public interface Effects",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerDigging.java",
+    "line": 5
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerDigging",
+    "name": "BedBreakerDigging",
+    "signature": "public BedBreakerDigging(BedBreakerProgress progress)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerDigging.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerDigging",
+    "name": "started",
+    "signature": "public boolean started()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerDigging.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerDigging",
+    "name": "interact",
+    "signature": "public void interact(float delta, boolean instant, boolean aimed, double speed, Effects effects)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerDigging.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerDigging",
+    "name": "reset",
+    "signature": "public void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerDigging.java",
+    "line": 46
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerProgress",
+    "name": "BedBreakerProgress",
+    "signature": "cn.omix.util.world.bed.BedBreakerProgress",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerProgress.java"
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerProgress",
+    "name": "BedBreakerProgress",
+    "signature": "public final class BedBreakerProgress",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerProgress.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerProgress",
+    "name": "State",
+    "signature": "public enum State",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerProgress.java",
+    "line": 5
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerProgress",
+    "name": "threshold",
+    "signature": "public static float threshold(double speedPercent)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerProgress.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerProgress",
+    "name": "prepare",
+    "signature": "public void prepare()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerProgress.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerProgress",
+    "name": "start",
+    "signature": "public void start()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerProgress.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerProgress",
+    "name": "state",
+    "signature": "public State state()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerProgress.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerProgress",
+    "name": "advance",
+    "signature": "public void advance(float delta, double speedPercent)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerProgress.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerProgress",
+    "name": "ready",
+    "signature": "public boolean ready(double speedPercent)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerProgress.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerProgress",
+    "name": "willFinish",
+    "signature": "public boolean willFinish(float delta, double speedPercent)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerProgress.java",
+    "line": 27
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerProgress",
+    "name": "progress",
+    "signature": "public float progress(double speedPercent, float tickDelta)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerProgress.java",
+    "line": 29
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerProgress",
+    "name": "waiting",
+    "signature": "public boolean waiting(boolean ignoreDelay)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerProgress.java",
+    "line": 34
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerProgress",
+    "name": "finish",
+    "signature": "public void finish()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerProgress.java",
+    "line": 41
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerProgress",
+    "name": "resetDamage",
+    "signature": "public void resetDamage()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerProgress.java",
+    "line": 42
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerProgress",
+    "name": "reset",
+    "signature": "public void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerProgress.java",
+    "line": 43
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTargeting",
+    "name": "BedBreakerTargeting",
+    "signature": "cn.omix.util.world.bed.BedBreakerTargeting",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTargeting.java"
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTargeting",
+    "name": "BedBreakerTargeting",
+    "signature": "public final class BedBreakerTargeting",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTargeting.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTargeting",
+    "name": "Mode",
+    "signature": "public enum Mode",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTargeting.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTargeting",
+    "name": "World",
+    "signature": "public interface World",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTargeting.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTargeting",
+    "name": "inRange",
+    "signature": "public static boolean inRange(Vec3d player, BlockPos pos, double range)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTargeting.java",
+    "line": 31
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTargeting",
+    "name": "findBed",
+    "signature": "public static BlockPos findBed(World world, Vec3d player, double range, Mode mode, int teamColor, Predicate<BlockPos> recentlyBroken)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTargeting.java",
+    "line": 35
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTargeting",
+    "name": "selectBlock",
+    "signature": "public static BlockPos selectBlock(World world, Vec3d player, double range, Mode mode, BlockPos bed)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTargeting.java",
+    "line": 51
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTargeting",
+    "name": "hittable",
+    "signature": "public static boolean hittable(World world, BlockPos bed)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTargeting.java",
+    "line": 87
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTargeting",
+    "name": "RecentBeds",
+    "signature": "public static final class RecentBeds",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTargeting.java",
+    "line": 92
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTargeting.RecentBeds",
+    "name": "mark",
+    "signature": "public void mark(BlockPos bed, Direction partner, long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTargeting.java",
+    "line": 95
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTargeting.RecentBeds",
+    "name": "contains",
+    "signature": "public boolean contains(BlockPos pos, long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTargeting.java",
+    "line": 100
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTargeting.RecentBeds",
+    "name": "prune",
+    "signature": "public void prune(long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTargeting.java",
+    "line": 105
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTargeting.RecentBeds",
+    "name": "clear",
+    "signature": "public void clear()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTargeting.java",
+    "line": 106
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTeams",
+    "name": "BedBreakerTeams",
+    "signature": "cn.omix.util.world.bed.BedBreakerTeams",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTeams.java"
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTeams",
+    "name": "BedBreakerTeams",
+    "signature": "public final class BedBreakerTeams",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTeams.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTeams",
+    "name": "nearestColor",
+    "signature": "public static int nearestColor(int rgb)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTeams.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.world.bed.BedBreakerTeams",
+    "name": "sameTeam",
+    "signature": "public static boolean sameTeam(int bedColor, int helmetColor)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/bed/BedBreakerTeams.java",
+    "line": 25
   }
 ]

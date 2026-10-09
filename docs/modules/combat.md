@@ -17,7 +17,7 @@
 
 ## Aura
 
-自动筛选附近目标、转向并进行近战攻击，支持旧版 CPS 与新版攻击冷却；目标过滤同时受 Targets、Teams 和 AntiBot 等模块影响。旋转通过每 tick 请求参与统一仲裁，默认优先级 400；Rotation Speed 为 0 时仍使用原有随机微量速度和平滑处理。
+自动筛选附近目标、转向并进行近战攻击，支持旧版 CPS 与新版攻击冷却；目标过滤同时受 Targets、Teams 和 AntiBot 等模块影响。旋转通过每 tick 请求参与统一仲裁，默认优先级 400；Rotation Speed 为 0 时仍使用原有随机微量速度和平滑处理。 BedBreaker 的 Priority 设为 BedBreaker 且找到床时，清理目标及格挡，暂停攻击与旋转；设为 KillAura 时由 BedBreaker 为 Aura 让行。
 
 源码：`src/main/java/cn/omix/module/impl/combat/Aura.java`。
 

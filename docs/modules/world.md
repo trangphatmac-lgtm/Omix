@@ -154,6 +154,27 @@
 | Through Wall | 忽略普通方块遮挡，选择箱子、门、按钮等可交互目标，不是任意方块。 | 布尔；默认 false |
 | Distance | 交互射线距离，单位方块。 | 数值；默认 4.5；4.5–6.0；步长 0.1 |
 
+## BedBreaker
+
+移植 Amunix BedBreaker，在 World 分类寻找最近的床并拆除床或防护方块。保留 Instant/Hypixel/Legit、Normal/Snap、客户端/服务端挥手、头盔颜色队伍过滤、自动工具、Aura 优先级、拆除路径与 1 秒床双部分去重。床锚点与当前防护块独立保存，Hypixel 锁定防护块直到完成；床与实际方块都必须在范围内，不选择不可破坏的防护块。旋转以优先级 450 和 Silent 移动修正接入统一仲裁。LivingUpdate 只规划目标与旋转；下一次 RotationAppliedEvent 原版交互阶段使用上一玩家 tick 已实际发送的 yaw/pitch 验证命中，再切工具并发送带序号的 START/STOP、随后挥手，完成时归还工具槽，全部发生在当前 tick 的移动包之前。这样避免在 movement 与 CLIENT_TICK_END 之间追加 ANIMATION/PLAYER_DIGGING/HELD_ITEM_CHANGE，修复所提供 Grim 源码的 PacketOrderO 与 Post 检查所报告的顺序问题。取消/覆盖的旋转不能仅凭请求值开始挖掘；仍通过交互管理器预测方块破坏。创造、零硬度或原版单 tick 进度 ≥ 1 的瞬时破坏只发送 START，不再追加 STOP。换目标、打开界面、死亡、超距、停用或换世界时清理进度、裂纹、旋转与工具槽；Blink、数据包缓存/延迟、Freecam、Scaffold/ScaffoldX、AutoBlockIn 放置、LongJump 使用物品及 Grim NoSlow 忙状态会暂停。当前方块使用 HUD 主题色，已拆防护块路径使用白色，拆床完成或中止后清空。Opai DynamicIsland 在 START 后显示目标方块及归一化插值进度。已删除旧 BedAura；旧配置项不自动迁移，不再使用出生点 Whitelist，不携带参考客户端的防篡改检查或 /lang English 命令。
+
+源码：`src/main/java/cn/omix/module/impl/world/BedBreaker.java`。
+
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| BreakMode | Instant 直接挖床，沿用邻接非完整方块检查；床的另一半通常即可满足，仍按方块硬度累计进度，并非无条件秒破。Hypixel 检查床两半的上、北、南、东、西五面，存在空气便直接挖床，否则选择预计挖掘时间最短的范围内防护块，同速时优先距离近者；脚下空气不算露床。Legit 沿眼睛至床中心的世界射线选择第一个阻挡方块。Instant/Hypixel 对目标形状直接射线检测，允许遮挡；Legit 同时检查世界遮挡。 | 模式；默认 Hypixel；可选 Instant / Hypixel / Legit |
+| RotationMode | Normal 全程瞄准；Snap 在开始和即将完成时瞄准，中间释放旋转。使用 3×3×3 采样寻找最近的可命中点，失败时退回中心；发送 START/STOP 前验证上一次实际发送的旋转与当前射线，避免源实现 Snap 完成时卡住。 | 模式；默认 Normal；可选 Normal / Snap |
+| SwingMode | Client 在开始和结束时，先发挖掘动作再本地挥手并发包；Server 仅发送主手挥手包。两种方式都在原版交互阶段、当前 tick 移动包之前执行。 | 模式；默认 Client；可选 Client / Server |
+| Teams | Hypixel 读取皮革头盔 DYED_COLOR，按 RGB 距离匹配 16 种床色并跳过同队床；合并浅绿/绿、淡蓝/青、浅灰/灰。无皮革头盔时不保护任何颜色；未染色皮革头盔按参考值 0xA06540 匹配。None 关闭颜色过滤。 | 模式；默认 Hypixel；可选 None / Hypixel |
+| Box | 分别开关填充和轮廓；填充透明度 80、轮廓透明度 160、线宽 2，当前目标随 HUD 主题色，已拆路径为白色。 | 布尔选项组 |
+| Fill | 绘制当前目标与已拆路径的半透明填充。 | 布尔；默认 true；属于 Box |
+| Outline | 绘制当前目标与已拆路径的半透明轮廓。 | 布尔；默认 true；属于 Box |
+| Range | 按玩家位置到方块中心计算扫描和挖掘范围，单位方块；实际射线也受同一距离上限限制。 | 数值；默认 4.5；0–7；步长 .01 |
+| Speed | 百分比，完成阈值为 1 − 0.3 × Speed/100：0 为完整原版进度，100 为 70% 进度。HUD 按此阈值归一化。 | 数值；默认 0；0–100；步长 1 |
+| Ignore Break Delay | 开启后下一 tick 可继续；关闭后每次完成破坏等待 4 个完整 tick。间隔仅在客户端 tick 开始时递减，完成当次交互不提前消耗一次，期间不旋转或发送挖掘包。 | 布尔；默认 true |
+| Priority | KillAura 对应本项目 Aura：Aura 有目标、候选目标或正在格挡时中止拆床。BedBreaker 对应原参考的 BedNuker：找到范围内床时 Aura 清理目标和格挡，并暂停攻击及旋转，拆床结束后恢复。 | 模式；默认 KillAura；可选 BedBreaker / KillAura |
+| Auto Tool | 开启时管理 AutoTool 的启用状态，并向它提交当前床/防护块目标；快捷栏按效率附魔、挖掘速度和工具适用性选槽，不受手动模式的按键、潜行或延迟限制。完成或中止时仅在仍持有模块选中槽位时切回；只关闭由 BedBreaker 自动开启的 AutoTool。此项关闭但 AutoTool 原本已开启时仍使用其工具能力，沿用参考语义。 | 布尔；默认 true |
+
 ## Maps
 
 打开 Jello Maps 并自动关闭模块开关。支持缩放、平移、右键新增/编辑路径点、列表定位、拖动排序和拖入垃圾桶删除；地图缓存仅采样已加载区块，不主动加载区块。地图与 HUD MiniMap 共用缓存，Maps 与 Waypoint 共用路径点存储。
