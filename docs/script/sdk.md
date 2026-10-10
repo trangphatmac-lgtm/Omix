@@ -869,6 +869,24 @@
 - `cn.omix.util.combat.projectile.ProjectileSlotState` — `public int flush(int current)`
 - `cn.omix.util.combat.projectile.ProjectileSlotState` — `public int release(int current)`
 - `cn.omix.util.combat.projectile.ProjectileSlotState` — `public void clear()`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `cn.omix.util.exploits.disabler.FullMovementDisabler`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public final class FullMovementDisabler implements DisablerMode, IMinecraft`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public FullMovementDisabler(IntSupplier activationKey)`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public boolean isAnchored()`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public void onEnable()`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public void onDisable()`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public void onWorld(WorldEvent event)`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public void onKey(KeyInputEvent event)`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public void onTick(TickEvent event)`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public void onMotion(MotionEvent event)`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public void onMove(MoveEvent event)`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public void onMoveInput(MoveInputEvent event)`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public void onPacket(PacketEvent event)`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public boolean onCorrection(PlayerPositionLookS2CPacket packet)`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public void onVelocity(EntityVelocityUpdateS2CPacket packet)`
+- `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public void onRender2D(Render2DEvent event)`
+- `cn.omix.util.exploits.disabler.FullMovementPackets` — `cn.omix.util.exploits.disabler.FullMovementPackets`
+- `cn.omix.util.exploits.disabler.FullMovementState` — `cn.omix.util.exploits.disabler.FullMovementState`
 - `cn.omix.util.exploits.disabler.HypixelDisabler` — `cn.omix.util.exploits.disabler.HypixelDisabler`
 - `cn.omix.util.exploits.disabler.HypixelDisabler` — `public final class HypixelDisabler implements DisablerMode, IMinecraft`
 - `cn.omix.util.exploits.disabler.HypixelDisabler` — `public void onPacket(PacketEvent event)`

@@ -6763,6 +6763,147 @@
     "line": 34
   },
   {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "FullMovementDisabler",
+    "signature": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java"
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "IMinecraft",
+    "signature": "public final class FullMovementDisabler implements DisablerMode, IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "FullMovementDisabler",
+    "signature": "public FullMovementDisabler(IntSupplier activationKey)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java",
+    "line": 46
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "isAnchored",
+    "signature": "public boolean isAnchored()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java",
+    "line": 50
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "onEnable",
+    "signature": "public void onEnable()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java",
+    "line": 55
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "onDisable",
+    "signature": "public void onDisable()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java",
+    "line": 61
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "onWorld",
+    "signature": "public void onWorld(WorldEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java",
+    "line": 68
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "onKey",
+    "signature": "public void onKey(KeyInputEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java",
+    "line": 73
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "onTick",
+    "signature": "public void onTick(TickEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java",
+    "line": 100
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "onMotion",
+    "signature": "public void onMotion(MotionEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java",
+    "line": 121
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "onMove",
+    "signature": "public void onMove(MoveEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java",
+    "line": 146
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "onMoveInput",
+    "signature": "public void onMoveInput(MoveInputEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java",
+    "line": 153
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "onPacket",
+    "signature": "public void onPacket(PacketEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java",
+    "line": 164
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "onCorrection",
+    "signature": "public boolean onCorrection(PlayerPositionLookS2CPacket packet)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java",
+    "line": 182
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "onVelocity",
+    "signature": "public void onVelocity(EntityVelocityUpdateS2CPacket packet)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java",
+    "line": 208
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
+    "name": "onRender2D",
+    "signature": "public void onRender2D(Render2DEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementDisabler.java",
+    "line": 212
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementPackets",
+    "name": "FullMovementPackets",
+    "signature": "cn.omix.util.exploits.disabler.FullMovementPackets",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementPackets.java"
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.FullMovementState",
+    "name": "FullMovementState",
+    "signature": "cn.omix.util.exploits.disabler.FullMovementState",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/FullMovementState.java"
+  },
+  {
     "owner": "cn.omix.util.exploits.disabler.HypixelDisabler",
     "name": "HypixelDisabler",
     "signature": "cn.omix.util.exploits.disabler.HypixelDisabler",

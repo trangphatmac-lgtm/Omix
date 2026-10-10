@@ -87,6 +87,8 @@ public class Scaffold extends Module {
     private boolean clutchTimedOut;
     private boolean hypixelTowerActive;
     private boolean hypixelTowerGrounded;
+    private boolean savedrayCast;
+    private Float savedrotationSpeed;
     private int oldSlot;
     private float savedDelay;
     private float savedTellyTick;
@@ -671,9 +673,13 @@ public class Scaffold extends Module {
         savedDelay = delay.getValue();
         savedTellyTick = tellyTick.getValue();
         savedRotationMode = rotationMode.getValue();
+        savedrayCast = rayCast.getValue();
+        savedrotationSpeed = rotationSpeed.getValue();
         delay.setValue(0);
         tellyTick.setValue(0);
         rotationMode.setValue("Nearest");
+        rayCast.setValue(false);
+        rotationSpeed.setValue(180);
         clutchStartedAt = System.nanoTime();
         clutchActive = true;
 
@@ -703,6 +709,8 @@ public class Scaffold extends Module {
         delay.setValue(savedDelay);
         tellyTick.setValue(savedTellyTick);
         rotationMode.setValue(savedRotationMode);
+        rayCast.setValue(savedrayCast);
+        rotationSpeed.setValue(savedrotationSpeed);
         savedRotationMode = null;
 
         Stuck stuck = getModule(Stuck.class);

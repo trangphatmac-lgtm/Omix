@@ -2,10 +2,12 @@ package injection;
 
 import cn.omix.util.ai.AiContainerTools;
 import cn.omix.event.impl.PlayerPositionLookEvent;
+import cn.omix.module.impl.exploits.Disabler;
 import cn.omix.util.IMinecraft;
 import cn.omix.util.world.AutoLSignals;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityDamageS2CPacket;
@@ -18,6 +20,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler implements IMinecraft {
+
+    @Inject(method = "onPlayerPositionLook", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/network/PacketApplyBatcher;)V",
+            shift = At.Shift.AFTER), cancellable = true)
+    private void omix$fullMovementCorrection(PlayerPositionLookS2CPacket packet, CallbackInfo ci) {
+        if (instance == null || instance.getModuleManager() == null) return;
+        Disabler disabler = instance.getModuleManager().getModule(Disabler.class);
+        if (disabler != null && disabler.handleFullMovementCorrection(packet)) ci.cancel();
+    }
+
+    @Inject(method = "onEntityVelocityUpdate", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/network/PacketApplyBatcher;)V",
+            shift = At.Shift.AFTER))
+    private void omix$fullMovementVelocity(EntityVelocityUpdateS2CPacket packet, CallbackInfo ci) {
+        if (instance == null || instance.getModuleManager() == null) return;
+        Disabler disabler = instance.getModuleManager().getModule(Disabler.class);
+        if (disabler != null) disabler.handleFullMovementVelocity(packet);
+    }
 
     // TAIL runs after forceMainThread and before the next packet can remove/reset the entity.
     @Inject(method = "onEntityStatus", at = @At("TAIL"))
