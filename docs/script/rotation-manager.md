@@ -35,8 +35,15 @@ public void onRotationRequest(RotationRequestEvent event) {
 | `movementCorrection` | 默认 None；可选 Silent、Strict、Prediction。它与 silent 独立：前者控制移动输入，后者控制镜头。 |
 | `axes` | 默认 BOTH；YAW_ONLY 保留镜头 pitch；PITCH_ONLY 从其他请求中选择优先级最高的 yaw 来源，没有来源则使用镜头 yaw。 |
 | `continuousYaw` | 默认 false；将 yaw 转为距离上一次发送角度最近的等价整圈表示，并在释放时保持连续。 |
+| `yawDirection` | 默认 `YawDirection.DEFAULT`，沿用最短路径；`LEFT` 强制 yaw 减小，`RIGHT` 强制 yaw 增大。通过 `.yawDirection(RotationRequest.YawDirection.RIGHT)` 指定。保持原目标朝向、速度、平滑及灵敏度处理；必要时沿较长路径旋转。显式方向优先于 continuousYaw 的最短等价角度归一化。旧构造器仍默认 DEFAULT。 |
 
-仲裁先选出一个总优先级最高的请求，使用该请求的速度、silent 和移动修正。仅当赢家是 PITCH_ONLY 时，才借用另一请求的目标 yaw 及连续性标志；低优先级的 pitch 请求不会覆盖高优先级的 BOTH/YAW_ONLY 请求。YAW_ONLY 始终保留镜头 pitch，不继承其他请求的 pitch；平滑阶段仍使用模块最初采样的 pitch 计算角度分配，平滑后再恢复镜头 pitch，与旧流程一致。非 silent 的 PITCH_ONLY 只同步镜头 pitch。
+仲裁先选出一个总优先级最高的请求，使用该请求的速度、silent 和移动修正。仅当赢家是 PITCH_ONLY 时，才借用另一请求的目标 yaw、方向及连续性标志；没有 yaw 来源时使用镜头 yaw 和 DEFAULT 方向。低优先级的 pitch 请求不会覆盖高优先级的 BOTH/YAW_ONLY 请求。YAW_ONLY 始终保留镜头 pitch，不继承其他请求的 pitch；平滑阶段仍使用模块最初采样的 pitch 计算角度分配，平滑后再恢复镜头 pitch，与旧流程一致。非 silent 的 PITCH_ONLY 只同步镜头 pitch。
+
+方向参数对当前请求生效，不负责统计轮次。Scaffold 的 `TellyRotationState` 为 Telly Bridge 每轮选择一次方向，覆盖转向放置目标及回到镜头前方的完整往返：Always Same 各轮去程、回程均沿首次方向，Always Change 在下一轮去程开始时才反向，该轮回程仍沿本轮方向。非放置阶段继续以原旋转速度请求回正，不因 canRotation=false 直接释放回镜头；放置门控仍由原逻辑决定。去程和回程分别记录到位状态，到位后恢复默认微调，避免灵敏度舍入或瞄准点小幅变化引发额外整圈。请求开启 continuousYaw，保留累积圈数。Telly Tick = 0 时仍按落地划分轮次。Clutch 期间强制 DEFAULT，不提交额外定向回正、不消耗交替轮次；模块关闭、切世界或模式/方向选项变化会清空历史。
+
+On tick 的放置后回正也使用本轮方向，同一轮内多次放置不触发 Always Change 交替。回正发送后将镜头 yaw 和 lastYaw 同步到等价的整圈表示，视线不变，避免后续原版移动包撤销累积圈数。没有对绝对 yaw 做 `% 360`。
+
+显式 LEFT/RIGHT 请求向 `RenderRotationEvent` 标记 `directionalYaw=true`，本地玩家 yaw 按实际累计角度线性插值，避免一次正向 180° 或大于 180° 的转动被最短角插值画成反向。事件原有双参数构造器保留，默认仍为原最短角插值。
 
 `RotationManager.getActiveRequest()` 可读取获胜请求（无请求时为 null），`isOwner(getName())` 可用于确保交互/数据包修正仍属于本模块。`isRotating()`、`getAppliedYaw(fallback)` 和现有旋转数组保留供消费方使用；消费方不应直接修改这些数组。原 `setRotations(...)` 已移除，新模块通过事件提交即可，无需修改管理器。
 
@@ -53,7 +60,7 @@ public void onRotationRequest(RotationRequestEvent event) {
 | AntiLava | 800 | 速度 180，移动修正跟随选项。 |
 | AutoBlockIn | 700 | 直接应用已平滑的角度，Silent 移动修正。 |
 | ScaffoldX | 600 | 速度、移动修正由模块提供。 |
-| Scaffold 持续旋转 | 500 | 速度、移动修正由模块提供。 |
+| Scaffold 持续旋转 | 500 | 速度、移动修正及 Telly 每轮转头方向由模块提供；Default 与 Clutch 使用默认方向。 |
 | ProjectileAura | 450 | 速度 180，静默、无移动修正；保留同一请求对象至下一次玩家更新，最多续交两个更新周期。执行前要求请求身份仍相同；交互期间临时应用已仲裁角度并在 finally 恢复镜头。 |
 | Aura | 400 | 速度、移动修正由模块提供。 |
 | ChestArua 自动 | 300 | 速度 180，保持 yaw 连续。 |
@@ -79,5 +86,7 @@ Multi 收到上一发 motion 后，客户端线程直接尝试连续使用；若
 ## 验证
 
 `RotationRequestTest` 覆盖优先级与稳定平局、同来源替换、单轴合成、连续性继承、参数验证、角度快照、显式零速平滑与立即应用的区分，以及真实 EventManager 注销监听后下一 tick 不再收到请求。
+
+方向相关测试覆盖默认值/旧构造器兼容、LEFT/RIGHT 跨整圈的角度等价与符号、PITCH_ONLY 对 yaw 方向的继承；`TellyRotationStateTest` 覆盖左右完整往返的同向累计圈数、整轮交替、非放置阶段回正、On tick 同轮多次往返、Telly Tick = 0、Clutch 绕过、状态重置、跨 ±180° 及两段转头的到位舍入。
 
 兼容性复核还将改造前的管理器与当前管理器、当前模块的请求回调放入隔离桩环境，固定随机增量，对照了 65,536 组模块启停与参数组合，包括 Look/Strafe/Jump/MoveInput/Render/Motion 消费、无请求及释放阶段，结果一致；NoFall Grim 发包回调与改造前文本一致。该对照检查平滑调用参数与调用顺序，未替代真实游戏的鼠标灵敏度、服务器或切世界联调。

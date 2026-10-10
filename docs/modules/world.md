@@ -42,6 +42,7 @@
 | Delay | 放置间隔，单位毫秒。 | 数值；默认 0；0–200；步长 10 |
 | Mode | Normal 连续搭路；Telly Bridge 按跳跃节奏。 | 模式；默认 Normal；可选 Normal / Telly Bridge |
 | Telly Tick | Telly 开始处理的 tick 阈值。 | 数值；默认 1；0–5；步长 1；显示条件：非 Mode = Normal |
+| Rotation Direction | Default 保持原有转头行为；Always Same 转向放置目标和回到前方均沿首次方向，连续各轮同向转动；Always Change 同一轮去程、回程同向，下一轮再反向。首次方向按原最短路径决定，非放置阶段继续提交回正请求；On tick 的放置后回正也遵循本轮方向。保留 yaw 累积圈数，到位后允许正常微调，避免额外整圈。Clutch 期间始终按 Default 执行且不计入方向轮次；关闭模块、切世界或切换模式/方向选项后重新记录。 | 模式；默认 Default；可选 Default / Always Same / Always Change；显示条件：Mode = Telly Bridge |
 | Rotation Mode | Normal、Facing、Hit Vec、Nearest、Hypixel 采用不同瞄准点算法；On tick 在移动 tick 应用旋转。 | 模式；默认 Normal；可选 Normal / Facing / Hit Vec / Nearest / Hypixel / On tick |
 | Shrink | 搜索命中点时的边缘收缩量。 | 数值；默认 .1；0–.45；步长 .01；显示条件：Rotation Mode = Nearest 或 Rotation Mode = Hypixel |
 | Rotation Speed | 转向最大角度步幅。 | 数值；默认 180；0–180；步长 5；显示条件：非 Rotation Mode = On tick |

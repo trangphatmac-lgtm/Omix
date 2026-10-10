@@ -7,7 +7,21 @@ import java.util.Objects;
 /** Immutable, client-thread rotation intent for one collection cycle. */
 public record RotationRequest(String owner, float yaw, float pitch, double speed, int priority,
                               boolean silent, MovementCorrection movementCorrection,
-                              Axes axes, boolean continuousYaw, boolean instant) {
+                              Axes axes, boolean continuousYaw, boolean instant, YawDirection yawDirection) {
+    public enum YawDirection {
+        DEFAULT, LEFT, RIGHT;
+
+        /** Minecraft yaw decreases to the left and increases to the right. */
+        public float delta(float from, float to) {
+            float delta = (to - from) % 360.0F;
+            if (delta >= 180.0F) delta -= 360.0F;
+            if (delta < -180.0F) delta += 360.0F;
+            if (this == LEFT && delta > 0.0F) delta -= 360.0F;
+            if (this == RIGHT && delta < 0.0F) delta += 360.0F;
+            return delta;
+        }
+    }
+
     public enum Axes {
         BOTH,
         /** Rotate yaw while preserving the camera's pitch. */
@@ -26,6 +40,15 @@ public record RotationRequest(String owner, float yaw, float pitch, double speed
         }
         Objects.requireNonNull(movementCorrection, "movementCorrection");
         Objects.requireNonNull(axes, "axes");
+        Objects.requireNonNull(yawDirection, "yawDirection");
+    }
+
+    /** Preserve the constructor used before explicit yaw directions were available. */
+    public RotationRequest(String owner, float yaw, float pitch, double speed, int priority,
+                           boolean silent, MovementCorrection movementCorrection,
+                           Axes axes, boolean continuousYaw, boolean instant) {
+        this(owner, yaw, pitch, speed, priority, silent, movementCorrection,
+                axes, continuousYaw, instant, YawDirection.DEFAULT);
     }
 
     public static Builder builder(String owner, float[] rotations, int priority) {
@@ -46,6 +69,7 @@ public record RotationRequest(String owner, float yaw, float pitch, double speed
         private Axes axes = Axes.BOTH;
         private boolean continuousYaw;
         private Boolean instant;
+        private YawDirection yawDirection = YawDirection.DEFAULT;
 
         private Builder(String owner, float yaw, float pitch, int priority) {
             this.owner = owner;
@@ -86,9 +110,15 @@ public record RotationRequest(String owner, float yaw, float pitch, double speed
             return this;
         }
 
+        public Builder yawDirection(YawDirection yawDirection) {
+            this.yawDirection = yawDirection;
+            return this;
+        }
+
         public RotationRequest build() {
             return new RotationRequest(owner, yaw, pitch, speed, priority, silent,
-                    movementCorrection, axes, continuousYaw, instant == null ? speed == 0.0 : instant);
+                    movementCorrection, axes, continuousYaw, instant == null ? speed == 0.0 : instant,
+                    yawDirection);
         }
     }
 }

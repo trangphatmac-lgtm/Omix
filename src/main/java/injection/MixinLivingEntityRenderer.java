@@ -68,7 +68,9 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
             instance.getEventManager().call(event);
         }
 
-        return MathHelper.lerpAngleDegrees(delta, event.getLastRotation()[0], event.getRotation()[0]);
+        return event.isDirectionalYaw()
+                ? MathHelper.lerp(delta, event.getLastRotation()[0], event.getRotation()[0])
+                : MathHelper.lerpAngleDegrees(delta, event.getLastRotation()[0], event.getRotation()[0]);
     }
 
     @Redirect(method = "updateRenderState(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getLerpedPitch(F)F"))

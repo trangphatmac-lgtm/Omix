@@ -24,6 +24,7 @@ public class RotationManager implements IMinecraft {
     private static RotationRequest activeRequest;
     private boolean continuousYawSelected;
     private boolean previousMotionUsedContinuousYaw;
+    private RotationRequest.YawDirection yawDirection = RotationRequest.YawDirection.DEFAULT;
 
     public RotationManager() {
         instance.getEventManager().register(this);
@@ -43,6 +44,7 @@ public class RotationManager implements IMinecraft {
         activeRequest = selection == null ? null : selection.request();
         enabled = activeRequest != null;
         continuousYawSelected = selection != null && selection.continuousYaw();
+        yawDirection = selection == null ? RotationRequest.YawDirection.DEFAULT : selection.yawDirection();
         if (enabled) correctMovement = activeRequest.movementCorrection();
 
         if (currentRotations == null) {
@@ -58,13 +60,17 @@ public class RotationManager implements IMinecraft {
             }
             currentRotations = activeRequest.instant()
                     ? targetRotations.clone()
-                    : RotationUtil.getSmoothRotation(lastRotations, targetRotations, activeRequest.speed() + Math.random());
+                    : RotationUtil.getSmoothRotation(lastRotations, targetRotations,
+                            activeRequest.speed() + Math.random(), yawDirection);
+            if (activeRequest.instant() && yawDirection != RotationRequest.YawDirection.DEFAULT) {
+                currentRotations[0] = lastRotations[0] + yawDirection.delta(lastRotations[0], targetRotations[0]);
+            }
             if (activeRequest.axes() == RotationRequest.Axes.YAW_ONLY) {
                 currentRotations[1] = mc.player.getPitch();
                 lastRotations[1] = mc.player.lastPitch;
                 targetRotations[1] = mc.player.getPitch();
             }
-            if (continuousYawSelected) {
+            if (continuousYawSelected && yawDirection == RotationRequest.YawDirection.DEFAULT) {
                 float sentYaw = ((ClientPlayerEntityAccessor) mc.player).getLastYaw();
                 currentRotations[0] = nearestYaw(sentYaw, currentRotations[0]);
             }
@@ -126,7 +132,8 @@ public class RotationManager implements IMinecraft {
                 e.setYaw(currentRotations[0]);
                 e.setPitch(currentRotations[1]);
             }
-            if (continuousYawSelected || previousMotionUsedContinuousYaw) {
+            if ((continuousYawSelected || previousMotionUsedContinuousYaw)
+                    && (!enabled || yawDirection == RotationRequest.YawDirection.DEFAULT)) {
                 float yaw = nearestYaw(
                         ((ClientPlayerEntityAccessor) mc.player).getLastYaw(), e.getYaw());
                 e.setYaw(yaw);
@@ -163,6 +170,7 @@ public class RotationManager implements IMinecraft {
         if (canRotation()) {
             e.setRotation(currentRotations);
             e.setLastRotation(lastRotations);
+            e.setDirectionalYaw(yawDirection != RotationRequest.YawDirection.DEFAULT);
         }
     }
 
@@ -172,6 +180,7 @@ public class RotationManager implements IMinecraft {
         currentRotations = targetRotations = lastRotations = null;
         correctMovement = MovementCorrection.None;
         continuousYawSelected = previousMotionUsedContinuousYaw = false;
+        yawDirection = RotationRequest.YawDirection.DEFAULT;
     }
 
     /** Keep the nearest equivalent full-turn representation on acquisition and release. */

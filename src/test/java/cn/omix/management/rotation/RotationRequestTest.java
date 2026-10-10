@@ -9,6 +9,57 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RotationRequestTest {
+    @Test
+    void directionDefaultsRemainCompatibleWithExistingRequests() {
+        assertEquals(RotationRequest.YawDirection.DEFAULT, request("Scaffold", 500, 90, 45).build().yawDirection());
+        assertEquals(RotationRequest.YawDirection.DEFAULT, new RotationRequest("Legacy", 90, 45, 180, 500,
+                true, MovementCorrection.None, RotationRequest.Axes.BOTH, false, false).yawDirection());
+        assertThrows(NullPointerException.class, () -> request("Bad", 0, 0, 0).yawDirection(null).build());
+    }
+
+    @Test
+    void explicitDirectionsKeepTheSameDestinationAcrossFullTurns() {
+        for (float from : new float[]{-720, -181, -180, -90, 0, 90, 179, 180, 359, 720}) {
+            for (float to : new float[]{-720, -181, -180, -90, 0, 90, 179, 180, 359, 720}) {
+                for (var direction : RotationRequest.YawDirection.values()) {
+                    float delta = direction.delta(from, to);
+                    assertEquals(0, RotationRequest.YawDirection.DEFAULT.delta(from + delta, to), 0.0001F);
+                    switch (direction) {
+                        case DEFAULT -> assertTrue(delta >= -180 && delta < 180);
+                        case LEFT -> assertTrue(delta > -360 && delta <= 0);
+                        case RIGHT -> assertTrue(delta >= 0 && delta < 360);
+                    }
+                }
+            }
+        }
+        assertEquals(-180, RotationRequest.YawDirection.DEFAULT.delta(0, 180));
+        assertEquals(180, RotationRequest.YawDirection.RIGHT.delta(0, 180));
+        assertEquals(190, RotationRequest.YawDirection.RIGHT.delta(0, -170));
+        assertEquals(-190, RotationRequest.YawDirection.LEFT.delta(0, 170));
+    }
+
+    @Test
+    void pitchOnlyRequestsInheritTheYawSourcesDirection() {
+        RotationRequestEvent event = new RotationRequestEvent();
+        event.submit(request("Scaffold", 500, -170, 75)
+                .yawDirection(RotationRequest.YawDirection.RIGHT).build());
+        assertEquals(RotationRequest.YawDirection.RIGHT, event.resolve(0, 0).yawDirection());
+
+        event = new RotationRequestEvent();
+        event.submit(request("Scaffold", 500, -170, 75)
+                .yawDirection(RotationRequest.YawDirection.RIGHT).build());
+        event.submit(request("NoFall", 1100, 0, 90).axes(RotationRequest.Axes.PITCH_ONLY)
+                .yawDirection(RotationRequest.YawDirection.LEFT).build());
+        var selected = event.resolve(0, 0);
+        assertEquals(RotationRequest.YawDirection.RIGHT, selected.yawDirection());
+        assertArrayEquals(new float[]{-170, 90}, selected.rotations());
+
+        event = new RotationRequestEvent();
+        event.submit(request("Pitch", 1100, 0, 90).axes(RotationRequest.Axes.PITCH_ONLY)
+                .yawDirection(RotationRequest.YawDirection.LEFT).build());
+        assertEquals(RotationRequest.YawDirection.DEFAULT, event.resolve(20, 0).yawDirection());
+    }
+
     private static RotationRequest.Builder request(String owner, int priority, float yaw, float pitch) {
         return RotationRequest.builder(owner, new float[]{yaw, pitch}, priority);
     }

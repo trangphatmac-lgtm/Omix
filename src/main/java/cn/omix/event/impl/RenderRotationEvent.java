@@ -13,4 +13,9 @@ public class RenderRotationEvent extends Event {
    public static Entity currentEntity;
    private float[] rotation;
    private float[] lastRotation;
+   private boolean directionalYaw;
+
+   public RenderRotationEvent(float[] rotation, float[] lastRotation) {
+      this(rotation, lastRotation, false);
+   }
 }
