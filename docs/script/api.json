@@ -2780,6 +2780,14 @@
   },
   {
     "owner": "cn.omix.event.impl.RenderRotationEvent",
+    "name": "RenderRotationEvent",
+    "signature": "public RenderRotationEvent(float[] rotation, float[] lastRotation)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/event/impl/RenderRotationEvent.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.event.impl.RenderRotationEvent",
     "name": "getRotation",
     "signature": "public float[] getRotation()",
     "kind": "generated-accessor",
@@ -2803,6 +2811,20 @@
     "owner": "cn.omix.event.impl.RenderRotationEvent",
     "name": "setLastRotation",
     "signature": "public void setLastRotation(float[] lastRotation)",
+    "kind": "generated-accessor",
+    "source": "src/main/java/cn/omix/event/impl/RenderRotationEvent.java"
+  },
+  {
+    "owner": "cn.omix.event.impl.RenderRotationEvent",
+    "name": "isDirectionalYaw",
+    "signature": "public boolean isDirectionalYaw()",
+    "kind": "generated-accessor",
+    "source": "src/main/java/cn/omix/event/impl/RenderRotationEvent.java"
+  },
+  {
+    "owner": "cn.omix.event.impl.RenderRotationEvent",
+    "name": "setDirectionalYaw",
+    "signature": "public void setDirectionalYaw(boolean directionalYaw)",
     "kind": "generated-accessor",
     "source": "src/main/java/cn/omix/event/impl/RenderRotationEvent.java"
   },
@@ -2855,10 +2877,18 @@
   {
     "owner": "cn.omix.event.impl.RotationRequestEvent",
     "name": "Selection",
-    "signature": "public record Selection(RotationRequest request, float yaw, float pitch, boolean continuousYaw)",
+    "signature": "public record Selection(RotationRequest request, float yaw, float pitch, boolean continuousYaw, RotationRequest.YawDirection yawDirection)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/event/impl/RotationRequestEvent.java",
-    "line": 46
+    "line": 48
+  },
+  {
+    "owner": "cn.omix.event.impl.RotationRequestEvent.Selection",
+    "name": "Selection",
+    "signature": "public Selection(RotationRequest request, float yaw, float pitch, boolean continuousYaw)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/event/impl/RotationRequestEvent.java",
+    "line": 50
   },
   {
     "owner": "cn.omix.event.impl.RotationRequestEvent.Selection",
@@ -2866,7 +2896,7 @@
     "signature": "public float[] rotations()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/event/impl/RotationRequestEvent.java",
-    "line": 47
+    "line": 54
   },
   {
     "owner": "cn.omix.event.impl.SlowEvent",
@@ -3587,7 +3617,7 @@
     "signature": "public RotationManager()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 28
+    "line": 29
   },
   {
     "owner": "cn.omix.management.RotationManager",
@@ -3595,7 +3625,7 @@
     "signature": "public void onLivingUpdate(LivingUpdateEvent event)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 34
+    "line": 35
   },
   {
     "owner": "cn.omix.management.RotationManager",
@@ -3603,7 +3633,7 @@
     "signature": "public void onLook(LookEvent e)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 84
+    "line": 90
   },
   {
     "owner": "cn.omix.management.RotationManager",
@@ -3611,7 +3641,7 @@
     "signature": "public void onStrafe(StrafeEvent e)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 95
+    "line": 101
   },
   {
     "owner": "cn.omix.management.RotationManager",
@@ -3619,7 +3649,7 @@
     "signature": "public void onJump(JumpEvent e)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 105
+    "line": 111
   },
   {
     "owner": "cn.omix.management.RotationManager",
@@ -3627,7 +3657,7 @@
     "signature": "public void onMotion(MotionEvent e)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 117
+    "line": 123
   },
   {
     "owner": "cn.omix.management.RotationManager",
@@ -3635,7 +3665,7 @@
     "signature": "public void onWorld(WorldEvent event)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 146
+    "line": 153
   },
   {
     "owner": "cn.omix.management.RotationManager",
@@ -3643,7 +3673,7 @@
     "signature": "public void onMoveInput(MoveInputEvent e)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 152
+    "line": 159
   },
   {
     "owner": "cn.omix.management.RotationManager",
@@ -3651,7 +3681,7 @@
     "signature": "public void onRotation(RenderRotationEvent e)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 160
+    "line": 167
   },
   {
     "owner": "cn.omix.management.RotationManager",
@@ -3659,7 +3689,7 @@
     "signature": "public static RotationRequest getActiveRequest()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 185
+    "line": 194
   },
   {
     "owner": "cn.omix.management.RotationManager",
@@ -3667,7 +3697,7 @@
     "signature": "public static void release(RotationRequest request)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 190
+    "line": 199
   },
   {
     "owner": "cn.omix.management.RotationManager",
@@ -3675,7 +3705,7 @@
     "signature": "public static boolean isOwner(String owner)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 197
+    "line": 206
   },
   {
     "owner": "cn.omix.management.RotationManager",
@@ -3683,7 +3713,7 @@
     "signature": "public static boolean isRotating()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 205
+    "line": 214
   },
   {
     "owner": "cn.omix.management.RotationManager",
@@ -3691,7 +3721,7 @@
     "signature": "public static float getAppliedYaw(float fallback)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/RotationManager.java",
-    "line": 209
+    "line": 218
   },
   {
     "owner": "cn.omix.management.TargetManager",
@@ -3930,10 +3960,26 @@
   {
     "owner": "cn.omix.management.rotation.RotationRequest",
     "name": "RotationRequest",
-    "signature": "public record RotationRequest(String owner, float yaw, float pitch, double speed, int priority, boolean silent, MovementCorrection movementCorrection, Axes axes, boolean continuousYaw, boolean instant)",
+    "signature": "public record RotationRequest(String owner, float yaw, float pitch, double speed, int priority, boolean silent, MovementCorrection movementCorrection, Axes axes, boolean continuousYaw, boolean instant, YawDirection yawDirection)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
     "line": 8
+  },
+  {
+    "owner": "cn.omix.management.rotation.RotationRequest",
+    "name": "YawDirection",
+    "signature": "public enum YawDirection",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.management.rotation.RotationRequest.YawDirection",
+    "name": "delta",
+    "signature": "public float delta(float from, float to)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
+    "line": 15
   },
   {
     "owner": "cn.omix.management.rotation.RotationRequest",
@@ -3941,7 +3987,7 @@
     "signature": "public enum Axes",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
-    "line": 11
+    "line": 25
   },
   {
     "owner": "cn.omix.management.rotation.RotationRequest",
@@ -3949,7 +3995,15 @@
     "signature": "public RotationRequest",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
-    "line": 19
+    "line": 33
+  },
+  {
+    "owner": "cn.omix.management.rotation.RotationRequest",
+    "name": "RotationRequest",
+    "signature": "public RotationRequest(String owner, float yaw, float pitch, double speed, int priority, boolean silent, MovementCorrection movementCorrection, Axes axes, boolean continuousYaw, boolean instant)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
+    "line": 47
   },
   {
     "owner": "cn.omix.management.rotation.RotationRequest",
@@ -3957,7 +4011,7 @@
     "signature": "public static Builder builder(String owner, float[] rotations, int priority)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
-    "line": 31
+    "line": 54
   },
   {
     "owner": "cn.omix.management.rotation.RotationRequest",
@@ -3965,7 +4019,7 @@
     "signature": "public static final class Builder",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
-    "line": 38
+    "line": 61
   },
   {
     "owner": "cn.omix.management.rotation.RotationRequest.Builder",
@@ -3973,7 +4027,7 @@
     "signature": "public Builder speed(double speed)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
-    "line": 58
+    "line": 82
   },
   {
     "owner": "cn.omix.management.rotation.RotationRequest.Builder",
@@ -3981,7 +4035,7 @@
     "signature": "public Builder silent(boolean silent)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
-    "line": 63
+    "line": 87
   },
   {
     "owner": "cn.omix.management.rotation.RotationRequest.Builder",
@@ -3989,7 +4043,7 @@
     "signature": "public Builder instant(boolean instant)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
-    "line": 69
+    "line": 93
   },
   {
     "owner": "cn.omix.management.rotation.RotationRequest.Builder",
@@ -3997,7 +4051,7 @@
     "signature": "public Builder movementCorrection(MovementCorrection correction)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
-    "line": 74
+    "line": 98
   },
   {
     "owner": "cn.omix.management.rotation.RotationRequest.Builder",
@@ -4005,7 +4059,7 @@
     "signature": "public Builder axes(Axes axes)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
-    "line": 79
+    "line": 103
   },
   {
     "owner": "cn.omix.management.rotation.RotationRequest.Builder",
@@ -4013,7 +4067,15 @@
     "signature": "public Builder continuousYaw(boolean continuousYaw)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
-    "line": 84
+    "line": 108
+  },
+  {
+    "owner": "cn.omix.management.rotation.RotationRequest.Builder",
+    "name": "yawDirection",
+    "signature": "public Builder yawDirection(YawDirection yawDirection)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
+    "line": 113
   },
   {
     "owner": "cn.omix.management.rotation.RotationRequest.Builder",
@@ -4021,7 +4083,7 @@
     "signature": "public RotationRequest build()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/management/rotation/RotationRequest.java",
-    "line": 89
+    "line": 118
   },
   {
     "owner": "cn.omix.fisproxy.FisProxyConfig",
@@ -15883,7 +15945,7 @@
     "signature": "public class RotationUtil implements IMinecraft",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 14
+    "line": 15
   },
   {
     "owner": "cn.omix.util.player.RotationUtil",
@@ -15891,7 +15953,7 @@
     "signature": "public static float[] nearestRotation(final Box box)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 16
+    "line": 17
   },
   {
     "owner": "cn.omix.util.player.RotationUtil",
@@ -15899,7 +15961,7 @@
     "signature": "public static Vec3d getNearestPointBB(Box box)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 23
+    "line": 24
   },
   {
     "owner": "cn.omix.util.player.RotationUtil",
@@ -15907,7 +15969,7 @@
     "signature": "public static boolean isVisible(Vec3d targetVec)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 65
+    "line": 66
   },
   {
     "owner": "cn.omix.util.player.RotationUtil",
@@ -15915,7 +15977,7 @@
     "signature": "public static float getDistanceToEntity(LivingEntity target)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 77
+    "line": 78
   },
   {
     "owner": "cn.omix.util.player.RotationUtil",
@@ -15923,7 +15985,7 @@
     "signature": "public static double getRotationDifference(LivingEntity entity)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 85
+    "line": 86
   },
   {
     "owner": "cn.omix.util.player.RotationUtil",
@@ -15931,7 +15993,7 @@
     "signature": "public static float[] getRotations(BlockPos pos)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 98
+    "line": 99
   },
   {
     "owner": "cn.omix.util.player.RotationUtil",
@@ -15939,7 +16001,7 @@
     "signature": "public static float[] getRotations(BlockPos pos, Direction facing)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 103
+    "line": 104
   },
   {
     "owner": "cn.omix.util.player.RotationUtil",
@@ -15947,7 +16009,7 @@
     "signature": "public static float[] getRotations(Vec3d target)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 113
+    "line": 114
   },
   {
     "owner": "cn.omix.util.player.RotationUtil",
@@ -15955,7 +16017,7 @@
     "signature": "public static float[] getRotations(Vec3d origin, Vec3d target)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 118
+    "line": 119
   },
   {
     "owner": "cn.omix.util.player.RotationUtil",
@@ -15963,7 +16025,7 @@
     "signature": "public static float[] getRotations(double rotX, double rotY, double rotZ, double startX, double startY, double startZ)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 122
+    "line": 123
   },
   {
     "owner": "cn.omix.util.player.RotationUtil",
@@ -15971,7 +16033,7 @@
     "signature": "public static float[] getNearestRotation(BlockPos pos, Direction facing, float[] currentRotation, double shrink)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 132
+    "line": 133
   },
   {
     "owner": "cn.omix.util.player.RotationUtil",
@@ -15979,7 +16041,15 @@
     "signature": "public static float[] getSmoothRotation(float[] lastRotation, float[] targetRotation, double speed)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 219
+    "line": 220
+  },
+  {
+    "owner": "cn.omix.util.player.RotationUtil",
+    "name": "getSmoothRotation",
+    "signature": "public static float[] getSmoothRotation(float[] lastRotation, float[] targetRotation, double speed, YawDirection direction)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
+    "line": 224
   },
   {
     "owner": "cn.omix.util.player.RotationUtil",
@@ -15987,7 +16057,7 @@
     "signature": "public static float[] applySensitivityPatch(float[] rotations)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 271
+    "line": 280
   },
   {
     "owner": "cn.omix.util.player.RotationUtil",
@@ -15995,7 +16065,7 @@
     "signature": "public static float[] applySensitivityPatch(float[] rotation, float[] previousRotation)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 278
+    "line": 287
   },
   {
     "owner": "cn.omix.util.player.RotationUtil",
@@ -16003,7 +16073,7 @@
     "signature": "public static Vec3d getVectorForRotation(float yaw, float pitch)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/RotationUtil.java",
-    "line": 286
+    "line": 295
   },
   {
     "owner": "cn.omix.util.player.blockin.BlockInPlanner",
@@ -21984,6 +22054,69 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/world/ScaffoldMutex.java",
     "line": 12
+  },
+  {
+    "owner": "cn.omix.util.world.TellyRotationState",
+    "name": "TellyRotationState",
+    "signature": "cn.omix.util.world.TellyRotationState",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/TellyRotationState.java"
+  },
+  {
+    "owner": "cn.omix.util.world.TellyRotationState",
+    "name": "TellyRotationState",
+    "signature": "public final class TellyRotationState",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/TellyRotationState.java",
+    "line": 6
+  },
+  {
+    "owner": "cn.omix.util.world.TellyRotationState",
+    "name": "update",
+    "signature": "public void update(String selectedMode, boolean tellyBridge, boolean clutchActive, boolean canRotate, int offGroundTicks)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/TellyRotationState.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.world.TellyRotationState",
+    "name": "isActive",
+    "signature": "public boolean isActive()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/TellyRotationState.java",
+    "line": 32
+  },
+  {
+    "owner": "cn.omix.util.world.TellyRotationState",
+    "name": "shouldReturn",
+    "signature": "public boolean shouldReturn()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/TellyRotationState.java",
+    "line": 36
+  },
+  {
+    "owner": "cn.omix.util.world.TellyRotationState",
+    "name": "direction",
+    "signature": "public YawDirection direction(float currentYaw, float requestedYaw)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/TellyRotationState.java",
+    "line": 40
+  },
+  {
+    "owner": "cn.omix.util.world.TellyRotationState",
+    "name": "returnDirection",
+    "signature": "public YawDirection returnDirection(float currentYaw, float cameraYaw)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/TellyRotationState.java",
+    "line": 57
+  },
+  {
+    "owner": "cn.omix.util.world.TellyRotationState",
+    "name": "reset",
+    "signature": "public void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/TellyRotationState.java",
+    "line": 82
   },
   {
     "owner": "cn.omix.util.world.VictorySignalMatcher",

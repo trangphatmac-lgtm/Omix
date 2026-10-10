@@ -59,7 +59,7 @@ Web 和 Node 相关源码统一位于项目根目录 `src-web/`：`webui/`、`mu
 | `world/bed/` | `BedBreakerTargeting`、`BedBreakerProgress`、`BedBreakerDigging`、`BedBreakerTeams`、`BedBreakerAim`（床/防护块选择、挖掘阈值与间隔、交互阶段挖掘动作、头盔队伍颜色、目标射线） |
 | `player/blockin/` | `BlockInPlanner` |
 | `player/chest/` | `ChestScreenState`、`ChestScreenGuard`、`ChestInteractionState` |
-| `world/` | `ScaffoldMutex`、`VictorySignalMatcher` |
+| `world/` | `ScaffoldMutex`、`TellyRotationState`、`VictorySignalMatcher` |
 | `opai/` | Opai / Neverlose 设置适配、绘制、配置、六种 HUD、DynamicIsland 与编辑器 |
 | `skeet/` | Gamesense 界面的布局、字体绘制、设置适配、文本编辑和本地配置面板 |
 | `setsuna/` | Pop 环形菜单的布局、原生圆角绘制、设置适配和文本编辑 |

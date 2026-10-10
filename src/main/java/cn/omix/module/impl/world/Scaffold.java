@@ -24,6 +24,7 @@ import cn.omix.util.misc.TimerUtil;
 import cn.omix.util.network.PacketUtil;
 import cn.omix.util.player.*;
 import cn.omix.util.world.ScaffoldMutex;
+import cn.omix.util.world.TellyRotationState;
 import injection.accessor.ClientPlayerEntityAccessor;
 import lombok.Getter;
 import net.minecraft.block.BlockState;
@@ -50,6 +51,8 @@ public class Scaffold extends Module {
     public static NumberValue delay = new NumberValue("Delay", 0, 0, 200, 10);
     private final ModeValue mode = new ModeValue("Mode", "Normal", "Normal", "Telly Bridge");
     private final NumberValue tellyTick = new NumberValue("Telly Tick", 1, 0, 5, 1, () -> !mode.is("Normal"));
+    private final ModeValue rotationDirection = new ModeValue("Rotation Direction", "Default",
+            () -> mode.is("Telly Bridge"), "Default", "Always Same", "Always Change");
     private final ModeValue rotationMode = new ModeValue("Rotation Mode", "Normal", "Normal", "Facing", "Hit Vec", "Nearest", "Hypixel", "On tick");
     private final NumberValue shrink = new NumberValue("Shrink", .1f, 0, .45f, .01f, () -> rotationMode.is("Nearest") || rotationMode.is("Hypixel"));
     private final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 180, 0, 180, 5, () -> !rotationMode.is("On tick"));
@@ -81,6 +84,7 @@ public class Scaffold extends Module {
     private final NumberValue clutchGroundDistance = new NumberValue("Clutch Ground Distance", 3, 1, 20, 1, clutch::getValue);
     private final NumberValue clutchStuckTime = new NumberValue("Clutch Stuck Time (s)", 5.0F, .5F, 30.0F, .5F, clutch::getValue);
     private final TimerUtil delayTimer = new TimerUtil();
+    private final TellyRotationState tellyRotationState = new TellyRotationState();
     private boolean canRotation;
     private boolean canPlace;
     private boolean clutchActive;
@@ -109,6 +113,7 @@ public class Scaffold extends Module {
         ScaffoldMutex.activate(getModule(ScaffoldX.class));
         rotations = null;
         onTickServerRotations = null;
+        tellyRotationState.reset();
         if (mc.player == null || mc.world == null) return;
 
         oldSlot = mc.player.getInventory().getSelectedSlot();
@@ -122,6 +127,7 @@ public class Scaffold extends Module {
     public void onDisable() {
         rotations = null;
         onTickServerRotations = null;
+        tellyRotationState.reset();
         stopClutch(true);
         clutchTimedOut = false;
         resetTowerState();
@@ -140,10 +146,18 @@ public class Scaffold extends Module {
     @EventTarget
     public void onRotationRequest(RotationRequestEvent event) {
         if (!isNativeBehaviorActive() || mc.player == null || mc.world == null) return;
-        if (rotationMode.is("On tick") || !isCanRotation() || rotations == null) return;
-        event.submit(RotationRequest.builder(getName(), rotations, 500)
+        if (rotationMode.is("On tick")) return;
+        boolean returning = !isCanRotation() && tellyRotationState.shouldReturn();
+        if (!returning && (!isCanRotation() || rotations == null)) return;
+        float[] target = returning ? new float[]{mc.player.getYaw(), mc.player.getPitch()} : rotations;
+        float currentYaw = RotationManager.currentRotations == null
+                ? mc.player.getYaw() : RotationManager.currentRotations[0];
+        event.submit(RotationRequest.builder(getName(), target, 500)
                 .speed(getRotationSpeed())
                 .instant(false) // Preserve smoothing when the configured speed is zero.
+                .yawDirection(returning ? tellyRotationState.returnDirection(currentYaw, target[0])
+                        : tellyRotationState.direction(currentYaw, target[0]))
+                .continuousYaw(tellyRotationState.isActive())
                 .movementCorrection(movementFix.getValue() ? MovementCorrection.Silent : MovementCorrection.None)
                 .build());
     }
@@ -152,6 +166,7 @@ public class Scaffold extends Module {
     public void onWorld(WorldEvent event) {
         rotations = null;
         onTickServerRotations = null;
+        tellyRotationState.reset();
         stopClutch(false);
         clutchTimedOut = false;
         resetTowerState();
@@ -202,6 +217,8 @@ public class Scaffold extends Module {
             case "Normal" -> canRotation = canPlace = true;
             case "Telly Bridge" -> canRotation = canPlace = Util.offGroundTicks >= tellyTick.getValue().intValue() || !MovementUtil.isMoving();
         }
+        tellyRotationState.update(rotationDirection.getValue(), mode.is("Telly Bridge"), clutchActive,
+                canRotation, Util.offGroundTicks);
 
         if (!skipTowerPlacement && canPlace && data != null) {
             if (rotationMode.is("On tick")) {
@@ -401,7 +418,10 @@ public class Scaffold extends Module {
         // vanilla mouse sensitivity step, relative to the active/client rotation.
         double sensitivity = mc.options.getMouseSensitivity().getValue() * 0.6 + 0.2;
         double gcd = (float) (sensitivity * sensitivity * sensitivity * 8.0) * 0.15F;
-        float yaw = base[0] + (float) (Math.round(MathHelper.wrapDegrees(target[0] - base[0]) / gcd) * gcd);
+        RotationRequest.YawDirection direction = tellyRotationState.direction(base[0], target[0]);
+        float deltaYaw = direction == RotationRequest.YawDirection.DEFAULT
+                ? MathHelper.wrapDegrees(target[0] - base[0]) : direction.delta(base[0], target[0]);
+        float yaw = base[0] + (float) (Math.round(deltaYaw / gcd) * gcd);
         float pitch = MathHelper.clamp(base[1] + (float) (Math.round(MathHelper.wrapDegrees(target[1] - base[1]) / gcd) * gcd), -90.0F, 90.0F);
         return new float[]{yaw, pitch};
     }
@@ -453,8 +473,17 @@ public class Scaffold extends Module {
             place(hit.getBlockPos(), hit.getSide(), hit.getPos());
         } finally {
             if (!matchesOnTickServerRotation(mc.player.getYaw(), mc.player.getPitch())) {
-                float restoreYaw = target[0] + MathHelper.wrapDegrees(mc.player.getYaw() - target[0]);
+                RotationRequest.YawDirection direction = tellyRotationState.returnDirection(target[0], mc.player.getYaw());
+                float restoreYaw = target[0] + (direction == RotationRequest.YawDirection.DEFAULT
+                        ? MathHelper.wrapDegrees(mc.player.getYaw() - target[0])
+                        : direction.delta(target[0], mc.player.getYaw()));
                 sendOnTickRotation(restoreYaw, mc.player.getPitch());
+                if (tellyRotationState.isActive()) {
+                    // Preserve full turns on the following vanilla packet without moving the camera's view.
+                    float offset = restoreYaw - mc.player.getYaw();
+                    mc.player.setYaw(restoreYaw);
+                    mc.player.lastYaw += offset;
+                }
             }
         }
         return true;

@@ -1,5 +1,6 @@
 package cn.omix.util.player;
 
+import cn.omix.management.rotation.RotationRequest.YawDirection;
 import cn.omix.util.IMinecraft;
 import injection.accessor.EntityAccessor;
 import lombok.experimental.UtilityClass;
@@ -217,7 +218,13 @@ public class RotationUtil implements IMinecraft {
     }
 
     public float[] getSmoothRotation(float[] lastRotation, float[] targetRotation, double speed) {
-        float yaw = targetRotation[0];
+        return getSmoothRotation(lastRotation, targetRotation, speed, YawDirection.DEFAULT);
+    }
+
+    public float[] getSmoothRotation(float[] lastRotation, float[] targetRotation, double speed,
+                                    YawDirection direction) {
+        float yaw = direction == YawDirection.DEFAULT ? targetRotation[0]
+                : lastRotation[0] + direction.delta(lastRotation[0], targetRotation[0]);
         float pitch = targetRotation[1];
         float lastYaw = lastRotation[0];
         float lastPitch = lastRotation[1];
@@ -228,7 +235,9 @@ public class RotationUtil implements IMinecraft {
 
         if (speed != 0) {
             float rotationSpeed = (float) speed;
-            double deltaYaw = MathHelper.wrapDegrees(targetRotation[0] - lastRotation[0]);
+            double deltaYaw = direction == YawDirection.DEFAULT
+                    ? MathHelper.wrapDegrees(targetRotation[0] - lastRotation[0])
+                    : direction.delta(lastRotation[0], targetRotation[0]);
             double deltaPitch = pitch - lastPitch;
             double distance = Math.sqrt(deltaYaw * deltaYaw + deltaPitch * deltaPitch);
 

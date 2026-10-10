@@ -361,17 +361,21 @@
 - `cn.omix.event.impl.RenderRotationEvent` — `cn.omix.event.impl.RenderRotationEvent`
 - `cn.omix.event.impl.RenderRotationEvent` — `public class RenderRotationEvent extends Event`
 - `cn.omix.event.impl.RenderRotationEvent` — `public static Entity currentEntity`
+- `cn.omix.event.impl.RenderRotationEvent` — `public RenderRotationEvent(float[] rotation, float[] lastRotation)`
 - `cn.omix.event.impl.RenderRotationEvent` — `public float[] getRotation()`
 - `cn.omix.event.impl.RenderRotationEvent` — `public void setRotation(float[] rotation)`
 - `cn.omix.event.impl.RenderRotationEvent` — `public float[] getLastRotation()`
 - `cn.omix.event.impl.RenderRotationEvent` — `public void setLastRotation(float[] lastRotation)`
+- `cn.omix.event.impl.RenderRotationEvent` — `public boolean isDirectionalYaw()`
+- `cn.omix.event.impl.RenderRotationEvent` — `public void setDirectionalYaw(boolean directionalYaw)`
 - `cn.omix.event.impl.RotationAppliedEvent` — `cn.omix.event.impl.RotationAppliedEvent`
 - `cn.omix.event.impl.RotationAppliedEvent` — `public final class RotationAppliedEvent extends Event`
 - `cn.omix.event.impl.RotationRequestEvent` — `cn.omix.event.impl.RotationRequestEvent`
 - `cn.omix.event.impl.RotationRequestEvent` — `public final class RotationRequestEvent extends Event`
 - `cn.omix.event.impl.RotationRequestEvent` — `public void submit(RotationRequest request)`
 - `cn.omix.event.impl.RotationRequestEvent` — `public Selection resolve(float cameraYaw, float cameraPitch)`
-- `cn.omix.event.impl.RotationRequestEvent` — `public record Selection(RotationRequest request, float yaw, float pitch, boolean continuousYaw)`
+- `cn.omix.event.impl.RotationRequestEvent` — `public record Selection(RotationRequest request, float yaw, float pitch, boolean continuousYaw, RotationRequest.YawDirection yawDirection)`
+- `cn.omix.event.impl.RotationRequestEvent.Selection` — `public Selection(RotationRequest request, float yaw, float pitch, boolean continuousYaw)`
 - `cn.omix.event.impl.RotationRequestEvent.Selection` — `public float[] rotations()`
 - `cn.omix.event.impl.SlowEvent` — `cn.omix.event.impl.SlowEvent`
 - `cn.omix.event.impl.SlowEvent` — `public class SlowEvent extends Event`
@@ -509,9 +513,12 @@
 - `cn.omix.management.packet.impl.Delay` — `cn.omix.management.packet.impl.Delay`
 - `cn.omix.management.packet.impl.Delay` — `public final class Delay extends SubCore`
 - `cn.omix.management.rotation.RotationRequest` — `cn.omix.management.rotation.RotationRequest`
-- `cn.omix.management.rotation.RotationRequest` — `public record RotationRequest(String owner, float yaw, float pitch, double speed, int priority, boolean silent, MovementCorrection movementCorrection, Axes axes, boolean continuousYaw, boolean instant)`
+- `cn.omix.management.rotation.RotationRequest` — `public record RotationRequest(String owner, float yaw, float pitch, double speed, int priority, boolean silent, MovementCorrection movementCorrection, Axes axes, boolean continuousYaw, boolean instant, YawDirection yawDirection)`
+- `cn.omix.management.rotation.RotationRequest` — `public enum YawDirection`
+- `cn.omix.management.rotation.RotationRequest.YawDirection` — `public float delta(float from, float to)`
 - `cn.omix.management.rotation.RotationRequest` — `public enum Axes`
 - `cn.omix.management.rotation.RotationRequest` — `public RotationRequest`
+- `cn.omix.management.rotation.RotationRequest` — `public RotationRequest(String owner, float yaw, float pitch, double speed, int priority, boolean silent, MovementCorrection movementCorrection, Axes axes, boolean continuousYaw, boolean instant)`
 - `cn.omix.management.rotation.RotationRequest` — `public static Builder builder(String owner, float[] rotations, int priority)`
 - `cn.omix.management.rotation.RotationRequest` — `public static final class Builder`
 - `cn.omix.management.rotation.RotationRequest.Builder` — `public Builder speed(double speed)`
@@ -520,6 +527,7 @@
 - `cn.omix.management.rotation.RotationRequest.Builder` — `public Builder movementCorrection(MovementCorrection correction)`
 - `cn.omix.management.rotation.RotationRequest.Builder` — `public Builder axes(Axes axes)`
 - `cn.omix.management.rotation.RotationRequest.Builder` — `public Builder continuousYaw(boolean continuousYaw)`
+- `cn.omix.management.rotation.RotationRequest.Builder` — `public Builder yawDirection(YawDirection yawDirection)`
 - `cn.omix.management.rotation.RotationRequest.Builder` — `public RotationRequest build()`
 - `cn.omix.fisproxy.FisProxyConfig` — `cn.omix.fisproxy.FisProxyConfig`
 - `cn.omix.fisproxy.FisProxyConnector` — `cn.omix.fisproxy.FisProxyConnector`
@@ -2033,6 +2041,7 @@
 - `cn.omix.util.player.RotationUtil` — `public static float[] getRotations(double rotX, double rotY, double rotZ, double startX, double startY, double startZ)`
 - `cn.omix.util.player.RotationUtil` — `public static float[] getNearestRotation(BlockPos pos, Direction facing, float[] currentRotation, double shrink)`
 - `cn.omix.util.player.RotationUtil` — `public static float[] getSmoothRotation(float[] lastRotation, float[] targetRotation, double speed)`
+- `cn.omix.util.player.RotationUtil` — `public static float[] getSmoothRotation(float[] lastRotation, float[] targetRotation, double speed, YawDirection direction)`
 - `cn.omix.util.player.RotationUtil` — `public static float[] applySensitivityPatch(float[] rotations)`
 - `cn.omix.util.player.RotationUtil` — `public static float[] applySensitivityPatch(float[] rotation, float[] previousRotation)`
 - `cn.omix.util.player.RotationUtil` — `public static Vec3d getVectorForRotation(float yaw, float pitch)`
@@ -2794,6 +2803,14 @@
 - `cn.omix.util.world.ScaffoldMutex` — `cn.omix.util.world.ScaffoldMutex`
 - `cn.omix.util.world.ScaffoldMutex` — `public final class ScaffoldMutex`
 - `cn.omix.util.world.ScaffoldMutex` — `public static synchronized void activate(Module other)`
+- `cn.omix.util.world.TellyRotationState` — `cn.omix.util.world.TellyRotationState`
+- `cn.omix.util.world.TellyRotationState` — `public final class TellyRotationState`
+- `cn.omix.util.world.TellyRotationState` — `public void update(String selectedMode, boolean tellyBridge, boolean clutchActive, boolean canRotate, int offGroundTicks)`
+- `cn.omix.util.world.TellyRotationState` — `public boolean isActive()`
+- `cn.omix.util.world.TellyRotationState` — `public boolean shouldReturn()`
+- `cn.omix.util.world.TellyRotationState` — `public YawDirection direction(float currentYaw, float requestedYaw)`
+- `cn.omix.util.world.TellyRotationState` — `public YawDirection returnDirection(float currentYaw, float cameraYaw)`
+- `cn.omix.util.world.TellyRotationState` — `public void reset()`
 - `cn.omix.util.world.VictorySignalMatcher` — `cn.omix.util.world.VictorySignalMatcher`
 - `cn.omix.util.world.VictorySignalMatcher` — `public final class VictorySignalMatcher`
 - `cn.omix.util.world.VictorySignalMatcher` — `public static boolean matchesTitle(String text)`

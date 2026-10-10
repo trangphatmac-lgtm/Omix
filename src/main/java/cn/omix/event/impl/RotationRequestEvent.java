@@ -31,6 +31,7 @@ public final class RotationRequestEvent extends Event {
         float yaw = winner.yaw();
         float pitch = winner.pitch();
         boolean continuousYaw = winner.continuousYaw();
+        RotationRequest.YawDirection yawDirection = winner.yawDirection();
         if (winner.axes() == RotationRequest.Axes.YAW_ONLY) {
             pitch = cameraPitch;
         } else if (winner.axes() == RotationRequest.Axes.PITCH_ONLY) {
@@ -39,11 +40,17 @@ public final class RotationRequestEvent extends Event {
                     .min(ORDER).orElse(null);
             yaw = yawSource == null ? cameraYaw : yawSource.yaw();
             continuousYaw |= yawSource != null && yawSource.continuousYaw();
+            yawDirection = yawSource == null ? RotationRequest.YawDirection.DEFAULT : yawSource.yawDirection();
         }
-        return new Selection(winner, yaw, pitch, continuousYaw);
+        return new Selection(winner, yaw, pitch, continuousYaw, yawDirection);
     }
 
-    public record Selection(RotationRequest request, float yaw, float pitch, boolean continuousYaw) {
+    public record Selection(RotationRequest request, float yaw, float pitch, boolean continuousYaw,
+                            RotationRequest.YawDirection yawDirection) {
+        public Selection(RotationRequest request, float yaw, float pitch, boolean continuousYaw) {
+            this(request, yaw, pitch, continuousYaw, RotationRequest.YawDirection.DEFAULT);
+        }
+
         public float[] rotations() {
             return new float[]{yaw, pitch};
         }
