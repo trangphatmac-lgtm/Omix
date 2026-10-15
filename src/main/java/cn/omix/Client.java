@@ -29,7 +29,7 @@ public class Client implements IMinecraft {
     public static Logger logger;
 
     public static String name = "Omix";
-    public static String version = "261010-SNAPSHOT";
+    public static String version = "261015-SNAPSHOT";
 
     private cn.omix.script.ScriptManager scriptManager;
     private cn.omix.util.ai.MinecraftGameBridge gameBridge;

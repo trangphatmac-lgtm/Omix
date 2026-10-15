@@ -20,10 +20,10 @@ Omix 基于 DSJ 的 Remix base 和 Minecraft 1.21.11 / Fabric 开发的我的世
 <div align="center">
 
 <h3>Visual</h3>
-<img src="Pictures/2026-09-26_00.49.56.png" alt="Sigma Visual" width="100%">
+<img src="Pictures/2026-09-26_00.49.56.png" alt="Opai Visual" width="100%">
 
 <h3>ClickGUI</h3>
-<img src="Pictures/2026-07-30_23.23.57.png" alt="Omix ClickGUI" width="100%">
+<img src="Pictures/2026-07-30_23.23.57.png" alt="Neverlose ClickGUI" width="100%">
 
 <h3>AI Agent</h3>
 <img src="Pictures/2026-09-22_14.30.40.png" alt="Omix AI Agent" width="100%">
