@@ -1,5 +1,7 @@
 package me.ksyz.accountmanager.gui;
 
+import cn.omix.util.account.cookie.CookieAuth;
+import cn.omix.util.account.cookie.CookieJar;
 import me.ksyz.accountmanager.AccountManager;
 import me.ksyz.accountmanager.auth.Account;
 import me.ksyz.accountmanager.auth.MicrosoftAuth;
@@ -19,8 +21,11 @@ import net.minecraft.util.Util;
 import org.lwjgl.glfw.GLFW;
 
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.Collections;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -30,13 +35,14 @@ import java.util.regex.Pattern;
 public class AccountManagerScreen extends Screen {
     private static final int ROW_HEIGHT = 20;
     private static final int ROW_GAP = 4;
-    private static final int LIST_TOP = 100;
+    private static final int LIST_TOP = 124;
     private static final Pattern OFFLINE_USERNAME_PATTERN = Pattern.compile("[A-Za-z0-9_]{3,16}");
 
     private final Screen previous;
     private volatile String status = "";
     private ExecutorService executor;
     private CompletableFuture<Void> task;
+    private volatile int cookieLoginGeneration;
     private int selected = -1;
     private int scroll;
     private long lastClickTime;
@@ -60,6 +66,7 @@ public class AccountManagerScreen extends Screen {
         renderButton(context, 20, 62, 84, 82, "Delete", canUseSelection());
         renderButton(context, 92, 62, 148, 82, "Up", canMoveUp());
         renderButton(context, 156, 62, 222, 82, "Down", canMoveDown());
+        renderButton(context, 20, 86, 126, 106, "Cookie Login", !isBusy());
         renderButton(context, width - 164, 62, width - 92, 82, "Reload", !isBusy());
         renderButton(context, width - 84, 62, width - 20, 82, "Back", true);
 
@@ -77,7 +84,7 @@ public class AccountManagerScreen extends Screen {
             y += ROW_HEIGHT + ROW_GAP;
         }
         if (AccountManager.accounts.isEmpty()) {
-            drawString(context, "No saved accounts yet.", 24, 80, 0xFFAAAAAA, false);
+            drawString(context, "No saved accounts yet.", 24, LIST_TOP + 6, 0xFFAAAAAA, false);
         }
         if (scroll > 0) {
             drawString(context, "^", width - 14, LIST_TOP, 0xFFAAAAAA, true);
@@ -127,6 +134,10 @@ public class AccountManagerScreen extends Screen {
         }
         if (inside(x, y, 156, 62, 222, 82) && canMoveDown()) {
             moveSelected(1);
+            return true;
+        }
+        if (inside(x, y, 20, 86, 126, 106) && !isBusy()) {
+            MinecraftClient.getInstance().setScreen(new CookieLoginScreen(this));
             return true;
         }
         if (inside(x, y, width - 164, 62, width - 92, 82) && !isBusy()) {
@@ -381,6 +392,49 @@ public class AccountManagerScreen extends Screen {
                 });
     }
 
+    void addCookies(String content) {
+        startCookieLogin(() -> CookieAuth.parseContent(content));
+    }
+
+    void addCookieFile(Path file) {
+        startCookieLogin(() -> CookieAuth.parseFile(file.toFile()));
+    }
+
+    private void startCookieLogin(Callable<CookieJar> source) {
+        if (isBusy()) return;
+        ExecutorService worker = worker();
+        setStatus("Reading cookies...");
+        CompletableFuture<CookieAuth.Result> login = CompletableFuture.supplyAsync(() -> {
+            try {
+                return source.call();
+            } catch (Exception e) {
+                throw new CompletionException("Could not read the cookie file.", null);
+            }
+        }, worker).thenCompose(jar -> CookieAuth.login(jar, worker, this::setStatus));
+        completeCookieLogin(login, null, worker);
+    }
+
+    private void completeCookieLogin(CompletableFuture<CookieAuth.Result> login, Account account, ExecutorService worker) {
+        int generation = ++cookieLoginGeneration;
+        task = login.thenAcceptAsync(result -> {
+            if (generation != cookieLoginGeneration || worker.isShutdown()) return;
+            if (account == null) {
+                addAccountAndSwitch(result.cookies(), result.session().getAccessToken(), result.session(), CookieAuth.MARKER, "");
+            } else {
+                account.setRefreshToken(result.cookies());
+                account.setAccessToken(result.session().getAccessToken());
+                account.setUsername(result.session().getUsername());
+                AccountManager.save();
+                setStatus(SessionService.switchTo(result.session()).message());
+            }
+        }, MinecraftClient.getInstance()).exceptionally(error -> {
+            if (generation == cookieLoginGeneration && !worker.isShutdown()) {
+                setStatus("Error: " + errorMessage(error));
+            }
+            return null;
+        });
+    }
+
     void addOfflineAccount(String rawUsername) {
         String username = rawUsername == null ? "" : rawUsername.trim();
         if (!OFFLINE_USERNAME_PATTERN.matcher(username).matches()) {
@@ -416,6 +470,11 @@ public class AccountManagerScreen extends Screen {
             return;
         }
         ExecutorService worker = worker();
+        if (CookieAuth.MARKER.equals(account.getClientId())) {
+            completeCookieLogin(CookieAuth.relogin(account.getAccessToken(), account.getRefreshToken(),
+                    worker, this::setStatus), account, worker);
+            return;
+        }
         MicrosoftAuth.CLIENT_ID = blankToDefault(account.getClientId(), MicrosoftAuth.DEFAULT_CLIENT_ID);
         MicrosoftAuth.SCOPE = blankToDefault(account.getScope(), MicrosoftAuth.DEFAULT_SCOPE);
         setStatus("Fetching Minecraft profile... (" + displayUsername(account) + ")");
@@ -521,6 +580,7 @@ public class AccountManagerScreen extends Screen {
     }
 
     private void cancelTask() {
+        cookieLoginGeneration++;
         if (task != null && !task.isDone()) {
             task.cancel(true);
         }
@@ -578,7 +638,8 @@ public class AccountManagerScreen extends Screen {
     private String displayUsername(Account account) {
         String username = account.getUsername();
         String display = username == null || username.isBlank() ? "(unnamed account)" : username;
-        return account.isOffline() ? "[Offline] " + display : display;
+        if (account.isOffline()) return "[Offline] " + display;
+        return CookieAuth.MARKER.equals(account.getClientId()) ? "[Cookie] " + display : display;
     }
 
     private boolean isCurrentAccount(Account account) {

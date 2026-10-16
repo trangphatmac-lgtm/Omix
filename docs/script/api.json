@@ -4693,6 +4693,178 @@
     "line": 59
   },
   {
+    "owner": "cn.omix.util.account.cookie.CookieAuth",
+    "name": "CookieAuth",
+    "signature": "cn.omix.util.account.cookie.CookieAuth",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieAuth.java"
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieAuth",
+    "name": "CookieAuth",
+    "signature": "public final class CookieAuth",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieAuth.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieAuth",
+    "name": "MARKER",
+    "signature": "public static final String MARKER",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieAuth.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieAuth",
+    "name": "parseFile",
+    "signature": "public static CookieJar parseFile(File file)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieAuth.java",
+    "line": 44
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieAuth",
+    "name": "parseContent",
+    "signature": "public static CookieJar parseContent(String content)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieAuth.java",
+    "line": 48
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieAuth",
+    "name": "login",
+    "signature": "public static CompletableFuture<Result> login(CookieJar jar, Executor executor, Consumer<String> status)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieAuth.java",
+    "line": 52
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieAuth",
+    "name": "relogin",
+    "signature": "public static CompletableFuture<Result> relogin(String accessToken, String storedCookies, Executor executor, Consumer<String> status)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieAuth.java",
+    "line": 56
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieAuth",
+    "name": "Result",
+    "signature": "public record Result(Session session, String cookies)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieAuth.java",
+    "line": 192
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieHttpClient",
+    "name": "CookieHttpClient",
+    "signature": "cn.omix.util.account.cookie.CookieHttpClient",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieHttpClient.java"
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieJar",
+    "name": "CookieJar",
+    "signature": "cn.omix.util.account.cookie.CookieJar",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieJar.java"
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieJar",
+    "name": "CookieJar",
+    "signature": "public final class CookieJar",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieJar.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieJar",
+    "name": "parse",
+    "signature": "public static CookieJar parse(String content)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieJar.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieJar",
+    "name": "isEmpty",
+    "signature": "public boolean isEmpty()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieJar.java",
+    "line": 43
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieJar",
+    "name": "size",
+    "signature": "public int size()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieJar.java",
+    "line": 47
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieJar",
+    "name": "buildCookieHeader",
+    "signature": "public String buildCookieHeader(URI uri)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieJar.java",
+    "line": 52
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieJar",
+    "name": "buildCookieHeader",
+    "signature": "public String buildCookieHeader(URI uri, List<String> preferredOrder)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieJar.java",
+    "line": 56
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieJar",
+    "name": "mergeResponseCookies",
+    "signature": "public void mergeResponseCookies(URI uri, List<String> headers)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieJar.java",
+    "line": 71
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieJar",
+    "name": "hasRequiredAuthCookies",
+    "signature": "public boolean hasRequiredAuthCookies()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieJar.java",
+    "line": 84
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieJar",
+    "name": "findMinecraftNetValue",
+    "signature": "public String findMinecraftNetValue(String name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieJar.java",
+    "line": 93
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieJar",
+    "name": "serialize",
+    "signature": "public String serialize()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieJar.java",
+    "line": 104
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.CookieJar",
+    "name": "deserialize",
+    "signature": "public static CookieJar deserialize(String serialized)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/account/cookie/CookieJar.java",
+    "line": 127
+  },
+  {
+    "owner": "cn.omix.util.account.cookie.MinecraftNetAuth",
+    "name": "MinecraftNetAuth",
+    "signature": "cn.omix.util.account.cookie.MinecraftNetAuth",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/account/cookie/MinecraftNetAuth.java"
+  },
+  {
     "owner": "cn.omix.util.ai.AiBridgeServer",
     "name": "AiBridgeServer",
     "signature": "cn.omix.util.ai.AiBridgeServer",

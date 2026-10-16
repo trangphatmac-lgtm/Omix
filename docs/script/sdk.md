@@ -606,6 +606,28 @@
 - `cn.omix.util.Util` — `public static void logRaw(Text message)`
 - `cn.omix.util.Util` — `public static String formatCodes(String message)`
 - `cn.omix.util.Util` — `public static void debug(String message)`
+- `cn.omix.util.account.cookie.CookieAuth` — `cn.omix.util.account.cookie.CookieAuth`
+- `cn.omix.util.account.cookie.CookieAuth` — `public final class CookieAuth`
+- `cn.omix.util.account.cookie.CookieAuth` — `public static final String MARKER`
+- `cn.omix.util.account.cookie.CookieAuth` — `public static CookieJar parseFile(File file)`
+- `cn.omix.util.account.cookie.CookieAuth` — `public static CookieJar parseContent(String content)`
+- `cn.omix.util.account.cookie.CookieAuth` — `public static CompletableFuture<Result> login(CookieJar jar, Executor executor, Consumer<String> status)`
+- `cn.omix.util.account.cookie.CookieAuth` — `public static CompletableFuture<Result> relogin(String accessToken, String storedCookies, Executor executor, Consumer<String> status)`
+- `cn.omix.util.account.cookie.CookieAuth` — `public record Result(Session session, String cookies)`
+- `cn.omix.util.account.cookie.CookieHttpClient` — `cn.omix.util.account.cookie.CookieHttpClient`
+- `cn.omix.util.account.cookie.CookieJar` — `cn.omix.util.account.cookie.CookieJar`
+- `cn.omix.util.account.cookie.CookieJar` — `public final class CookieJar`
+- `cn.omix.util.account.cookie.CookieJar` — `public static CookieJar parse(String content)`
+- `cn.omix.util.account.cookie.CookieJar` — `public boolean isEmpty()`
+- `cn.omix.util.account.cookie.CookieJar` — `public int size()`
+- `cn.omix.util.account.cookie.CookieJar` — `public String buildCookieHeader(URI uri)`
+- `cn.omix.util.account.cookie.CookieJar` — `public String buildCookieHeader(URI uri, List<String> preferredOrder)`
+- `cn.omix.util.account.cookie.CookieJar` — `public void mergeResponseCookies(URI uri, List<String> headers)`
+- `cn.omix.util.account.cookie.CookieJar` — `public boolean hasRequiredAuthCookies()`
+- `cn.omix.util.account.cookie.CookieJar` — `public String findMinecraftNetValue(String name)`
+- `cn.omix.util.account.cookie.CookieJar` — `public String serialize()`
+- `cn.omix.util.account.cookie.CookieJar` — `public static CookieJar deserialize(String serialized)`
+- `cn.omix.util.account.cookie.MinecraftNetAuth` — `cn.omix.util.account.cookie.MinecraftNetAuth`
 - `cn.omix.util.ai.AiBridgeServer` — `cn.omix.util.ai.AiBridgeServer`
 - `cn.omix.util.ai.AiBridgeServer` — `public void close()`
 - `cn.omix.util.ai.AiChatCapture` — `cn.omix.util.ai.AiChatCapture`
