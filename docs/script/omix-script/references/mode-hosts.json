@@ -455,6 +455,11 @@
     "source": "src/main/java/cn/omix/module/impl/render/Zoom.java"
   },
   {
+    "module": "AntiCheat",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/world/AntiCheat.java"
+  },
+  {
     "module": "AutoGG",
     "selector": "Behavior",
     "source": "src/main/java/cn/omix/module/impl/world/AutoGG.java"

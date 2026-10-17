@@ -22154,7 +22154,7 @@
     "signature": "public static final long HIT_WINDOW_MS",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java",
-    "line": 11
+    "line": 12
   },
   {
     "owner": "cn.omix.util.world.CombatDeathTracker",
@@ -22162,7 +22162,7 @@
     "signature": "public void hit(T entity, String name, long now)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java",
-    "line": 15
+    "line": 18
   },
   {
     "owner": "cn.omix.util.world.CombatDeathTracker",
@@ -22170,7 +22170,7 @@
     "signature": "public void death(T entity, long now)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java",
-    "line": 22
+    "line": 25
   },
   {
     "owner": "cn.omix.util.world.CombatDeathTracker",
@@ -22178,7 +22178,7 @@
     "signature": "public List<T> targets(long now)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java",
-    "line": 30
+    "line": 33
   },
   {
     "owner": "cn.omix.util.world.CombatDeathTracker",
@@ -22186,7 +22186,7 @@
     "signature": "public void removed(T entity)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java",
-    "line": 35
+    "line": 38
   },
   {
     "owner": "cn.omix.util.world.CombatDeathTracker",
@@ -22194,7 +22194,15 @@
     "signature": "public List<String> drainDeaths()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java",
-    "line": 40
+    "line": 43
+  },
+  {
+    "owner": "cn.omix.util.world.CombatDeathTracker",
+    "name": "drainDeaths",
+    "signature": "public List<String> drainDeaths(Predicate<? super T> eligible)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java",
+    "line": 48
   },
   {
     "owner": "cn.omix.util.world.CombatDeathTracker",
@@ -22202,7 +22210,7 @@
     "signature": "public void clear()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/world/CombatDeathTracker.java",
-    "line": 46
+    "line": 57
   },
   {
     "owner": "cn.omix.util.world.ScaffoldMutex",
@@ -22320,6 +22328,1077 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/world/VictorySignalMatcher.java",
     "line": 27
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatAlerts",
+    "name": "AntiCheatAlerts",
+    "signature": "cn.omix.util.world.anticheat.AntiCheatAlerts",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatAlerts.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatAlerts",
+    "name": "AntiCheatAlerts",
+    "signature": "public final class AntiCheatAlerts",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatAlerts.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatAlerts",
+    "name": "allow",
+    "signature": "public boolean allow(UUID player, AntiCheatCheck check, long now, long interval)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatAlerts.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatAlerts",
+    "name": "allow",
+    "signature": "public boolean allow(UUID player, String check, long now, long interval)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatAlerts.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatAlerts",
+    "name": "retain",
+    "signature": "public void retain(Set<UUID> present)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatAlerts.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatAlerts",
+    "name": "clear",
+    "signature": "public void clear()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatAlerts.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatCheck",
+    "name": "AntiCheatCheck",
+    "signature": "cn.omix.util.world.anticheat.AntiCheatCheck",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatCheck.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatCheck",
+    "name": "AntiCheatCheck",
+    "signature": "public enum AntiCheatCheck",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatCheck.java",
+    "line": 3
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatCheck",
+    "name": "displayName",
+    "signature": "public final String displayName",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatCheck.java",
+    "line": 9
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatEnvironment",
+    "name": "AntiCheatEnvironment",
+    "signature": "cn.omix.util.world.anticheat.AntiCheatEnvironment",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatEnvironment.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatEnvironment",
+    "name": "AntiCheatEnvironment",
+    "signature": "public final class AntiCheatEnvironment",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatEnvironment.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatEnvironment",
+    "name": "isHypixel",
+    "signature": "public static boolean isHypixel(String address)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatEnvironment.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatEnvironment",
+    "name": "sidebar",
+    "signature": "public static String sidebar(MinecraftClient mc)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatEnvironment.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatEnvironment",
+    "name": "inMinigame",
+    "signature": "public static boolean inMinigame(String sidebar)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatEnvironment.java",
+    "line": 33
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatEnvironment",
+    "name": "hypixel",
+    "signature": "public static boolean hypixel(MinecraftClient mc)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatEnvironment.java",
+    "line": 41
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatGeometry",
+    "name": "AntiCheatGeometry",
+    "signature": "cn.omix.util.world.anticheat.AntiCheatGeometry",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatGeometry.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatGeometry",
+    "name": "AntiCheatGeometry",
+    "signature": "public final class AntiCheatGeometry",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatGeometry.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatGeometry",
+    "name": "enclosed",
+    "signature": "public static boolean enclosed(BlockPos pos, BlockPos partner, Predicate<BlockPos> covered)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatGeometry.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatMining",
+    "name": "AntiCheatMining",
+    "signature": "cn.omix.util.world.anticheat.AntiCheatMining",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatMining.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatMining",
+    "name": "animation",
+    "signature": "public void animation(int entityId, K position, int progress, long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatMining.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatMining",
+    "name": "consume",
+    "signature": "public Evidence<K> consume(K position, long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatMining.java",
+    "line": 27
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatMining",
+    "name": "expire",
+    "signature": "public void expire(long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatMining.java",
+    "line": 32
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatMining",
+    "name": "clear",
+    "signature": "public void clear()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatMining.java",
+    "line": 37
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatScoreHud",
+    "name": "AntiCheatScoreHud",
+    "signature": "cn.omix.util.world.anticheat.AntiCheatScoreHud",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatScoreHud.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatScoreHud",
+    "name": "AntiCheatScoreHud",
+    "signature": "public final class AntiCheatScoreHud",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatScoreHud.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatScoreHud",
+    "name": "Row",
+    "signature": "public record Row(int score, Text name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatScoreHud.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatScoreHud",
+    "name": "render",
+    "signature": "public static void render(MinecraftClient mc, DrawContext context, List<Row> rows, int x, int y)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatScoreHud.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatSignals",
+    "name": "AntiCheatSignals",
+    "signature": "cn.omix.util.world.anticheat.AntiCheatSignals",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatSignals.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatSignals",
+    "name": "AntiCheatSignals",
+    "signature": "public final class AntiCheatSignals",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatSignals.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatSignals",
+    "name": "beforeBlockPacket",
+    "signature": "public static void beforeBlockPacket(Packet<?> packet)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatSignals.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatSignals",
+    "name": "entityPacket",
+    "signature": "public static void entityPacket(Packet<?> packet)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatSignals.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatSuspicion",
+    "name": "AntiCheatSuspicion",
+    "signature": "cn.omix.util.world.anticheat.AntiCheatSuspicion",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatSuspicion.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatSuspicion",
+    "name": "AntiCheatSuspicion",
+    "signature": "public final class AntiCheatSuspicion",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatSuspicion.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatSuspicion",
+    "name": "Update",
+    "signature": "public record Update(int score, List<Integer> alarms)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatSuspicion.java",
+    "line": 16
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatSuspicion",
+    "name": "Row",
+    "signature": "public record Row(UUID player, int score)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatSuspicion.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatSuspicion",
+    "name": "synchronizeSession",
+    "signature": "public void synchronizeSession(Object connection)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatSuspicion.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatSuspicion",
+    "name": "flag",
+    "signature": "public Update flag(UUID player, String check, IntPredicate alarmEnabled)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatSuspicion.java",
+    "line": 28
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatSuspicion",
+    "name": "score",
+    "signature": "public int score(UUID player)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatSuspicion.java",
+    "line": 43
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatSuspicion",
+    "name": "ranking",
+    "signature": "public List<Row> ranking(Collection<UUID> visible, int limit)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatSuspicion.java",
+    "line": 49
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatSuspicion",
+    "name": "clear",
+    "signature": "public void clear()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatSuspicion.java",
+    "line": 56
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatSuspicion",
+    "name": "increment",
+    "signature": "public static int increment(String check)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatSuspicion.java",
+    "line": 62
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatSuspicion",
+    "name": "color",
+    "signature": "public static int color(int score)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatSuspicion.java",
+    "line": 84
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatTracker",
+    "name": "AntiCheatTracker",
+    "signature": "cn.omix.util.world.anticheat.AntiCheatTracker",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatTracker.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatTracker",
+    "name": "AntiCheatTracker",
+    "signature": "public final class AntiCheatTracker",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatTracker.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatTracker",
+    "name": "Sample",
+    "signature": "public record Sample(double x, double y, double z, float yaw, float pitch, boolean sneaking, boolean sprinting, boolean usingItem, boolean blocking, boolean swinging, int swingTicks, boolean holdingBlock, boolean fishingRod, boolean airBelow, boolean voidBelow, boolean hurt, boolean ladder, boolean adventure, boolean recentPacket, boolean noFallAllowed, boolean scaffoldAllowed, double distanceSquared)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatTracker.java",
+    "line": 9
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatTracker",
+    "name": "breakAnimation",
+    "signature": "public void breakAnimation(int progress)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatTracker.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.AntiCheatTracker",
+    "name": "update",
+    "signature": "public AntiCheatCheck update(Sample p, Set<AntiCheatCheck> enabled)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/AntiCheatTracker.java",
+    "line": 30
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenCheck",
+    "name": "RavenCheck",
+    "signature": "cn.omix.util.world.anticheat.raven.RavenCheck",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenCheck.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenCheck",
+    "name": "RavenCheck",
+    "signature": "public record RavenCheck(String name, String key, String category, int threshold, int cooldown, boolean victimBased)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenCheck.java",
+    "line": 6
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenCheck",
+    "name": "ALL",
+    "signature": "public static final List<RavenCheck> ALL",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenCheck.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenCheck",
+    "name": "byName",
+    "signature": "public static RavenCheck byName(String name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenCheck.java",
+    "line": 110
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenChecks",
+    "name": "RavenChecks",
+    "signature": "cn.omix.util.world.anticheat.raven.RavenChecks",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenChecks.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenChecks",
+    "name": "RavenChecks",
+    "signature": "public final class RavenChecks",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenChecks.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenChecks",
+    "name": "Detection",
+    "signature": "public record Detection(RavenPlayer player, String check, int vl)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenChecks.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenChecks",
+    "name": "Settings",
+    "signature": "public record Settings(Set<String> enabled, double vlScale, long minimumCooldown)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenChecks.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenChecks.Settings",
+    "name": "Settings",
+    "signature": "public Settings",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenChecks.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenChecks",
+    "name": "RavenChecks",
+    "signature": "public RavenChecks(RavenWorld world, Consumer<Detection> sink)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenChecks.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenChecks",
+    "name": "clear",
+    "signature": "public void clear()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenChecks.java",
+    "line": 31
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenChecks",
+    "name": "tick",
+    "signature": "public void tick(List<RavenPlayer> players, RavenPlayer local, long time, Settings settings)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenChecks.java",
+    "line": 36
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenChecks",
+    "name": "block",
+    "signature": "public void block(RavenVec3 position, boolean broken, boolean bed, long time)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenChecks.java",
+    "line": 76
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenChecks",
+    "name": "velocity",
+    "signature": "public void velocity(RavenPlayer player, double horizontal)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenChecks.java",
+    "line": 82
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenChecks",
+    "name": "violation",
+    "signature": "public int violation(RavenPlayer player, String check)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenChecks.java",
+    "line": 91
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenDetector",
+    "name": "RavenDetector",
+    "signature": "cn.omix.util.world.anticheat.raven.RavenDetector",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenDetector.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenDetector",
+    "name": "RavenWorld",
+    "signature": "public final class RavenDetector implements RavenWorld",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenDetector.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenDetector",
+    "name": "RavenDetector",
+    "signature": "public RavenDetector(MinecraftClient mc, Consumer<RavenChecks.Detection> sink)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenDetector.java",
+    "line": 35
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenDetector",
+    "name": "clear",
+    "signature": "public void clear()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenDetector.java",
+    "line": 40
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenDetector",
+    "name": "tick",
+    "signature": "public void tick(RavenChecks.Settings settings, Predicate<PlayerEntity> suspect, Predicate<PlayerEntity> teammate, Predicate<PlayerEntity> bot, double range, int limit, long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenDetector.java",
+    "line": 42
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenDetector",
+    "name": "block",
+    "signature": "public void block(BlockPos pos, BlockState old, BlockState replacement, long now)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenDetector.java",
+    "line": 124
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenDetector",
+    "name": "packet",
+    "signature": "public void packet(Packet<?> packet)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenDetector.java",
+    "line": 130
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenDetector",
+    "name": "getBlockAt",
+    "signature": "public Block getBlockAt(int x, int y, int z)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenDetector.java",
+    "line": 141
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenDetector",
+    "name": "getScoreboard",
+    "signature": "public List<String> getScoreboard()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenDetector.java",
+    "line": 148
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenDetector",
+    "name": "bottomY",
+    "signature": "public int bottomY()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenDetector.java",
+    "line": 149
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenItem",
+    "name": "RavenItem",
+    "signature": "cn.omix.util.world.anticheat.raven.RavenItem",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenItem.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenItem",
+    "name": "RavenItem",
+    "signature": "public final class RavenItem",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenItem.java",
+    "line": 5
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenItem",
+    "name": "type",
+    "signature": "public final String name, type",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenItem.java",
+    "line": 6
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenItem",
+    "name": "useTicks",
+    "signature": "public final int meta, count, useTicks",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenItem.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenItem",
+    "name": "isBlock",
+    "signature": "public final boolean isBlock",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenItem.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenItem",
+    "name": "RavenItem",
+    "signature": "public RavenItem(String name, String type, int count, int useTicks, int efficiency)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenItem.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenItem",
+    "name": "getEnchantments",
+    "signature": "public List<Object[]> getEnchantments()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenItem.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "RavenPlayer",
+    "signature": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "RavenPlayer",
+    "signature": "public final class RavenPlayer",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "identity",
+    "signature": "public final Object identity",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "uuid",
+    "signature": "public final UUID uuid",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 9
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "name",
+    "signature": "public final String name",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "displayName",
+    "signature": "public String displayName",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "position",
+    "signature": "public RavenVec3 position",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "health",
+    "signature": "public float yaw, pitch, prevYaw, prevPitch, health",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "maxHurtTime",
+    "signature": "public int ticks, swing, hurtTime, maxHurtTime",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "groundDistance",
+    "signature": "public double groundDistance",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "riding",
+    "signature": "public RavenPlayer riding",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "heldItem",
+    "signature": "public RavenItem heldItem",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "effects",
+    "signature": "public List<Object[]> effects",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "RavenPlayer",
+    "signature": "public RavenPlayer(Object identity, UUID uuid, String name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getTicksExisted",
+    "signature": "public int getTicksExisted()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "isSneaking",
+    "signature": "public boolean isSneaking()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "isSprinting",
+    "signature": "public boolean isSprinting()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 26
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "isUsingItem",
+    "signature": "public boolean isUsingItem()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 27
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getSwingProgress",
+    "signature": "public int getSwingProgress()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 28
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "isCollided",
+    "signature": "public boolean isCollided()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 29
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "isDead",
+    "signature": "public boolean isDead()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 30
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "isBurning",
+    "signature": "public boolean isBurning()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 31
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "isOnEdge",
+    "signature": "public boolean isOnEdge()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 32
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getPosition",
+    "signature": "public RavenVec3 getPosition()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 33
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getLastPosition",
+    "signature": "public RavenVec3 getLastPosition()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 34
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getYaw",
+    "signature": "public float getYaw()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 35
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getPitch",
+    "signature": "public float getPitch()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 36
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getPrevYaw",
+    "signature": "public float getPrevYaw()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 37
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getPrevPitch",
+    "signature": "public float getPrevPitch()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 38
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "onGround",
+    "signature": "public boolean onGround()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 39
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getName",
+    "signature": "public String getName()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 40
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getUUID",
+    "signature": "public String getUUID()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 41
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getDisplayName",
+    "signature": "public String getDisplayName()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 42
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getHurtTime",
+    "signature": "public int getHurtTime()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 43
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getMaxHurtTime",
+    "signature": "public int getMaxHurtTime()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 44
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getRidingEntity",
+    "signature": "public RavenPlayer getRidingEntity()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 45
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getHeldItem",
+    "signature": "public RavenItem getHeldItem()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 46
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "isInWater",
+    "signature": "public boolean isInWater()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 47
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "isInLava",
+    "signature": "public boolean isInLava()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 48
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "isOnLadder",
+    "signature": "public boolean isOnLadder()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 49
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "isCreative",
+    "signature": "public boolean isCreative()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 50
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "isInvisible",
+    "signature": "public boolean isInvisible()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 51
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getHealth",
+    "signature": "public float getHealth()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 52
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getAbsorption",
+    "signature": "public float getAbsorption()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 53
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "getPotionEffects",
+    "signature": "public List<Object[]> getPotionEffects()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 54
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenPlayer",
+    "name": "distanceToGround",
+    "signature": "public double distanceToGround()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenPlayer.java",
+    "line": 55
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenText",
+    "name": "RavenText",
+    "signature": "cn.omix.util.world.anticheat.raven.RavenText",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenText.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenVec3",
+    "name": "RavenVec3",
+    "signature": "cn.omix.util.world.anticheat.raven.RavenVec3",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenVec3.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenVec3",
+    "name": "RavenVec3",
+    "signature": "public final class RavenVec3",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenVec3.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenVec3",
+    "name": "z",
+    "signature": "public final double x, y, z",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenVec3.java",
+    "line": 5
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenVec3",
+    "name": "RavenVec3",
+    "signature": "public RavenVec3(double x, double y, double z)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenVec3.java",
+    "line": 6
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenVec3",
+    "name": "offset",
+    "signature": "public RavenVec3 offset(double x, double y, double z)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenVec3.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenVec3",
+    "name": "distanceTo",
+    "signature": "public double distanceTo(RavenVec3 other)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenVec3.java",
+    "line": 8
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenWorld",
+    "name": "RavenWorld",
+    "signature": "cn.omix.util.world.anticheat.raven.RavenWorld",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenWorld.java"
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenWorld",
+    "name": "RavenWorld",
+    "signature": "public interface RavenWorld",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenWorld.java",
+    "line": 5
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenWorld.Block",
+    "name": "name",
+    "signature": "public final String name",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenWorld.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.world.anticheat.raven.RavenWorld.Block",
+    "name": "Block",
+    "signature": "public Block(String name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/anticheat/raven/RavenWorld.java",
+    "line": 8
   },
   {
     "owner": "cn.omix.util.world.bed.BedBreakerAim",

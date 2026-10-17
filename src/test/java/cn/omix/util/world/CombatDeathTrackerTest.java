@@ -3,6 +3,8 @@ package cn.omix.util.world;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -96,5 +98,35 @@ class CombatDeathTrackerTest {
         tracker.death(other, 10);
         tracker.death(victim, 20);
         assertEquals(List.of("second", "first"), tracker.drainDeaths());
+    }
+
+    @Test
+    void scoreFilterUsesOriginalVictimIdentityAfterRemovalAndIncludesThreshold() {
+        var deaths = new CombatDeathTracker<UUID>();
+        UUID below = UUID.randomUUID(), atThreshold = UUID.randomUUID(), above = UUID.randomUUID(), unknown = UUID.randomUUID();
+        Map<UUID, Integer> scores = Map.of(below, 79, atThreshold, 80, above, 81);
+        // Equal display names must not make two UUIDs share a score.
+        deaths.hit(below, "same-name", 0);
+        deaths.hit(atThreshold, "same-name", 0);
+        deaths.hit(above, "above", 0);
+        deaths.hit(unknown, "unknown", 0);
+        for (UUID victim : List.of(below, atThreshold, above, unknown)) {
+            deaths.death(victim, 10);
+            deaths.removed(victim);
+        }
+        assertEquals(List.of("same-name", "above"),
+                deaths.drainDeaths(victim -> scores.getOrDefault(victim, 0) >= 80));
+        assertTrue(deaths.drainDeaths().isEmpty());
+    }
+
+    @Test
+    void rejectedDeathsAreConsumedAndCannotReplayWhenFilterChanges() {
+        tracker.hit(victim, "victim", 0);
+        tracker.death(victim, 10);
+        assertTrue(tracker.drainDeaths(entity -> false).isEmpty());
+        tracker.death(victim, 20);
+        tracker.hit(victim, "victim", 30);
+        tracker.death(victim, 40);
+        assertTrue(tracker.drainDeaths(entity -> true).isEmpty());
     }
 }

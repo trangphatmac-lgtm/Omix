@@ -119,7 +119,7 @@ def literal(value):
         return re.search(r"MAX_MULTI_TARGETS\s*=\s*(\d+)", source)[1]
     if re.fullmatch(r"-?(?:\d[\d_]*(?:\.\d*)?|\.\d+)[fFdD]?", value):
         return value.rstrip("fFdD").replace("_", "")
-    return {"Color.WHITE": "白色", "GLFW.GLFW_KEY_X": "X"}.get(value, value)
+    return {"Color.WHITE": "白色", "GLFW.GLFW_KEY_X": "X", "GLFW.GLFW_KEY_N": "N"}.get(value, value)
 
 
 def predicate(value, fields):

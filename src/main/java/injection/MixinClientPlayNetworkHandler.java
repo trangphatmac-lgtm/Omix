@@ -21,6 +21,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler implements IMinecraft {
 
+    @Inject(method = "onBlockBreakingProgress", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/network/PacketApplyBatcher;)V",
+            shift = At.Shift.AFTER))
+    private void omix$antiCheatBreak(net.minecraft.network.packet.s2c.play.BlockBreakingProgressS2CPacket packet, CallbackInfo ci) {
+        cn.omix.util.world.anticheat.AntiCheatSignals.beforeBlockPacket(packet);
+    }
+
+    @Inject(method = "onBlockUpdate", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/network/PacketApplyBatcher;)V",
+            shift = At.Shift.AFTER))
+    private void omix$antiCheatBlock(net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket packet, CallbackInfo ci) {
+        cn.omix.util.world.anticheat.AntiCheatSignals.beforeBlockPacket(packet);
+    }
+
+    @Inject(method = "onChunkDeltaUpdate", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/network/PacketApplyBatcher;)V",
+            shift = At.Shift.AFTER))
+    private void omix$antiCheatBlocks(net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
+        cn.omix.util.world.anticheat.AntiCheatSignals.beforeBlockPacket(packet);
+    }
+
     @Inject(method = "onPlayerPositionLook", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/network/PacketApplyBatcher;)V",
             shift = At.Shift.AFTER), cancellable = true)
@@ -34,6 +55,7 @@ public abstract class MixinClientPlayNetworkHandler implements IMinecraft {
             target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/network/PacketApplyBatcher;)V",
             shift = At.Shift.AFTER))
     private void omix$fullMovementVelocity(EntityVelocityUpdateS2CPacket packet, CallbackInfo ci) {
+        cn.omix.util.world.anticheat.AntiCheatSignals.entityPacket(packet);
         if (instance == null || instance.getModuleManager() == null) return;
         Disabler disabler = instance.getModuleManager().getModule(Disabler.class);
         if (disabler != null) disabler.handleFullMovementVelocity(packet);
@@ -42,6 +64,7 @@ public abstract class MixinClientPlayNetworkHandler implements IMinecraft {
     // TAIL runs after forceMainThread and before the next packet can remove/reset the entity.
     @Inject(method = "onEntityStatus", at = @At("TAIL"))
     private void omix$autoLStatus(EntityStatusS2CPacket packet, CallbackInfo ci) {
+        cn.omix.util.world.anticheat.AntiCheatSignals.entityPacket(packet);
         AutoLSignals.status(packet);
         if (mc.world != null && packet.getStatus() == net.minecraft.entity.EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES
                 && cn.omix.util.opai.OpaiHud.enabled(cn.omix.util.opai.OpaiHud.Widget.SESSION_HUD))

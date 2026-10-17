@@ -2821,6 +2821,7 @@
 - `cn.omix.util.world.CombatDeathTracker` — `public List<T> targets(long now)`
 - `cn.omix.util.world.CombatDeathTracker` — `public void removed(T entity)`
 - `cn.omix.util.world.CombatDeathTracker` — `public List<String> drainDeaths()`
+- `cn.omix.util.world.CombatDeathTracker` — `public List<String> drainDeaths(Predicate<? super T> eligible)`
 - `cn.omix.util.world.CombatDeathTracker` — `public void clear()`
 - `cn.omix.util.world.ScaffoldMutex` — `cn.omix.util.world.ScaffoldMutex`
 - `cn.omix.util.world.ScaffoldMutex` — `public final class ScaffoldMutex`
@@ -2837,6 +2838,142 @@
 - `cn.omix.util.world.VictorySignalMatcher` — `public final class VictorySignalMatcher`
 - `cn.omix.util.world.VictorySignalMatcher` — `public static boolean matchesTitle(String text)`
 - `cn.omix.util.world.VictorySignalMatcher` — `public static boolean matchesChat(String text)`
+- `cn.omix.util.world.anticheat.AntiCheatAlerts` — `cn.omix.util.world.anticheat.AntiCheatAlerts`
+- `cn.omix.util.world.anticheat.AntiCheatAlerts` — `public final class AntiCheatAlerts`
+- `cn.omix.util.world.anticheat.AntiCheatAlerts` — `public boolean allow(UUID player, AntiCheatCheck check, long now, long interval)`
+- `cn.omix.util.world.anticheat.AntiCheatAlerts` — `public boolean allow(UUID player, String check, long now, long interval)`
+- `cn.omix.util.world.anticheat.AntiCheatAlerts` — `public void retain(Set<UUID> present)`
+- `cn.omix.util.world.anticheat.AntiCheatAlerts` — `public void clear()`
+- `cn.omix.util.world.anticheat.AntiCheatCheck` — `cn.omix.util.world.anticheat.AntiCheatCheck`
+- `cn.omix.util.world.anticheat.AntiCheatCheck` — `public enum AntiCheatCheck`
+- `cn.omix.util.world.anticheat.AntiCheatCheck` — `public final String displayName`
+- `cn.omix.util.world.anticheat.AntiCheatEnvironment` — `cn.omix.util.world.anticheat.AntiCheatEnvironment`
+- `cn.omix.util.world.anticheat.AntiCheatEnvironment` — `public final class AntiCheatEnvironment`
+- `cn.omix.util.world.anticheat.AntiCheatEnvironment` — `public static boolean isHypixel(String address)`
+- `cn.omix.util.world.anticheat.AntiCheatEnvironment` — `public static String sidebar(MinecraftClient mc)`
+- `cn.omix.util.world.anticheat.AntiCheatEnvironment` — `public static boolean inMinigame(String sidebar)`
+- `cn.omix.util.world.anticheat.AntiCheatEnvironment` — `public static boolean hypixel(MinecraftClient mc)`
+- `cn.omix.util.world.anticheat.AntiCheatGeometry` — `cn.omix.util.world.anticheat.AntiCheatGeometry`
+- `cn.omix.util.world.anticheat.AntiCheatGeometry` — `public final class AntiCheatGeometry`
+- `cn.omix.util.world.anticheat.AntiCheatGeometry` — `public static boolean enclosed(BlockPos pos, BlockPos partner, Predicate<BlockPos> covered)`
+- `cn.omix.util.world.anticheat.AntiCheatMining` — `cn.omix.util.world.anticheat.AntiCheatMining`
+- `cn.omix.util.world.anticheat.AntiCheatMining` — `public void animation(int entityId, K position, int progress, long now)`
+- `cn.omix.util.world.anticheat.AntiCheatMining` — `public Evidence<K> consume(K position, long now)`
+- `cn.omix.util.world.anticheat.AntiCheatMining` — `public void expire(long now)`
+- `cn.omix.util.world.anticheat.AntiCheatMining` — `public void clear()`
+- `cn.omix.util.world.anticheat.AntiCheatScoreHud` — `cn.omix.util.world.anticheat.AntiCheatScoreHud`
+- `cn.omix.util.world.anticheat.AntiCheatScoreHud` — `public final class AntiCheatScoreHud`
+- `cn.omix.util.world.anticheat.AntiCheatScoreHud` — `public record Row(int score, Text name)`
+- `cn.omix.util.world.anticheat.AntiCheatScoreHud` — `public static void render(MinecraftClient mc, DrawContext context, List<Row> rows, int x, int y)`
+- `cn.omix.util.world.anticheat.AntiCheatSignals` — `cn.omix.util.world.anticheat.AntiCheatSignals`
+- `cn.omix.util.world.anticheat.AntiCheatSignals` — `public final class AntiCheatSignals`
+- `cn.omix.util.world.anticheat.AntiCheatSignals` — `public static void beforeBlockPacket(Packet<?> packet)`
+- `cn.omix.util.world.anticheat.AntiCheatSignals` — `public static void entityPacket(Packet<?> packet)`
+- `cn.omix.util.world.anticheat.AntiCheatSuspicion` — `cn.omix.util.world.anticheat.AntiCheatSuspicion`
+- `cn.omix.util.world.anticheat.AntiCheatSuspicion` — `public final class AntiCheatSuspicion`
+- `cn.omix.util.world.anticheat.AntiCheatSuspicion` — `public record Update(int score, List<Integer> alarms)`
+- `cn.omix.util.world.anticheat.AntiCheatSuspicion` — `public record Row(UUID player, int score)`
+- `cn.omix.util.world.anticheat.AntiCheatSuspicion` — `public void synchronizeSession(Object connection)`
+- `cn.omix.util.world.anticheat.AntiCheatSuspicion` — `public Update flag(UUID player, String check, IntPredicate alarmEnabled)`
+- `cn.omix.util.world.anticheat.AntiCheatSuspicion` — `public int score(UUID player)`
+- `cn.omix.util.world.anticheat.AntiCheatSuspicion` — `public List<Row> ranking(Collection<UUID> visible, int limit)`
+- `cn.omix.util.world.anticheat.AntiCheatSuspicion` — `public void clear()`
+- `cn.omix.util.world.anticheat.AntiCheatSuspicion` — `public static int increment(String check)`
+- `cn.omix.util.world.anticheat.AntiCheatSuspicion` — `public static int color(int score)`
+- `cn.omix.util.world.anticheat.AntiCheatTracker` — `cn.omix.util.world.anticheat.AntiCheatTracker`
+- `cn.omix.util.world.anticheat.AntiCheatTracker` — `public final class AntiCheatTracker`
+- `cn.omix.util.world.anticheat.AntiCheatTracker` — `public record Sample(double x, double y, double z, float yaw, float pitch, boolean sneaking, boolean sprinting, boolean usingItem, boolean blocking, boolean swinging, int swingTicks, boolean holdingBlock, boolean fishingRod, boolean airBelow, boolean voidBelow, boolean hurt, boolean ladder, boolean adventure, boolean recentPacket, boolean noFallAllowed, boolean scaffoldAllowed, double distanceSquared)`
+- `cn.omix.util.world.anticheat.AntiCheatTracker` — `public void breakAnimation(int progress)`
+- `cn.omix.util.world.anticheat.AntiCheatTracker` — `public AntiCheatCheck update(Sample p, Set<AntiCheatCheck> enabled)`
+- `cn.omix.util.world.anticheat.raven.RavenCheck` — `cn.omix.util.world.anticheat.raven.RavenCheck`
+- `cn.omix.util.world.anticheat.raven.RavenCheck` — `public record RavenCheck(String name, String key, String category, int threshold, int cooldown, boolean victimBased)`
+- `cn.omix.util.world.anticheat.raven.RavenCheck` — `public static final List<RavenCheck> ALL`
+- `cn.omix.util.world.anticheat.raven.RavenCheck` — `public static RavenCheck byName(String name)`
+- `cn.omix.util.world.anticheat.raven.RavenChecks` — `cn.omix.util.world.anticheat.raven.RavenChecks`
+- `cn.omix.util.world.anticheat.raven.RavenChecks` — `public final class RavenChecks`
+- `cn.omix.util.world.anticheat.raven.RavenChecks` — `public record Detection(RavenPlayer player, String check, int vl)`
+- `cn.omix.util.world.anticheat.raven.RavenChecks` — `public record Settings(Set<String> enabled, double vlScale, long minimumCooldown)`
+- `cn.omix.util.world.anticheat.raven.RavenChecks.Settings` — `public Settings`
+- `cn.omix.util.world.anticheat.raven.RavenChecks` — `public RavenChecks(RavenWorld world, Consumer<Detection> sink)`
+- `cn.omix.util.world.anticheat.raven.RavenChecks` — `public void clear()`
+- `cn.omix.util.world.anticheat.raven.RavenChecks` — `public void tick(List<RavenPlayer> players, RavenPlayer local, long time, Settings settings)`
+- `cn.omix.util.world.anticheat.raven.RavenChecks` — `public void block(RavenVec3 position, boolean broken, boolean bed, long time)`
+- `cn.omix.util.world.anticheat.raven.RavenChecks` — `public void velocity(RavenPlayer player, double horizontal)`
+- `cn.omix.util.world.anticheat.raven.RavenChecks` — `public int violation(RavenPlayer player, String check)`
+- `cn.omix.util.world.anticheat.raven.RavenDetector` — `cn.omix.util.world.anticheat.raven.RavenDetector`
+- `cn.omix.util.world.anticheat.raven.RavenDetector` — `public final class RavenDetector implements RavenWorld`
+- `cn.omix.util.world.anticheat.raven.RavenDetector` — `public RavenDetector(MinecraftClient mc, Consumer<RavenChecks.Detection> sink)`
+- `cn.omix.util.world.anticheat.raven.RavenDetector` — `public void clear()`
+- `cn.omix.util.world.anticheat.raven.RavenDetector` — `public void tick(RavenChecks.Settings settings, Predicate<PlayerEntity> suspect, Predicate<PlayerEntity> teammate, Predicate<PlayerEntity> bot, double range, int limit, long now)`
+- `cn.omix.util.world.anticheat.raven.RavenDetector` — `public void block(BlockPos pos, BlockState old, BlockState replacement, long now)`
+- `cn.omix.util.world.anticheat.raven.RavenDetector` — `public void packet(Packet<?> packet)`
+- `cn.omix.util.world.anticheat.raven.RavenDetector` — `public Block getBlockAt(int x, int y, int z)`
+- `cn.omix.util.world.anticheat.raven.RavenDetector` — `public List<String> getScoreboard()`
+- `cn.omix.util.world.anticheat.raven.RavenDetector` — `public int bottomY()`
+- `cn.omix.util.world.anticheat.raven.RavenItem` — `cn.omix.util.world.anticheat.raven.RavenItem`
+- `cn.omix.util.world.anticheat.raven.RavenItem` — `public final class RavenItem`
+- `cn.omix.util.world.anticheat.raven.RavenItem` — `public final String name, type`
+- `cn.omix.util.world.anticheat.raven.RavenItem` — `public final int meta, count, useTicks`
+- `cn.omix.util.world.anticheat.raven.RavenItem` — `public final boolean isBlock`
+- `cn.omix.util.world.anticheat.raven.RavenItem` — `public RavenItem(String name, String type, int count, int useTicks, int efficiency)`
+- `cn.omix.util.world.anticheat.raven.RavenItem` — `public List<Object[]> getEnchantments()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `cn.omix.util.world.anticheat.raven.RavenPlayer`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public final class RavenPlayer`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public final Object identity`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public final UUID uuid`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public final String name`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public String displayName`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public RavenVec3 position`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public float yaw, pitch, prevYaw, prevPitch, health`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public int ticks, swing, hurtTime, maxHurtTime`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public double groundDistance`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public RavenPlayer riding`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public RavenItem heldItem`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public List<Object[]> effects`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public RavenPlayer(Object identity, UUID uuid, String name)`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public int getTicksExisted()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public boolean isSneaking()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public boolean isSprinting()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public boolean isUsingItem()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public int getSwingProgress()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public boolean isCollided()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public boolean isDead()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public boolean isBurning()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public boolean isOnEdge()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public RavenVec3 getPosition()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public RavenVec3 getLastPosition()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public float getYaw()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public float getPitch()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public float getPrevYaw()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public float getPrevPitch()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public boolean onGround()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public String getName()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public String getUUID()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public String getDisplayName()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public int getHurtTime()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public int getMaxHurtTime()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public RavenPlayer getRidingEntity()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public RavenItem getHeldItem()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public boolean isInWater()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public boolean isInLava()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public boolean isOnLadder()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public boolean isCreative()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public boolean isInvisible()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public float getHealth()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public float getAbsorption()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public List<Object[]> getPotionEffects()`
+- `cn.omix.util.world.anticheat.raven.RavenPlayer` — `public double distanceToGround()`
+- `cn.omix.util.world.anticheat.raven.RavenText` — `cn.omix.util.world.anticheat.raven.RavenText`
+- `cn.omix.util.world.anticheat.raven.RavenVec3` — `cn.omix.util.world.anticheat.raven.RavenVec3`
+- `cn.omix.util.world.anticheat.raven.RavenVec3` — `public final class RavenVec3`
+- `cn.omix.util.world.anticheat.raven.RavenVec3` — `public final double x, y, z`
+- `cn.omix.util.world.anticheat.raven.RavenVec3` — `public RavenVec3(double x, double y, double z)`
+- `cn.omix.util.world.anticheat.raven.RavenVec3` — `public RavenVec3 offset(double x, double y, double z)`
+- `cn.omix.util.world.anticheat.raven.RavenVec3` — `public double distanceTo(RavenVec3 other)`
+- `cn.omix.util.world.anticheat.raven.RavenWorld` — `cn.omix.util.world.anticheat.raven.RavenWorld`
+- `cn.omix.util.world.anticheat.raven.RavenWorld` — `public interface RavenWorld`
+- `cn.omix.util.world.anticheat.raven.RavenWorld.Block` — `public final String name`
+- `cn.omix.util.world.anticheat.raven.RavenWorld.Block` — `public Block(String name)`
 - `cn.omix.util.world.bed.BedBreakerAim` — `cn.omix.util.world.bed.BedBreakerAim`
 - `cn.omix.util.world.bed.BedBreakerAim` — `public final class BedBreakerAim`
 - `cn.omix.util.world.bed.BedBreakerAim` — `public static float[] find(ClientWorld world, ClientPlayerEntity player, BlockPos pos, double range, boolean legit)`

@@ -5,12 +5,15 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /** Main-thread combat records. Keys identify entity instances, not reusable network IDs. */
 public final class CombatDeathTracker<T> {
     public static final long HIT_WINDOW_MS = 15_000L;
     private final Map<T, Hit> hits = new IdentityHashMap<>();
-    private final ArrayDeque<String> deaths = new ArrayDeque<>();
+    private final ArrayDeque<Death<T>> deaths = new ArrayDeque<>();
+
+    private record Death<T>(T entity, String name) {}
 
     public void hit(T entity, String name, long now) {
         expire(now);
@@ -24,7 +27,7 @@ public final class CombatDeathTracker<T> {
         Hit hit = hits.get(entity);
         if (hit == null || hit.confirmed) return;
         hit.confirmed = true;
-        deaths.addLast(hit.name);
+        deaths.addLast(new Death<>(entity, hit.name));
     }
 
     public List<T> targets(long now) {
@@ -38,8 +41,16 @@ public final class CombatDeathTracker<T> {
     }
 
     public List<String> drainDeaths() {
-        List<String> result = new ArrayList<>(deaths);
-        deaths.clear();
+        return drainDeaths(entity -> true);
+    }
+
+    /** Filter using the original victim, even after removal. Rejected deaths are consumed too. */
+    public List<String> drainDeaths(Predicate<? super T> eligible) {
+        List<String> result = new ArrayList<>();
+        while (!deaths.isEmpty()) {
+            Death<T> death = deaths.removeFirst();
+            if (eligible.test(death.entity())) result.add(death.name());
+        }
         return result;
     }
 

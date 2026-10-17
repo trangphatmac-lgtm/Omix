@@ -57,6 +57,7 @@ public class ModuleManager implements IMinecraft {
                 new ScaffoldX(),
                 new Scaffold(),
                 new AutoPlay(),
+                new AntiCheat(),
                 new AutoGG(),
                 new AutoL(),
                 new AutoScreenshot(),

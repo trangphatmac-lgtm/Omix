@@ -10,6 +10,7 @@ import cn.omix.module.Category;
 import cn.omix.module.Module;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
+import cn.omix.module.value.impl.NumberValue;
 import cn.omix.module.value.impl.TextValue;
 import cn.omix.util.network.GameConnectionContext;
 import cn.omix.util.world.CombatDeathTracker;
@@ -28,6 +29,9 @@ public final class AutoL extends Module {
             "Classic", "Bratty", "Troll", "Troll2", "PanPan", "Custom");
     private final BoolValue nameInFront = new BoolValue("NameInFront", true);
     private final BoolValue sendL = new BoolValue("SendL", false);
+    private final BoolValue onlyCheaters = new BoolValue("Only Cheaters", false);
+    private final NumberValue suspicionThreshold = new NumberValue("Suspicion Threshold", 80, 1, 100, 1,
+            () -> onlyCheaters.getValue());
     private final TextValue content = new TextValue("Content", "", () -> wordPattern.is("Custom"));
     private final ModeValue targetSource = new ModeValue("Target", "Client Name",
             "Client Name", "Account Name", "Custom");
@@ -112,7 +116,13 @@ public final class AutoL extends Module {
             checkDeath(player);
             if (player.isRemoved() || !mc.world.hasEntity(player)) combat.removed(player);
         }
-        for (String name : combat.drainDeaths()) sendMessage(name);
+        for (String name : combat.drainDeaths(this::shouldSend)) sendMessage(name);
+    }
+
+    private boolean shouldSend(PlayerEntity victim) {
+        if (!onlyCheaters.getValue()) return true;
+        AntiCheat antiCheat = getModule(AntiCheat.class);
+        return antiCheat != null && antiCheat.getSuspicionScore(victim.getUuid()) >= suspicionThreshold.getValue().intValue();
     }
 
     private void sendMessage(String name) {
@@ -168,7 +178,37 @@ public final class AutoL extends Module {
         return messages[ThreadLocalRandom.current().nextInt(messages.length)];
     }
 
-    private static final String[] PANPAN = "盘盘急哭了、也够、文明、放学了、细节、开动脑筋了、天黑了、这下看懂了、对上了全都对上了、我也没看什么，起码挺热闹的、赢麻了、懂你意思、最后一期、太敢说了、你至少比我们多20个脑袋、爆、哈哈哈、说的好，我完全同意、基本胜利[打call][打call][打call]".split("、");
+    private static final String[] PANPAN = {"盘盘急哭了",
+            "刚才跟王脂肪在私信聊了一会很多事情，咱俩的观点啥的都一样也挺合得来的，但是我觉得台湾是应该回归的。",
+            "剪纸别招[星星眼]",
+            "盘到我了。",
+            "盘盘急哭了[喜极而泣][喜极而泣][喜极而泣]",
+            "盘盘急麻了",
+            "急急盘麻了",
+            "又赢了",
+            "盘盘闹麻了。",
+            "目田推塔派实践中，勿扰。",
+            "图图网左。",
+            "没绷住，在一个社会主义国家还能看到右翼分子[笑哭]",
+            "人民万岁！共产主义万岁！",
+            "人民万岁!",
+            "自由平等公正[笑哭]",
+            "你是基本盘还是dack客",
+            "也够",
+            "文明",
+            "放学了",
+            "细节",
+            "开动脑筋了",
+            "天黑了",
+            "这下看懂了",
+            "对上了全都对上了",
+            "我也没看什么，起码挺热闹的",
+            "赢麻了",
+            "你至少比我们多20个脑袋",
+            "爆",
+            "说的好，我完全同意",
+            "基本胜利[打call][打call][打call]"
+    };
 
     private static final String[] CLASSIC_PREFIXES = {
             "你玩的很强",
@@ -328,19 +368,11 @@ public final class AutoL extends Module {
             "不是，这再搞下去，手机版的网易都要下架了吧",
             "不懂为什么会有光明正大开挂不被骂的视频，是有挂圈吗？",
             "我去，是黑屋局吗？怎么感觉敌人一个个都不简单",
-            "刚才跟王脂肪在私信聊了一会很多事情，咱俩的观点啥的都一样也挺合得来的，但是我觉得台湾是应该回归的。",
+            "你是基本盘还是dack客",
             "LLL不如水影",
             "什么模组啊？网易能买吗？[吃瓜]",
             "我家边牧能玩布吉岛吗。[星星眼]",
-            "剪纸别招[星星眼]",
-            "盘到我了。",
-            "盘盘急哭了[喜极而泣][喜极而泣][喜极而泣]",
-            "目田推塔派实践中，勿扰。",
-            "图图网左。",
-            "没绷住，在一个社会主义国家还能看到右翼分子[笑哭]",
-            "人民万岁！共产主义万岁！",
-            "人民万岁!",
-            "自由平等公正[笑哭]"
+            "绿宝石不是网易的事吗？怎么全跑国际版来了"
     };
 
     private static final String[] TROLL2 = {
@@ -358,7 +390,7 @@ public final class AutoL extends Module {
             "打的是末影龙，没开。",
             "里面打的是地鼠，所以我玩的是打地鼠游戏。没得开。",
             "随便找的一个四月五月左右的西格玛reborn来玩玩，还有就是没开，合法。",
-            "10r，不止步于4v4，神秘代码1849、186、992，神秘开放的群组637、849、197。还有就是这里的人都是小狗狗，我在给他们特训呢。",
+            "10r，不止步于4v4，神秘代码19,189、64，神秘开放的群组64、89、198。还有就是这里的人都是小狗狗，我在给他们特训呢。",
             "玩的打地鼠，4399里面的。",
             "没玩游戏，这是电视剧。",
             "游戏里打的是土豆，我要吃土豆，所以才打的。 Config by Andyxie",
