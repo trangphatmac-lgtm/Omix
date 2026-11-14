@@ -65,6 +65,11 @@
     "source": "src/main/java/cn/omix/module/impl/combat/Reach.java"
   },
   {
+    "module": "SuperKnockBack",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/combat/SuperKnockBack.java"
+  },
+  {
     "module": "TPAura",
     "selector": "Behavior",
     "source": "src/main/java/cn/omix/module/impl/combat/TPAura.java"
@@ -73,6 +78,11 @@
     "module": "TargetStrafe",
     "selector": "Mode",
     "source": "src/main/java/cn/omix/module/impl/combat/TargetStrafe.java"
+  },
+  {
+    "module": "TimerRange",
+    "selector": "Mode",
+    "source": "src/main/java/cn/omix/module/impl/combat/TimerRange.java"
   },
   {
     "module": "Velocity",
@@ -466,7 +476,7 @@
   },
   {
     "module": "AutoL",
-    "selector": "Behavior",
+    "selector": "Mode",
     "source": "src/main/java/cn/omix/module/impl/world/AutoL.java"
   },
   {

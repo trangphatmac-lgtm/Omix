@@ -7,7 +7,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 
-/** Only connects to the endpoint discovered from the current Harness child. */
+/** Shared model catalog, translation and chat-reply transport to the current Harness child. */
 public final class TranslationClient {
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
     private final HarnessRuntime.TranslationEndpoint endpoint;
@@ -36,13 +36,39 @@ public final class TranslationClient {
             return result;
         });
     }
+    public CompletableFuture<String> reply(String provider, String model, String sender, String message) {
+        JsonObject body = new JsonObject();
+        body.addProperty("provider", provider);
+        body.addProperty("model", model);
+        body.addProperty("sender", sender);
+        body.addProperty("message", message);
+        return map(request("/v1/chat-reply", body), json -> {
+            String text = json.get("text").getAsString();
+            if (text.isBlank() || text.length() > 2048) throw new IllegalArgumentException("Invalid AI reply");
+            return text;
+        });
+    }
+
+    public CompletableFuture<String> reply_aggresive(String provider, String model, String sender, String message) {
+        JsonObject body = new JsonObject();
+        body.addProperty("provider", provider);
+        body.addProperty("model", model);
+        body.addProperty("sender", sender);
+        body.addProperty("message", message);
+        return map(request("/v1/chat-reply-aggressive", body), json -> {
+            String text = json.get("text").getAsString();
+            if (text.isBlank() || text.length() > 2048) throw new IllegalArgumentException("Invalid AI reply");
+            return text;
+        });
+    }
+
     private CompletableFuture<JsonObject> request(String path, JsonObject body) {
         var builder = HttpRequest.newBuilder(endpoint.uri().resolve(path)).timeout(Duration.ofSeconds(15))
                 .header("Authorization", "Bearer " + endpoint.token()).header("Content-Type", "application/json");
         if (body == null) builder.GET(); else builder.POST(HttpRequest.BodyPublishers.ofString(body.toString()));
         return map(http.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString()), response -> {
-            if (response.statusCode() != 200) throw new IllegalStateException("Translation HTTP " + response.statusCode());
-            if (response.body().length() > 2_000_000) throw new IllegalStateException("Translation response too large");
+            if (response.statusCode() != 200) throw new IllegalStateException("Harness HTTP " + response.statusCode());
+            if (response.body().length() > 2_000_000) throw new IllegalStateException("Harness response too large");
             return JsonParser.parseString(response.body()).getAsJsonObject();
         });
     }

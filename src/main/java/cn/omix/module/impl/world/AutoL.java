@@ -12,18 +12,53 @@ import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
 import cn.omix.module.value.impl.TextValue;
+import cn.omix.util.ai.HarnessRuntime;
 import cn.omix.util.network.GameConnectionContext;
+import cn.omix.util.translation.TranslationClient;
 import cn.omix.util.world.CombatDeathTracker;
+import im.webui.WebUiRuntime;
 import injection.accessor.PlayerInteractEntityC2SPacketAccessor;
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.util.Hand;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class AutoL extends Module {
+    private static final String UNSELECTED = "(Select)";
+    private static final List<String> TRIGGER_WORDS = List.of(
+            "=f", "=g", "=lz", "=贵", "外g", "外G", "s8", "S8", "s13", "S13",
+            "冯", "木琴", "你冯", "糙", "举报", "挂", "是贵", "是桂", "你m", "沙壁",
+            "东西", "lz", "纪狗", "G？", "G?", "g？", "g?", "外j", "贵？", "gua",
+            "喜欢开", "也配", "ac", "冯", "占位符", "占位符", "占位符", "占位符",
+            "占位符", "占位符", "占位符", "占位符"
+    );
+    private static final Pattern FORMATTING = Pattern.compile("(?i)§[0-9A-FK-ORX]");
+    // Legacy servers often relay player chat as system messages, with optional rank/channel tags.
+    private static final Pattern PLAYER_CHAT = Pattern.compile(
+            "^(?:\\[[^\\]\\r\\n]+\\]\\s*)*(?:<([A-Za-z0-9_]{1,16})>\\s*"
+                    + "|([A-Za-z0-9_]{1,16})\\s*(?::|：|»|>>|›)\\s*)(.+)$"
+    );
+    private final ModeValue mode = new ModeValue("Mode", "Kill", "Kill", "Trigger");
+    private final ModeValue replyMode = new ModeValue("Reply Mode", "Text", () -> mode.is("Trigger"), "Text", "AI");
+    private final ModeValue aiProvider = new ModeValue("AI Provider", "(Select)",
+            () -> mode.is("Trigger") && replyMode.is("AI"), "(Select)").dynamic();
+    private final ModeValue aiModel = new ModeValue("AI Model", "(Select)",
+            () -> mode.is("Trigger") && replyMode.is("AI"), "(Select)").dynamic();
+    private final ModeValue replyprompt = new ModeValue("AI Reply Mode", "Reduced", () -> mode.is("Trigger") && replyMode.is("AI"), "Aggressive", "Reduced");
+    private final NumberValue aiCooldown = new NumberValue("AI Cooldown (s)", 5, 1, 30, 1,
+            () -> mode.is("Trigger") && replyMode.is("AI"));
     private final ModeValue wordPattern = new ModeValue("Word Pattern", "Poem",
             "Poem", "Ma Ma", "Pride Plus", "Ci xiao gui", "Crystal PVP", "Clear", "English", "San Guo",
             "Classic", "Bratty", "Troll", "Troll2", "PanPan", "Custom");
@@ -38,29 +73,68 @@ public final class AutoL extends Module {
     private final TextValue targetText = new TextValue("Target Text", "", () -> targetSource.is("Custom"));
     private final CombatDeathTracker<PlayerEntity> combat = new CombatDeathTracker<>();
     private volatile long generation;
+    private HarnessRuntime aiRuntime;
+    private HarnessRuntime.TranslationEndpoint aiEndpoint;
+    private TranslationClient aiClient;
+    private CompletableFuture<?> aiCatalogRequest;
+    private CompletableFuture<String> aiReplyRequest;
+    private Map<String, List<String>> aiModels = Map.of();
+    private Object aiWorld, aiPlayer, aiConnection;
+    private long aiGeneration, nextAiCatalogAt, nextAiReplyAt;
+    private boolean aiReplyFailed, aiCatalogFailed;
+    private String aiStatus = "Preparing";
 
     public AutoL() {
         super("AutoL", Category.World);
+        mode.onChange((previous, current) -> {
+            resetCombat();
+            resetAi();
+        });
+        replyMode.onChange((previous, current) -> resetAi());
+        aiProvider.onChange((previous, current) -> {
+            resetAiReply();
+            aiModel.setValue(UNSELECTED);
+            updateAiModelChoices();
+            if (aiRuntime != null) WebUiRuntime.getInstance().notifyModulesChanged();
+        });
+        aiModel.onChange((previous, current) -> resetAiReply());
+        ClientReceiveMessageEvents.CHAT.register((message, signedMessage, sender, params, receivedAt) -> {
+            if (!canTrigger()) return;
+            if (sender != null && signedMessage != null) {
+                var body = signedMessage.filterMask().isPassThrough()
+                        ? signedMessage.getContent()
+                        : signedMessage.filterMask().getFilteredText(signedMessage.getSignedContent());
+                if (body != null) triggerMessage(sender.id(), sender.name(), body.getString());
+            } else {
+                triggerFormattedMessage(message.getString());
+            }
+        });
+        ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
+            if (!overlay && canTrigger()) triggerFormattedMessage(message.getString());
+        });
     }
 
     @Override
     public String getSuffix() {
-        return wordPattern.getValue();
+        return usesAiReply() ? "AI / " + aiStatus : wordPattern.getValue();
     }
 
     @Override
     public void onEnable() {
         resetCombat();
+        resetAi();
     }
 
     @Override
     public void onDisable() {
         resetCombat();
+        resetAi();
     }
 
     @EventTarget
     public void onWorld(WorldEvent event) {
         resetCombat();
+        resetAi();
     }
 
     private void resetCombat() {
@@ -71,7 +145,7 @@ public final class AutoL extends Module {
     @EventTarget
     public void onPacketSent(PacketLogEvent event) {
         // Observe the final send decision, including packets released by Blink/KeepSprint.
-        if (!isNativeBehaviorActive() || event.isPacketCancelled()
+        if (!isNativeBehaviorActive() || !mode.is("Kill") || event.isPacketCancelled()
                 || event.getDirection() != PacketEvent.Type.Send
                 || !(event.getPacket() instanceof PlayerInteractEntityC2SPacket packet)) return;
         long session = generation;
@@ -90,13 +164,13 @@ public final class AutoL extends Module {
     }
 
     public void recordDamage(Entity entity) {
-        if (entity instanceof PlayerEntity player && player != mc.player && !player.isRemoved()) {
+        if (mode.is("Kill") && entity instanceof PlayerEntity player && player != mc.player && !player.isRemoved()) {
             combat.hit(player, player.getName().getString(), now());
         }
     }
 
     public void confirmDeath(Entity entity) {
-        if (entity instanceof PlayerEntity player && player != mc.player) combat.death(player, now());
+        if (mode.is("Kill") && entity instanceof PlayerEntity player && player != mc.player) combat.death(player, now());
     }
 
     public void checkDeath(Entity entity) {
@@ -108,10 +182,17 @@ public final class AutoL extends Module {
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
-        if (!isNativeBehaviorActive() || mc.player == null || mc.world == null) {
+        if (!isNativeBehaviorActive()) {
+            resetCombat();
+            resetAi();
+            return;
+        }
+        if (usesAiReply()) updateAi();
+        if (mc.player == null || mc.world == null) {
             resetCombat();
             return;
         }
+        if (!mode.is("Kill")) return;
         for (PlayerEntity player : combat.targets(now())) {
             checkDeath(player);
             if (player.isRemoved() || !mc.world.hasEntity(player)) combat.removed(player);
@@ -120,13 +201,175 @@ public final class AutoL extends Module {
     }
 
     private boolean shouldSend(PlayerEntity victim) {
+        return shouldSend(victim.getUuid());
+    }
+
+    private boolean shouldSend(UUID player) {
         if (!onlyCheaters.getValue()) return true;
         AntiCheat antiCheat = getModule(AntiCheat.class);
-        return antiCheat != null && antiCheat.getSuspicionScore(victim.getUuid()) >= suspicionThreshold.getValue().intValue();
+        return antiCheat != null && antiCheat.getSuspicionScore(player) >= suspicionThreshold.getValue().intValue();
+    }
+
+    private boolean canTrigger() {
+        return isNativeBehaviorActive() && mode.is("Trigger") && mc.player != null && mc.world != null;
+    }
+
+    private void triggerFormattedMessage(String message) {
+        Matcher chat = parseTriggerMessage(message);
+        if (chat == null) return;
+        String name = chat.group(1) == null ? chat.group(2) : chat.group(1);
+        var sender = mc.player.networkHandler.getPlayerListEntry(name);
+        if (sender != null) triggerMessage(sender.getProfile().id(), sender.getProfile().name(), chat.group(3));
+    }
+
+    private void triggerMessage(UUID sender, String name, String message) {
+        if (matchesTrigger(sender, mc.player.getUuid(), message) && shouldSend(sender)) {
+            if (replyMode.is("AI")) requestAiReply(sender, name, message);
+            else sendMessage(name);
+        }
+    }
+
+    private boolean usesAiReply() {
+        return mode.is("Trigger") && replyMode.is("AI");
+    }
+
+    private void resetAiReply() {
+        aiGeneration++;
+        var request = aiReplyRequest;
+        aiReplyRequest = null;
+        nextAiReplyAt = 0;
+        aiReplyFailed = false;
+        if (request != null) request.cancel(true);
+    }
+
+    private void resetAi() {
+        resetAiReply();
+        var request = aiCatalogRequest;
+        aiCatalogRequest = null;
+        aiRuntime = null;
+        aiEndpoint = null;
+        aiClient = null;
+        aiWorld = aiPlayer = aiConnection = null;
+        nextAiCatalogAt = 0;
+        aiCatalogFailed = false;
+        aiStatus = "Preparing";
+        if (request != null) request.cancel(true);
+    }
+
+    private void updateAi() {
+        if (aiWorld != mc.world || aiPlayer != mc.player || aiConnection != mc.getNetworkHandler()) {
+            resetAiReply();
+            aiWorld = mc.world;
+            aiPlayer = mc.player;
+            aiConnection = mc.getNetworkHandler();
+        }
+        if (aiRuntime == null) {
+            try {
+                aiRuntime = WebUiRuntime.getInstance().getAiRuntime();
+                aiRuntime.startAsync();
+            } catch (RuntimeException error) {
+                aiStatus = "Unavailable";
+                return;
+            }
+        }
+        var endpoint = aiRuntime.getTranslationEndpoint();
+        if (!Objects.equals(endpoint, aiEndpoint)) {
+            resetAiReply();
+            if (aiCatalogRequest != null) aiCatalogRequest.cancel(true);
+            aiCatalogRequest = null;
+            aiEndpoint = endpoint;
+            aiClient = endpoint == null ? null : new TranslationClient(endpoint);
+            nextAiCatalogAt = 0;
+        }
+        if (aiRuntime.getState() == HarnessRuntime.State.FAILED) {
+            aiStatus = "Harness failed: .ai restart";
+            return;
+        }
+        if (aiClient == null) {
+            aiStatus = "Preparing";
+            return;
+        }
+        if (now() >= nextAiCatalogAt && aiCatalogRequest == null) loadAiModels();
+        if (aiProvider.is(UNSELECTED) || aiModel.is(UNSELECTED)) aiStatus = "Select model";
+        else if (aiReplyRequest != null) aiStatus = "Replying";
+        else if (aiReplyFailed) aiStatus = "Reply failed";
+        else aiStatus = aiCatalogFailed ? "Model list unavailable" : "Ready";
+    }
+
+    private void loadAiModels() {
+        nextAiCatalogAt = now() + 10000;
+        var client = aiClient;
+        var request = client.models();
+        aiCatalogRequest = request;
+        request.whenComplete((catalog, error) -> mc.execute(() -> {
+            if (!isNativeBehaviorActive() || !usesAiReply() || aiClient != client || aiCatalogRequest != request) return;
+            aiCatalogRequest = null;
+            aiCatalogFailed = error != null;
+            if (error == null) {
+                aiModels = catalog;
+                var providers = new ArrayList<String>();
+                providers.add(UNSELECTED);
+                providers.addAll(catalog.keySet());
+                aiProvider.replaceModes(providers);
+                updateAiModelChoices();
+                WebUiRuntime.getInstance().notifyModulesChanged();
+            }
+        }));
+    }
+
+    private void updateAiModelChoices() {
+        var choices = new ArrayList<String>();
+        choices.add(UNSELECTED);
+        choices.addAll(aiModels.getOrDefault(aiProvider.getValue(), List.of()));
+        aiModel.replaceModes(choices);
+    }
+
+    private void requestAiReply(UUID sender, String name, String message) {
+        updateAi();
+        if (aiClient == null || aiProvider.is(UNSELECTED) || aiModel.is(UNSELECTED)
+                || aiReplyRequest != null || now() < nextAiReplyAt) return;
+        nextAiReplyAt = now() + (long) (aiCooldown.getValue() * 1000);
+        aiReplyFailed = false;
+        long session = aiGeneration;
+        var world = mc.world;
+        var player = mc.player;
+        var connection = mc.player.networkHandler;
+        var endpoint = aiEndpoint;
+        var request = replyprompt.is("Reduced")
+                ? aiClient.reply(aiProvider.getValue(), aiModel.getValue(), name, message)
+                : aiClient.reply_aggresive(aiProvider.getValue(), aiModel.getValue(), name, message);
+        aiReplyRequest = request;
+        aiStatus = "Replying";
+        request.whenComplete((reply, error) -> mc.execute(() -> {
+            if (session != aiGeneration || aiReplyRequest != request) return;
+            aiReplyRequest = null;
+            if (!canTrigger() || !usesAiReply() || mc.world != world || mc.player != player
+                    || mc.getNetworkHandler() != connection || aiRuntime == null
+                    || !Objects.equals(endpoint, aiRuntime.getTranslationEndpoint())) return;
+            aiReplyFailed = error != null;
+            aiStatus = error == null ? "Ready" : "Reply failed";
+            if (error == null && shouldSend(sender)) sendMessage(name, reply);
+        }));
+    }
+
+    private static boolean matchesTrigger(UUID sender, UUID localPlayer, String message) {
+        if (sender == null || sender.equals(localPlayer) || message == null) return false;
+        String content = FORMATTING.matcher(message).replaceAll("");
+        return TRIGGER_WORDS.stream().anyMatch(content::contains);
+    }
+
+    private static Matcher parseTriggerMessage(String message) {
+        if (message == null) return null;
+        Matcher matcher = PLAYER_CHAT.matcher(FORMATTING.matcher(message).replaceAll("").strip());
+        return matcher.matches() ? matcher : null;
     }
 
     private void sendMessage(String name) {
-        String message = getRandomMessage().replace("<target>", getTargetText());
+        sendMessage(name, getRandomMessage());
+    }
+
+    private void sendMessage(String name, String text) {
+        String message = text.replace("<target>", getTargetText());
         if (nameInFront.getValue()) message = name + " " + message;
         if (sendL.getValue() && ThreadLocalRandom.current().nextInt(10) < 7) message = "Ｌ " + message;
         // Custom text must fit a single vanilla chat packet.
@@ -296,95 +539,106 @@ public final class AutoL extends Module {
             "略略略～有本事来抓<target>呀～杂鱼哥哥～♡"
     };
 
-    private static final String[] TROLL = {
-            """
-尾号6883卡9月30日10:29工商银行向米哈游游戏支出648元，余额859.23元。【工商银行】
-尾号6883卡9月30日10:29工商银行向米哈游游戏支出648元，余额211.23元。【工商银行】
-尾号6883卡9月30日10:29工商银行向米哈游游戏支出198元，余额13.23元。【工商银行】
-尾号6883卡9月30日10:30工商银行向米哈游游戏支出6元，余额7.23元。【工商银行】
-尾号6883卡9月30日10:30工商银行向米哈游游戏支出6元，余额1.23元。【工商银行】
-不小心手滑发出来了 哈哈，有没有妹妹想网恋
-""",
-            "@大佬萌茶 @Easy曹某 @布吉岛我的世界 遛狗",
-            "g?是的话求",
-            "三星手机怎么玩[doge]",
-            "不听卡卡言，吃亏在眼前，我89块钱的号开桂被ben了，早知道听卡卡学长的了，不开桂了",
-            "不是哥们，<target>都启动了你怎么还这么谨慎",
-            "不是哥们，你开局直接冲别人家，他们不就结束了吗",
-            "不是哥们，你是挂呀，开局直接冲别人家，他们不就完了吗，为啥还打的跟绿的一样谨慎？",
-            "为啥有自动打方块啊？我靠，我说我怎么打不过你[辣眼睛]",
-            "今天打起床遇到一把 开挂给我和朋友乱杀",
-            "你怎么又在偷玩电脑？我没有啊爷爷，我在学习。那这个人脱衣服干什么？我真的在学习啊。我靠，我怎么没有关语音输入。",
-            "兄弟们，开武魂",
-            "刚才这个人见到卡卡，吓得直接掉入虚空",
-            "卡卡，不要试图衡量代价，因为你的一生本身就是神话",
-            "卡卡，为了这个世界，振作起来",
-            "卡卡，作为地球上的神，你需要不断原谅每一个人",
-            "卡卡，你想活出怎样的人生",
-            "卡卡，你所浪费的今天，是昨日之人奢望的明天",
-            "卡卡，你把剑丢在泥里，那是留给这个世界最后的怜悯",
-            "卡卡，你落的泪是否得到答案了呢",
-            "卡卡，你要像水一样平静",
-            "卡卡，像你这样可怕的存在也会留下眼泪吗",
-            "卡卡，放下剑比拿起剑更需要勇气",
-            "卡卡，海的那边是什么",
-            "卡卡，真正的战士不需要剑",
-            "反对奶酪客户瑞，之前我花了70找人帮忙安装水印，（注：电脑是我爷爷的） 安装完后我爷爷的电脑就蓝屏了，然后被我爷爷打了一顿，",
-            "哇，我要气死了呀，原来这个版本是免费的，我还花了五十",
-            "哥们拿我做开头是什么意思？",
-            "国服hyp谁来。我用水印b72汉花版，带飞。",
-            "小萌新想问你们为什么可以玩得这么自然？？？？？？",
-            "小萌新想问你们为什么没被刚毅ban？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？",
-            "怎么解开奶酪",
-            "我上镜了，聪明的卡卡已经飞走了",
-            "我再问最后一遍，<target>的配置到底放哪个文件夹里",
-            "我再问最后一遍，水印中文版的配置到底该放在哪个文件夹",
-            "我想知道手机怎么装jvav版[doge][doge][doge]",
-            "我是中立玩家，周末有一起玩四十人相亲房的关注我",
-            "我电脑中奶酪毒了怎么办",
-            "我觉得可以在水印中文版里弄一个云原神",
-            "来你先不要动，教你们一个绝招，假如队友吸铁石，或不捡钻石，你可以当熊孩子",
-            "正常玩家：你这个老六。",
-            "没有飞行差评，我50买的水影中文版都有飞行。",
-            "没有飞起来的动画差评，我五十买的版本都有",
-            "爷爷叫你写作业，你又在偷玩电脑了。哎哟我去，我刚才语音输入忘记关了。",
-            "玩了好几把了每把都有挂。气死我了。成年人的崩溃只在一瞬间。希望这把没挂。南无啊弥陀佛。普萨保佑。",
-            "盘盘闹麻了。[笑哭]",
-            "看着有点像某个熟悉的版本，好像又不是，这是啥呀",
-            "秒人斧说：别低估了霸道的力量",
-            "空岛里不好打，起床里好打，四对四还是得看配合",
-            "给我这个刚转一个月的新触控小萌新看呆了[疑惑]",
-            "英伟达今年在中国就一张卡也别想卖出去。就在前几天。华为发布了升腾950。全方位吊打RTX 5090。",
-            "请问房间号是多少呀，我也想来和你们玩我的世界",
-            "这个也没多强啊，来刚毅联机房918964，信不信你打不过我？？",
-            "这个花雨停我见过你，好像叫watchdog",
-            "这么好，为什么不火？",
-            "这人太坏了，看着挺老实的原来坏事做尽",
-            "这人才是正常思路，知道什么时候应该飞起来",
-            "这是新版吗？现在还开源不？？",
-            "这谁拉我共创，我不认识你啊，兄弟们给他点点赞",
-            "@布吉岛我的世界 孙政已绕过最强反作弊aca和grim。",
-            "@药儿哟 遛狗。",
-            "不是，这再搞下去，手机版的网易都要下架了吧",
-            "不懂为什么会有光明正大开挂不被骂的视频，是有挂圈吗？",
-            "我去，是黑屋局吗？怎么感觉敌人一个个都不简单",
-            "你是基本盘还是dack客",
-            "LLL不如水影",
-            "什么模组啊？网易能买吗？[吃瓜]",
-            "我家边牧能玩布吉岛吗。[星星眼]",
-            "绿宝石不是网易的事吗？怎么全跑国际版来了",
-            "这是AI吧[笑哭]布吉岛的反作弊不会让挂钩长驱直入[笑哭]",
-            "儿子，你不是答应过我出去送外卖吗？我特意为你买了辆电瓶车。你为什么每天还赖在我家里，还向我伸手要钱呢？",
-            "挂哥固然是不对的，但是如果是在布吉岛，这种妖cat圈钱的时代，那还说啥了，爷们儿！[支持]",
-            "等着。我法务部会来找你麻烦的。但不会太麻烦。",
-            "七七难道不是世界最强，吗布吉岛遇到他他，空岛战争那个什么就会给你打死快去，洗澡了我语音输入忘关了",
-            "系度是不对的。[星星眼]",
-            "健全闹麻",
-            "不奋斗祖国怎么变强？",
-            "笑死我了。开挂了！。",
-            "六七年没玩了现在为什么现在大家都开的这么安全",
-            "你也不用玩啥我的世界了，喜欢开挂去别的游戏开挂行不行[笑哭][笑哭][笑哭]"
-    };
+    private static final String[] TROLL;
+
+    static {
+        TROLL = new String[]{
+                "尾号8964卡9月30日10:29工商银行向米哈游游戏支出648元，余额859.23元。【工商银行】",
+                "尾号8964卡9月30日10:29工商银行向米哈游游戏支出648元，余额211.23元。【工商银行】",
+                "尾号8964卡9月30日10:29工商银行向米哈游游戏支出198元，余额13.23元。【工商银行】",
+                "尾号8964卡9月30日10:30工商银行向米哈游游戏支出6元，余额7.23元。【工商银行】",
+                "尾号8964卡9月30日10:30工商银行向米哈游游戏支出6元，余额1.23元。【工商银行】\n不小心手滑发出来了 哈哈，有没有妹妹想网恋",
+                "@大佬萌茶 @Easy曹某 @布吉岛我的世界 遛狗",
+                "g?是的话求",
+                "三星手机怎么玩[doge]",
+                "不听卡卡言，吃亏在眼前，我89块钱的号开桂被ben了，早知道听卡卡学长的了，不开桂了",
+                "不是哥们，<target>都启动了你怎么还这么谨慎",
+                "不是哥们，你开局直接冲别人家，他们不就结束了吗",
+                "不是哥们，你是挂呀，开局直接冲别人家，他们不就完了吗，为啥还打的跟绿的一样谨慎？",
+                "为啥有自动打方块啊？我靠，我说我怎么打不过你[辣眼睛]",
+                "今天打起床遇到一把 开挂给我和朋友乱杀",
+                "你怎么又在偷玩电脑？我没有啊爷爷，我在学习。那这个人脱衣服干什么？我真的在学习啊。我靠，我怎么没有关语音输入。",
+                "兄弟们，开武魂",
+                "刚才这个人见到卡卡，吓得直接掉入虚空",
+                "卡卡，不要试图衡量代价，因为你的一生本身就是神话",
+                "卡卡，为了这个世界，振作起来",
+                "卡卡，作为地球上的神，你需要不断原谅每一个人",
+                "卡卡，你想活出怎样的人生",
+                "卡卡，你所浪费的今天，是昨日之人奢望的明天",
+                "卡卡，你把剑丢在泥里，那是留给这个世界最后的怜悯",
+                "卡卡，你落的泪是否得到答案了呢",
+                "卡卡，你要像水一样平静",
+                "卡卡，像你这样可怕的存在也会留下眼泪吗",
+                "卡卡，放下剑比拿起剑更需要勇气",
+                "卡卡，海的那边是什么",
+                "卡卡，真正的战士不需要剑",
+                "反对奶酪客户瑞，之前我花了70找人帮忙安装水印，（注：电脑是我爷爷的） 安装完后我爷爷的电脑就蓝屏了，然后被我爷爷打了一顿，",
+                "哇，我要气死了呀，原来这个版本是免费的，我还花了五十",
+                "哥们拿我做开头是什么意思？",
+                "国服hyp谁来。我用水印b72汉花版，带飞。",
+                "小萌新想问你们为什么可以玩得这么自然？？？？？？",
+                "小萌新想问你们为什么没被刚毅ban？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？",
+                "怎么解开奶酪",
+                "我上镜了，聪明的卡卡已经飞走了",
+                "我再问最后一遍，<target>的配置到底放哪个文件夹里",
+                "我再问最后一遍，水印中文版的配置到底该放在哪个文件夹",
+                "我想知道手机怎么装jvav版[doge][doge][doge]",
+                "我是中立玩家，周末有一起玩四十人相亲房的关注我",
+                "我电脑中奶酪毒了怎么办",
+                "我觉得可以在水印中文版里弄一个云原神",
+                "来你先不要动，教你们一个绝招，假如队友吸铁石，或不捡钻石，你可以当熊孩子",
+                "正常玩家：你这个老六。",
+                "没有飞行差评，我50买的水影中文版都有飞行。",
+                "没有飞起来的动画差评，我五十买的版本都有",
+                "爷爷叫你写作业，你又在偷玩电脑了。哎哟我去，我刚才语音输入忘记关了。",
+                "玩了好几把了每把都有挂。气死我了。成年人的崩溃只在一瞬间。希望这把没挂。南无啊弥陀佛。普萨保佑。",
+                "盘盘闹麻了。[笑哭]",
+                "看着有点像某个熟悉的版本，好像又不是，这是啥呀",
+                "秒人斧说：别低估了霸道的力量",
+                "空岛里不好打，起床里好打，四对四还是得看配合",
+                "给我这个刚转一个月的新触控小萌新看呆了[疑惑]",
+                "英伟达今年在中国就一张卡也别想卖出去。就在前几天。华为发布了升腾950。全方位吊打RTX 5090。",
+                "请问房间号是多少呀，我也想来和你们玩我的世界",
+                "这个也没多强啊，来刚毅联机房918964，信不信你打不过我？？",
+                "这个花雨停我见过你，好像叫watchdog",
+                "这么好，为什么不火？",
+                "这人太坏了，看着挺老实的原来坏事做尽",
+                "这人才是正常思路，知道什么时候应该飞起来",
+                "这是新版吗？现在还开源不？？",
+                "这谁拉我共创，我不认识你啊，兄弟们给他点点赞",
+                "@布吉岛我的世界 孙政已绕过我的世界最强反作弊aca和grim。",
+                "@药儿哟 遛狗。",
+                "不是，这再搞下去，手机版的网易都要下架了吧",
+                "不懂为什么会有光明正大开挂不被骂的视频，是有挂圈吗？",
+                "我去，是黑屋局吗？怎么感觉敌人一个个都不简单",
+                "你是基本盘还是dack客",
+                "LLL不如水影",
+                "什么模组啊？网易能买吗？[吃瓜]",
+                "我家边牧能玩布吉岛吗。[星星眼]",
+                "绿宝石不是网易的事吗？怎么全跑国际版来了",
+                "这是AI吧[笑哭]布吉岛的反作弊不会让挂钩长驱直入[笑哭]",
+                "儿子，你不是答应过我出去送外卖吗？我特意为你买了辆电瓶车。你为什么每天还赖在我家里，还向我伸手要钱呢？",
+                "挂哥固然是不对的，但是如果是在布吉岛，这种妖cat圈钱的时代，那还说啥了，爷们儿！[支持]",
+                "等着。我法务部会来找你麻烦的。但不会太麻烦。",
+                "七七难道不是世界最强，吗布吉岛遇到他他，空岛战争那个什么就会给你打死快去，洗澡了我语音输入忘关了",
+                "系度是不对的。[星星眼]",
+                "健全闹麻",
+                "不奋斗祖国怎么变强？",
+                "笑死我了。开挂了！。",
+                "六七年没玩了现在为什么现在大家都开的这么安全",
+                "你也不用玩啥我的世界了，喜欢开挂去别的游戏开挂行不行[笑哭][笑哭][笑哭]",
+                "中国人完全自研的科技成果，遥遥领先[打call][打call]",
+                "我支持你@央视军事 @央视新闻 @米哈游法务部",
+                "hello大家好欢迎来到籽岷的Minecraft游戏世界",
+                "张雪峰老师",
+                "为什么要开挂，听我的关闭外挂，回头是绿。",
+                "欣欣哥的“人生智慧”：方块人的迷茫与自我安慰",
+                "[千恋万花表情包_丛雨Ciallo][魔女的夜宴表情包_宁宁Ciallo][星光咖啡馆与死神之蝶表情包_夏目Ciallo][天使嚣嚣REBOOT表情包_天音Ciallo][RIDDLE JOKER表情包_七海Ciallo]",
+                "[千恋万花表情包_茉子Ciallo][魔女的夜宴动态表情包_Ciallo~][星光咖啡馆与死神之蝶表情包_栞那Ciallo][天使嚣嚣REBOOT表情包_来海Ciallo][RIDDLE JOKER表情包_千咲Ciallo]",
+                "[千恋万花表情包_芳乃Ciallo][魔女的夜宴表情包_紬Ciallo][星光咖啡馆与死神之蝶表情包_希Ciallo][天使嚣嚣REBOOT表情包_乃爱Ciallo][RIDDLE JOKER表情包_茉优Ciallo]",
+                "[千恋万花表情包_蕾娜Ciallo][魔女的夜宴表情包_和奏Ciallo][星光咖啡馆与死神之蝶表情包_爱衣Ciallo][天使嚣嚣REBOOT表情包_辉耶Ciallo][RIDDLE JOKER表情包_绫濑Ciallo]"
+        };
+    }
 
     private static final String[] TROLL2 = {
             "@大佬萌茶 @Easy曹某 @布吉岛我的世界 遛狗",

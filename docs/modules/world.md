@@ -243,16 +243,26 @@
 
 ## AutoL
 
-记录最近 15 秒内实际发出攻击包的玩家目标（含 Aura、TPAura 及缓冲后放行的攻击），并通过服务器伤害来源补充归属于自己的弓箭等间接攻击。收到目标死亡状态（status=3）、血量归零或 DYING 姿态时发送所选文本；数据包在主线程处理时即时确认，避免死亡后立刻移除或重置血量造成漏判。多种死亡信号对同一实体只通知一次；下线、传送或离开渲染距离本身不触发，切换世界或开关模块会清空记录及待发送消息。可开启 Only Cheaters，在发送前按受害者 UUID 查询 AntiCheat 累计嫌疑分，只有达到 Suspicion Threshold 才发送；默认关闭，保持原有行为。需自行开启 AntiCheat，未启用、无评分或低于阈值时跳过，不自动开启其他模块。死亡后立即移除仍按原目标筛选，被过滤的死亡不会在之后调低门槛或关闭过滤时补发。这是近期交战目标的死亡检测，不保证最后一击归属；服务器未提供攻击者信息的爆炸、仅有自定义击杀聊天或无标准死亡信号的小游戏暂不保证识别。
+Mode 默认 Kill，保留击杀触发。Kill 模式记录最近 15 秒内实际发出攻击包的玩家目标（含 Aura、TPAura 及缓冲后放行的攻击），并通过服务器伤害来源补充归属于自己的弓箭等间接攻击。收到目标死亡状态（status=3）、血量归零或 DYING 姿态时发送所选文本；数据包在主线程处理时即时确认，避免死亡后立刻移除或重置血量造成漏判。多种死亡信号对同一实体只通知一次；下线、传送或离开渲染距离本身不触发，切换世界或开关模块会清空记录及待发送消息。可开启 Only Cheaters，在发送前按受害者 UUID 查询 AntiCheat 累计嫌疑分，只有达到 Suspicion Threshold 才发送；默认关闭，保持原有行为。需自行开启 AntiCheat，未启用、无评分或低于阈值时跳过，不自动开启其他模块。死亡后立即移除仍按原目标筛选，被过滤的死亡不会在之后调低门槛或关闭过滤时补发。这是近期交战目标的死亡检测，不保证最后一击归属；服务器未提供攻击者信息的爆炸、仅有自定义击杀聊天或无标准死亡信号的小游戏暂不保证识别。
+
+Trigger 模式在其他玩家消息正文包含内置 TriggerList 任一关键词时回复一次。采用大小写敏感的子串匹配，Text 回复方式下每条消息命中多个关键词或重复关键词均只回复一条。Text 沿用全部文本配置，NameInFront 使用发言者账号名，Only Cheaters 和 Suspicion Threshold 按发言者 UUID 过滤。排除自己的消息。支持标准玩家聊天及无签名聊天。系统包转发的玩家聊天支持 <Name> 正文、Name: 正文、Name：正文、Name » 正文、Name >> 正文、Name › 正文及前置 [频道]/[等级] 标签，发言者须在当前玩家列表中。只匹配正文，忽略动作栏和无法识别发言者的消息。切换 Mode 会清空击杀记录及待发送消息。 Trigger 关键词列表、匹配及聊天解析逻辑直接实现在 AutoL.java 中。
+
+Reply Mode 默认 Text，使用当前文案回复。选择 AI 后复用项目 Harness 的 Provider、模型配置和异步调用通道，在 AI Provider / AI Model 中单独选定回复模型，模型列表每 10 秒刷新，保存的模型 ID 区分大小写。后台准备 Harness，模块后缀显示准备、模型选择、生成或失败状态。参考 Southside AutoReply，针对命中消息生成一句中文短回复，AI Cooldown (s) 默认 5 秒。全局最多一个回复请求，生成中及冷却中的后续命中跳过。每次仅发送发言者名字与本条正文供模型生成，模型调用使用最低可用推理档。回复继续应用 NameInFront、SendL 及 <target> 替换，发送前复核 Only Cheaters 并清理为最多 256 字符的单条聊天。关闭模块、切世界、玩家或连接变化、切换回复方式/Provider/Model 及 Harness 重启会取消或丢弃旧回复。请求失败时通过模块后缀提示。
 
 源码：`src/main/java/cn/omix/module/impl/world/AutoL.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Word Pattern | 选择内置文本集合或 Custom；Classic 组合前后句；Troll2 随机使用所提供 CSV 每条记录的首列文案，换行合并为空格。 | 模式；默认 Poem；可选 Poem / Ma Ma / Pride Plus / Ci xiao gui / Crystal PVP / Clear / English / San Guo / Classic / Bratty / Troll / Troll2 / PanPan / Custom |
-| NameInFront | 文本前加被击杀玩家名。 | 布尔；默认 true |
+| Mode | Kill 在近期交战玩家死亡时发送。Trigger 在其他玩家消息正文包含 TriggerList 关键词时发送。新增设置默认 Kill，原有配置项继续按原名称加载。 | 模式；默认 Kill；可选 Kill / Trigger |
+| Reply Mode | Trigger 的回复方式。Text 使用现有文案，AI 使用项目 Harness 生成一句中文短回复。 | 模式；默认 Text；可选 Text / AI；显示条件：Mode = Trigger |
+| AI Provider | 从 Harness 已配置的 Provider 中选择回复服务。更换后重新选择 AI Model，保存的 ID 保留。 | 动态模式；默认 (Select)；选项在运行时加载，保留已保存的选择；显示条件：Mode = Trigger 且 Reply Mode = AI |
+| AI Model | 从所选 Provider 中选择回复模型。ID 区分大小写，模型目录每 10 秒刷新，离线时保留选择。 | 动态模式；默认 (Select)；选项在运行时加载，保留已保存的选择；显示条件：Mode = Trigger 且 Reply Mode = AI |
+| AI Reply Mode | Reduced 使用普通回复接口，Aggressive 使用激进回复接口。 | 模式；默认 Reduced；可选 Aggressive / Reduced；显示条件：Mode = Trigger 且 Reply Mode = AI |
+| AI Cooldown (s) | 两次 AI 回复请求的最短间隔，单位秒。默认 5，范围 1–30，生成中及冷却中的新触发跳过。 | 数值；默认 5；1–30；步长 1；显示条件：Mode = Trigger 且 Reply Mode = AI |
+| Word Pattern | 选择内置文本集合或 Custom；Classic 组合前后句；Troll2 随机使用所提供 CSV 每条记录的首列文案，换行合并为空格。 用于 Kill 和 Trigger 的 Text 回复。 | 模式；默认 Poem；可选 Poem / Ma Ma / Pride Plus / Ci xiao gui / Crystal PVP / Clear / English / San Guo / Classic / Bratty / Troll / Troll2 / PanPan / Custom |
+| NameInFront | 文本前加玩家账号名。Kill 使用被击杀玩家，Trigger 使用发言者。 | 布尔；默认 true |
 | SendL | 70% 概率在文本前加全角 Ｌ。 | 布尔；默认 false |
-| Only Cheaters | 仅在被击杀玩家的 AntiCheat 累计嫌疑分大于或等于 Suspicion Threshold 时发送。默认关闭；开启后需要同时启用 AntiCheat，未启用或无评分则不发送。沿用现有死亡确认逻辑，按 UUID 查询分数，不依赖玩家名字或其仍在世界中。 | 布尔；默认 false |
+| Only Cheaters | 仅在目标玩家的 AntiCheat 累计嫌疑分大于或等于 Suspicion Threshold 时发送。Kill 检查被击杀玩家，Trigger 检查发言者。默认关闭，开启后需要同时启用 AntiCheat，未启用或无评分则不发送。按 UUID 查询分数，保留死亡后立即移除目标的筛选。 | 布尔；默认 false |
 | Suspicion Threshold | Only Cheaters 的最低嫌疑分，默认 80，范围 1–100，达到阈值即可发送。发送前使用 AntiCheat 当前累计分数（包括原有 12 项及已开启的 Raven 检测）；这是嫌疑分而非作弊概率。 | 数值；默认 80；1–100；步长 1；显示条件：Only Cheaters 开启 |
 | Content | 自定义文本，支持 <target>；空白时发送未设置提示。 | 文本；默认 空文本；显示条件：Word Pattern = Custom |
 | Target | <target> 使用客户端名、当前游戏账号名或自定义文本；Account Name 支持 FisProxy AutoNFA 身份。 | 模式；默认 Client Name；可选 Client Name / Account Name / Custom |

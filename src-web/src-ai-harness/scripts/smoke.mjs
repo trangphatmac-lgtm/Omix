@@ -41,6 +41,14 @@ async function launchAndCheck(serve = false) {
     const translationModels = await fetch(translationEndpoint + '/v1/models', { headers: { Authorization: `Bearer ${translationToken}` } });
     if (translationModels.status !== 200 || !Array.isArray((await translationModels.json()).providers))
       throw new Error('Translation model catalog is unavailable');
+    const replyRequest = { method: 'POST', body: '{}' };
+    const noReplyAuth = await fetch(translationEndpoint + '/v1/chat-reply', replyRequest);
+    if (noReplyAuth.status !== 403) throw new Error('Chat reply API accepted missing credentials');
+    const invalidReply = await fetch(translationEndpoint + '/v1/chat-reply', {
+      ...replyRequest, headers: { Authorization: `Bearer ${translationToken}` },
+    });
+    if (invalidReply.status !== 400 || (await invalidReply.json()).error !== 'INVALID_REQUEST')
+      throw new Error('Chat reply API is unavailable or accepted an invalid request');
     const exchange = await fetch(url, { redirect: 'manual' });
     if (![302, 303].includes(exchange.status)) throw new Error(`Token exchange HTTP ${exchange.status}`);
     const cookie = exchange.headers.getSetCookie().map(c => c.split(';')[0]).join('; ');

@@ -741,6 +741,13 @@
 - `cn.omix.util.combat.ReachTeleportState` — `public synchronized Pending<T> peek(Object connection, Object world, Object player)`
 - `cn.omix.util.combat.ReachTeleportState` — `public synchronized Pending<T> take(Object connection, Object world, Object player)`
 - `cn.omix.util.combat.ReachTeleportState` — `public synchronized void clear()`
+- `cn.omix.util.combat.TimerRangeState` — `cn.omix.util.combat.TimerRangeState`
+- `cn.omix.util.combat.TimerRangeState` — `public final class TimerRangeState`
+- `cn.omix.util.combat.TimerRangeState` — `public float tickA(boolean hasTarget, float boost, float slowSpeed)`
+- `cn.omix.util.combat.TimerRangeState` — `public float tickB(float positiveTicks, float positiveTimer, float negativeTimer)`
+- `cn.omix.util.combat.TimerRangeState` — `public boolean onInteraction(boolean attack, double distance, float range, int positiveTicks, int negativeTicks)`
+- `cn.omix.util.combat.TimerRangeState` — `public boolean hasActiveCycle()`
+- `cn.omix.util.combat.TimerRangeState` — `public void reset()`
 - `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `cn.omix.util.combat.projectile.ProjectileAuraEngine`
 - `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public class ProjectileAuraEngine`
 - `cn.omix.util.combat.projectile.ProjectileAuraEngine` — `public enum Mode`
@@ -2760,6 +2767,8 @@
 - `cn.omix.util.translation.TranslationClient` — `public TranslationClient(HarnessRuntime.TranslationEndpoint endpoint)`
 - `cn.omix.util.translation.TranslationClient` — `public CompletableFuture<Map<String, List<String>>> models()`
 - `cn.omix.util.translation.TranslationClient` — `public CompletableFuture<Map<String, String>> translate(TranslationQueue.Context context, List<TranslationQueue.Item> items)`
+- `cn.omix.util.translation.TranslationClient` — `public CompletableFuture<String> reply(String provider, String model, String sender, String message)`
+- `cn.omix.util.translation.TranslationClient` — `public CompletableFuture<String> reply_aggresive(String provider, String model, String sender, String message)`
 - `cn.omix.util.translation.TranslationController` — `cn.omix.util.translation.TranslationController`
 - `cn.omix.util.translation.TranslationController` — `public final class TranslationController implements IMinecraft, AutoCloseable`
 - `cn.omix.util.translation.TranslationController` — `public TranslationController(InGameTranslation module)`

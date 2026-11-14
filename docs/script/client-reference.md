@@ -382,11 +382,13 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 
 ## Offhand
 
-自动从背包或快捷栏将治疗物品放入副手，优先级为蘑菇煲 > 喷溅治疗药水 > 附魔金苹果 > 金苹果 > 治疗药水 > 普通食物；普通食物按单次恢复的饱和度降序选择。药水按瞬间治疗效果识别，支持治疗 I、II 和自定义治疗效果，不包含滞留药水或仅有再生效果的药水。副手已有同级或更优物品时保持不变，没有候选物品时不清空副手；被替换的物品交换回来源槽位。固定交换间隔为 150 毫秒，不自动食用或投掷。打开容器界面、非玩家背包处理器、光标持有物品、正在使用物品、死亡或旁观模式时暂停；Auto Totem 原生行为开启时让其优先，以免反复交换。
+自动从背包或快捷栏将治疗物品放入副手，优先级为蘑菇煲 > 喷溅治疗药水 > 附魔金苹果 > 金苹果 > 治疗药水 > 普通食物；普通食物按单次恢复的饱和度降序选择。药水按瞬间治疗效果识别，支持治疗 I、II 和自定义治疗效果，不包含滞留药水或仅有再生效果的药水。副手已有同级或更优物品时保持不变，没有候选物品时不清空副手；被替换的物品交换回来源槽位。交换间隔由 Delay 配置，默认 150 毫秒，不自动食用或投掷。打开容器界面、非玩家背包处理器、光标持有物品、正在使用物品、死亡或旁观模式时暂停；Auto Totem 原生行为开启时让其优先，以免反复交换。
 
 源码：`src/main/java/cn/omix/module/impl/combat/Offhand.java`。
 
-没有额外 Value 配置；通用开关、快捷键和列表可见性见总览。
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| Delay | 两次副手交换的最短间隔，单位毫秒。 | 数值；默认 150；0–2000；步长 50 |
 
 ## Auto Weapon
 
@@ -465,6 +467,36 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
 | Height | 模拟抬升的高度，单位方块。 | 数值；默认 10；1–100；步长 1 |
+
+## SuperKnockBack
+
+参考 Southside SuperKnockBack 的 W-tap 行为。攻击活体目标后，在下一次 PlayerUpdateEvent 松开前进键，再下一次更新按当前绑定按键的实际状态恢复。连续攻击会重新开始该两阶段流程。仅处理未取消的攻击事件，支持手动攻击和通过原版交互管理器攻击的 Aura。关闭、重新启用、切换世界或玩家/世界缺失时清理计时，并恢复本模块松开的前进键。支持当前键盘/鼠标绑定，窗口失焦或未绑定时保持松开。无配置项，默认关闭。
+
+源码：`src/main/java/cn/omix/module/impl/combat/SuperKnockBack.java`。
+
+没有额外 Value 配置；通用开关、快捷键和列表可见性见总览。
+
+## TimerRange
+
+合并移植 Southside TimerRange 与 TimerRangeB，通过 Mode 切换 A/B，默认 A。A 优先使用范围内的 Aura 玩家目标，否则通过 Omix Targets、Teams、AntiBot 和好友筛选搜索最近玩家。首次进入范围加速一个 tick，持续在范围内恢复正常，停留至少两个 tick 后离开范围减速一个 tick。A 的条件检查未通过时暂停范围状态推进。B 按发出的实体交互包累计 NegativeTicks，目标距离严格大于 RangeB 时启动 PositiveTicks 倒计时。每 tick 按剩余 tick / PositiveTicks 选择速度，比例 >= 0.9 时正常，0.5 到 0.9 时使用 NegativeTimer，小于 0.5 时使用 PositiveTimer。默认 8 tick 顺序为 1 次正常、4 次减速、3 次加速，随后恢复。循环期间的非攻击交互和未触发新循环的攻击恢复当前速度，保留倒计时。空闲时的非攻击交互也参与累计，沿用源实现。B 收到自身向上且带水平分量的速度包时，按原移动、循环、旁观、死亡、流体、攀爬及乘骑条件恢复速度。ConfirmKnockback 沿用源配置，源代码没有读取此开关。切换模式、启停、世界切换及玩家实体变化时清空状态与待执行包回调。网络回调转到客户端线程执行，忽略已取消包，目标实体缺失时恢复速度。变速通过 TimerSpeedUtil 的独立临时所有者接入，正常速度和清理时释放本模块覆盖，由 Timer 等模块继续提供基础速度。
+
+源码：`src/main/java/cn/omix/module/impl/combat/TimerRange.java`。
+
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| Mode | A 对应 Southside TimerRange，B 对应 TimerRangeB。切换后立即清理旧模式的状态和变速覆盖。 | 模式；默认 A；可选 A / B |
+| Range | A 模式玩家目标搜索范围，单位方块，保留原默认值和限制。 | 数值；默认 3.0；3.0–6.0；步长 0.02；显示条件：Mode = A |
+| Boost | A 模式首次进入范围时的计时器倍速，持续一个 tick。 | 数值；默认 4.0；1.0–9.0；步长 0.1；显示条件：Mode = A |
+| SlowSpeed | A 模式从持续在范围内变为离开范围时的计时器倍速，持续一个 tick。 | 数值；默认 0.2；0.1–0.9；步长 0.02；显示条件：Mode = A |
+| OnlyGround | A 模式仅在落地时推进范围状态。 | 布尔；默认 true；显示条件：Mode = A |
+| NotOnEat | A 模式使用任何物品期间暂停，沿用源 isUsingItem 判断。 | 布尔；默认 true；显示条件：Mode = A |
+| OnlyKillaura | A 模式要求 Omix Aura 已开启，仍可搜索范围内的其他玩家。 | 布尔；默认 true；显示条件：Mode = A |
+| RangeB | B 模式交互目标的距离阈值，单位方块。使用独立配置保留原 B 默认 3.5、最小 1 的范围，距离须严格大于阈值才能启动循环。 | 数值；默认 3.5；1.0–6.0；步长 0.02；显示条件：Mode = B |
+| PositiveTimer | B 模式剩余 tick 比例小于 0.5 时使用的计时器倍速。 | 数值；默认 1.5；0.1–20.0；步长 0.05；显示条件：Mode = B |
+| PositiveTicks | B 模式每次触发设置的剩余 tick 数，同时作为阶段比例的分母。 | 数值；默认 8；1–30；步长 1；显示条件：Mode = B |
+| NegativeTimer | B 模式剩余 tick 比例达到 0.5 且小于 0.9 时使用的计时器倍速。 | 数值；默认 0.4；0.05–5.0；步长 0.05；显示条件：Mode = B |
+| NegativeTicks | B 模式触发所需的实体交互包累计次数。达到阈值且距离满足条件时启动循环并将计数归零。 | 数值；默认 15；1–50；步长 1；显示条件：Mode = B |
+| ConfirmKnockback | 保留 Southside 同名配置及默认值。源代码未读取该开关，切换它保持相同的运行行为。 | 布尔；默认 true；显示条件：Mode = B |
 
 ## TargetStrafe
 
@@ -1836,16 +1868,26 @@ Classic 保留二维框、血条、护甲和姓名；Sigma 移植 Jello 的 Shad
 
 ## AutoL
 
-记录最近 15 秒内实际发出攻击包的玩家目标（含 Aura、TPAura 及缓冲后放行的攻击），并通过服务器伤害来源补充归属于自己的弓箭等间接攻击。收到目标死亡状态（status=3）、血量归零或 DYING 姿态时发送所选文本；数据包在主线程处理时即时确认，避免死亡后立刻移除或重置血量造成漏判。多种死亡信号对同一实体只通知一次；下线、传送或离开渲染距离本身不触发，切换世界或开关模块会清空记录及待发送消息。可开启 Only Cheaters，在发送前按受害者 UUID 查询 AntiCheat 累计嫌疑分，只有达到 Suspicion Threshold 才发送；默认关闭，保持原有行为。需自行开启 AntiCheat，未启用、无评分或低于阈值时跳过，不自动开启其他模块。死亡后立即移除仍按原目标筛选，被过滤的死亡不会在之后调低门槛或关闭过滤时补发。这是近期交战目标的死亡检测，不保证最后一击归属；服务器未提供攻击者信息的爆炸、仅有自定义击杀聊天或无标准死亡信号的小游戏暂不保证识别。
+Mode 默认 Kill，保留击杀触发。Kill 模式记录最近 15 秒内实际发出攻击包的玩家目标（含 Aura、TPAura 及缓冲后放行的攻击），并通过服务器伤害来源补充归属于自己的弓箭等间接攻击。收到目标死亡状态（status=3）、血量归零或 DYING 姿态时发送所选文本；数据包在主线程处理时即时确认，避免死亡后立刻移除或重置血量造成漏判。多种死亡信号对同一实体只通知一次；下线、传送或离开渲染距离本身不触发，切换世界或开关模块会清空记录及待发送消息。可开启 Only Cheaters，在发送前按受害者 UUID 查询 AntiCheat 累计嫌疑分，只有达到 Suspicion Threshold 才发送；默认关闭，保持原有行为。需自行开启 AntiCheat，未启用、无评分或低于阈值时跳过，不自动开启其他模块。死亡后立即移除仍按原目标筛选，被过滤的死亡不会在之后调低门槛或关闭过滤时补发。这是近期交战目标的死亡检测，不保证最后一击归属；服务器未提供攻击者信息的爆炸、仅有自定义击杀聊天或无标准死亡信号的小游戏暂不保证识别。
+
+Trigger 模式在其他玩家消息正文包含内置 TriggerList 任一关键词时回复一次。采用大小写敏感的子串匹配，Text 回复方式下每条消息命中多个关键词或重复关键词均只回复一条。Text 沿用全部文本配置，NameInFront 使用发言者账号名，Only Cheaters 和 Suspicion Threshold 按发言者 UUID 过滤。排除自己的消息。支持标准玩家聊天及无签名聊天。系统包转发的玩家聊天支持 <Name> 正文、Name: 正文、Name：正文、Name » 正文、Name >> 正文、Name › 正文及前置 [频道]/[等级] 标签，发言者须在当前玩家列表中。只匹配正文，忽略动作栏和无法识别发言者的消息。切换 Mode 会清空击杀记录及待发送消息。 Trigger 关键词列表、匹配及聊天解析逻辑直接实现在 AutoL.java 中。
+
+Reply Mode 默认 Text，使用当前文案回复。选择 AI 后复用项目 Harness 的 Provider、模型配置和异步调用通道，在 AI Provider / AI Model 中单独选定回复模型，模型列表每 10 秒刷新，保存的模型 ID 区分大小写。后台准备 Harness，模块后缀显示准备、模型选择、生成或失败状态。参考 Southside AutoReply，针对命中消息生成一句中文短回复，AI Cooldown (s) 默认 5 秒。全局最多一个回复请求，生成中及冷却中的后续命中跳过。每次仅发送发言者名字与本条正文供模型生成，模型调用使用最低可用推理档。回复继续应用 NameInFront、SendL 及 <target> 替换，发送前复核 Only Cheaters 并清理为最多 256 字符的单条聊天。关闭模块、切世界、玩家或连接变化、切换回复方式/Provider/Model 及 Harness 重启会取消或丢弃旧回复。请求失败时通过模块后缀提示。
 
 源码：`src/main/java/cn/omix/module/impl/world/AutoL.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Word Pattern | 选择内置文本集合或 Custom；Classic 组合前后句；Troll2 随机使用所提供 CSV 每条记录的首列文案，换行合并为空格。 | 模式；默认 Poem；可选 Poem / Ma Ma / Pride Plus / Ci xiao gui / Crystal PVP / Clear / English / San Guo / Classic / Bratty / Troll / Troll2 / PanPan / Custom |
-| NameInFront | 文本前加被击杀玩家名。 | 布尔；默认 true |
+| Mode | Kill 在近期交战玩家死亡时发送。Trigger 在其他玩家消息正文包含 TriggerList 关键词时发送。新增设置默认 Kill，原有配置项继续按原名称加载。 | 模式；默认 Kill；可选 Kill / Trigger |
+| Reply Mode | Trigger 的回复方式。Text 使用现有文案，AI 使用项目 Harness 生成一句中文短回复。 | 模式；默认 Text；可选 Text / AI；显示条件：Mode = Trigger |
+| AI Provider | 从 Harness 已配置的 Provider 中选择回复服务。更换后重新选择 AI Model，保存的 ID 保留。 | 动态模式；默认 (Select)；选项在运行时加载，保留已保存的选择；显示条件：Mode = Trigger 且 Reply Mode = AI |
+| AI Model | 从所选 Provider 中选择回复模型。ID 区分大小写，模型目录每 10 秒刷新，离线时保留选择。 | 动态模式；默认 (Select)；选项在运行时加载，保留已保存的选择；显示条件：Mode = Trigger 且 Reply Mode = AI |
+| AI Reply Mode | Reduced 使用普通回复接口，Aggressive 使用激进回复接口。 | 模式；默认 Reduced；可选 Aggressive / Reduced；显示条件：Mode = Trigger 且 Reply Mode = AI |
+| AI Cooldown (s) | 两次 AI 回复请求的最短间隔，单位秒。默认 5，范围 1–30，生成中及冷却中的新触发跳过。 | 数值；默认 5；1–30；步长 1；显示条件：Mode = Trigger 且 Reply Mode = AI |
+| Word Pattern | 选择内置文本集合或 Custom；Classic 组合前后句；Troll2 随机使用所提供 CSV 每条记录的首列文案，换行合并为空格。 用于 Kill 和 Trigger 的 Text 回复。 | 模式；默认 Poem；可选 Poem / Ma Ma / Pride Plus / Ci xiao gui / Crystal PVP / Clear / English / San Guo / Classic / Bratty / Troll / Troll2 / PanPan / Custom |
+| NameInFront | 文本前加玩家账号名。Kill 使用被击杀玩家，Trigger 使用发言者。 | 布尔；默认 true |
 | SendL | 70% 概率在文本前加全角 Ｌ。 | 布尔；默认 false |
-| Only Cheaters | 仅在被击杀玩家的 AntiCheat 累计嫌疑分大于或等于 Suspicion Threshold 时发送。默认关闭；开启后需要同时启用 AntiCheat，未启用或无评分则不发送。沿用现有死亡确认逻辑，按 UUID 查询分数，不依赖玩家名字或其仍在世界中。 | 布尔；默认 false |
+| Only Cheaters | 仅在目标玩家的 AntiCheat 累计嫌疑分大于或等于 Suspicion Threshold 时发送。Kill 检查被击杀玩家，Trigger 检查发言者。默认关闭，开启后需要同时启用 AntiCheat，未启用或无评分则不发送。按 UUID 查询分数，保留死亡后立即移除目标的筛选。 | 布尔；默认 false |
 | Suspicion Threshold | Only Cheaters 的最低嫌疑分，默认 80，范围 1–100，达到阈值即可发送。发送前使用 AntiCheat 当前累计分数（包括原有 12 项及已开启的 Raven 检测）；这是嫌疑分而非作弊概率。 | 数值；默认 80；1–100；步长 1；显示条件：Only Cheaters 开启 |
 | Content | 自定义文本，支持 <target>；空白时发送未设置提示。 | 文本；默认 空文本；显示条件：Word Pattern = Custom |
 | Target | <target> 使用客户端名、当前游戏账号名或自定义文本；Account Name 支持 FisProxy AutoNFA 身份。 | 模式；默认 Client Name；可选 Client Name / Account Name / Custom |

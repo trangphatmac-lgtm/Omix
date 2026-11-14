@@ -5,6 +5,7 @@ import cn.omix.event.impl.UpdateEvent;
 import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
+import cn.omix.module.value.impl.NumberValue;
 import cn.omix.util.combat.OffhandItems;
 import cn.omix.util.misc.TimerUtil;
 import cn.omix.util.player.ClickSlotUtil;
@@ -12,9 +13,9 @@ import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.screen.slot.SlotActionType;
 
 public final class Offhand extends Module {
-    private static final long SWAP_DELAY = 150L;
     private static final int OFFHAND_SWAP_BUTTON = 40;
 
+    private final NumberValue delay = new NumberValue("Delay", 150, 0, 2000, 50);
     private final TimerUtil swapTimer = new TimerUtil();
 
     public Offhand() {
@@ -41,7 +42,7 @@ public final class Offhand extends Module {
                 || mc.currentScreen instanceof HandledScreen<?>
                 || mc.player.currentScreenHandler != mc.player.playerScreenHandler
                 || !mc.player.currentScreenHandler.getCursorStack().isEmpty()
-                || !swapTimer.hasTimeElapsed(SWAP_DELAY)) {
+                || !swapTimer.hasTimeElapsed(delay.getValue())) {
             return;
         }
 

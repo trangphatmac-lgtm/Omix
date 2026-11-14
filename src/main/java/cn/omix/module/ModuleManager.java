@@ -16,7 +16,9 @@ import cn.omix.module.impl.combat.CrossbowExploit;
 import cn.omix.module.impl.combat.FastBow;
 import cn.omix.module.impl.combat.FastEat;
 import cn.omix.module.impl.combat.MaceDamageBooster;
+import cn.omix.module.impl.combat.SuperKnockBack;
 import cn.omix.module.impl.combat.TargetStrafe;
+import cn.omix.module.impl.combat.TimerRange;
 import cn.omix.module.impl.combat.TPAura;
 import cn.omix.module.impl.combat.Velocity;
 import cn.omix.module.impl.exploits.Blink;
@@ -78,6 +80,8 @@ public class ModuleManager implements IMinecraft {
                 new FastBow(),
                 new FastEat(),
                 new MaceDamageBooster(),
+                new SuperKnockBack(),
+                new TimerRange(),
                 new Targets(),
                 new Teams(),
                 new BrandSpoofer(),

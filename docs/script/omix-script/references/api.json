@@ -5738,6 +5738,61 @@
     "line": 31
   },
   {
+    "owner": "cn.omix.util.combat.TimerRangeState",
+    "name": "TimerRangeState",
+    "signature": "cn.omix.util.combat.TimerRangeState",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/combat/TimerRangeState.java"
+  },
+  {
+    "owner": "cn.omix.util.combat.TimerRangeState",
+    "name": "TimerRangeState",
+    "signature": "public final class TimerRangeState",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/TimerRangeState.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.combat.TimerRangeState",
+    "name": "tickA",
+    "signature": "public float tickA(boolean hasTarget, float boost, float slowSpeed)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/TimerRangeState.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.combat.TimerRangeState",
+    "name": "tickB",
+    "signature": "public float tickB(float positiveTicks, float positiveTimer, float negativeTimer)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/TimerRangeState.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.combat.TimerRangeState",
+    "name": "onInteraction",
+    "signature": "public boolean onInteraction(boolean attack, double distance, float range, int positiveTicks, int negativeTicks)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/TimerRangeState.java",
+    "line": 41
+  },
+  {
+    "owner": "cn.omix.util.combat.TimerRangeState",
+    "name": "hasActiveCycle",
+    "signature": "public boolean hasActiveCycle()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/TimerRangeState.java",
+    "line": 54
+  },
+  {
+    "owner": "cn.omix.util.combat.TimerRangeState",
+    "name": "reset",
+    "signature": "public void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/TimerRangeState.java",
+    "line": 58
+  },
+  {
     "owner": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
     "name": "ProjectileAuraEngine",
     "signature": "cn.omix.util.combat.projectile.ProjectileAuraEngine",
@@ -21714,6 +21769,22 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/translation/TranslationClient.java",
     "line": 26
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationClient",
+    "name": "reply",
+    "signature": "public CompletableFuture<String> reply(String provider, String model, String sender, String message)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationClient.java",
+    "line": 39
+  },
+  {
+    "owner": "cn.omix.util.translation.TranslationClient",
+    "name": "reply_aggresive",
+    "signature": "public CompletableFuture<String> reply_aggresive(String provider, String model, String sender, String message)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/translation/TranslationClient.java",
+    "line": 52
   },
   {
     "owner": "cn.omix.util.translation.TranslationController",
