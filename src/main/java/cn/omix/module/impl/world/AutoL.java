@@ -633,6 +633,8 @@ public final class AutoL extends Module {
                 "张雪峰老师",
                 "为什么要开挂，听我的关闭外挂，回头是绿。",
                 "欣欣哥的“人生智慧”：方块人的迷茫与自我安慰",
+                "可恶的黑客！我跟你们拼了！。",
+                "全是英文，看不懂[笑哭]",
                 "[千恋万花表情包_丛雨Ciallo][魔女的夜宴表情包_宁宁Ciallo][星光咖啡馆与死神之蝶表情包_夏目Ciallo][天使嚣嚣REBOOT表情包_天音Ciallo][RIDDLE JOKER表情包_七海Ciallo]",
                 "[千恋万花表情包_茉子Ciallo][魔女的夜宴动态表情包_Ciallo~][星光咖啡馆与死神之蝶表情包_栞那Ciallo][天使嚣嚣REBOOT表情包_来海Ciallo][RIDDLE JOKER表情包_千咲Ciallo]",
                 "[千恋万花表情包_芳乃Ciallo][魔女的夜宴表情包_紬Ciallo][星光咖啡馆与死神之蝶表情包_希Ciallo][天使嚣嚣REBOOT表情包_乃爱Ciallo][RIDDLE JOKER表情包_茉优Ciallo]",
