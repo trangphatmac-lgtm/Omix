@@ -16303,6 +16303,140 @@
     "line": 295
   },
   {
+    "owner": "cn.omix.util.player.SpectatorTeleportState",
+    "name": "SpectatorTeleportState",
+    "signature": "cn.omix.util.player.SpectatorTeleportState",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/player/SpectatorTeleportState.java"
+  },
+  {
+    "owner": "cn.omix.util.player.SpectatorTeleportState",
+    "name": "SpectatorTeleportState",
+    "signature": "public final class SpectatorTeleportState",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/SpectatorTeleportState.java",
+    "line": 6
+  },
+  {
+    "owner": "cn.omix.util.player.SpectatorTeleportState",
+    "name": "selectTarget",
+    "signature": "public boolean selectTarget(Vec3d position)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/SpectatorTeleportState.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.player.SpectatorTeleportState",
+    "name": "getTarget",
+    "signature": "public Vec3d getTarget()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/SpectatorTeleportState.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.player.SpectatorTeleportState",
+    "name": "enterSpectator",
+    "signature": "public boolean enterSpectator()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/SpectatorTeleportState.java",
+    "line": 25
+  },
+  {
+    "owner": "cn.omix.util.player.SpectatorTeleportState",
+    "name": "observeFlying",
+    "signature": "public boolean observeFlying(boolean nextFlying)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/SpectatorTeleportState.java",
+    "line": 31
+  },
+  {
+    "owner": "cn.omix.util.player.SpectatorTeleportState",
+    "name": "leaveSpectator",
+    "signature": "public Vec3d leaveSpectator()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/SpectatorTeleportState.java",
+    "line": 37
+  },
+  {
+    "owner": "cn.omix.util.player.SpectatorTeleportState",
+    "name": "correctionTarget",
+    "signature": "public Vec3d correctionTarget()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/SpectatorTeleportState.java",
+    "line": 43
+  },
+  {
+    "owner": "cn.omix.util.player.SpectatorTeleportState",
+    "name": "isInGrace",
+    "signature": "public boolean isInGrace()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/SpectatorTeleportState.java",
+    "line": 54
+  },
+  {
+    "owner": "cn.omix.util.player.SpectatorTeleportState",
+    "name": "getTeleportTarget",
+    "signature": "public Vec3d getTeleportTarget()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/SpectatorTeleportState.java",
+    "line": 58
+  },
+  {
+    "owner": "cn.omix.util.player.SpectatorTeleportState",
+    "name": "tickGrace",
+    "signature": "public boolean tickGrace()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/SpectatorTeleportState.java",
+    "line": 62
+  },
+  {
+    "owner": "cn.omix.util.player.SpectatorTeleportState",
+    "name": "resetCycle",
+    "signature": "public void resetCycle(boolean spectator, boolean flying)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/SpectatorTeleportState.java",
+    "line": 72
+  },
+  {
+    "owner": "cn.omix.util.player.SpectatorTeleportState",
+    "name": "clear",
+    "signature": "public void clear()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/SpectatorTeleportState.java",
+    "line": 79
+  },
+  {
+    "owner": "cn.omix.util.player.TeleportTargetUtil",
+    "name": "TeleportTargetUtil",
+    "signature": "cn.omix.util.player.TeleportTargetUtil",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/player/TeleportTargetUtil.java"
+  },
+  {
+    "owner": "cn.omix.util.player.TeleportTargetUtil",
+    "name": "IMinecraft",
+    "signature": "public final class TeleportTargetUtil implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/TeleportTargetUtil.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.player.TeleportTargetUtil",
+    "name": "raycastTarget",
+    "signature": "public static BlockHitResult raycastTarget()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/TeleportTargetUtil.java",
+    "line": 20
+  },
+  {
+    "owner": "cn.omix.util.player.TeleportTargetUtil",
+    "name": "getTargetPosition",
+    "signature": "public static Vec3d getTargetPosition(BlockHitResult hit, boolean alwaysTop)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/TeleportTargetUtil.java",
+    "line": 31
+  },
+  {
     "owner": "cn.omix.util.player.blockin.BlockInPlanner",
     "name": "BlockInPlanner",
     "signature": "cn.omix.util.player.blockin.BlockInPlanner",
@@ -16625,6 +16759,53 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/chest/ChestScreenState.java",
     "line": 38
+  },
+  {
+    "owner": "cn.omix.util.player.fly.GrimFlyState",
+    "name": "GrimFlyState",
+    "signature": "cn.omix.util.player.fly.GrimFlyState",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/player/fly/GrimFlyState.java"
+  },
+  {
+    "owner": "cn.omix.util.player.fly.GrimFlyState",
+    "name": "GrimFlyState",
+    "signature": "public final class GrimFlyState",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/fly/GrimFlyState.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.player.fly.GrimFlyState",
+    "name": "migrateMode",
+    "signature": "public static String migrateMode(String mode)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/fly/GrimFlyState.java",
+    "line": 15
+  },
+  {
+    "owner": "cn.omix.util.player.fly.GrimFlyState",
+    "name": "onMotion",
+    "signature": "public boolean onMotion(String mode, boolean selectMaxVelocity, double y, double velocityY, boolean jumpPressed, boolean sneakPressed)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/fly/GrimFlyState.java",
+    "line": 24
+  },
+  {
+    "owner": "cn.omix.util.player.fly.GrimFlyState",
+    "name": "captureCorrectionHeight",
+    "signature": "public void captureCorrectionHeight(double y)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/fly/GrimFlyState.java",
+    "line": 91
+  },
+  {
+    "owner": "cn.omix.util.player.fly.GrimFlyState",
+    "name": "reset",
+    "signature": "public void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/fly/GrimFlyState.java",
+    "line": 98
   },
   {
     "owner": "cn.omix.util.player.nofall.GrimPlusState",

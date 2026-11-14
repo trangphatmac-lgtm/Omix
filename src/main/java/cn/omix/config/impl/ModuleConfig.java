@@ -5,12 +5,14 @@ import cn.omix.config.Config;
 import cn.omix.config.ConfigStorageMode;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
+import cn.omix.module.impl.move.Fly;
 import cn.omix.module.value.DynamicBoolValueProvider;
 import cn.omix.module.value.Value;
 import cn.omix.module.value.impl.*;
 import cn.omix.security.SafeStorage;
 import cn.omix.ui.hud.Drag;
 import cn.omix.util.misc.KeyUtil;
+import cn.omix.util.player.fly.GrimFlyState;
 import com.google.gson.*;
 
 import java.nio.charset.StandardCharsets;
@@ -265,7 +267,11 @@ public final class ModuleConfig extends Config {
                 if (value == null) continue;
 
                 try {
-                    deserializeValue(value, entry.getValue());
+                    if (module instanceof Fly && value instanceof ModeValue mode && value.getName().equals("Grim Mode")) {
+                        mode.setValue(GrimFlyState.migrateMode(entry.getValue().getAsString()));
+                    } else {
+                        deserializeValue(value, entry.getValue());
+                    }
                 } catch (final Exception exception) {
                     Client.logger.debug("Failed to load value {}: {}", value.getName(), exception.getMessage());
                 }

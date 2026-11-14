@@ -128,6 +128,7 @@ public class ModuleManager implements IMinecraft {
                 new LightningTracker(),
                 new Freecam(),
                 new LookTP(),
+                new SpectatorTP(),
                 new Regen(),
                 new AntiDebuff(),
                 new Brightness(),

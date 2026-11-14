@@ -194,7 +194,7 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 
 ## SuperKnockBack
 
-参考 Southside SuperKnockBack 的 W-tap 行为。攻击活体目标后，在下一次 PlayerUpdateEvent 松开前进键，再下一次更新按当前绑定按键的实际状态恢复。连续攻击会重新开始该两阶段流程。仅处理未取消的攻击事件，支持手动攻击和通过原版交互管理器攻击的 Aura。关闭、重新启用、切换世界或玩家/世界缺失时清理计时，并恢复本模块松开的前进键。支持当前键盘/鼠标绑定，窗口失焦或未绑定时保持松开。无配置项，默认关闭。
+攻击活体目标后，在下一次 PlayerUpdateEvent 松开前进键，再下一次更新按当前绑定按键的实际状态恢复。连续攻击会重新开始该两阶段流程。仅处理未取消的攻击事件，支持手动攻击和通过原版交互管理器攻击的 Aura。关闭、重新启用、切换世界或玩家/世界缺失时清理计时，并恢复本模块松开的前进键。支持当前键盘/鼠标绑定，窗口失焦或未绑定时保持松开。无配置项，默认关闭。
 
 源码：`src/main/java/cn/omix/module/impl/combat/SuperKnockBack.java`。
 
@@ -202,13 +202,13 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 
 ## TimerRange
 
-合并移植 Southside TimerRange 与 TimerRangeB，通过 Mode 切换 A/B，默认 A。A 优先使用范围内的 Aura 玩家目标，否则通过 Omix Targets、Teams、AntiBot 和好友筛选搜索最近玩家。首次进入范围加速一个 tick，持续在范围内恢复正常，停留至少两个 tick 后离开范围减速一个 tick。A 的条件检查未通过时暂停范围状态推进。B 按发出的实体交互包累计 NegativeTicks，目标距离严格大于 RangeB 时启动 PositiveTicks 倒计时。每 tick 按剩余 tick / PositiveTicks 选择速度，比例 >= 0.9 时正常，0.5 到 0.9 时使用 NegativeTimer，小于 0.5 时使用 PositiveTimer。默认 8 tick 顺序为 1 次正常、4 次减速、3 次加速，随后恢复。循环期间的非攻击交互和未触发新循环的攻击恢复当前速度，保留倒计时。空闲时的非攻击交互也参与累计，沿用源实现。B 收到自身向上且带水平分量的速度包时，按原移动、循环、旁观、死亡、流体、攀爬及乘骑条件恢复速度。ConfirmKnockback 沿用源配置，源代码没有读取此开关。切换模式、启停、世界切换及玩家实体变化时清空状态与待执行包回调。网络回调转到客户端线程执行，忽略已取消包，目标实体缺失时恢复速度。变速通过 TimerSpeedUtil 的独立临时所有者接入，正常速度和清理时释放本模块覆盖，由 Timer 等模块继续提供基础速度。
+合并 TimerRange 与 TimerRangeB，通过 Mode 切换 A/B，默认 A。A 优先使用范围内的 Aura 玩家目标，否则通过 Omix Targets、Teams、AntiBot 和好友筛选搜索最近玩家。首次进入范围加速一个 tick，持续在范围内恢复正常，停留至少两个 tick 后离开范围减速一个 tick。A 的条件检查未通过时暂停范围状态推进。B 按发出的实体交互包累计 NegativeTicks，目标距离严格大于 RangeB 时启动 PositiveTicks 倒计时。每 tick 按剩余 tick / PositiveTicks 选择速度，比例 >= 0.9 时正常，0.5 到 0.9 时使用 NegativeTimer，小于 0.5 时使用 PositiveTimer。默认 8 tick 顺序为 1 次正常、4 次减速、3 次加速，随后恢复。循环期间的非攻击交互和未触发新循环的攻击恢复当前速度，保留倒计时。空闲时的非攻击交互也参与累计，沿用源实现。B 收到自身向上且带水平分量的速度包时，按原移动、循环、旁观、死亡、流体、攀爬及乘骑条件恢复速度。ConfirmKnockback 沿用源配置，源代码没有读取此开关。切换模式、启停、世界切换及玩家实体变化时清空状态与待执行包回调。网络回调转到客户端线程执行，忽略已取消包，目标实体缺失时恢复速度。变速通过 TimerSpeedUtil 的独立临时所有者接入，正常速度和清理时释放本模块覆盖，由 Timer 等模块继续提供基础速度。
 
 源码：`src/main/java/cn/omix/module/impl/combat/TimerRange.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | A 对应 Southside TimerRange，B 对应 TimerRangeB。切换后立即清理旧模式的状态和变速覆盖。 | 模式；默认 A；可选 A / B |
+| Mode | A 对应 TimerRange，B 对应 TimerRangeB。切换后立即清理旧模式的状态和变速覆盖。 | 模式；默认 A；可选 A / B |
 | Range | A 模式玩家目标搜索范围，单位方块，保留原默认值和限制。 | 数值；默认 3.0；3.0–6.0；步长 0.02；显示条件：Mode = A |
 | Boost | A 模式首次进入范围时的计时器倍速，持续一个 tick。 | 数值；默认 4.0；1.0–9.0；步长 0.1；显示条件：Mode = A |
 | SlowSpeed | A 模式从持续在范围内变为离开范围时的计时器倍速，持续一个 tick。 | 数值；默认 0.2；0.1–0.9；步长 0.02；显示条件：Mode = A |
@@ -220,7 +220,7 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 | PositiveTicks | B 模式每次触发设置的剩余 tick 数，同时作为阶段比例的分母。 | 数值；默认 8；1–30；步长 1；显示条件：Mode = B |
 | NegativeTimer | B 模式剩余 tick 比例达到 0.5 且小于 0.9 时使用的计时器倍速。 | 数值；默认 0.4；0.05–5.0；步长 0.05；显示条件：Mode = B |
 | NegativeTicks | B 模式触发所需的实体交互包累计次数。达到阈值且距离满足条件时启动循环并将计数归零。 | 数值；默认 15；1–50；步长 1；显示条件：Mode = B |
-| ConfirmKnockback | 保留 Southside 同名配置及默认值。源代码未读取该开关，切换它保持相同的运行行为。 | 布尔；默认 true；显示条件：Mode = B |
+| ConfirmKnockback | 保留同名配置及默认值。源代码未读取该开关，切换它保持相同的运行行为。 | 布尔；默认 true；显示条件：Mode = B |
 
 ## TargetStrafe
 

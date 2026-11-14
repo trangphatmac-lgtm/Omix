@@ -172,15 +172,18 @@
 
 ## Fly
 
-通过水平与垂直速度控制实现飞行移动；空格上升，潜行下降。
+Vanilla、SentinelA、SentinelC 通过各自的速度或运动流程实现飞行。Grim 参考 GrimFly，提供 Flat、Free、Always三个子模式，在满足条件时每两个 PRE Motion 发送一次 START_FALL_FLYING。Grim 在客户端线程暂存收到的 CommonPing，收到位置修正时按顺序回放；Free 尚未选定高度时，先按相对位置标志解析修正高度。关闭或切换主模式、Grim 子模式时回放当前会话的 Ping 并重置状态；换世界、更换玩家或连接时丢弃旧缓存。Grim 的移动速度由原版移动及跳跃流程决定。
 
 源码：`src/main/java/cn/omix/module/impl/move/Fly.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Vanilla 直接设置速度；SentinelA、SentinelC 使用各自的飞行数据包或运动流程。 | 模式；默认 Vanilla；可选 Vanilla / SentinelA / SentinelC |
-| Horizontal Speed | 飞行时的水平移动速度。 | 数值；默认 3.5；.1–10；步长 .1 |
-| Vertical Speed | 上升或下降时的垂直速度。 | 数值；默认 .7；.1–5；步长 .1 |
+| Mode | Vanilla 直接设置速度；SentinelA、SentinelC 使用各自的飞行数据包或运动流程；Grim 使用 GrimFly 的滑翔请求与高度选择流程。 | 模式；默认 Vanilla；可选 Vanilla / SentinelA / SentinelC / Grim |
+| Horizontal Speed | 飞行时的水平移动速度。 | 数值；默认 3.5；.1–10；步长 .1；显示条件：非 Mode = Grim |
+| Vertical Speed | 上升或下降时的垂直速度。 | 数值；默认 .7；.1–5；步长 .1；显示条件：非 Mode = Grim |
+| Grim Mode | Flat 在 Y % 1 接近 0.24919（误差小于 0.0001）时启动并保持，按潜行停止；Free 按跳跃启动，松开跳跃或潜行时记录高度，在不高于记录高度时启动，首次位置修正也可提供高度；Always 持续请求滑翔。三个子模式按住潜行时均暂停请求。 | 模式；默认 Flat；可选 Flat / Free / Always；显示条件：Mode = Grim |
+| Velocity HUD | 在屏幕中心下方显示当前 X、Y、Z 速度，各保留三位小数。 | 布尔；默认 true；显示条件：Mode = Grim |
+| Select Max Velocity | Free 按住跳跃时，等待垂直速度绝对值至少达到 0.4 后采集高度；松开跳跃后继续追踪最高点，垂直速度不大于 0 时选定最高高度。松开潜行仍直接记录当前高度并结束最高点等待。 | 布尔；默认 false；显示条件：Mode = Grim 且 Grim Mode = Free |
 
 ## AntiVoid
 

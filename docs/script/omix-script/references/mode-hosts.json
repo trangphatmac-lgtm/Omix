@@ -295,6 +295,11 @@
     "source": "src/main/java/cn/omix/module/impl/player/Phase.java"
   },
   {
+    "module": "SpectatorTP",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/player/SpectatorTP.java"
+  },
+  {
     "module": "Stuck",
     "selector": "Mode",
     "source": "src/main/java/cn/omix/module/impl/player/Stuck.java"

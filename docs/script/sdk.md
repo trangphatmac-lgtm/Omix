@@ -2074,6 +2074,23 @@
 - `cn.omix.util.player.RotationUtil` — `public static float[] applySensitivityPatch(float[] rotations)`
 - `cn.omix.util.player.RotationUtil` — `public static float[] applySensitivityPatch(float[] rotation, float[] previousRotation)`
 - `cn.omix.util.player.RotationUtil` — `public static Vec3d getVectorForRotation(float yaw, float pitch)`
+- `cn.omix.util.player.SpectatorTeleportState` — `cn.omix.util.player.SpectatorTeleportState`
+- `cn.omix.util.player.SpectatorTeleportState` — `public final class SpectatorTeleportState`
+- `cn.omix.util.player.SpectatorTeleportState` — `public boolean selectTarget(Vec3d position)`
+- `cn.omix.util.player.SpectatorTeleportState` — `public Vec3d getTarget()`
+- `cn.omix.util.player.SpectatorTeleportState` — `public boolean enterSpectator()`
+- `cn.omix.util.player.SpectatorTeleportState` — `public boolean observeFlying(boolean nextFlying)`
+- `cn.omix.util.player.SpectatorTeleportState` — `public Vec3d leaveSpectator()`
+- `cn.omix.util.player.SpectatorTeleportState` — `public Vec3d correctionTarget()`
+- `cn.omix.util.player.SpectatorTeleportState` — `public boolean isInGrace()`
+- `cn.omix.util.player.SpectatorTeleportState` — `public Vec3d getTeleportTarget()`
+- `cn.omix.util.player.SpectatorTeleportState` — `public boolean tickGrace()`
+- `cn.omix.util.player.SpectatorTeleportState` — `public void resetCycle(boolean spectator, boolean flying)`
+- `cn.omix.util.player.SpectatorTeleportState` — `public void clear()`
+- `cn.omix.util.player.TeleportTargetUtil` — `cn.omix.util.player.TeleportTargetUtil`
+- `cn.omix.util.player.TeleportTargetUtil` — `public final class TeleportTargetUtil implements IMinecraft`
+- `cn.omix.util.player.TeleportTargetUtil` — `public static BlockHitResult raycastTarget()`
+- `cn.omix.util.player.TeleportTargetUtil` — `public static Vec3d getTargetPosition(BlockHitResult hit, boolean alwaysTop)`
 - `cn.omix.util.player.blockin.BlockInPlanner` — `cn.omix.util.player.blockin.BlockInPlanner`
 - `cn.omix.util.player.blockin.BlockInPlanner` — `public final class BlockInPlanner`
 - `cn.omix.util.player.blockin.BlockInPlanner` — `public interface Environment`
@@ -2115,6 +2132,12 @@
 - `cn.omix.util.player.chest.ChestScreenState` — `public boolean deferClose(int syncId)`
 - `cn.omix.util.player.chest.ChestScreenState` — `public boolean shouldClose(int syncId)`
 - `cn.omix.util.player.chest.ChestScreenState` — `public void reset()`
+- `cn.omix.util.player.fly.GrimFlyState` — `cn.omix.util.player.fly.GrimFlyState`
+- `cn.omix.util.player.fly.GrimFlyState` — `public final class GrimFlyState`
+- `cn.omix.util.player.fly.GrimFlyState` — `public static String migrateMode(String mode)`
+- `cn.omix.util.player.fly.GrimFlyState` — `public boolean onMotion(String mode, boolean selectMaxVelocity, double y, double velocityY, boolean jumpPressed, boolean sneakPressed)`
+- `cn.omix.util.player.fly.GrimFlyState` — `public void captureCorrectionHeight(double y)`
+- `cn.omix.util.player.fly.GrimFlyState` — `public void reset()`
 - `cn.omix.util.player.nofall.GrimPlusState` — `cn.omix.util.player.nofall.GrimPlusState`
 - `cn.omix.util.player.nofall.GrimPlusState` — `public final class GrimPlusState`
 - `cn.omix.util.player.nofall.GrimPlusState` — `public GrimPlusState(Host host)`

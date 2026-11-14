@@ -74,7 +74,7 @@ Language 支持简中、繁中、英语、日语、韩语、俄语、德语、�
 
 在 AutoL 中选择 `Mode = Trigger`，再将 `Reply Mode` 设为 `AI`。先在 Harness 中配置 Provider 和模型凭据，再在 AutoL 的 `AI Provider` 与 `AI Model` 中选定回复模型。目录约每 10 秒刷新，保存的 ID 区分大小写，服务离线时保留。模块在后台准备已有 Harness，后缀显示 `Preparing`、`Select model`、`Replying`、`Ready` 或失败状态。
 
-AI 回复使用现有 TriggerList 和玩家身份筛选，参考 Southside AutoReply 的异步短回复和冷却逻辑。每次将发言者账号名及本条聊天正文作为数据发送给所选模型，生成一句简短、略带调侃的中文回应。`AI Cooldown (s)` 默认 5 秒，可设为 1–30 秒。全局最多一个待完成回复，生成中和冷却期间的新触发跳过。请求通过 `TranslationClient` 复用现有本机桥接，模型凭据由 Harness 管理，单次调用使用最低可用推理档。
+AI 回复使用现有 TriggerList 和玩家身份筛选。每次将发言者账号名及本条聊天正文作为数据发送给所选模型，生成一句简短、略带调侃的中文回应。`AI Cooldown (s)` 默认 5 秒，可设为 1–30 秒。全局最多一个待完成回复，生成中和冷却期间的新触发跳过。请求通过 `TranslationClient` 复用现有本机桥接，模型凭据由 Harness 管理，单次调用使用最低可用推理档。
 
 回复发送前在 Minecraft 主线程检查模块模式、世界、玩家、连接、Harness 代次及 `Only Cheaters`。开关模块、换世界或连接、切换 Provider/Model 和回复方式时取消待完成请求，旧结果失效。生成的正文继续应用 `NameInFront`、`SendL` 和 `<target>` 替换，并清理为最多 256 字符的单条聊天。失败状态通过模块后缀显示，新的有效触发可在冷却结束后重试。`Reply Mode = Text` 为默认值，使用原有 Word Pattern / Content 文案。
 

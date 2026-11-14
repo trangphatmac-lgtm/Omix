@@ -470,7 +470,7 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 
 ## SuperKnockBack
 
-参考 Southside SuperKnockBack 的 W-tap 行为。攻击活体目标后，在下一次 PlayerUpdateEvent 松开前进键，再下一次更新按当前绑定按键的实际状态恢复。连续攻击会重新开始该两阶段流程。仅处理未取消的攻击事件，支持手动攻击和通过原版交互管理器攻击的 Aura。关闭、重新启用、切换世界或玩家/世界缺失时清理计时，并恢复本模块松开的前进键。支持当前键盘/鼠标绑定，窗口失焦或未绑定时保持松开。无配置项，默认关闭。
+攻击活体目标后，在下一次 PlayerUpdateEvent 松开前进键，再下一次更新按当前绑定按键的实际状态恢复。连续攻击会重新开始该两阶段流程。仅处理未取消的攻击事件，支持手动攻击和通过原版交互管理器攻击的 Aura。关闭、重新启用、切换世界或玩家/世界缺失时清理计时，并恢复本模块松开的前进键。支持当前键盘/鼠标绑定，窗口失焦或未绑定时保持松开。无配置项，默认关闭。
 
 源码：`src/main/java/cn/omix/module/impl/combat/SuperKnockBack.java`。
 
@@ -478,13 +478,13 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 
 ## TimerRange
 
-合并移植 Southside TimerRange 与 TimerRangeB，通过 Mode 切换 A/B，默认 A。A 优先使用范围内的 Aura 玩家目标，否则通过 Omix Targets、Teams、AntiBot 和好友筛选搜索最近玩家。首次进入范围加速一个 tick，持续在范围内恢复正常，停留至少两个 tick 后离开范围减速一个 tick。A 的条件检查未通过时暂停范围状态推进。B 按发出的实体交互包累计 NegativeTicks，目标距离严格大于 RangeB 时启动 PositiveTicks 倒计时。每 tick 按剩余 tick / PositiveTicks 选择速度，比例 >= 0.9 时正常，0.5 到 0.9 时使用 NegativeTimer，小于 0.5 时使用 PositiveTimer。默认 8 tick 顺序为 1 次正常、4 次减速、3 次加速，随后恢复。循环期间的非攻击交互和未触发新循环的攻击恢复当前速度，保留倒计时。空闲时的非攻击交互也参与累计，沿用源实现。B 收到自身向上且带水平分量的速度包时，按原移动、循环、旁观、死亡、流体、攀爬及乘骑条件恢复速度。ConfirmKnockback 沿用源配置，源代码没有读取此开关。切换模式、启停、世界切换及玩家实体变化时清空状态与待执行包回调。网络回调转到客户端线程执行，忽略已取消包，目标实体缺失时恢复速度。变速通过 TimerSpeedUtil 的独立临时所有者接入，正常速度和清理时释放本模块覆盖，由 Timer 等模块继续提供基础速度。
+合并 TimerRange 与 TimerRangeB，通过 Mode 切换 A/B，默认 A。A 优先使用范围内的 Aura 玩家目标，否则通过 Omix Targets、Teams、AntiBot 和好友筛选搜索最近玩家。首次进入范围加速一个 tick，持续在范围内恢复正常，停留至少两个 tick 后离开范围减速一个 tick。A 的条件检查未通过时暂停范围状态推进。B 按发出的实体交互包累计 NegativeTicks，目标距离严格大于 RangeB 时启动 PositiveTicks 倒计时。每 tick 按剩余 tick / PositiveTicks 选择速度，比例 >= 0.9 时正常，0.5 到 0.9 时使用 NegativeTimer，小于 0.5 时使用 PositiveTimer。默认 8 tick 顺序为 1 次正常、4 次减速、3 次加速，随后恢复。循环期间的非攻击交互和未触发新循环的攻击恢复当前速度，保留倒计时。空闲时的非攻击交互也参与累计，沿用源实现。B 收到自身向上且带水平分量的速度包时，按原移动、循环、旁观、死亡、流体、攀爬及乘骑条件恢复速度。ConfirmKnockback 沿用源配置，源代码没有读取此开关。切换模式、启停、世界切换及玩家实体变化时清空状态与待执行包回调。网络回调转到客户端线程执行，忽略已取消包，目标实体缺失时恢复速度。变速通过 TimerSpeedUtil 的独立临时所有者接入，正常速度和清理时释放本模块覆盖，由 Timer 等模块继续提供基础速度。
 
 源码：`src/main/java/cn/omix/module/impl/combat/TimerRange.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | A 对应 Southside TimerRange，B 对应 TimerRangeB。切换后立即清理旧模式的状态和变速覆盖。 | 模式；默认 A；可选 A / B |
+| Mode | A 对应 TimerRange，B 对应 TimerRangeB。切换后立即清理旧模式的状态和变速覆盖。 | 模式；默认 A；可选 A / B |
 | Range | A 模式玩家目标搜索范围，单位方块，保留原默认值和限制。 | 数值；默认 3.0；3.0–6.0；步长 0.02；显示条件：Mode = A |
 | Boost | A 模式首次进入范围时的计时器倍速，持续一个 tick。 | 数值；默认 4.0；1.0–9.0；步长 0.1；显示条件：Mode = A |
 | SlowSpeed | A 模式从持续在范围内变为离开范围时的计时器倍速，持续一个 tick。 | 数值；默认 0.2；0.1–0.9；步长 0.02；显示条件：Mode = A |
@@ -496,7 +496,7 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 | PositiveTicks | B 模式每次触发设置的剩余 tick 数，同时作为阶段比例的分母。 | 数值；默认 8；1–30；步长 1；显示条件：Mode = B |
 | NegativeTimer | B 模式剩余 tick 比例达到 0.5 且小于 0.9 时使用的计时器倍速。 | 数值；默认 0.4；0.05–5.0；步长 0.05；显示条件：Mode = B |
 | NegativeTicks | B 模式触发所需的实体交互包累计次数。达到阈值且距离满足条件时启动循环并将计数归零。 | 数值；默认 15；1–50；步长 1；显示条件：Mode = B |
-| ConfirmKnockback | 保留 Southside 同名配置及默认值。源代码未读取该开关，切换它保持相同的运行行为。 | 布尔；默认 true；显示条件：Mode = B |
+| ConfirmKnockback | 保留同名配置及默认值。源代码未读取该开关，切换它保持相同的运行行为。 | 布尔；默认 true；显示条件：Mode = B |
 
 ## TargetStrafe
 
@@ -868,15 +868,18 @@ Full movement disabler 参考用户提供的 Raven bS disabler.java 及 [Raven b
 
 ## Fly
 
-通过水平与垂直速度控制实现飞行移动；空格上升，潜行下降。
+Vanilla、SentinelA、SentinelC 通过各自的速度或运动流程实现飞行。Grim 参考 GrimFly，提供 Flat、Free、Always三个子模式，在满足条件时每两个 PRE Motion 发送一次 START_FALL_FLYING。Grim 在客户端线程暂存收到的 CommonPing，收到位置修正时按顺序回放；Free 尚未选定高度时，先按相对位置标志解析修正高度。关闭或切换主模式、Grim 子模式时回放当前会话的 Ping 并重置状态；换世界、更换玩家或连接时丢弃旧缓存。Grim 的移动速度由原版移动及跳跃流程决定。
 
 源码：`src/main/java/cn/omix/module/impl/move/Fly.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Vanilla 直接设置速度；SentinelA、SentinelC 使用各自的飞行数据包或运动流程。 | 模式；默认 Vanilla；可选 Vanilla / SentinelA / SentinelC |
-| Horizontal Speed | 飞行时的水平移动速度。 | 数值；默认 3.5；.1–10；步长 .1 |
-| Vertical Speed | 上升或下降时的垂直速度。 | 数值；默认 .7；.1–5；步长 .1 |
+| Mode | Vanilla 直接设置速度；SentinelA、SentinelC 使用各自的飞行数据包或运动流程；Grim 使用 GrimFly 的滑翔请求与高度选择流程。 | 模式；默认 Vanilla；可选 Vanilla / SentinelA / SentinelC / Grim |
+| Horizontal Speed | 飞行时的水平移动速度。 | 数值；默认 3.5；.1–10；步长 .1；显示条件：非 Mode = Grim |
+| Vertical Speed | 上升或下降时的垂直速度。 | 数值；默认 .7；.1–5；步长 .1；显示条件：非 Mode = Grim |
+| Grim Mode | Flat 在 Y % 1 接近 0.24919（误差小于 0.0001）时启动并保持，按潜行停止；Free 按跳跃启动，松开跳跃或潜行时记录高度，在不高于记录高度时启动，首次位置修正也可提供高度；Always 持续请求滑翔。三个子模式按住潜行时均暂停请求。 | 模式；默认 Flat；可选 Flat / Free / Always；显示条件：Mode = Grim |
+| Velocity HUD | 在屏幕中心下方显示当前 X、Y、Z 速度，各保留三位小数。 | 布尔；默认 true；显示条件：Mode = Grim |
+| Select Max Velocity | Free 按住跳跃时，等待垂直速度绝对值至少达到 0.4 后采集高度；松开跳跃后继续追踪最高点，垂直速度不大于 0 时选定最高高度。松开潜行仍直接记录当前高度并结束最高点等待。 | 布尔；默认 false；显示条件：Mode = Grim 且 Grim Mode = Free |
 
 ## AntiVoid
 
@@ -1163,6 +1166,19 @@ CubeCraft 沿用 AntiVoid 的 Cubecraft 处理：在移动事件中，仅当垂�
 | TP On Ground Packet | 路径位置包的落地标记。 | 布尔；默认 true |
 | Clientside Teleport | 客户端分阶段移动；关闭时集中发送路径包后更新位置。 | 布尔；默认 false |
 | Always Top | 将目的地调整到目标上方的安全落脚位置。 | 布尔；默认 false |
+
+## SpectatorTP
+
+作为独立 Player 模块使用。开启后用左 Alt＋使用键（默认右键）点击视线方块保存目的地，每次按下选点一次，松开后可重新选点。选点只保存坐标。退出旁观的游戏模式消息或旁观期间的位置修正触发传送，发送目标位置并清零速度。飞行能力从关闭变为开启时也可识别临时旁观，创造模式飞行除外。位置修正仅在已选点且触发传送时拦截，逐包确认 teleportId 并重发目标位置。随后维持目标 5 tick，期间锁定目标与移动输入。相关收包逻辑在客户端主线程按原版应用顺序运行，玩家出生后的前 20 tick 保留原版收包处理。关闭或切换世界清除选点与旁观状态。同世界玩家实体替换会保留选点并重置传送周期。关闭 Auto Disable 时可重新选点并等待下一轮旁观。
+
+源码：`src/main/java/cn/omix/module/impl/player/SpectatorTP.java`。
+
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| Always Top | 将目的地调整到所选方块上方可容纳两格空间的位置，支持碰撞形状顶面。关闭时使用射线命中坐标。 | 布尔；默认 true |
+| Auto Disable | 5 tick 维持期结束后自动关闭模块并清除目的地。 | 布尔；默认 true |
+| Show Target | 在保存的目的地绘制落脚位置标记。 | 布尔；默认 true |
+| Debug | 报告旁观状态进入、维持期位置修正拦截及维持期结束。 | 布尔；默认 false |
 
 --- docs/modules/render.md ---
 # Render 模块
@@ -1872,7 +1888,7 @@ Mode 默认 Kill，保留击杀触发。Kill 模式记录最近 15 秒内实际�
 
 Trigger 模式在其他玩家消息正文包含内置 TriggerList 任一关键词时回复一次。采用大小写敏感的子串匹配，Text 回复方式下每条消息命中多个关键词或重复关键词均只回复一条。Text 沿用全部文本配置，NameInFront 使用发言者账号名，Only Cheaters 和 Suspicion Threshold 按发言者 UUID 过滤。排除自己的消息。支持标准玩家聊天及无签名聊天。系统包转发的玩家聊天支持 <Name> 正文、Name: 正文、Name：正文、Name » 正文、Name >> 正文、Name › 正文及前置 [频道]/[等级] 标签，发言者须在当前玩家列表中。只匹配正文，忽略动作栏和无法识别发言者的消息。切换 Mode 会清空击杀记录及待发送消息。 Trigger 关键词列表、匹配及聊天解析逻辑直接实现在 AutoL.java 中。
 
-Reply Mode 默认 Text，使用当前文案回复。选择 AI 后复用项目 Harness 的 Provider、模型配置和异步调用通道，在 AI Provider / AI Model 中单独选定回复模型，模型列表每 10 秒刷新，保存的模型 ID 区分大小写。后台准备 Harness，模块后缀显示准备、模型选择、生成或失败状态。参考 Southside AutoReply，针对命中消息生成一句中文短回复，AI Cooldown (s) 默认 5 秒。全局最多一个回复请求，生成中及冷却中的后续命中跳过。每次仅发送发言者名字与本条正文供模型生成，模型调用使用最低可用推理档。回复继续应用 NameInFront、SendL 及 <target> 替换，发送前复核 Only Cheaters 并清理为最多 256 字符的单条聊天。关闭模块、切世界、玩家或连接变化、切换回复方式/Provider/Model 及 Harness 重启会取消或丢弃旧回复。请求失败时通过模块后缀提示。
+Reply Mode 默认 Text，使用当前文案回复。选择 AI 后复用项目 Harness 的 Provider、模型配置和异步调用通道，在 AI Provider / AI Model 中单独选定回复模型，模型列表每 10 秒刷新，保存的模型 ID 区分大小写。后台准备 Harness，模块后缀显示准备、模型选择、生成或失败状态。针对命中消息生成一句中文短回复，AI Cooldown (s) 默认 5 秒。全局最多一个回复请求，生成中及冷却中的后续命中跳过。每次仅发送发言者名字与本条正文供模型生成，模型调用使用最低可用推理档。回复继续应用 NameInFront、SendL 及 <target> 替换，发送前复核 Only Cheaters 并清理为最多 256 字符的单条聊天。关闭模块、切世界、玩家或连接变化、切换回复方式/Provider/Model 及 Harness 重启会取消或丢弃旧回复。请求失败时通过模块后缀提示。
 
 源码：`src/main/java/cn/omix/module/impl/world/AutoL.java`。
 

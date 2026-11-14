@@ -247,7 +247,7 @@ Mode 默认 Kill，保留击杀触发。Kill 模式记录最近 15 秒内实际�
 
 Trigger 模式在其他玩家消息正文包含内置 TriggerList 任一关键词时回复一次。采用大小写敏感的子串匹配，Text 回复方式下每条消息命中多个关键词或重复关键词均只回复一条。Text 沿用全部文本配置，NameInFront 使用发言者账号名，Only Cheaters 和 Suspicion Threshold 按发言者 UUID 过滤。排除自己的消息。支持标准玩家聊天及无签名聊天。系统包转发的玩家聊天支持 <Name> 正文、Name: 正文、Name：正文、Name » 正文、Name >> 正文、Name › 正文及前置 [频道]/[等级] 标签，发言者须在当前玩家列表中。只匹配正文，忽略动作栏和无法识别发言者的消息。切换 Mode 会清空击杀记录及待发送消息。 Trigger 关键词列表、匹配及聊天解析逻辑直接实现在 AutoL.java 中。
 
-Reply Mode 默认 Text，使用当前文案回复。选择 AI 后复用项目 Harness 的 Provider、模型配置和异步调用通道，在 AI Provider / AI Model 中单独选定回复模型，模型列表每 10 秒刷新，保存的模型 ID 区分大小写。后台准备 Harness，模块后缀显示准备、模型选择、生成或失败状态。参考 Southside AutoReply，针对命中消息生成一句中文短回复，AI Cooldown (s) 默认 5 秒。全局最多一个回复请求，生成中及冷却中的后续命中跳过。每次仅发送发言者名字与本条正文供模型生成，模型调用使用最低可用推理档。回复继续应用 NameInFront、SendL 及 <target> 替换，发送前复核 Only Cheaters 并清理为最多 256 字符的单条聊天。关闭模块、切世界、玩家或连接变化、切换回复方式/Provider/Model 及 Harness 重启会取消或丢弃旧回复。请求失败时通过模块后缀提示。
+Reply Mode 默认 Text，使用当前文案回复。选择 AI 后复用项目 Harness 的 Provider、模型配置和异步调用通道，在 AI Provider / AI Model 中单独选定回复模型，模型列表每 10 秒刷新，保存的模型 ID 区分大小写。后台准备 Harness，模块后缀显示准备、模型选择、生成或失败状态。针对命中消息生成一句中文短回复，AI Cooldown (s) 默认 5 秒。全局最多一个回复请求，生成中及冷却中的后续命中跳过。每次仅发送发言者名字与本条正文供模型生成，模型调用使用最低可用推理档。回复继续应用 NameInFront、SendL 及 <target> 替换，发送前复核 Only Cheaters 并清理为最多 256 字符的单条聊天。关闭模块、切世界、玩家或连接变化、切换回复方式/Provider/Model 及 Harness 重启会取消或丢弃旧回复。请求失败时通过模块后缀提示。
 
 源码：`src/main/java/cn/omix/module/impl/world/AutoL.java`。
 

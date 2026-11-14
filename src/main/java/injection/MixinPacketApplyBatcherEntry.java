@@ -1,5 +1,6 @@
 package injection;
 
+import cn.omix.module.impl.move.Fly;
 import cn.omix.module.impl.move.NoSlowDown;
 import cn.omix.util.IMinecraft;
 import net.minecraft.network.listener.PacketListener;
@@ -18,9 +19,15 @@ public abstract class MixinPacketApplyBatcherEntry<T extends PacketListener> imp
     @Shadow @Final private Packet<T> packet;
 
     @Inject(method = "apply", at = @At("HEAD"), cancellable = true)
-    private void omix$bufferNoSlow(CallbackInfo ci) {
+    private void omix$bufferMovementPackets(CallbackInfo ci) {
         if (!mc.isOnThread() || listener != mc.getNetworkHandler()) return;
+        if (!listener.accepts(packet)) return;
         var grim = NoSlowDown.activeGrim();
-        if (grim != null && listener.accepts(packet) && grim.receive(packet, listener)) ci.cancel();
+        if (grim != null && grim.receive(packet, listener)) {
+            ci.cancel();
+            return;
+        }
+        var fly = Fly.activeGrim();
+        if (fly != null && fly.receiveGrimPacket(packet)) ci.cancel();
     }
 }
