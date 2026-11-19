@@ -638,7 +638,9 @@ public final class AutoL extends Module {
                 "[千恋万花表情包_丛雨Ciallo][魔女的夜宴表情包_宁宁Ciallo][星光咖啡馆与死神之蝶表情包_夏目Ciallo][天使嚣嚣REBOOT表情包_天音Ciallo][RIDDLE JOKER表情包_七海Ciallo]",
                 "[千恋万花表情包_茉子Ciallo][魔女的夜宴动态表情包_Ciallo~][星光咖啡馆与死神之蝶表情包_栞那Ciallo][天使嚣嚣REBOOT表情包_来海Ciallo][RIDDLE JOKER表情包_千咲Ciallo]",
                 "[千恋万花表情包_芳乃Ciallo][魔女的夜宴表情包_紬Ciallo][星光咖啡馆与死神之蝶表情包_希Ciallo][天使嚣嚣REBOOT表情包_乃爱Ciallo][RIDDLE JOKER表情包_茉优Ciallo]",
-                "[千恋万花表情包_蕾娜Ciallo][魔女的夜宴表情包_和奏Ciallo][星光咖啡馆与死神之蝶表情包_爱衣Ciallo][天使嚣嚣REBOOT表情包_辉耶Ciallo][RIDDLE JOKER表情包_绫濑Ciallo]"
+                "[千恋万花表情包_蕾娜Ciallo][魔女的夜宴表情包_和奏Ciallo][星光咖啡馆与死神之蝶表情包_爱衣Ciallo][天使嚣嚣REBOOT表情包_辉耶Ciallo][RIDDLE JOKER表情包_绫濑Ciallo]",
+                "开挂，就要坐牢！",
+                "谁是灭建国呀 哼我不跟你们玩了 我要告老师  完了这下玩大了"
         };
     }
 
