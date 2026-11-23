@@ -3,14 +3,17 @@ package injection;
 import cn.omix.event.impl.LookEvent;
 import cn.omix.event.impl.StrafeEvent;
 import cn.omix.module.impl.player.Freecam;
+import cn.omix.module.impl.move.Step;
 import cn.omix.util.IMinecraft;
 import cn.omix.util.player.MovementUtil;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.MovementType;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -19,6 +22,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Entity.class)
 public abstract class MixinEntity implements IMinecraft {
+
+    @Unique private double omix$stepStartY;
+    @Unique private boolean omix$stepMoveEligible;
+
+    @Inject(method = "move", at = @At("HEAD"))
+    private void omix$beforeStepMove(MovementType type, Vec3d movement, CallbackInfo ci) {
+        omix$stepMoveEligible = (Object) this == mc.player && type == MovementType.SELF
+                && mc.player.isOnGround() && movement.y <= 0.0
+                && movement.x * movement.x + movement.z * movement.z > 1.0E-8;
+        if (omix$stepMoveEligible) omix$stepStartY = mc.player.getY();
+    }
+
+    @Inject(method = "move", at = @At("RETURN"))
+    private void omix$afterStepMove(MovementType type, Vec3d movement, CallbackInfo ci) {
+        if (!omix$stepMoveEligible || (Object) this != mc.player) return;
+        omix$stepMoveEligible = false;
+        double actualHeight = mc.player.getY() - omix$stepStartY;
+        if (actualHeight <= 0.6 || !mc.player.isOnGround()) return;
+        Step step = instance.getModuleManager().getModule(Step.class);
+        if (step != null) step.onStepped(omix$stepStartY, actualHeight);
+    }
 
     @Shadow
     public abstract Vec3d getRotationVector(float pitch, float yaw);

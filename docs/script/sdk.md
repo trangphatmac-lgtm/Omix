@@ -315,6 +315,9 @@
 - `cn.omix.event.impl.MouseScrollEvent` — `public double getVertical()`
 - `cn.omix.event.impl.MoveEvent` — `cn.omix.event.impl.MoveEvent`
 - `cn.omix.event.impl.MoveEvent` — `public class MoveEvent extends Event`
+- `cn.omix.event.impl.MoveEvent` — `public MoveEvent(double x, double y, double z)`
+- `cn.omix.event.impl.MoveEvent` — `public MoveEvent(double x, double y, double z, MovementType type)`
+- `cn.omix.event.impl.MoveEvent` — `public MovementType getType()`
 - `cn.omix.event.impl.MoveInputEvent` — `cn.omix.event.impl.MoveInputEvent`
 - `cn.omix.event.impl.MoveInputEvent` — `public class MoveInputEvent extends Event`
 - `cn.omix.event.impl.MoveInputEvent` — `public float getForward()`
@@ -343,6 +346,8 @@
 - `cn.omix.event.impl.PlayerPositionLookEvent` — `cn.omix.event.impl.PlayerPositionLookEvent`
 - `cn.omix.event.impl.PlayerPositionLookEvent` — `public final class PlayerPositionLookEvent extends Event`
 - `cn.omix.event.impl.PlayerPositionLookEvent` — `public Vec3d getPosition()`
+- `cn.omix.event.impl.PlayerPostTickEvent` — `cn.omix.event.impl.PlayerPostTickEvent`
+- `cn.omix.event.impl.PlayerPostTickEvent` — `public final class PlayerPostTickEvent extends Event`
 - `cn.omix.event.impl.PlayerUpdateEvent` — `cn.omix.event.impl.PlayerUpdateEvent`
 - `cn.omix.event.impl.PlayerUpdateEvent` — `public final class PlayerUpdateEvent extends Event`
 - `cn.omix.event.impl.Render2DEvent` — `cn.omix.event.impl.Render2DEvent`
@@ -725,6 +730,7 @@
 - `cn.omix.util.combat.MeleeDamagePredictor` — `cn.omix.util.combat.MeleeDamagePredictor`
 - `cn.omix.util.combat.MeleeDamagePredictor` — `public final class MeleeDamagePredictor`
 - `cn.omix.util.combat.MeleeDamagePredictor` — `public static boolean canKill(PlayerEntity player, LivingEntity target)`
+- `cn.omix.util.combat.MeleeDamagePredictor` — `public static float predictDamage(PlayerEntity player, LivingEntity target)`
 - `cn.omix.util.combat.OffhandItems` — `cn.omix.util.combat.OffhandItems`
 - `cn.omix.util.combat.OffhandItems` — `public final class OffhandItems`
 - `cn.omix.util.combat.OffhandItems` — `public static int findBestSlot(Inventory inventory, ItemStack offhand)`
@@ -906,6 +912,9 @@
 - `cn.omix.util.combat.projectile.ProjectileSlotState` — `public int flush(int current)`
 - `cn.omix.util.combat.projectile.ProjectileSlotState` — `public int release(int current)`
 - `cn.omix.util.combat.projectile.ProjectileSlotState` — `public void clear()`
+- `cn.omix.util.exploits.disabler.DisablerPacketUtil` — `cn.omix.util.exploits.disabler.DisablerPacketUtil`
+- `cn.omix.util.exploits.disabler.DisablerPacketUtil` — `public final class DisablerPacketUtil implements IMinecraft`
+- `cn.omix.util.exploits.disabler.DisablerPacketUtil` — `public static void sendDirect(Packet<?> packet)`
 - `cn.omix.util.exploits.disabler.FullMovementDisabler` — `cn.omix.util.exploits.disabler.FullMovementDisabler`
 - `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public final class FullMovementDisabler implements DisablerMode, IMinecraft`
 - `cn.omix.util.exploits.disabler.FullMovementDisabler` — `public FullMovementDisabler(IntSupplier activationKey)`
@@ -975,6 +984,18 @@
 - `cn.omix.util.move.HypixelPrediction` — `public float tick(boolean active)`
 - `cn.omix.util.move.HypixelPrediction` — `public void reset()`
 - `cn.omix.util.move.HypixelPrediction` — `public static float movementYaw(float cameraYaw, int forward, int right, boolean onGround)`
+- `cn.omix.util.move.LongJumpMovementMode` — `cn.omix.util.move.LongJumpMovementMode`
+- `cn.omix.util.move.LongJumpMovementMode` — `public final class LongJumpMovementMode implements IMinecraft`
+- `cn.omix.util.move.LongJumpMovementMode` — `public enum Result`
+- `cn.omix.util.move.LongJumpMovementMode` — `public void reset()`
+- `cn.omix.util.move.LongJumpMovementMode` — `public Result vanilla(MoveEvent event)`
+- `cn.omix.util.move.LongJumpMovementMode` — `public Result rewound(MoveEvent event)`
+- `cn.omix.util.move.OldNcpSpeedMode` — `cn.omix.util.move.OldNcpSpeedMode`
+- `cn.omix.util.move.OldNcpSpeedMode` — `public final class OldNcpSpeedMode implements IMinecraft`
+- `cn.omix.util.move.OldNcpSpeedMode` — `public void reset()`
+- `cn.omix.util.move.OldNcpSpeedMode` — `public void setback()`
+- `cn.omix.util.move.OldNcpSpeedMode` — `public void observeStep()`
+- `cn.omix.util.move.OldNcpSpeedMode` — `public boolean move(MoveEvent event)`
 - `cn.omix.util.move.PredictionTimerBalance` — `cn.omix.util.move.PredictionTimerBalance`
 - `cn.omix.util.move.PredictionTimerBalance` — `public final class PredictionTimerBalance`
 - `cn.omix.util.move.PredictionTimerBalance` — `public float boost()`
@@ -982,6 +1003,11 @@
 - `cn.omix.util.move.PredictionTimerBalance` — `public void prepareNextJump()`
 - `cn.omix.util.move.PredictionTimerBalance` — `public void reset()`
 - `cn.omix.util.move.PredictionTimerBalance` — `public static boolean isNormalSpeed(float speed)`
+- `cn.omix.util.move.RewoundSpeedMode` — `cn.omix.util.move.RewoundSpeedMode`
+- `cn.omix.util.move.RewoundSpeedMode` — `public final class RewoundSpeedMode implements IMinecraft`
+- `cn.omix.util.move.RewoundSpeedMode` — `public void reset()`
+- `cn.omix.util.move.RewoundSpeedMode` — `public void damaged()`
+- `cn.omix.util.move.RewoundSpeedMode` — `public void move(MoveEvent event, boolean restricted, boolean lowHop, boolean collisionPrediction, double damageBoost)`
 - `cn.omix.util.move.TimerBalance` — `cn.omix.util.move.TimerBalance`
 - `cn.omix.util.move.TimerBalance` — `public final class TimerBalance`
 - `cn.omix.util.move.TimerBalance` — `public static final Color PANEL`

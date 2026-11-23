@@ -5,6 +5,7 @@ import cn.omix.config.Config;
 import cn.omix.config.ConfigStorageMode;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
+import cn.omix.module.impl.exploits.Disabler;
 import cn.omix.module.impl.move.Fly;
 import cn.omix.module.value.DynamicBoolValueProvider;
 import cn.omix.module.value.Value;
@@ -269,6 +270,15 @@ public final class ModuleConfig extends Config {
                 try {
                     if (module instanceof Fly && value instanceof ModeValue mode && value.getName().equals("Grim Mode")) {
                         mode.setValue(GrimFlyState.migrateMode(entry.getValue().getAsString()));
+                    } else if (module instanceof Disabler && value instanceof MultiBoolValue multi
+                            && value.getName().equals("Mode") && entry.getValue().isJsonPrimitive()) {
+                        // Older profiles stored one Disabler mode as a string.
+                        String selected = entry.getValue().getAsString();
+                        if (multi.getValues().stream().anyMatch(child -> child.getName().equalsIgnoreCase(selected))) {
+                            for (BoolValue child : multi.getValues()) {
+                                child.setValue(child.getName().equalsIgnoreCase(selected));
+                            }
+                        }
                     } else {
                         deserializeValue(value, entry.getValue());
                     }

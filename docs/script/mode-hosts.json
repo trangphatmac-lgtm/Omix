@@ -106,7 +106,7 @@
   },
   {
     "module": "Disabler",
-    "selector": "Mode",
+    "selector": "Behavior",
     "source": "src/main/java/cn/omix/module/impl/exploits/Disabler.java"
   },
   {

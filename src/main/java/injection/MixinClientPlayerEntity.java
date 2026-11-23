@@ -110,6 +110,7 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
     private void omix$restoreFreecamInput(CallbackInfo ci) {
         ChestScreenGuard.playerTickCompleted();
         omix$restoreFreecamInput();
+        Client.instance.getEventManager().call(new PlayerPostTickEvent());
     }
 
     @Inject(method = "tickRiding", at = @At("HEAD"))
@@ -159,7 +160,7 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
 
     @Inject(method = "move", at = @At("HEAD"), cancellable = true)
     private void move(MovementType movementType, Vec3d movement, CallbackInfo ci) {
-        MoveEvent event = new MoveEvent(movement.x, movement.y, movement.z);
+        MoveEvent event = new MoveEvent(movement.x, movement.y, movement.z, movementType);
         Client.instance.getEventManager().call(event);
 
         if (event.isCancelled()) {

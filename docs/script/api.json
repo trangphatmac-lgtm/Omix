@@ -2442,7 +2442,30 @@
     "signature": "public class MoveEvent extends Event",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/event/impl/MoveEvent.java",
-    "line": 11
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.event.impl.MoveEvent",
+    "name": "MoveEvent",
+    "signature": "public MoveEvent(double x, double y, double z)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/event/impl/MoveEvent.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.event.impl.MoveEvent",
+    "name": "MoveEvent",
+    "signature": "public MoveEvent(double x, double y, double z, MovementType type)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/event/impl/MoveEvent.java",
+    "line": 18
+  },
+  {
+    "owner": "cn.omix.event.impl.MoveEvent",
+    "name": "getType",
+    "signature": "public MovementType getType()",
+    "kind": "generated-accessor",
+    "source": "src/main/java/cn/omix/event/impl/MoveEvent.java"
   },
   {
     "owner": "cn.omix.event.impl.MoveInputEvent",
@@ -2645,6 +2668,21 @@
     "signature": "public Vec3d getPosition()",
     "kind": "generated-accessor",
     "source": "src/main/java/cn/omix/event/impl/PlayerPositionLookEvent.java"
+  },
+  {
+    "owner": "cn.omix.event.impl.PlayerPostTickEvent",
+    "name": "PlayerPostTickEvent",
+    "signature": "cn.omix.event.impl.PlayerPostTickEvent",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/event/impl/PlayerPostTickEvent.java"
+  },
+  {
+    "owner": "cn.omix.event.impl.PlayerPostTickEvent",
+    "name": "Event",
+    "signature": "public final class PlayerPostTickEvent extends Event",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/event/impl/PlayerPostTickEvent.java",
+    "line": 6
   },
   {
     "owner": "cn.omix.event.impl.PlayerUpdateEvent",
@@ -5614,6 +5652,14 @@
     "line": 34
   },
   {
+    "owner": "cn.omix.util.combat.MeleeDamagePredictor",
+    "name": "predictDamage",
+    "signature": "public static float predictDamage(PlayerEntity player, LivingEntity target)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/MeleeDamagePredictor.java",
+    "line": 39
+  },
+  {
     "owner": "cn.omix.util.combat.OffhandItems",
     "name": "OffhandItems",
     "signature": "cn.omix.util.combat.OffhandItems",
@@ -7052,6 +7098,29 @@
     "line": 34
   },
   {
+    "owner": "cn.omix.util.exploits.disabler.DisablerPacketUtil",
+    "name": "DisablerPacketUtil",
+    "signature": "cn.omix.util.exploits.disabler.DisablerPacketUtil",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/DisablerPacketUtil.java"
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.DisablerPacketUtil",
+    "name": "IMinecraft",
+    "signature": "public final class DisablerPacketUtil implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/DisablerPacketUtil.java",
+    "line": 7
+  },
+  {
+    "owner": "cn.omix.util.exploits.disabler.DisablerPacketUtil",
+    "name": "sendDirect",
+    "signature": "public static void sendDirect(Packet<?> packet)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/exploits/disabler/DisablerPacketUtil.java",
+    "line": 11
+  },
+  {
     "owner": "cn.omix.util.exploits.disabler.FullMovementDisabler",
     "name": "FullMovementDisabler",
     "signature": "cn.omix.util.exploits.disabler.FullMovementDisabler",
@@ -7592,6 +7661,100 @@
     "line": 26
   },
   {
+    "owner": "cn.omix.util.move.LongJumpMovementMode",
+    "name": "LongJumpMovementMode",
+    "signature": "cn.omix.util.move.LongJumpMovementMode",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/move/LongJumpMovementMode.java"
+  },
+  {
+    "owner": "cn.omix.util.move.LongJumpMovementMode",
+    "name": "IMinecraft",
+    "signature": "public final class LongJumpMovementMode implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/LongJumpMovementMode.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.move.LongJumpMovementMode",
+    "name": "Result",
+    "signature": "public enum Result",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/LongJumpMovementMode.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.move.LongJumpMovementMode",
+    "name": "reset",
+    "signature": "public void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/LongJumpMovementMode.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.move.LongJumpMovementMode",
+    "name": "vanilla",
+    "signature": "public Result vanilla(MoveEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/LongJumpMovementMode.java",
+    "line": 30
+  },
+  {
+    "owner": "cn.omix.util.move.LongJumpMovementMode",
+    "name": "rewound",
+    "signature": "public Result rewound(MoveEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/LongJumpMovementMode.java",
+    "line": 48
+  },
+  {
+    "owner": "cn.omix.util.move.OldNcpSpeedMode",
+    "name": "OldNcpSpeedMode",
+    "signature": "cn.omix.util.move.OldNcpSpeedMode",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/move/OldNcpSpeedMode.java"
+  },
+  {
+    "owner": "cn.omix.util.move.OldNcpSpeedMode",
+    "name": "IMinecraft",
+    "signature": "public final class OldNcpSpeedMode implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/OldNcpSpeedMode.java",
+    "line": 13
+  },
+  {
+    "owner": "cn.omix.util.move.OldNcpSpeedMode",
+    "name": "reset",
+    "signature": "public void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/OldNcpSpeedMode.java",
+    "line": 28
+  },
+  {
+    "owner": "cn.omix.util.move.OldNcpSpeedMode",
+    "name": "setback",
+    "signature": "public void setback()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/OldNcpSpeedMode.java",
+    "line": 39
+  },
+  {
+    "owner": "cn.omix.util.move.OldNcpSpeedMode",
+    "name": "observeStep",
+    "signature": "public void observeStep()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/OldNcpSpeedMode.java",
+    "line": 45
+  },
+  {
+    "owner": "cn.omix.util.move.OldNcpSpeedMode",
+    "name": "move",
+    "signature": "public boolean move(MoveEvent event)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/OldNcpSpeedMode.java",
+    "line": 59
+  },
+  {
     "owner": "cn.omix.util.move.PredictionTimerBalance",
     "name": "PredictionTimerBalance",
     "signature": "cn.omix.util.move.PredictionTimerBalance",
@@ -7645,6 +7808,45 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/move/PredictionTimerBalance.java",
     "line": 89
+  },
+  {
+    "owner": "cn.omix.util.move.RewoundSpeedMode",
+    "name": "RewoundSpeedMode",
+    "signature": "cn.omix.util.move.RewoundSpeedMode",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/move/RewoundSpeedMode.java"
+  },
+  {
+    "owner": "cn.omix.util.move.RewoundSpeedMode",
+    "name": "IMinecraft",
+    "signature": "public final class RewoundSpeedMode implements IMinecraft",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/RewoundSpeedMode.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.move.RewoundSpeedMode",
+    "name": "reset",
+    "signature": "public void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/RewoundSpeedMode.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.move.RewoundSpeedMode",
+    "name": "damaged",
+    "signature": "public void damaged()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/RewoundSpeedMode.java",
+    "line": 29
+  },
+  {
+    "owner": "cn.omix.util.move.RewoundSpeedMode",
+    "name": "move",
+    "signature": "public void move(MoveEvent event, boolean restricted, boolean lowHop, boolean collisionPrediction, double damageBoost)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/move/RewoundSpeedMode.java",
+    "line": 33
   },
   {
     "owner": "cn.omix.util.move.TimerBalance",

@@ -48,7 +48,7 @@ import java.util.List;
 public class Aura extends Module {
     private final ModeValue targetMode = new ModeValue("Target Mode", "Single", "Single", "Switch");
     private final NumberValue switchDelay = new NumberValue("Switch Delay", 200, 0, 1000, 50, () -> targetMode.is("Switch"));
-    private final ModeValue priority = new ModeValue("Priority", "Distance", "Distance", "Health", "Fov", "LivingTime", "Armor");
+    private final ModeValue priority = new ModeValue("Priority", "Distance", "Distance", "Health", "Fov", "LivingTime", "Armor", "Smart");
     private final ModeValue attackMode = new ModeValue("Combat Mode", "1.8", "1.8", "1.9+");
     private final NumberValue maxCps = new NumberValue("Max CPS", 10, 1, 20, 1, () -> attackMode.is("1.8"));
     private final NumberValue minCps = new NumberValue("Min CPS", 7, 1, 20, 1, () -> attackMode.is("1.8"));
@@ -363,6 +363,10 @@ public class Aura extends Module {
             case "Fov" -> Comparator.comparingDouble(RotationUtil::getRotationDifference);
             case "LivingTime" -> Comparator.comparingInt((LivingEntity entity) -> entity.age).reversed();
             case "Armor" -> Comparator.comparingInt(LivingEntity::getArmor);
+            case "Smart" -> Comparator.comparingDouble(entity ->
+                    entity.getHealth() + entity.getAbsorptionAmount()
+                            + 100.0 - MeleeDamagePredictor.predictDamage(mc.player, entity)
+                            + mc.player.squaredDistanceTo(entity) / 1000.0);
             default -> Comparator.comparingDouble(RotationUtil::getDistanceToEntity);
         };
     }

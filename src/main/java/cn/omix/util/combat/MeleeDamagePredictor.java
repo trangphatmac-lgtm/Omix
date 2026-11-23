@@ -36,7 +36,7 @@ public final class MeleeDamagePredictor {
         return remainingHealth > 0 && predictDamage(player, target) >= remainingHealth;
     }
 
-    static float predictDamage(PlayerEntity player, LivingEntity target) {
+    public static float predictDamage(PlayerEntity player, LivingEntity target) {
         if (target.isBlocking()) {
             return 0;
         }

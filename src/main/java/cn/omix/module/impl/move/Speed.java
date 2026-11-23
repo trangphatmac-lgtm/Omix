@@ -7,6 +7,7 @@ import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.base.annotation.EventPriority;
 import cn.omix.event.impl.LivingUpdateEvent;
 import cn.omix.event.impl.MotionEvent;
+import cn.omix.event.impl.MoveEvent;
 import cn.omix.event.impl.MoveInputEvent;
 import cn.omix.event.impl.PacketEvent;
 import cn.omix.event.impl.StrafeEvent;
@@ -22,12 +23,20 @@ import cn.omix.module.impl.world.ScaffoldX;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
+import cn.omix.module.value.impl.KeyValue;
 import cn.omix.util.Util;
 import cn.omix.util.misc.TimerSpeedUtil;
 import cn.omix.util.move.PredictionTimerBalance;
 import cn.omix.util.move.HypixelPrediction;
+import cn.omix.util.move.OldNcpSpeedMode;
+import cn.omix.util.move.RewoundSpeedMode;
 import cn.omix.util.player.MovementUtil;
 import cn.omix.util.network.PacketUtil;
+import cn.omix.util.misc.KeyUtil;
+import net.minecraft.entity.MovementType;
+import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
+import net.minecraft.client.util.InputUtil;
+import org.lwjgl.glfw.GLFW;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.StairsBlock;
 import net.minecraft.entity.effect.StatusEffects;
@@ -44,7 +53,7 @@ import net.minecraft.util.math.MathHelper;
 public class Speed extends Module {
     private final ModeValue mode = new ModeValue("Mode", "Ground", "Ground", "Vulcan", "Prediction", "Prediction2", "HypixelPrediction", "Normal",
             "Vanilla", "Smooth Vanilla", "Hypixel NCP Hop", "Modern MMC",
-            "Boost", "Flag Boost", "NCP", "Verus", "Miniblox");
+            "Boost", "Flag Boost", "NCP", "Verus", "Miniblox", "OldNCP", "Rewound");
     private final BoolValue damageBoost = new BoolValue("Damage Boost", false,  () -> mode.is("Vulcan"));
     private final NumberValue vanillaSpeed = new NumberValue("Speed", 1, 0.1f, 10, 0.1f,
             () -> mode.is("Ground") || mode.is("Vanilla") || mode.is("Smooth Vanilla") || mode.is("Flag Boost"));
@@ -59,6 +68,16 @@ public class Speed extends Module {
     private final NumberValue friction = new NumberValue("Friction", 1.0F, 0.0F, 10.0F, 0.1F, () -> mode.is("Normal"));
     private final NumberValue strafe = new NumberValue("Strafe", 0, 0, 100, 1, () -> mode.is("Normal"));
     private final BoolValue lagBackCheck = new BoolValue("LagBack Check", true);
+    private final BoolValue oldNcpTimer = new BoolValue("OldNCP Timer", true, () -> mode.is("OldNCP"));
+    private final NumberValue rewoundTimer = new NumberValue("Rewound Timer", 1.1F, 1.0F, 2.0F, 0.05F,
+            () -> mode.is("Rewound"));
+    private final NumberValue rewoundDamageBoost = new NumberValue("Rewound Damage Boost", 1.5F, 1.0F, 3.0F, 0.05F,
+            () -> mode.is("Rewound"));
+    private final BoolValue rewoundLowHop = new BoolValue("Rewound Lowhop", false, () -> mode.is("Rewound"));
+    private final BoolValue rewoundCollisionPrediction = new BoolValue("Rewound Collision Prediction", true,
+            () -> mode.is("Rewound") && rewoundLowHop.getValue());
+    private final KeyValue rewoundLowHopDisableKey = new KeyValue("Rewound Lowhop Disable Key", 0,
+            () -> mode.is("Rewound") && rewoundLowHop.getValue());
 
     private String activeMode;
     private int airTicks;
@@ -75,6 +94,8 @@ public class Speed extends Module {
     private String lastPredictionMode;
     private final HypixelPrediction hypixelPrediction = new HypixelPrediction();
     private RotationRequest hypixelRotationRequest;
+    private final OldNcpSpeedMode oldNcp = new OldNcpSpeedMode();
+    private final RewoundSpeedMode rewound = new RewoundSpeedMode();
 
     public Speed() {
         super("Speed", Category.Move);
@@ -159,6 +180,9 @@ public class Speed extends Module {
 
     @EventTarget
     public void onWorld(WorldEvent event) {
+        oldNcp.reset();
+        rewound.reset();
+        TimerSpeedUtil.clearTemporaryOverride(this);
         if (mode.is("HypixelPrediction")) {
             resetHypixelPrediction();
             TimerSpeedUtil.reset();
@@ -273,6 +297,19 @@ public class Speed extends Module {
     @EventTarget
     public void onMoveInput(MoveInputEvent event) {
         syncMode();
+        if (mode.is("OldNCP")) {
+            if (mc.player != null && (event.getForward() != 0 || event.getStrafe() != 0) && !isSpeedTowering()) {
+                event.setJumping(false);
+            }
+            return;
+        }
+        if (mode.is("Rewound")) {
+            if (mc.player != null && !mc.player.isTouchingWater() && !mc.player.isInLava()
+                    && !isSpeedTowering()) {
+                event.setJumping(false);
+            }
+            return;
+        }
         if (mode.is("HypixelPrediction")) {
             if (mc.player != null && mc.world != null
                     && (mc.options.jumpKey.isPressed() || !hypixelOnlyWhenSpace.getValue())
@@ -329,6 +366,7 @@ public class Speed extends Module {
             return;
         }
         airTicks = mc.player.isOnGround() ? 0 : airTicks + 1;
+        if (mode.is("OldNCP")) oldNcp.observeStep();
         updateAddedModes();
         if (!mode.is("Normal") || !canBoost()) return;
 
@@ -389,6 +427,29 @@ public class Speed extends Module {
             }
             return;
         }
+        if (event.isCancelled()) return;
+        if (mode.is("Rewound") && event.getPacket() instanceof EntityVelocityUpdateS2CPacket velocity
+                && velocity.getEntityId() == mc.player.getId()) {
+            var player = mc.player;
+            var world = mc.world;
+            mc.execute(() -> {
+                if (isNativeBehaviorActive() && mode.is("Rewound") && mc.player == player && mc.world == world)
+                    rewound.damaged();
+            });
+        }
+        if (mode.is("OldNCP") && event.getPacket() instanceof PlayerPositionLookS2CPacket) {
+            var player = mc.player;
+            var world = mc.world;
+            mc.execute(() -> {
+                if (isNativeBehaviorActive() && mode.is("OldNCP") && mc.player == player && mc.world == world)
+                    oldNcp.setback();
+            });
+            return;
+        }
+        if (mode.is("Rewound") && event.getPacket() instanceof PlayerPositionLookS2CPacket) {
+            // The reference mode has no setback transition; keep its state and remain enabled.
+            return;
+        }
         if (!(event.getPacket() instanceof PlayerPositionLookS2CPacket) || event.isCancelled()) return;
         // This correction is the handshake that starts Flag Boost's acceleration cycle.
         if (mode.is("Flag Boost") && flagBoostTicks == 3) {
@@ -398,6 +459,33 @@ public class Speed extends Module {
         if (lagBackCheck.getValue()) {
             Util.log("Lag detected!");
             toggle();
+        }
+    }
+
+    @EventTarget
+    @EventPriority(100)
+    public void onMove(MoveEvent event) {
+        if (event.getType() != MovementType.SELF || mc.player == null || mc.world == null) return;
+        syncMode();
+        if (mode.is("OldNCP")) {
+            if (isSpeedTowering()) {
+                TimerSpeedUtil.clearTemporaryOverride(this);
+                return;
+            }
+            boolean timerAllowed = oldNcp.move(event);
+            if (timerAllowed && oldNcpTimer.getValue()) TimerSpeedUtil.setTemporaryOverride(this, 1.2F);
+            else TimerSpeedUtil.clearTemporaryOverride(this);
+        } else if (mode.is("Rewound")) {
+            boolean restricted = mc.player.isTouchingWater() || mc.player.isInLava()
+                    || mc.player.isClimbing() || mc.player.isSpectator() || isInCobweb() || isSpeedTowering();
+            boolean lowHop = rewoundLowHop.getValue() && !KeyUtil.isPressed(rewoundLowHopDisableKey.getValue(),
+                    key -> InputUtil.isKeyPressed(mc.getWindow(), key),
+                    button -> GLFW.glfwGetMouseButton(mc.getWindow().getHandle(), button) == GLFW.GLFW_PRESS);
+            rewound.move(event, restricted, lowHop, rewoundCollisionPrediction.getValue(),
+                    rewoundDamageBoost.getValue());
+            if (restricted || !MovementUtil.isMoving() || mc.player.age < 7)
+                TimerSpeedUtil.clearTemporaryOverride(this);
+            else TimerSpeedUtil.setTemporaryOverride(this, rewoundTimer.getValue());
         }
     }
 
@@ -568,6 +656,9 @@ public class Speed extends Module {
 
     private void resetAddedModes() {
         resetHypixelPrediction();
+        oldNcp.reset();
+        rewound.reset();
+        TimerSpeedUtil.clearTemporaryOverride(this);
         airTicks = 0;
         flagBoostTicks = 0;
         boostSpeed = 0;
@@ -576,8 +667,12 @@ public class Speed extends Module {
     private void stopMode(String previousMode) {
         if (previousMode == null) return;
         switch (previousMode) {
-            case "Vanilla", "Flag Boost", "NCP", "Verus", "Boost", "Miniblox" -> stopHorizontal();
+            case "Vanilla", "Flag Boost", "NCP", "Verus", "Boost", "Miniblox", "OldNCP", "Rewound" -> stopHorizontal();
         }
+    }
+
+    private boolean isSpeedTowering() {
+        return isScaffoldActive() && mc.options.jumpKey.isPressed();
     }
 
     private void syncMode() {

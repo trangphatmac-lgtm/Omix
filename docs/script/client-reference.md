@@ -301,7 +301,7 @@ Text、Color、Key 和 MultiBool 父组不支持此命令直接赋值。模块�
 | --- | --- | --- |
 | Target Mode | Single 持续攻击单个目标；Switch 按间隔轮换目标。 | 模式；默认 Single；可选 Single / Switch |
 | Switch Delay | 轮换目标的间隔，单位毫秒。 | 数值；默认 200；0–1000；步长 50；显示条件：Target Mode = Switch |
-| Priority | 目标排序依据：距离、生命值、视角偏差、存活时间或护甲。 | 模式；默认 Distance；可选 Distance / Health / Fov / LivingTime / Armor |
+| Priority | 目标排序依据：距离、生命值、视角偏差、存活时间、护甲，或 Smart 分数。Smart 按目标生命值与吸收值 + 100 − 当前主手预计伤害 + 距离平方 / 1000 升序排序；预计伤害采用客户端近战预测，考虑攻击冷却、护甲、抗性和附魔。 | 模式；默认 Distance；可选 Distance / Health / Fov / LivingTime / Armor / Smart |
 | Combat Mode | 1.8 按 CPS 发起攻击；1.9+ 按武器攻击冷却判断时机。 | 模式；默认 1.8；可选 1.8 / 1.9+ |
 | Max CPS | 旧版攻击频率的随机上限，每秒次数。 | 数值；默认 10；1–20；步长 1；显示条件：Combat Mode = 1.8 |
 | Min CPS | 旧版攻击频率的随机下限，每秒次数。 | 数值；默认 7；1–20；步长 1；显示条件：Combat Mode = 1.8 |
@@ -575,32 +575,43 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 
 ## Disabler
 
-集中处理特定协议或服务器场景的数据包兼容逻辑，按模式选择 Heypixel、CubeCraft、MiniBlox、Hypixel 或 Full movement disabler 实现。Hypixel 按参考实现对单轴转头添加标准差 0.001° 的高斯扰动，对 0.1° / 0.25° 整数倍角度变化添加标准差 0.005° 的高斯扰动，并将 pitch 限制在 -90° 至 90°；仅处理未取消且携带转头的发送移动包，启停、切模式和换世界时重置历史角度。
+集中处理特定协议或服务器场景的数据包逻辑。Mode 为多选组，Heypixel、CubeCraft、CubeCraft-2026-06-13、CubeCraftGuiMove、MiniBlox、Hypixel 和 Full movement disabler 可同时启用；子项独立启停，收到已被前项取消的包时后项不再处理。旧版单选 Mode 配置会迁移成仅启用原所选子项。Hypixel 按参考实现对单轴转头添加标准差 0.001° 的高斯扰动，对 0.1° / 0.25° 整数倍角度变化添加标准差 0.005° 的高斯扰动，并将 pitch 限制在 -90° 至 90°；仅处理未取消且携带转头的发送移动包，启停子项和换世界时重置历史角度。
+
+项目原有的 CubeCraft 子项保留原流程：取消出站 START_SPRINTING，将出站 KeepAlive/Pong 延迟 2 秒；收到位置修正时放行队列并按 Wait After Lag (ms) 暂停处理，关闭时放行队列，切世界时清空状态。等待期间 Fly 暂停、HUD 显示原有提示。
+
+CubeCraft-2026-06-13 按 LiquidBounce 实现：只暂存入站 KeepAlive 和 CommonPing，其他入站包正常放行；收到玩家位置修正时先放行缓存，再处理修正。按玩家年龄 <150、150–299、≥300 tick 分别延迟 5、10、20 秒后回放，关闭子项时放行、切世界时丢弃；单人游戏中自动关闭该子项。CubeCraftGuiMove 按 2026-06-18 实现：取消出站 PlayerInput 和冲刺开始/停止命令，每个玩家 tick 的首次容器点击前发送一次仅含落地/水平碰撞状态的移动包；它是独立子项，不负责让玩家在 GUI 中移动。
 
 Full movement disabler 参考用户提供的 Raven bS disabler.java 及 [Raven bS 脚本文档](https://nuqe.lol/BSDocs/)，移植为 1.21.11 原生模式。启用后保持空闲，使用独立的 Activation Key（默认 P，可在设置中自定义或清除）开始 5 秒充能；只在游戏内、无界面且窗口有焦点时响应快捷键，开始充能还需站在地面。充能中再次按键取消，分离后再次按键回程，回程期间重复按键无效。充能冻结水平移动与跳跃，显示适配当前 GUI 尺寸的分段进度条及阶段音效；期间离地会取消。分离期间客户端可移动，发送的移动包位置固定在记录锚点，强制 onGround=true，视角和本地移动速度保持原行为；此模式本身不提供飞行或穿墙。保留放置与落地的本地音效。
 
 分离和回程时，拦截放置/使用物品、挖掘/丢弃/换手、挥手、攻击/实体交互、玩家命令、能力更新、容器点击、创造模式物品栏及客户端状态包，现代 PlayerInput 的 sneak 位强制为 false。心跳、Ping/Pong、传送确认、tick-end、快捷栏切换和关窗继续发送；交互的本地预测可能暂时显示幽灵方块或物品，服务器同步后才恢复，不能视为服务端接受。锚点附近 8 格以内的位置修正会更新锚点，保持本地位置，并补发匹配的 TeleportConfirm 和完整位置确认；相对坐标、角度与速度标志以记录的服务端姿态解析。超过范围的修正或回程中的任何修正结束分离，交由原版接受。位置修正和自身速度更新在客户端主线程处理，自身速度包触发回程但仍应用，其他实体速度不会触发。
 
-默认分离上限为 120 秒，无距离上限；到期自动回程。回程沿锚点方向设置速度，不限制单步长度，受阻超过 8 tick 时尝试上抬 0.6；距锚点不超过 0.25 格或超过 60 个回程 tick 后归位。回程临时设置本地 flying 并恢复原值。关闭模块或切模式时立即归位并恢复输入/疾跑状态；死亡、乘坐载具、切世界、换玩家或连接时清空会话，不把旧锚点带入新会话。相较原脚本，补充了现代传送确认与退出清理；充能显示采用原分段曲线，省略随机抖动和虚构错误提示，阶段文案只描述本地准备过程。这是本地/服务端位置分离，并不真正关闭服务端反作弊；模式名称不代表对任意服务器均有效。
+默认分离上限为 120 秒，无距离上限；到期自动回程。回程沿锚点方向设置速度，不限制单步长度，受阻超过 8 tick 时尝试上抬 0.6；距锚点不超过 0.25 格或超过 60 个回程 tick 后归位。回程临时设置本地 flying 并恢复原值。关闭模块或取消此子项时立即归位并恢复输入/疾跑状态；死亡、乘坐载具、切世界、换玩家或连接时清空会话，不把旧锚点带入新会话。相较原脚本，补充了现代传送确认与退出清理；充能显示采用原分段曲线，省略随机抖动和虚构错误提示，阶段文案只描述本地准备过程。这是本地/服务端位置分离，并不真正关闭服务端反作弊；模式名称不代表对任意服务器均有效。
 
 源码：`src/main/java/cn/omix/module/impl/exploits/Disabler.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | 选择 Heypixel、CubeCraft、MiniBlox、Hypixel 或 Full movement disabler 的数据包处理流程；模式名称不代表对任意服务器都有效。 | 模式；默认 Heypixel；可选 Heypixel / CubeCraft / MiniBlox / Hypixel / Full movement disabler |
-| Activation Key | Full movement disabler 的独立自定义快捷键，默认 P；空闲时开始充能，充能中取消，分离后触发回程。可重新绑定或清除，不等同于模块总开关键；聊天或其他界面打开时不触发。 | 键位；默认 GLFW.GLFW_KEY_P；显示条件：Mode = Full movement disabler |
-| Wait After Lag (ms) | CubeCraft 遇到延迟或回弹后恢复处理前的等待时间，单位毫秒。 | 数值；默认 5000.0；0.0–30000.0；步长 100.0；显示条件：Mode = CubeCraft |
-| Debug | 输出 MiniBlox 调试信息。 | 布尔；默认 false；显示条件：Mode = MiniBlox |
-| Options | Heypixel 的细分数据包处理开关组，子项可单独设置。 | 布尔选项组；显示条件：Mode = Heypixel |
-| Grim Bad PacketsA | 取消与上一次相同的重复快捷栏切换包。 | 布尔；默认 true；属于 Options；显示条件：Mode = Heypixel |
-| Grim Duplicate RotPlace | 处理重复旋转或放置相关的数据包。 | 布尔；默认 true；属于 Options；显示条件：Mode = Heypixel |
-| ACA Fast Switch | 跨槽切换时补发中间槽位的切换包。 | 布尔；默认 true；属于 Options；显示条件：Mode = Heypixel |
-| ACA Inventory Frequency | 调整关闭物品栏相关数据包的发送频率。 | 布尔；默认 false；属于 Options；显示条件：Mode = Heypixel |
-| ACA Aim Step | 修正符合 Aim Step 特征的旋转数据。 | 布尔；默认 true；属于 Options；显示条件：Mode = Heypixel |
-| ACA Perfect Rotation | 调整过于精确的旋转数值。 | 布尔；默认 true；属于 Options；显示条件：Mode = Heypixel |
-| Themis Blink | 暂存特定数据包并按周期放行。 | 布尔；默认 true；属于 Options；显示条件：Mode = Heypixel |
-| Only Remote Server | 仅在远程服务器执行 Heypixel 数据包处理。 | 布尔；默认 false；属于 Options；显示条件：Mode = Heypixel |
-| Logging | 输出 Heypixel 处理日志。 | 布尔；默认 false；属于 Options；显示条件：Mode = Heypixel |
+| Mode | 可同时启用多个 Disabler 子项；子项独立启停和清理，名称不保证适用于任意服务器。 | 布尔选项组 |
+| Heypixel | 启用 Heypixel 数据包处理。 | 布尔；默认 true；属于 Mode |
+| CubeCraft | 项目原有流程：取消冲刺开始包，延迟出站 KeepAlive/Pong，位置修正后进入等待。 | 布尔；默认 false；属于 Mode |
+| CubeCraft-2026-06-13 | LiquidBounce 2026-06-13 流程：延迟入站 KeepAlive/CommonPing，位置修正时放行缓存。 | 布尔；默认 false；属于 Mode |
+| CubeCraftGuiMove | 取消 PlayerInput 与冲刺切换包，在每个玩家 tick 首次容器点击前补发状态移动包。 | 布尔；默认 false；属于 Mode |
+| MiniBlox | 启用 MiniBlox 数据包处理。 | 布尔；默认 false；属于 Mode |
+| Hypixel | 启用 Hypixel 旋转数据处理。 | 布尔；默认 false；属于 Mode |
+| Full movement disabler | 启用锚点分离流程，使用 Activation Key 控制。 | 布尔；默认 false；属于 Mode |
+| Activation Key | Full movement disabler 的独立自定义快捷键，默认 P；空闲时开始充能，充能中取消，分离后触发回程。可重新绑定或清除，不等同于模块总开关键；聊天或其他界面打开时不触发。 | 键位；默认 GLFW.GLFW_KEY_P；显示条件：Mode 包含 Full movement disabler |
+| Wait After Lag (ms) | 原有 CubeCraft 子项遇到位置修正后恢复处理前的等待时间，单位毫秒。 | 数值；默认 5000.0；0.0–30000.0；步长 100.0；显示条件：Mode 包含 CubeCraft |
+| Debug | 输出 MiniBlox 调试信息。 | 布尔；默认 false；显示条件：Mode 包含 MiniBlox |
+| Options | Heypixel 的细分数据包处理开关组，子项可单独设置。 | 布尔选项组；显示条件：Mode 包含 Heypixel |
+| Grim Bad PacketsA | 取消与上一次相同的重复快捷栏切换包。 | 布尔；默认 true；属于 Options；显示条件：Mode 包含 Heypixel |
+| Grim Duplicate RotPlace | 处理重复旋转或放置相关的数据包。 | 布尔；默认 true；属于 Options；显示条件：Mode 包含 Heypixel |
+| ACA Fast Switch | 跨槽切换时补发中间槽位的切换包。 | 布尔；默认 true；属于 Options；显示条件：Mode 包含 Heypixel |
+| ACA Inventory Frequency | 调整关闭物品栏相关数据包的发送频率。 | 布尔；默认 false；属于 Options；显示条件：Mode 包含 Heypixel |
+| ACA Aim Step | 修正符合 Aim Step 特征的旋转数据。 | 布尔；默认 true；属于 Options；显示条件：Mode 包含 Heypixel |
+| ACA Perfect Rotation | 调整过于精确的旋转数值。 | 布尔；默认 true；属于 Options；显示条件：Mode 包含 Heypixel |
+| Themis Blink | 暂存特定数据包并按周期放行。 | 布尔；默认 true；属于 Options；显示条件：Mode 包含 Heypixel |
+| Only Remote Server | 仅在远程服务器执行 Heypixel 数据包处理。 | 布尔；默认 false；属于 Options；显示条件：Mode 包含 Heypixel |
+| Logging | 输出 Heypixel 处理日志。 | 布尔；默认 false；属于 Options；显示条件：Mode 包含 Heypixel |
 
 ## NoBan
 
@@ -782,13 +793,13 @@ Full movement disabler 参考用户提供的 Raven bS disabler.java 及 [Raven b
 
 ## Speed
 
-提供地面加速、连续跳跃、预测与定时器等移动加速实现；模式按源码中的具体移动流程执行。Prediction 旋转以优先级 100 提交并立即应用，使用 Prediction 移动修正。HypixelPrediction 移植 AmunixNext HypixelSpeed：移动时默认需按住跳跃键，自动连续跳跃，并循环使用 1.00、0.85、0.70、0.63、0.55、1.70、1.52、1.50、1.47、1.44 倍时钟，每 tick 前进一步，落地不重启循环。停止移动、松开所需跳跃键或 Velocity 主动减速攻击期间恢复 1x 并重置循环；本项目没有原版 Hypixel.handleVelocity，暂停适配为原生 Velocity.isAttacking()（Reduce / Heypixel Reduce）。旋转按方向键计算 yaw，空中减 45°，保留旋转管理器上一组 pitch，并使用 Silent 移动修正；通常优先级 100，Aura 有目标且在地面时为 450。Scaffold/ScaffoldX 开启时只暂停该旋转，自动跳跃与时钟循环仍按参考实现执行；Velocity 暂停也仅影响时钟。切模式、关闭或切换世界时清理循环、时钟与该模式旋转请求。时钟沿用项目共享 Timer 接口，Timer 模块及临时覆盖仍有更高优先级。
+提供地面加速、连续跳跃、预测与定时器等移动加速实现；模式按源码中的具体移动流程执行。Prediction 旋转以优先级 100 提交并立即应用，使用 Prediction 移动修正。HypixelPrediction 移植 AmunixNext HypixelSpeed：移动时默认需按住跳跃键，自动连续跳跃，并循环使用 1.00、0.85、0.70、0.63、0.55、1.70、1.52、1.50、1.47、1.44 倍时钟，每 tick 前进一步，落地不重启循环。停止移动、松开所需跳跃键或 Velocity 主动减速攻击期间恢复 1x 并重置循环；本项目没有原版 Hypixel.handleVelocity，暂停适配为原生 Velocity.isAttacking()（Reduce / Heypixel Reduce）。旋转按方向键计算 yaw，空中减 45°，保留旋转管理器上一组 pitch，并使用 Silent 移动修正；通常优先级 100，Aura 有目标且在地面时为 450。Scaffold/ScaffoldX 开启时只暂停该旋转，自动跳跃与时钟循环仍按参考实现执行；Velocity 暂停也仅影响时钟。切模式、关闭或切换世界时清理循环、时钟与该模式旋转请求。OldNCP 移植 LiquidBounce 的 Rewound 阶段速度：落地以 0.407 加跳跃效果起跳，碰墙或收到位置修正后恢复基础速度，台阶和连续跳跃调整水平速度。Rewound 移植 openadjust 的离地 tick 速度与实际位移摩擦公式：默认 1.1 倍时钟，受击速度包后的 500 毫秒可在首个空中 tick 加速；可选低跳与前方碰撞/悬空预测。原项目的 Rewound Disabler 活跃计时器、完整模拟玩家及视角抖动接口在本项目没有对应实现，故未提供 Disabler 加速或视角抖动选项；前方预测使用四步包围盒检查。OldNCP 收到位置修正后进入恢复阶段；Rewound 收到修正后继续运行，两者都不由通用 LagBack Check 自动关闭。时钟沿用项目 Timer 接口；两种移植模式使用独立的临时覆盖并在退出时释放。
 
 源码：`src/main/java/cn/omix/module/impl/move/Speed.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | 选择 Ground 地面加速、Vanilla 直接速度、Smooth Vanilla 平滑加速、Normal 自定义移动、Prediction/Prediction2 预测流程、HypixelPrediction 固定时钟循环，或各服务器命名的跳跃与加速流程。 | 模式；默认 Ground；可选 Ground / Vulcan / Prediction / Prediction2 / HypixelPrediction / Normal / Vanilla / Smooth Vanilla / Hypixel NCP Hop / Modern MMC / Boost / Flag Boost / NCP / Verus / Miniblox |
+| Mode | 选择 Ground 地面加速、Vanilla 直接速度、Smooth Vanilla 平滑加速、Normal 自定义移动、Prediction/Prediction2 预测流程、HypixelPrediction 固定时钟循环，或各服务器命名的跳跃与加速流程。 | 模式；默认 Ground；可选 Ground / Vulcan / Prediction / Prediction2 / HypixelPrediction / Normal / Vanilla / Smooth Vanilla / Hypixel NCP Hop / Modern MMC / Boost / Flag Boost / NCP / Verus / Miniblox / OldNCP / Rewound |
 | Damage Boost | Vulcan 模式受击时利用受伤状态加速。 | 布尔；默认 false；显示条件：Mode = Vulcan |
 | Speed | 所选直接速度模式的移动强度；Ground 与 Smooth Vanilla 在实现中使用该值的四分之一。 | 数值；默认 1；0.1–10；步长 0.1；显示条件：Mode = Ground 或 Mode = Vanilla 或 Mode = Smooth Vanilla 或 Mode = Flag Boost |
 | Auto BHop | Vanilla 移动时自动连续起跳。 | 布尔；默认 true；显示条件：Mode = Vanilla |
@@ -802,6 +813,12 @@ Full movement disabler 参考用户提供的 Raven bS disabler.java 及 [Raven b
 | Friction | Normal 模式对移动事件摩擦系数的倍率。 | 数值；默认 1.0；0.0–10.0；步长 0.1；显示条件：Mode = Normal |
 | Strafe | Normal 模式重新对齐侧向移动的比例，单位百分比。 | 数值；默认 0；0–100；步长 1；显示条件：Mode = Normal |
 | LagBack Check | 检测服务器位置回弹后执行对应的减速或重置处理。 | 布尔；默认 true |
+| OldNCP Timer | OldNCP 未碰墙时使用 1.2 倍游戏时钟。 | 布尔；默认 true；显示条件：Mode = OldNCP |
+| Rewound Timer | Rewound 移动时的游戏时钟倍率。 | 数值；默认 1.1；1.0–2.0；步长 0.05；显示条件：Mode = Rewound |
+| Rewound Damage Boost | 收到自身速度包后 500 毫秒内，首个空中 tick 的速度倍率。 | 数值；默认 1.5；1.0–3.0；步长 0.05；显示条件：Mode = Rewound |
+| Rewound Lowhop | 首次落地先加速，下一次落地起跳，并在首个空中 tick 提前下压。 | 布尔；默认 false；显示条件：Mode = Rewound |
+| Rewound Collision Prediction | 低跳前检查前方碰撞和悬空，必要时保留完整跳跃。 | 布尔；默认 true；显示条件：Mode = Rewound 且 Rewound Lowhop 开启 |
+| Rewound Lowhop Disable Key | 按住时临时关闭低跳；未绑定时不生效。 | 键位；默认 0；显示条件：Mode = Rewound 且 Rewound Lowhop 开启 |
 
 ## LongJump
 
@@ -811,13 +828,13 @@ Full movement disabler 参考用户提供的 Raven bS disabler.java 及 [Raven b
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Fireball 使用快捷栏中的 FIRE_CHARGE 右键目标角度命中的方块；Windcharge 使用 WIND_CHARGE 执行物品使用。 | 模式；默认 Fireball；可选 Fireball / Windcharge |
-| Target Pitch | 身后方向的目标俯仰角，单位度；正值朝下。起跳时 Silent 转至镜头 yaw + 180°，并转到此 pitch。 | 数值；默认 80；-90–90；步长 1 |
-| Target Height | 脚底到正下方最近方块碰撞面的垂直距离，单位方块；仅上升时达到或越过阈值才允许右键，无下方碰撞面时不触发。 | 数值；默认 0.5；0–2；步长 0.01 |
-| Multi | 启用后连续收集多次右键对应的 motion，收齐后在上升顶点依次释放。 | 布尔；默认 false |
-| Multi Times | 收集的 motion / 右键总次数，包含第一次；1 与单次行为相同。仅 Multi 开启时显示。 | 数值；默认 3；1–10；步长 1；显示条件：Multi 开启 |
-| Rotation Speed | 每次旋转更新的角度步幅；0 表示立即到位，正值使用统一旋转管理器平滑。 | 数值；默认 180；0–180；步长 5 |
-| Enable Scaffold | 首次右键前启用 Scaffold；结束后恢复启用前 Scaffold 和 ScaffoldX 的开关状态。 | 布尔；默认 false |
+| Mode | Fireball 使用快捷栏中的 FIRE_CHARGE 右键目标角度命中的方块；Windcharge 使用 WIND_CHARGE 执行物品使用。 | 模式；默认 Fireball；可选 Fireball / Windcharge / Vanilla / Rewound |
+| Target Pitch | 身后方向的目标俯仰角，单位度；正值朝下。起跳时 Silent 转至镜头 yaw + 180°，并转到此 pitch。 | 数值；默认 80；-90–90；步长 1；显示条件：this::isItemMode |
+| Target Height | 脚底到正下方最近方块碰撞面的垂直距离，单位方块；仅上升时达到或越过阈值才允许右键，无下方碰撞面时不触发。 | 数值；默认 0.5；0–2；步长 0.01；显示条件：this::isItemMode |
+| Multi | 启用后连续收集多次右键对应的 motion，收齐后在上升顶点依次释放。 | 布尔；默认 false；显示条件：this::isItemMode |
+| Multi Times | 收集的 motion / 右键总次数，包含第一次；1 与单次行为相同。仅 Multi 开启时显示。 | 数值；默认 3；1–10；步长 1；显示条件：isItemMode() 且 Multi 开启 |
+| Rotation Speed | 每次旋转更新的角度步幅；0 表示立即到位，正值使用统一旋转管理器平滑。 | 数值；默认 180；0–180；步长 5；显示条件：this::isItemMode |
+| Enable Scaffold | 首次右键前启用 Scaffold；结束后恢复启用前 Scaffold 和 ScaffoldX 的开关状态。 | 布尔；默认 false；显示条件：this::isItemMode |
 
 ## Timer
 
@@ -850,13 +867,14 @@ Full movement disabler 参考用户提供的 Raven bS disabler.java 及 [Raven b
 
 ## Step
 
-提高地面行走时可直接跨越的台阶高度至 1 格；离地或关闭后恢复 0.6 格。
+提高地面行走时可跨越的台阶高度。Vanilla 为 1 格；NCP 按实际抬升高度补发分段位置包，并短暂降低游戏时钟。离地或关闭后恢复原版 0.6 格。NCP 在液体中和液体上方暂停，连续跨越有 100 毫秒间隔；切换模式、关闭或换世界时清理时钟。
 
 源码：`src/main/java/cn/omix/module/impl/move/Step.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | 当前只有 Vanilla，直接修改台阶高度属性。 | 模式；默认 Vanilla；可选 Vanilla |
+| Mode | Vanilla 直接修改台阶高度；NCP 使用 1、1.5、2 格的分段位置包与对应时钟倍率。 | 模式；默认 Vanilla；可选 Vanilla / NCP |
+| Height | NCP 允许的最高台阶；参考实现虽提供到 2.5 格，实际抬升上限为 2 格。 | 数值；默认 2.5；1.0–2.5；步长 0.5；显示条件：Mode = NCP |
 
 ## Strafe
 
@@ -868,18 +886,26 @@ Full movement disabler 参考用户提供的 Raven bS disabler.java 及 [Raven b
 
 ## Fly
 
-Vanilla、SentinelA、SentinelC 通过各自的速度或运动流程实现飞行。Grim 参考 GrimFly，提供 Flat、Free、Always三个子模式，在满足条件时每两个 PRE Motion 发送一次 START_FALL_FLYING。Grim 在客户端线程暂存收到的 CommonPing，收到位置修正时按顺序回放；Free 尚未选定高度时，先按相对位置标志解析修正高度。关闭或切换主模式、Grim 子模式时回放当前会话的 Ping 并重置状态；换世界、更换玩家或连接时丢弃旧缓存。Grim 的移动速度由原版移动及跳跃流程决定。
+Vanilla、SentinelA、SentinelC 通过各自的速度或运动流程实现飞行。Grim 参考 GrimFly，提供 Flat、Free、Always三个子模式，在满足条件时每两个 PRE Motion 发送一次 START_FALL_FLYING。Grim 在客户端线程暂存收到的 CommonPing，收到位置修正时按顺序回放；Free 尚未选定高度时，先按相对位置标志解析修正高度。关闭或切换主模式、Grim 子模式时回放当前会话的 Ping 并重置状态；换世界、更换玩家或连接时丢弃旧缓存。Grim 的移动速度由原版移动及跳跃流程决定。NCP 和 NCPSetback 分别参考 LiquidBounce Rewound 与 RewoundSetback：NCP 在地面发送原版自伤包序列，按原版等待 tick、起飞速度、逐 tick 衰减和计时器提升流程运行；收到位置修正后重置速度与提升计数，并取消自身击退包。NCPSetback 自动起跳，在空中计数达到 3 后（第 4 个空中 tick 起）冻结自身位移并阻止移动包，收到位置修正后进入限时自由飞行，到时自动关闭。两种模式关闭时仅清除水平速度，并释放自身计时器覆盖。
 
 源码：`src/main/java/cn/omix/module/impl/move/Fly.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Vanilla 直接设置速度；SentinelA、SentinelC 使用各自的飞行数据包或运动流程；Grim 使用 GrimFly 的滑翔请求与高度选择流程。 | 模式；默认 Vanilla；可选 Vanilla / SentinelA / SentinelC / Grim |
-| Horizontal Speed | 飞行时的水平移动速度。 | 数值；默认 3.5；.1–10；步长 .1；显示条件：非 Mode = Grim |
-| Vertical Speed | 上升或下降时的垂直速度。 | 数值；默认 .7；.1–5；步长 .1；显示条件：非 Mode = Grim |
+| Mode | Vanilla 直接设置速度；SentinelA、SentinelC 使用各自的飞行数据包或运动流程；Grim 使用 GrimFly 的滑翔请求与高度选择流程；NCP、NCPSetback 使用各自的 NoCheatPlus 飞行流程。 | 模式；默认 Vanilla；可选 Vanilla / SentinelA / SentinelC / Grim / NCP / NCPSetback |
+| Horizontal Speed | 飞行时的水平移动速度。 | 数值；默认 3.5；.1–10；步长 .1；显示条件：非 Mode = Grim 且 非 Mode = NCP 且 非 Mode = NCPSetback |
+| Vertical Speed | 上升或下降时的垂直速度。 | 数值；默认 .7；.1–5；步长 .1；显示条件：非 Mode = Grim 且 非 Mode = NCP 且 非 Mode = NCPSetback |
 | Grim Mode | Flat 在 Y % 1 接近 0.24919（误差小于 0.0001）时启动并保持，按潜行停止；Free 按跳跃启动，松开跳跃或潜行时记录高度，在不高于记录高度时启动，首次位置修正也可提供高度；Always 持续请求滑翔。三个子模式按住潜行时均暂停请求。 | 模式；默认 Flat；可选 Flat / Free / Always；显示条件：Mode = Grim |
 | Velocity HUD | 在屏幕中心下方显示当前 X、Y、Z 速度，各保留三位小数。 | 布尔；默认 true；显示条件：Mode = Grim |
 | Select Max Velocity | Free 按住跳跃时，等待垂直速度绝对值至少达到 0.4 后采集高度；松开跳跃后继续追踪最高点，垂直速度不大于 0 时选定最高高度。松开潜行仍直接记录当前高度并结束最高点等待。 | 布尔；默认 false；显示条件：Mode = Grim 且 Grim Mode = Free |
+| NCP Speed | 起飞后的 NCP 基础速度倍率。 | 数值；默认 4.2；3.5–5.5；步长 .1；显示条件：Mode = NCP |
+| NCP Decay | 逐 tick 速度衰减分母。 | 数值；默认 159；159–600；步长 1；显示条件：Mode = NCP |
+| NCP Boost Timer | 起飞后的计时器初始倍率。 | 数值；默认 2；1–3.5；步长 .1；显示条件：Mode = NCP |
+| NCP Boost Ticks | 计时器线性下降的 tick 数。 | 数值；默认 15；1–40；步长 1；显示条件：Mode = NCP |
+| NCP Timer | 开启时计时器下降终点为 1.0766x，否则为 1x。 | 布尔；默认 false；显示条件：Mode = NCP |
+| NCPSetback Speed | 回退后自由飞行的水平及升降速度。 | 数值；默认 1；.1–5；步长 .1；显示条件：Mode = NCPSetback |
+| NCPSetback Duration | 回退后自由飞行的持续时间，单位毫秒。 | 数值；默认 3000；500–10000；步长 100；显示条件：Mode = NCPSetback |
+| NCPSetback Timer | 回退后自由飞行期间的计时器倍率。 | 数值；默认 2；1–5；步长 .1；显示条件：Mode = NCPSetback |
 
 ## AntiVoid
 

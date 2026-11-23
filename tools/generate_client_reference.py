@@ -125,6 +125,11 @@ def literal(value):
 def predicate(value, fields):
     value = compact(value).removeprefix("() -> ")
     value = re.sub(
+        r'(\w+)\.isEnabled\("([^"\n]+)"\)',
+        lambda m: fields.get(m[1], m[1]) + " 包含 " + m[2],
+        value,
+    )
+    value = re.sub(
         r'(\w+)\.is\("([^"\n]+)"\)',
         lambda m: fields.get(m[1], m[1]) + " = " + m[2],
         value,
@@ -137,6 +142,8 @@ def predicate(value, fields):
     value = value.replace(
         "this::isPredictionMode", "Prediction 或 Prediction2 模式"
     ).replace("this::usesAttackTiming", "1.9+ 或 Heypixel 模式")
+    value = value.replace("this::isItemMode", "Mode = Fireball 或 Windcharge")
+    value = value.replace("isItemMode()", "Mode = Fireball 或 Windcharge")
     return value.replace("&&", "且").replace("||", "或").replace("!", "非 ")
 
 

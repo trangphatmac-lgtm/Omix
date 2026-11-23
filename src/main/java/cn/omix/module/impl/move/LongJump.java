@@ -19,6 +19,7 @@ import cn.omix.util.LongJumpAim;
 import cn.omix.util.LongJumpUseSchedule;
 import cn.omix.util.Util;
 import cn.omix.util.misc.TimerSpeedUtil;
+import cn.omix.util.move.LongJumpMovementMode;
 import cn.omix.util.player.RayCastUtil;
 import injection.accessor.ClientPlayerEntityAccessor;
 import injection.accessor.PlayerMoveC2SPacketAccessor;
@@ -26,6 +27,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.Item;
+import net.minecraft.entity.MovementType;
 import net.minecraft.item.Items;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.network.packet.c2s.play.ClientTickEndC2SPacket;
@@ -46,17 +48,22 @@ import net.minecraft.util.math.Vec3d;
 import java.util.Optional;
 
 public class LongJump extends Module {
-    private final ModeValue mode = new ModeValue("Mode", "Fireball", "Fireball", "Windcharge");
-    private final NumberValue targetPitch = new NumberValue("Target Pitch", 80, -90, 90, 1);
-    private final NumberValue targetHeight = new NumberValue("Target Height", 0.5, 0, 2, 0.01);
-    private final BoolValue multi = new BoolValue("Multi", false);
-    private final NumberValue multiTimes = new NumberValue("Multi Times", 3, 1, 10, 1, multi::getValue);
-    private final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 180, 0, 180, 5);
-    private final BoolValue enableScaffold = new BoolValue("Enable Scaffold", false);
+    private final ModeValue mode = new ModeValue("Mode", "Fireball", "Fireball", "Windcharge", "Vanilla", "Rewound");
+    private final NumberValue targetPitch = new NumberValue("Target Pitch", 80, -90, 90, 1, this::isItemMode);
+    private final NumberValue targetHeight = new NumberValue("Target Height", 0.5F, 0, 2, 0.01F, this::isItemMode);
+    private final BoolValue multi = new BoolValue("Multi", false, this::isItemMode);
+    private final NumberValue multiTimes = new NumberValue("Multi Times", 3, 1, 10, 1,
+            () -> isItemMode() && multi.getValue());
+    private final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 180, 0, 180, 5, this::isItemMode);
+    private final BoolValue enableScaffold = new BoolValue("Enable Scaffold", false, this::isItemMode);
 
     private enum Phase { WAITING, AIMING, CHARGING, FLYING }
     private Phase phase = Phase.WAITING;
     private volatile Session session;
+    private final LongJumpMovementMode movement = new LongJumpMovementMode();
+    private String activeMode;
+    private ClientPlayerEntity movementPlayer;
+    private ClientWorld movementWorld;
     private boolean wasVelocityEnabled;
     private boolean wasScaffoldEnabled;
     private boolean wasScaffoldXEnabled;
@@ -69,10 +76,21 @@ public class LongJump extends Module {
         super("LongJump", Category.Move);
     }
 
+    private boolean isItemMode() {
+        return mode.is("Fireball") || mode.is("Windcharge");
+    }
+
     @Override
     public void onEnable() {
         if (mc.player == null || mc.world == null || mc.getNetworkHandler() == null) {
             setEnabled(false);
+            return;
+        }
+        activeMode = mode.getValue();
+        movement.reset();
+        if (!isItemMode()) {
+            movementPlayer = mc.player;
+            movementWorld = mc.world;
             return;
         }
         phase = Phase.WAITING;
@@ -91,6 +109,10 @@ public class LongJump extends Module {
 
     @Override
     public void onDisable() {
+        activeMode = null;
+        movementPlayer = null;
+        movementWorld = null;
+        movement.reset();
         Session old = session;
         session = null; // Invalidate already-scheduled callbacks before restoring anything.
         if (old == null) return;
@@ -107,6 +129,21 @@ public class LongJump extends Module {
     @EventTarget
     public void onWorld(WorldEvent event) {
         setEnabled(false);
+    }
+
+    @EventTarget
+    @EventPriority(100)
+    public void onMove(MoveEvent event) {
+        if (event.getType() != MovementType.SELF || activeMode == null
+                || (!activeMode.equals("Vanilla") && !activeMode.equals("Rewound"))) return;
+        if (mc.player != movementPlayer || mc.world != movementWorld || mc.player == null || !mc.player.isAlive()) {
+            setEnabled(false);
+            return;
+        }
+        LongJumpMovementMode.Result result = activeMode.equals("Vanilla")
+                ? movement.vanilla(event) : movement.rewound(event);
+        if (result == LongJumpMovementMode.Result.MISSING_SPEED) abort("Rewound 需要速度效果");
+        else if (result == LongJumpMovementMode.Result.LANDED) setEnabled(false);
     }
 
     @EventTarget

@@ -86,13 +86,13 @@
 
 ## Speed
 
-提供地面加速、连续跳跃、预测与定时器等移动加速实现；模式按源码中的具体移动流程执行。Prediction 旋转以优先级 100 提交并立即应用，使用 Prediction 移动修正。HypixelPrediction 移植 AmunixNext HypixelSpeed：移动时默认需按住跳跃键，自动连续跳跃，并循环使用 1.00、0.85、0.70、0.63、0.55、1.70、1.52、1.50、1.47、1.44 倍时钟，每 tick 前进一步，落地不重启循环。停止移动、松开所需跳跃键或 Velocity 主动减速攻击期间恢复 1x 并重置循环；本项目没有原版 Hypixel.handleVelocity，暂停适配为原生 Velocity.isAttacking()（Reduce / Heypixel Reduce）。旋转按方向键计算 yaw，空中减 45°，保留旋转管理器上一组 pitch，并使用 Silent 移动修正；通常优先级 100，Aura 有目标且在地面时为 450。Scaffold/ScaffoldX 开启时只暂停该旋转，自动跳跃与时钟循环仍按参考实现执行；Velocity 暂停也仅影响时钟。切模式、关闭或切换世界时清理循环、时钟与该模式旋转请求。时钟沿用项目共享 Timer 接口，Timer 模块及临时覆盖仍有更高优先级。
+提供地面加速、连续跳跃、预测与定时器等移动加速实现；模式按源码中的具体移动流程执行。Prediction 旋转以优先级 100 提交并立即应用，使用 Prediction 移动修正。HypixelPrediction 移植 AmunixNext HypixelSpeed：移动时默认需按住跳跃键，自动连续跳跃，并循环使用 1.00、0.85、0.70、0.63、0.55、1.70、1.52、1.50、1.47、1.44 倍时钟，每 tick 前进一步，落地不重启循环。停止移动、松开所需跳跃键或 Velocity 主动减速攻击期间恢复 1x 并重置循环；本项目没有原版 Hypixel.handleVelocity，暂停适配为原生 Velocity.isAttacking()（Reduce / Heypixel Reduce）。旋转按方向键计算 yaw，空中减 45°，保留旋转管理器上一组 pitch，并使用 Silent 移动修正；通常优先级 100，Aura 有目标且在地面时为 450。Scaffold/ScaffoldX 开启时只暂停该旋转，自动跳跃与时钟循环仍按参考实现执行；Velocity 暂停也仅影响时钟。切模式、关闭或切换世界时清理循环、时钟与该模式旋转请求。OldNCP 移植 LiquidBounce 的 Rewound 阶段速度：落地以 0.407 加跳跃效果起跳，碰墙或收到位置修正后恢复基础速度，台阶和连续跳跃调整水平速度。Rewound 移植 openadjust 的离地 tick 速度与实际位移摩擦公式：默认 1.1 倍时钟，受击速度包后的 500 毫秒可在首个空中 tick 加速；可选低跳与前方碰撞/悬空预测。原项目的 Rewound Disabler 活跃计时器、完整模拟玩家及视角抖动接口在本项目没有对应实现，故未提供 Disabler 加速或视角抖动选项；前方预测使用四步包围盒检查。OldNCP 收到位置修正后进入恢复阶段；Rewound 收到修正后继续运行，两者都不由通用 LagBack Check 自动关闭。时钟沿用项目 Timer 接口；两种移植模式使用独立的临时覆盖并在退出时释放。
 
 源码：`src/main/java/cn/omix/module/impl/move/Speed.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | 选择 Ground 地面加速、Vanilla 直接速度、Smooth Vanilla 平滑加速、Normal 自定义移动、Prediction/Prediction2 预测流程、HypixelPrediction 固定时钟循环，或各服务器命名的跳跃与加速流程。 | 模式；默认 Ground；可选 Ground / Vulcan / Prediction / Prediction2 / HypixelPrediction / Normal / Vanilla / Smooth Vanilla / Hypixel NCP Hop / Modern MMC / Boost / Flag Boost / NCP / Verus / Miniblox |
+| Mode | 选择 Ground 地面加速、Vanilla 直接速度、Smooth Vanilla 平滑加速、Normal 自定义移动、Prediction/Prediction2 预测流程、HypixelPrediction 固定时钟循环，或各服务器命名的跳跃与加速流程。 | 模式；默认 Ground；可选 Ground / Vulcan / Prediction / Prediction2 / HypixelPrediction / Normal / Vanilla / Smooth Vanilla / Hypixel NCP Hop / Modern MMC / Boost / Flag Boost / NCP / Verus / Miniblox / OldNCP / Rewound |
 | Damage Boost | Vulcan 模式受击时利用受伤状态加速。 | 布尔；默认 false；显示条件：Mode = Vulcan |
 | Speed | 所选直接速度模式的移动强度；Ground 与 Smooth Vanilla 在实现中使用该值的四分之一。 | 数值；默认 1；0.1–10；步长 0.1；显示条件：Mode = Ground 或 Mode = Vanilla 或 Mode = Smooth Vanilla 或 Mode = Flag Boost |
 | Auto BHop | Vanilla 移动时自动连续起跳。 | 布尔；默认 true；显示条件：Mode = Vanilla |
@@ -106,22 +106,28 @@
 | Friction | Normal 模式对移动事件摩擦系数的倍率。 | 数值；默认 1.0；0.0–10.0；步长 0.1；显示条件：Mode = Normal |
 | Strafe | Normal 模式重新对齐侧向移动的比例，单位百分比。 | 数值；默认 0；0–100；步长 1；显示条件：Mode = Normal |
 | LagBack Check | 检测服务器位置回弹后执行对应的减速或重置处理。 | 布尔；默认 true |
+| OldNCP Timer | OldNCP 未碰墙时使用 1.2 倍游戏时钟。 | 布尔；默认 true；显示条件：Mode = OldNCP |
+| Rewound Timer | Rewound 移动时的游戏时钟倍率。 | 数值；默认 1.1；1.0–2.0；步长 0.05；显示条件：Mode = Rewound |
+| Rewound Damage Boost | 收到自身速度包后 500 毫秒内，首个空中 tick 的速度倍率。 | 数值；默认 1.5；1.0–3.0；步长 0.05；显示条件：Mode = Rewound |
+| Rewound Lowhop | 首次落地先加速，下一次落地起跳，并在首个空中 tick 提前下压。 | 布尔；默认 false；显示条件：Mode = Rewound |
+| Rewound Collision Prediction | 低跳前检查前方碰撞和悬空，必要时保留完整跳跃。 | 布尔；默认 true；显示条件：Mode = Rewound 且 Rewound Lowhop 开启 |
+| Rewound Lowhop Disable Key | 按住时临时关闭低跳；未绑定时不生效。 | 键位；默认 0；显示条件：Mode = Rewound 且 Rewound Lowhop 开启 |
 
 ## LongJump
 
-使用 Fireball（火焰弹）或 Windcharge（风弹）的服务器击退完成 LongJump。启用后暂时关闭 Velocity；由玩家自行起跳，离地且 vy > 0 时立即开始 Silent 转头，不等待 Target Height。起跳时以镜头 yaw + 180° 锁定身后方向，pitch 使用 Target Pitch，不转动镜头；采用 Silent 移动修正保持原移动方向，转头仲裁优先级 1200。上升时脚底距下方碰撞面的高度达到或越过 Target Height、且 yaw/pitch 误差均不超过 0.65° 后，开启 0.02x 临时 Timer；按需启用 Scaffold，首次使用在正常交互阶段设置本地快捷栏槽位，再由原版交互管理器同步服务器槽位并右键：Fireball 从眼睛沿已到位的身后 yaw / Target Pitch 射线检测交互距离内的方块，将真实命中位置和面交给 interactBlock；Windcharge 使用 interactItem。Fireball 未命中方块时提示原因并退出，不开启 Timer 或等待击退，也不回退为空气使用；不手动发送切槽包或额外转头移动包。交互走正常发包事件链，使 Disabler 等监听器同步记录切槽，避免绕过事件导致槽位记录失配。交互时临时应用 Silent yaw/pitch，finally 恢复镜头；使用物品的该 tick 冻结这组角度，旋转请求直接应用，最终 Motion 和带转头的移动包复用相同浮点值，避免 USE_ITEM 与 tick 旋转不一致；只在本地交互被接受时挥手。库存消耗由原版预测和服务器同步处理，恢复槽位也只修改本地选择并交由原版同步。每次右键接收一个属于本玩家的 EntityVelocityUpdateS2CPacket，或含玩家击退的 ExplosionS2CPacket；后者将增量击退转换为当前速度加击退量，保留原爆炸音效和粒子。收包线程只收集速度，客户端线程负责右键和应用 motion。Multi 关闭时首个 motion 立即恢复时钟并应用；开启时收到一个 motion 后由客户端线程立即尝试下一次右键，不等待下一个模拟 tick；若当前 tick 尚未发出 CLIENT_TICK_END，则在它结束后的渲染帧继续。后续交互沿用首次使用的精确角度，每次都需要先收到上一发的 motion，不按帧重复发送。整个收集及等待过程始终保持 0.02x，不切到 1x、不额外调用玩家/世界 tick，也不补发移动包或 tick-end 包。后续交互按物品 USE_COOLDOWN 时长和服务器 CooldownUpdate 的最新通知用真实时间等待，不让客户端慢速冷却阻止向服务器发送交互；仍通过原版交互管理器发包。收齐 Multi Times 个（包含第一次）后，恢复时钟并先应用队首，余下 motion 在每次上升顶点 0 < vy ≤ 0.08 时按 FIFO 顺序释放，同一 tick 最多一次。落地且 |vy| ≤ 0.08 后自动关闭；未达到发射条件的跳跃落地后也退出。关闭、死亡、切世界、缺少物品或每次右键等待 Velocity 超过 10 秒时，丢弃剩余队列并恢复 Velocity、原快捷栏和本次管理的 Scaffold/ScaffoldX 开关；原来已开启的 Scaffold 保持开启。临时 Timer 优先于 Timer 模块，释放后恢复当时其他 Timer 设置。配置在启用时快照，下次启用生效。Fireball 对准方块使用火焰弹；后续 motion 仍以实际收到的玩家击退为准，无法区分其来源。Scaffold/ScaffoldX 在 motion 收集期间以及右键所在 tick 暂停切槽与放置，避免打断连续使用。服务器仍可能拒绝使用并触发超时；10 秒超时只计算已发送右键后等待击退的时间，不计算预约或本地冷却等待。
+Vanilla 落地时自动起跳并设置 1.0 水平速度，空中按移动输入调整方向、保持水平速度，下降时垂直速度减半，再次落地后关闭。Rewound 需要速度效果；在地面依次进入准备、初速与起跳阶段，空中按移动距离、效果等级和垂直速度计算加速及摩擦，再次落地后关闭。两种模式不使用物品，不改变 Velocity、Scaffold 或游戏时钟；切世界时关闭，切换 Mode 后需重新启用。Fireball（火焰弹）和 Windcharge（风弹）使用服务器击退完成 LongJump。启用后暂时关闭 Velocity；由玩家自行起跳，离地且 vy > 0 时立即开始 Silent 转头，不等待 Target Height。起跳时以镜头 yaw + 180° 锁定身后方向，pitch 使用 Target Pitch，不转动镜头；采用 Silent 移动修正保持原移动方向，转头仲裁优先级 1200。上升时脚底距下方碰撞面的高度达到或越过 Target Height、且 yaw/pitch 误差均不超过 0.65° 后，开启 0.02x 临时 Timer；按需启用 Scaffold，首次使用在正常交互阶段设置本地快捷栏槽位，再由原版交互管理器同步服务器槽位并右键：Fireball 从眼睛沿已到位的身后 yaw / Target Pitch 射线检测交互距离内的方块，将真实命中位置和面交给 interactBlock；Windcharge 使用 interactItem。Fireball 未命中方块时提示原因并退出，不开启 Timer 或等待击退，也不回退为空气使用；不手动发送切槽包或额外转头移动包。交互走正常发包事件链，使 Disabler 等监听器同步记录切槽，避免绕过事件导致槽位记录失配。交互时临时应用 Silent yaw/pitch，finally 恢复镜头；使用物品的该 tick 冻结这组角度，旋转请求直接应用，最终 Motion 和带转头的移动包复用相同浮点值，避免 USE_ITEM 与 tick 旋转不一致；只在本地交互被接受时挥手。库存消耗由原版预测和服务器同步处理，恢复槽位也只修改本地选择并交由原版同步。每次右键接收一个属于本玩家的 EntityVelocityUpdateS2CPacket，或含玩家击退的 ExplosionS2CPacket；后者将增量击退转换为当前速度加击退量，保留原爆炸音效和粒子。收包线程只收集速度，客户端线程负责右键和应用 motion。Multi 关闭时首个 motion 立即恢复时钟并应用；开启时收到一个 motion 后由客户端线程立即尝试下一次右键，不等待下一个模拟 tick；若当前 tick 尚未发出 CLIENT_TICK_END，则在它结束后的渲染帧继续。后续交互沿用首次使用的精确角度，每次都需要先收到上一发的 motion，不按帧重复发送。整个收集及等待过程始终保持 0.02x，不切到 1x、不额外调用玩家/世界 tick，也不补发移动包或 tick-end 包。后续交互按物品 USE_COOLDOWN 时长和服务器 CooldownUpdate 的最新通知用真实时间等待，不让客户端慢速冷却阻止向服务器发送交互；仍通过原版交互管理器发包。收齐 Multi Times 个（包含第一次）后，恢复时钟并先应用队首，余下 motion 在每次上升顶点 0 < vy ≤ 0.08 时按 FIFO 顺序释放，同一 tick 最多一次。落地且 |vy| ≤ 0.08 后自动关闭；未达到发射条件的跳跃落地后也退出。关闭、死亡、切世界、缺少物品或每次右键等待 Velocity 超过 10 秒时，丢弃剩余队列并恢复 Velocity、原快捷栏和本次管理的 Scaffold/ScaffoldX 开关；原来已开启的 Scaffold 保持开启。临时 Timer 优先于 Timer 模块，释放后恢复当时其他 Timer 设置。配置在启用时快照，下次启用生效。Fireball 对准方块使用火焰弹；后续 motion 仍以实际收到的玩家击退为准，无法区分其来源。Scaffold/ScaffoldX 在 motion 收集期间以及右键所在 tick 暂停切槽与放置，避免打断连续使用。服务器仍可能拒绝使用并触发超时；10 秒超时只计算已发送右键后等待击退的时间，不计算预约或本地冷却等待。
 
 源码：`src/main/java/cn/omix/module/impl/move/LongJump.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Fireball 使用快捷栏中的 FIRE_CHARGE 右键目标角度命中的方块；Windcharge 使用 WIND_CHARGE 执行物品使用。 | 模式；默认 Fireball；可选 Fireball / Windcharge |
-| Target Pitch | 身后方向的目标俯仰角，单位度；正值朝下。起跳时 Silent 转至镜头 yaw + 180°，并转到此 pitch。 | 数值；默认 80；-90–90；步长 1 |
-| Target Height | 脚底到正下方最近方块碰撞面的垂直距离，单位方块；仅上升时达到或越过阈值才允许右键，无下方碰撞面时不触发。 | 数值；默认 0.5；0–2；步长 0.01 |
-| Multi | 启用后连续收集多次右键对应的 motion，收齐后在上升顶点依次释放。 | 布尔；默认 false |
-| Multi Times | 收集的 motion / 右键总次数，包含第一次；1 与单次行为相同。仅 Multi 开启时显示。 | 数值；默认 3；1–10；步长 1；显示条件：Multi 开启 |
-| Rotation Speed | 每次旋转更新的角度步幅；0 表示立即到位，正值使用统一旋转管理器平滑。 | 数值；默认 180；0–180；步长 5 |
-| Enable Scaffold | 首次右键前启用 Scaffold；结束后恢复启用前 Scaffold 和 ScaffoldX 的开关状态。 | 布尔；默认 false |
+| Mode | Fireball 使用快捷栏中的 FIRE_CHARGE 右键命中方块；Windcharge 使用 WIND_CHARGE；Vanilla 和 Rewound 直接控制跳跃与移动。 | 模式；默认 Fireball；可选 Fireball / Windcharge / Vanilla / Rewound |
+| Target Pitch | 身后方向的目标俯仰角，单位度；正值朝下。起跳时 Silent 转至镜头 yaw + 180°，并转到此 pitch。 | 数值；默认 80；-90–90；步长 1；显示条件：Mode = Fireball 或 Windcharge |
+| Target Height | 脚底到正下方最近方块碰撞面的垂直距离，单位方块；仅上升时达到或越过阈值才允许右键，无下方碰撞面时不触发。 | 数值；默认 0.5；0–2；步长 0.01；显示条件：Mode = Fireball 或 Windcharge |
+| Multi | 启用后连续收集多次右键对应的 motion，收齐后在上升顶点依次释放。 | 布尔；默认 false；显示条件：Mode = Fireball 或 Windcharge |
+| Multi Times | 收集的 motion / 右键总次数，包含第一次；1 与单次行为相同。仅 Multi 开启时显示。 | 数值；默认 3；1–10；步长 1；显示条件：Mode = Fireball 或 Windcharge 且 Multi 开启 |
+| Rotation Speed | 每次旋转更新的角度步幅；0 表示立即到位，正值使用统一旋转管理器平滑。 | 数值；默认 180；0–180；步长 5；显示条件：Mode = Fireball 或 Windcharge |
+| Enable Scaffold | 首次右键前启用 Scaffold；结束后恢复启用前 Scaffold 和 ScaffoldX 的开关状态。 | 布尔；默认 false；显示条件：Mode = Fireball 或 Windcharge |
 
 ## Timer
 
@@ -154,13 +160,14 @@
 
 ## Step
 
-提高地面行走时可直接跨越的台阶高度至 1 格；离地或关闭后恢复 0.6 格。
+提高地面行走时可跨越的台阶高度。Vanilla 为 1 格；NCP 按实际抬升高度补发分段位置包，并短暂降低游戏时钟。离地或关闭后恢复原版 0.6 格。NCP 在液体中和液体上方暂停，连续跨越有 100 毫秒间隔；切换模式、关闭或换世界时清理时钟。
 
 源码：`src/main/java/cn/omix/module/impl/move/Step.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | 当前只有 Vanilla，直接修改台阶高度属性。 | 模式；默认 Vanilla；可选 Vanilla |
+| Mode | Vanilla 直接修改台阶高度；NCP 使用 1、1.5、2 格的分段位置包与对应时钟倍率。 | 模式；默认 Vanilla；可选 Vanilla / NCP |
+| Height | NCP 允许的最高台阶；参考实现虽提供到 2.5 格，实际抬升上限为 2 格。 | 数值；默认 2.5；1.0–2.5；步长 0.5；显示条件：Mode = NCP |
 
 ## Strafe
 
@@ -172,18 +179,26 @@
 
 ## Fly
 
-Vanilla、SentinelA、SentinelC 通过各自的速度或运动流程实现飞行。Grim 参考 GrimFly，提供 Flat、Free、Always三个子模式，在满足条件时每两个 PRE Motion 发送一次 START_FALL_FLYING。Grim 在客户端线程暂存收到的 CommonPing，收到位置修正时按顺序回放；Free 尚未选定高度时，先按相对位置标志解析修正高度。关闭或切换主模式、Grim 子模式时回放当前会话的 Ping 并重置状态；换世界、更换玩家或连接时丢弃旧缓存。Grim 的移动速度由原版移动及跳跃流程决定。
+Vanilla、SentinelA、SentinelC 通过各自的速度或运动流程实现飞行。Grim 参考 GrimFly，提供 Flat、Free、Always三个子模式，在满足条件时每两个 PRE Motion 发送一次 START_FALL_FLYING。Grim 在客户端线程暂存收到的 CommonPing，收到位置修正时按顺序回放；Free 尚未选定高度时，先按相对位置标志解析修正高度。关闭或切换主模式、Grim 子模式时回放当前会话的 Ping 并重置状态；换世界、更换玩家或连接时丢弃旧缓存。Grim 的移动速度由原版移动及跳跃流程决定。NCP 和 NCPSetback 分别参考 LiquidBounce Rewound 与 RewoundSetback：NCP 在地面发送原版自伤包序列，按原版等待 tick、起飞速度、逐 tick 衰减和计时器提升流程运行；收到位置修正后重置速度与提升计数，并取消自身击退包。NCPSetback 自动起跳，在空中计数达到 3 后（第 4 个空中 tick 起）冻结自身位移并阻止移动包，收到位置修正后进入限时自由飞行，到时自动关闭。两种模式关闭时仅清除水平速度，并释放自身计时器覆盖。
 
 源码：`src/main/java/cn/omix/module/impl/move/Fly.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Vanilla 直接设置速度；SentinelA、SentinelC 使用各自的飞行数据包或运动流程；Grim 使用 GrimFly 的滑翔请求与高度选择流程。 | 模式；默认 Vanilla；可选 Vanilla / SentinelA / SentinelC / Grim |
-| Horizontal Speed | 飞行时的水平移动速度。 | 数值；默认 3.5；.1–10；步长 .1；显示条件：非 Mode = Grim |
-| Vertical Speed | 上升或下降时的垂直速度。 | 数值；默认 .7；.1–5；步长 .1；显示条件：非 Mode = Grim |
+| Mode | Vanilla 直接设置速度；SentinelA、SentinelC 使用各自的飞行数据包或运动流程；Grim 使用 GrimFly 的滑翔请求与高度选择流程；NCP、NCPSetback 使用各自的 NoCheatPlus 飞行流程。 | 模式；默认 Vanilla；可选 Vanilla / SentinelA / SentinelC / Grim / NCP / NCPSetback |
+| Horizontal Speed | 飞行时的水平移动速度。 | 数值；默认 3.5；.1–10；步长 .1；显示条件：非 Mode = Grim 且 非 Mode = NCP 且 非 Mode = NCPSetback |
+| Vertical Speed | 上升或下降时的垂直速度。 | 数值；默认 .7；.1–5；步长 .1；显示条件：非 Mode = Grim 且 非 Mode = NCP 且 非 Mode = NCPSetback |
 | Grim Mode | Flat 在 Y % 1 接近 0.24919（误差小于 0.0001）时启动并保持，按潜行停止；Free 按跳跃启动，松开跳跃或潜行时记录高度，在不高于记录高度时启动，首次位置修正也可提供高度；Always 持续请求滑翔。三个子模式按住潜行时均暂停请求。 | 模式；默认 Flat；可选 Flat / Free / Always；显示条件：Mode = Grim |
 | Velocity HUD | 在屏幕中心下方显示当前 X、Y、Z 速度，各保留三位小数。 | 布尔；默认 true；显示条件：Mode = Grim |
 | Select Max Velocity | Free 按住跳跃时，等待垂直速度绝对值至少达到 0.4 后采集高度；松开跳跃后继续追踪最高点，垂直速度不大于 0 时选定最高高度。松开潜行仍直接记录当前高度并结束最高点等待。 | 布尔；默认 false；显示条件：Mode = Grim 且 Grim Mode = Free |
+| NCP Speed | 起飞后的 NCP 基础速度倍率。 | 数值；默认 4.2；3.5–5.5；步长 .1；显示条件：Mode = NCP |
+| NCP Decay | 逐 tick 速度衰减分母。 | 数值；默认 159；159–600；步长 1；显示条件：Mode = NCP |
+| NCP Boost Timer | 起飞后的计时器初始倍率。 | 数值；默认 2；1–3.5；步长 .1；显示条件：Mode = NCP |
+| NCP Boost Ticks | 计时器线性下降的 tick 数。 | 数值；默认 15；1–40；步长 1；显示条件：Mode = NCP |
+| NCP Timer | 开启时计时器下降终点为 1.0766x，否则为 1x。 | 布尔；默认 false；显示条件：Mode = NCP |
+| NCPSetback Speed | 回退后自由飞行的水平及升降速度。 | 数值；默认 1；.1–5；步长 .1；显示条件：Mode = NCPSetback |
+| NCPSetback Duration | 回退后自由飞行的持续时间，单位毫秒。 | 数值；默认 3000；500–10000；步长 100；显示条件：Mode = NCPSetback |
+| NCPSetback Timer | 回退后自由飞行期间的计时器倍率。 | 数值；默认 2；1–5；步长 .1；显示条件：Mode = NCPSetback |
 
 ## AntiVoid
 
