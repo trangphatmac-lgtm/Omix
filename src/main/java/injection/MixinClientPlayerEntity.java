@@ -5,9 +5,11 @@ import cn.omix.Client;
 import cn.omix.event.impl.*;
 import cn.omix.module.impl.player.Freecam;
 import cn.omix.module.impl.move.NoSlowDown;
+import cn.omix.module.impl.move.Sprint;
 import cn.omix.util.player.chest.ChestScreenGuard;
 import cn.omix.module.impl.world.GhostHand;
 import cn.omix.util.IMinecraft;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -219,6 +221,17 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
         if (instance == null || instance.getModuleManager() == null) return;
         NoSlowDown noSlow = instance.getModuleManager().getModule(NoSlowDown.class);
         if (noSlow != null && noSlow.allowGrimSprint()) cir.setReturnValue(false);
+    }
+
+    @ModifyExpressionValue(
+            method = {"canStartSprinting", "shouldStopSprinting", "shouldStopSwimSprinting"},
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;hasForwardMovement()Z")
+    )
+    private boolean omix$omniSprintMovement(boolean forwardMovement) {
+        if (forwardMovement || instance == null || instance.getModuleManager() == null) return forwardMovement;
+        Sprint sprint = instance.getModuleManager().getModule(Sprint.class);
+        return sprint != null && sprint.isOmniSprintActive()
+                && this.input != null && this.input.getMovementInput().lengthSquared() > 1.0E-10F;
     }
 
     @Redirect(method = "applyMovementSpeedFactors", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
