@@ -7,6 +7,12 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ClientPlayerEntity.class)
 public interface ClientPlayerEntityAccessor {
+    @Accessor("lastYClient")
+    double omix$getLastYClient();
+
+    @Accessor("lastOnGround")
+    boolean omix$getLastOnGround();
+
     @Accessor("lastPlayerInput")
     PlayerInput omix$getLastPlayerInput();
 

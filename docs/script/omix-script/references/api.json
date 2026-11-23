@@ -5784,6 +5784,69 @@
     "line": 31
   },
   {
+    "owner": "cn.omix.util.combat.RewoundCriticalsState",
+    "name": "RewoundCriticalsState",
+    "signature": "cn.omix.util.combat.RewoundCriticalsState",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/combat/RewoundCriticalsState.java"
+  },
+  {
+    "owner": "cn.omix.util.combat.RewoundCriticalsState",
+    "name": "RewoundCriticalsState",
+    "signature": "public final class RewoundCriticalsState",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/RewoundCriticalsState.java",
+    "line": 4
+  },
+  {
+    "owner": "cn.omix.util.combat.RewoundCriticalsState",
+    "name": "Motion",
+    "signature": "public record Motion(double y, boolean onGround)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/RewoundCriticalsState.java",
+    "line": 5
+  },
+  {
+    "owner": "cn.omix.util.combat.RewoundCriticalsState",
+    "name": "reset",
+    "signature": "public void reset()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/RewoundCriticalsState.java",
+    "line": 12
+  },
+  {
+    "owner": "cn.omix.util.combat.RewoundCriticalsState",
+    "name": "beginTick",
+    "signature": "public void beginTick()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/RewoundCriticalsState.java",
+    "line": 19
+  },
+  {
+    "owner": "cn.omix.util.combat.RewoundCriticalsState",
+    "name": "jumped",
+    "signature": "public void jumped()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/RewoundCriticalsState.java",
+    "line": 21
+  },
+  {
+    "owner": "cn.omix.util.combat.RewoundCriticalsState",
+    "name": "hasServerFallDistance",
+    "signature": "public boolean hasServerFallDistance()",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/RewoundCriticalsState.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.combat.RewoundCriticalsState",
+    "name": "apply",
+    "signature": "public Motion apply(double serverY, boolean serverOnGround, boolean inFluidOrClimbOrWeb, double y, boolean localOnGround, boolean breakingBlock)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/combat/RewoundCriticalsState.java",
+    "line": 25
+  },
+  {
     "owner": "cn.omix.util.combat.TimerRangeState",
     "name": "TimerRangeState",
     "signature": "cn.omix.util.combat.TimerRangeState",

@@ -1,13 +1,17 @@
 package cn.omix.module.impl.combat;
 
 import cn.omix.event.base.annotation.EventTarget;
+import cn.omix.event.base.annotation.EventPriority;
 import cn.omix.event.impl.AttackEvent;
+import cn.omix.event.impl.JumpEvent;
 import cn.omix.event.impl.MotionEvent;
 import cn.omix.event.impl.UpdateEvent;
 import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
 import cn.omix.module.impl.player.Stuck;
+import cn.omix.module.impl.move.Fly;
+import cn.omix.module.impl.world.BedBreaker;
 import cn.omix.module.impl.world.Scaffold;
 import cn.omix.module.impl.world.ScaffoldX;
 import cn.omix.module.value.impl.BoolValue;
@@ -15,7 +19,9 @@ import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
 import cn.omix.util.combat.CriticalsLandingPredictor;
 import cn.omix.util.combat.CriticalsTiming;
+import cn.omix.util.combat.RewoundCriticalsState;
 import cn.omix.util.network.PacketUtil;
+import cn.omix.util.world.bed.BedBreakerProgress;
 import injection.accessor.ClientPlayerEntityAccessor;
 import net.minecraft.block.CobwebBlock;
 import net.minecraft.component.DataComponentTypes;
@@ -33,14 +39,21 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 
 public final class Criticals extends Module {
-    private final ModeValue mode = new ModeValue("Mode", "Packet", "No Ground", "NCP", "Strict", "Sentinel", "Packet", "Stuck", "1.9+", "Heypixel");
+    private final ModeValue mode = new ModeValue("Mode", "Packet", "No Ground", "NCP", "Strict", "Sentinel", "Packet", "Stuck", "1.9+", "Heypixel", "Rewound");
     private final NumberValue waitTicks = new NumberValue("WaitTicks", 1F, 1F, 3F, 1F, () -> mode.is("Stuck"));
     private final BoolValue fallDistance = new BoolValue("FallDistance", false, () -> mode.is("Stuck"));
     private final NumberValue targetTicks = new NumberValue("TargetTicks", 2F, .1F, 3F, .1F, this::usesAttackTiming);
     private final CriticalsTiming timing = new CriticalsTiming();
+    private final RewoundCriticalsState rewound = new RewoundCriticalsState();
 
     public Criticals() {
         super("Criticals", Category.Combat);
+        mode.onChange((previous, current) -> rewound.reset());
+    }
+
+    @Override
+    public void onEnable() {
+        rewound.reset();
     }
 
     @Override
@@ -51,17 +64,20 @@ public final class Criticals extends Module {
     @Override
     public void onDisable() {
         cleanupStuck();
+        rewound.reset();
         // The reference deliberately retains the damage cache across disables.
     }
 
     @EventTarget
     public void onWorld(WorldEvent event) {
+        rewound.reset();
         Stuck stuck = getModule(Stuck.class);
         if (stuck != null) stuck.endCriticalsFreeze(false);
     }
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
+        if (mode.is("Rewound")) rewound.beginTick();
         if (!mode.is("Stuck")) {
             cleanupStuck();
             return;
@@ -167,6 +183,12 @@ public final class Criticals extends Module {
     public void onAttack(AttackEvent event) {
         if (mc.player == null) return;
 
+        if (mode.is("Rewound") && event.getEntity() instanceof LivingEntity
+                && !((ClientPlayerEntityAccessor) mc.player).omix$getLastOnGround()
+                && rewound.hasServerFallDistance() && !cannotCrit(true)) {
+            mc.player.addCritParticles(event.getEntity());
+        }
+
         switch (mode.getValue()) {
             case "NCP" -> {
                 sendCritPacket(0.000000271875, false);
@@ -197,7 +219,34 @@ public final class Criticals extends Module {
     public void onMotion(MotionEvent event) {
         if (mc.player == null) return;
 
-        if (!usesAttackTiming() && !mode.is("Stuck")) event.setOnGround(false);
+        if (!mode.is("Rewound") && !usesAttackTiming() && !mode.is("Stuck")) event.setOnGround(false);
+    }
+
+    @EventTarget
+    @EventPriority(-10)
+    public void onRewoundMotion(MotionEvent event) {
+        if (!mode.is("Rewound") || !event.isPre() || mc.player == null) return;
+        Fly fly = getModule(Fly.class);
+        if (fly != null && fly.isEnabled()) {
+            rewound.reset();
+            return;
+        }
+        ClientPlayerEntityAccessor player = (ClientPlayerEntityAccessor) mc.player;
+        BedBreaker bedBreaker = getModule(BedBreaker.class);
+        boolean breakingBlock = mc.interactionManager != null && mc.interactionManager.isBreakingBlock()
+                || bedBreaker != null && bedBreaker.isEnabled()
+                && bedBreaker.getBreakState() != BedBreakerProgress.State.NONE;
+        RewoundCriticalsState.Motion motion = rewound.apply(
+                player.omix$getLastYClient(), player.omix$getLastOnGround(),
+                mc.player.isTouchingWater() || mc.player.isClimbing() || intersectsCobweb(),
+                event.getY(), mc.player.isOnGround(), breakingBlock);
+        event.setY(motion.y());
+        event.setOnGround(motion.onGround());
+    }
+
+    @EventTarget
+    public void onJump(JumpEvent event) {
+        if (mode.is("Rewound")) rewound.jumped();
     }
 
     private void sendCritPacket(double offset, boolean full) {

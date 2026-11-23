@@ -522,7 +522,7 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | No Ground 修改落地状态；NCP、Strict、Sentinel、Packet 和 Heypixel 使用各自位置包流程；Stuck 配合短暂冻结；1.9+ 配合攻击冷却。 | 模式；默认 Packet；可选 No Ground / NCP / Strict / Sentinel / Packet / Stuck / 1.9+ / Heypixel |
+| Mode | No Ground 修改落地状态；NCP、Strict、Sentinel、Packet 和 Heypixel 使用各自位置包流程；Stuck 配合短暂冻结；1.9+ 配合攻击冷却。 | 模式；默认 Packet；可选 No Ground / NCP / Strict / Sentinel / Packet / Stuck / 1.9+ / Heypixel / Rewound |
 | WaitTicks | Stuck 模式请求冻结的 tick 数。 | 数值；默认 1；1–3；步长 1；显示条件：Mode = Stuck |
 | FallDistance | Stuck 模式额外检查下落距离和纵向速度，避免不合适的下落时机。 | 布尔；默认 false；显示条件：Mode = Stuck |
 | TargetTicks | 参与攻击时机判断的冷却 tick 阈值；仅适用于使用攻击时机判断的模式。 | 数值；默认 2；.1–3；步长 .1；显示条件：1.9+ 或 Heypixel 模式 |
@@ -822,19 +822,19 @@ Full movement disabler 参考用户提供的 Raven bS disabler.java 及 [Raven b
 
 ## LongJump
 
-使用 Fireball（火焰弹）或 Windcharge（风弹）的服务器击退完成 LongJump。启用后暂时关闭 Velocity；由玩家自行起跳，离地且 vy > 0 时立即开始 Silent 转头，不等待 Target Height。起跳时以镜头 yaw + 180° 锁定身后方向，pitch 使用 Target Pitch，不转动镜头；采用 Silent 移动修正保持原移动方向，转头仲裁优先级 1200。上升时脚底距下方碰撞面的高度达到或越过 Target Height、且 yaw/pitch 误差均不超过 0.65° 后，开启 0.02x 临时 Timer；按需启用 Scaffold，首次使用在正常交互阶段设置本地快捷栏槽位，再由原版交互管理器同步服务器槽位并右键：Fireball 从眼睛沿已到位的身后 yaw / Target Pitch 射线检测交互距离内的方块，将真实命中位置和面交给 interactBlock；Windcharge 使用 interactItem。Fireball 未命中方块时提示原因并退出，不开启 Timer 或等待击退，也不回退为空气使用；不手动发送切槽包或额外转头移动包。交互走正常发包事件链，使 Disabler 等监听器同步记录切槽，避免绕过事件导致槽位记录失配。交互时临时应用 Silent yaw/pitch，finally 恢复镜头；使用物品的该 tick 冻结这组角度，旋转请求直接应用，最终 Motion 和带转头的移动包复用相同浮点值，避免 USE_ITEM 与 tick 旋转不一致；只在本地交互被接受时挥手。库存消耗由原版预测和服务器同步处理，恢复槽位也只修改本地选择并交由原版同步。每次右键接收一个属于本玩家的 EntityVelocityUpdateS2CPacket，或含玩家击退的 ExplosionS2CPacket；后者将增量击退转换为当前速度加击退量，保留原爆炸音效和粒子。收包线程只收集速度，客户端线程负责右键和应用 motion。Multi 关闭时首个 motion 立即恢复时钟并应用；开启时收到一个 motion 后由客户端线程立即尝试下一次右键，不等待下一个模拟 tick；若当前 tick 尚未发出 CLIENT_TICK_END，则在它结束后的渲染帧继续。后续交互沿用首次使用的精确角度，每次都需要先收到上一发的 motion，不按帧重复发送。整个收集及等待过程始终保持 0.02x，不切到 1x、不额外调用玩家/世界 tick，也不补发移动包或 tick-end 包。后续交互按物品 USE_COOLDOWN 时长和服务器 CooldownUpdate 的最新通知用真实时间等待，不让客户端慢速冷却阻止向服务器发送交互；仍通过原版交互管理器发包。收齐 Multi Times 个（包含第一次）后，恢复时钟并先应用队首，余下 motion 在每次上升顶点 0 < vy ≤ 0.08 时按 FIFO 顺序释放，同一 tick 最多一次。落地且 |vy| ≤ 0.08 后自动关闭；未达到发射条件的跳跃落地后也退出。关闭、死亡、切世界、缺少物品或每次右键等待 Velocity 超过 10 秒时，丢弃剩余队列并恢复 Velocity、原快捷栏和本次管理的 Scaffold/ScaffoldX 开关；原来已开启的 Scaffold 保持开启。临时 Timer 优先于 Timer 模块，释放后恢复当时其他 Timer 设置。配置在启用时快照，下次启用生效。Fireball 对准方块使用火焰弹；后续 motion 仍以实际收到的玩家击退为准，无法区分其来源。Scaffold/ScaffoldX 在 motion 收集期间以及右键所在 tick 暂停切槽与放置，避免打断连续使用。服务器仍可能拒绝使用并触发超时；10 秒超时只计算已发送右键后等待击退的时间，不计算预约或本地冷却等待。
+Vanilla 落地时自动起跳并设置 1.0 水平速度，空中按移动输入调整方向、保持水平速度，下降时垂直速度减半，再次落地后关闭。Rewound 需要速度效果；在地面依次进入准备、初速与起跳阶段，空中按移动距离、效果等级和垂直速度计算加速及摩擦，再次落地后关闭。两种模式不使用物品，不改变 Velocity、Scaffold 或游戏时钟；切世界时关闭，切换 Mode 后需重新启用。Fireball（火焰弹）和 Windcharge（风弹）使用服务器击退完成 LongJump。启用后暂时关闭 Velocity；由玩家自行起跳，离地且 vy > 0 时立即开始 Silent 转头，不等待 Target Height。起跳时以镜头 yaw + 180° 锁定身后方向，pitch 使用 Target Pitch，不转动镜头；采用 Silent 移动修正保持原移动方向，转头仲裁优先级 1200。上升时脚底距下方碰撞面的高度达到或越过 Target Height、且 yaw/pitch 误差均不超过 0.65° 后，开启 0.02x 临时 Timer；按需启用 Scaffold，首次使用在正常交互阶段设置本地快捷栏槽位，再由原版交互管理器同步服务器槽位并右键：Fireball 从眼睛沿已到位的身后 yaw / Target Pitch 射线检测交互距离内的方块，将真实命中位置和面交给 interactBlock；Windcharge 使用 interactItem。Fireball 未命中方块时提示原因并退出，不开启 Timer 或等待击退，也不回退为空气使用；不手动发送切槽包或额外转头移动包。交互走正常发包事件链，使 Disabler 等监听器同步记录切槽，避免绕过事件导致槽位记录失配。交互时临时应用 Silent yaw/pitch，finally 恢复镜头；使用物品的该 tick 冻结这组角度，旋转请求直接应用，最终 Motion 和带转头的移动包复用相同浮点值，避免 USE_ITEM 与 tick 旋转不一致；只在本地交互被接受时挥手。库存消耗由原版预测和服务器同步处理，恢复槽位也只修改本地选择并交由原版同步。每次右键接收一个属于本玩家的 EntityVelocityUpdateS2CPacket，或含玩家击退的 ExplosionS2CPacket；后者将增量击退转换为当前速度加击退量，保留原爆炸音效和粒子。收包线程只收集速度，客户端线程负责右键和应用 motion。Multi 关闭时首个 motion 立即恢复时钟并应用；开启时收到一个 motion 后由客户端线程立即尝试下一次右键，不等待下一个模拟 tick；若当前 tick 尚未发出 CLIENT_TICK_END，则在它结束后的渲染帧继续。后续交互沿用首次使用的精确角度，每次都需要先收到上一发的 motion，不按帧重复发送。整个收集及等待过程始终保持 0.02x，不切到 1x、不额外调用玩家/世界 tick，也不补发移动包或 tick-end 包。后续交互按物品 USE_COOLDOWN 时长和服务器 CooldownUpdate 的最新通知用真实时间等待，不让客户端慢速冷却阻止向服务器发送交互；仍通过原版交互管理器发包。收齐 Multi Times 个（包含第一次）后，恢复时钟并先应用队首，余下 motion 在每次上升顶点 0 < vy ≤ 0.08 时按 FIFO 顺序释放，同一 tick 最多一次。落地且 |vy| ≤ 0.08 后自动关闭；未达到发射条件的跳跃落地后也退出。关闭、死亡、切世界、缺少物品或每次右键等待 Velocity 超过 10 秒时，丢弃剩余队列并恢复 Velocity、原快捷栏和本次管理的 Scaffold/ScaffoldX 开关；原来已开启的 Scaffold 保持开启。临时 Timer 优先于 Timer 模块，释放后恢复当时其他 Timer 设置。配置在启用时快照，下次启用生效。Fireball 对准方块使用火焰弹；后续 motion 仍以实际收到的玩家击退为准，无法区分其来源。Scaffold/ScaffoldX 在 motion 收集期间以及右键所在 tick 暂停切槽与放置，避免打断连续使用。服务器仍可能拒绝使用并触发超时；10 秒超时只计算已发送右键后等待击退的时间，不计算预约或本地冷却等待。
 
 源码：`src/main/java/cn/omix/module/impl/move/LongJump.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Fireball 使用快捷栏中的 FIRE_CHARGE 右键目标角度命中的方块；Windcharge 使用 WIND_CHARGE 执行物品使用。 | 模式；默认 Fireball；可选 Fireball / Windcharge / Vanilla / Rewound |
-| Target Pitch | 身后方向的目标俯仰角，单位度；正值朝下。起跳时 Silent 转至镜头 yaw + 180°，并转到此 pitch。 | 数值；默认 80；-90–90；步长 1；显示条件：this::isItemMode |
-| Target Height | 脚底到正下方最近方块碰撞面的垂直距离，单位方块；仅上升时达到或越过阈值才允许右键，无下方碰撞面时不触发。 | 数值；默认 0.5；0–2；步长 0.01；显示条件：this::isItemMode |
-| Multi | 启用后连续收集多次右键对应的 motion，收齐后在上升顶点依次释放。 | 布尔；默认 false；显示条件：this::isItemMode |
-| Multi Times | 收集的 motion / 右键总次数，包含第一次；1 与单次行为相同。仅 Multi 开启时显示。 | 数值；默认 3；1–10；步长 1；显示条件：isItemMode() 且 Multi 开启 |
-| Rotation Speed | 每次旋转更新的角度步幅；0 表示立即到位，正值使用统一旋转管理器平滑。 | 数值；默认 180；0–180；步长 5；显示条件：this::isItemMode |
-| Enable Scaffold | 首次右键前启用 Scaffold；结束后恢复启用前 Scaffold 和 ScaffoldX 的开关状态。 | 布尔；默认 false；显示条件：this::isItemMode |
+| Mode | Fireball 使用快捷栏中的 FIRE_CHARGE 右键命中方块；Windcharge 使用 WIND_CHARGE；Vanilla 和 Rewound 直接控制跳跃与移动。 | 模式；默认 Fireball；可选 Fireball / Windcharge / Vanilla / Rewound |
+| Target Pitch | 身后方向的目标俯仰角，单位度；正值朝下。起跳时 Silent 转至镜头 yaw + 180°，并转到此 pitch。 | 数值；默认 80；-90–90；步长 1；显示条件：Mode = Fireball 或 Windcharge |
+| Target Height | 脚底到正下方最近方块碰撞面的垂直距离，单位方块；仅上升时达到或越过阈值才允许右键，无下方碰撞面时不触发。 | 数值；默认 0.5；0–2；步长 0.01；显示条件：Mode = Fireball 或 Windcharge |
+| Multi | 启用后连续收集多次右键对应的 motion，收齐后在上升顶点依次释放。 | 布尔；默认 false；显示条件：Mode = Fireball 或 Windcharge |
+| Multi Times | 收集的 motion / 右键总次数，包含第一次；1 与单次行为相同。仅 Multi 开启时显示。 | 数值；默认 3；1–10；步长 1；显示条件：Mode = Fireball 或 Windcharge 且 Multi 开启 |
+| Rotation Speed | 每次旋转更新的角度步幅；0 表示立即到位，正值使用统一旋转管理器平滑。 | 数值；默认 180；0–180；步长 5；显示条件：Mode = Fireball 或 Windcharge |
+| Enable Scaffold | 首次右键前启用 Scaffold；结束后恢复启用前 Scaffold 和 ScaffoldX 的开关状态。 | 布尔；默认 false；显示条件：Mode = Fireball 或 Windcharge |
 
 ## Timer
 
@@ -961,7 +961,9 @@ CubeCraft 沿用 AntiVoid 的 Cubecraft 处理：在移动事件中，仅当垂�
 
 源码：`src/main/java/cn/omix/module/impl/move/Sprint.java`。
 
-没有额外 Value 配置；通用开关、快捷键和列表可见性见总览。
+| 配置项 | 简介 | 类型、默认值与限制 |
+| --- | --- | --- |
+| OmniSprint | 允许向后和侧向移动时启动并保持疾跑；仍遵守原版的饥饿、碰撞等疾跑限制。 | 布尔；默认 false |
 
 --- docs/modules/player.md ---
 # Player 模块

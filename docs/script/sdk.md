@@ -747,6 +747,14 @@
 - `cn.omix.util.combat.ReachTeleportState` — `public synchronized Pending<T> peek(Object connection, Object world, Object player)`
 - `cn.omix.util.combat.ReachTeleportState` — `public synchronized Pending<T> take(Object connection, Object world, Object player)`
 - `cn.omix.util.combat.ReachTeleportState` — `public synchronized void clear()`
+- `cn.omix.util.combat.RewoundCriticalsState` — `cn.omix.util.combat.RewoundCriticalsState`
+- `cn.omix.util.combat.RewoundCriticalsState` — `public final class RewoundCriticalsState`
+- `cn.omix.util.combat.RewoundCriticalsState` — `public record Motion(double y, boolean onGround)`
+- `cn.omix.util.combat.RewoundCriticalsState` — `public void reset()`
+- `cn.omix.util.combat.RewoundCriticalsState` — `public void beginTick()`
+- `cn.omix.util.combat.RewoundCriticalsState` — `public void jumped()`
+- `cn.omix.util.combat.RewoundCriticalsState` — `public boolean hasServerFallDistance()`
+- `cn.omix.util.combat.RewoundCriticalsState` — `public Motion apply(double serverY, boolean serverOnGround, boolean inFluidOrClimbOrWeb, double y, boolean localOnGround, boolean breakingBlock)`
 - `cn.omix.util.combat.TimerRangeState` — `cn.omix.util.combat.TimerRangeState`
 - `cn.omix.util.combat.TimerRangeState` — `public final class TimerRangeState`
 - `cn.omix.util.combat.TimerRangeState` — `public float tickA(boolean hasTarget, float boost, float slowSpeed)`

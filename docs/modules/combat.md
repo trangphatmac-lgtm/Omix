@@ -246,7 +246,7 @@ Normal 修改本地玩家的实体选取与近战攻击距离；Grim 保持原�
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | No Ground 修改落地状态；NCP、Strict、Sentinel、Packet 和 Heypixel 使用各自位置包流程；Stuck 配合短暂冻结；1.9+ 配合攻击冷却。 | 模式；默认 Packet；可选 No Ground / NCP / Strict / Sentinel / Packet / Stuck / 1.9+ / Heypixel |
+| Mode | No Ground 修改落地状态；NCP、Strict、Sentinel、Packet 和 Heypixel 使用各自位置包流程；Stuck 配合短暂冻结；1.9+ 配合攻击冷却。 | 模式；默认 Packet；可选 No Ground / NCP / Strict / Sentinel / Packet / Stuck / 1.9+ / Heypixel / Rewound |
 | WaitTicks | Stuck 模式请求冻结的 tick 数。 | 数值；默认 1；1–3；步长 1；显示条件：Mode = Stuck |
 | FallDistance | Stuck 模式额外检查下落距离和纵向速度，避免不合适的下落时机。 | 布尔；默认 false；显示条件：Mode = Stuck |
 | TargetTicks | 参与攻击时机判断的冷却 tick 阈值；仅适用于使用攻击时机判断的模式。 | 数值；默认 2；.1–3；步长 .1；显示条件：1.9+ 或 Heypixel 模式 |
