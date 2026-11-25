@@ -24,25 +24,44 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler implements IMinecraft {
 
-    @Inject(method = "onBlockBreakingProgress", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/network/PacketApplyBatcher;)V",
-            shift = At.Shift.AFTER))
-    private void omix$antiCheatBreak(net.minecraft.network.packet.s2c.play.BlockBreakingProgressS2CPacket packet, CallbackInfo ci) {
-        cn.omix.util.world.anticheat.AntiCheatSignals.beforeBlockPacket(packet);
+    @Inject(method = "onEntity", at = @At("TAIL"))
+    private void omix$adjustMove(net.minecraft.network.packet.s2c.play.EntityS2CPacket packet, CallbackInfo ci) {
+        cn.omix.util.world.adjustdetect.AdjustDetectorSignals.applied(packet);
     }
 
-    @Inject(method = "onBlockUpdate", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/network/PacketApplyBatcher;)V",
-            shift = At.Shift.AFTER))
-    private void omix$antiCheatBlock(net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket packet, CallbackInfo ci) {
-        cn.omix.util.world.anticheat.AntiCheatSignals.beforeBlockPacket(packet);
+    @Inject(method = "onEntityPosition", at = @At("TAIL"))
+    private void omix$adjustPosition(net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket packet, CallbackInfo ci) {
+        cn.omix.util.world.adjustdetect.AdjustDetectorSignals.applied(packet);
     }
 
-    @Inject(method = "onChunkDeltaUpdate", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/network/PacketApplyBatcher;)V",
-            shift = At.Shift.AFTER))
-    private void omix$antiCheatBlocks(net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
-        cn.omix.util.world.anticheat.AntiCheatSignals.beforeBlockPacket(packet);
+    @Inject(method = "onEntityPositionSync", at = @At("TAIL"))
+    private void omix$adjustPositionSync(net.minecraft.network.packet.s2c.play.EntityPositionSyncS2CPacket packet, CallbackInfo ci) {
+        cn.omix.util.world.adjustdetect.AdjustDetectorSignals.applied(packet);
+    }
+
+    @Inject(method = "onEntityAnimation", at = @At("TAIL"))
+    private void omix$adjustAnimation(net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket packet, CallbackInfo ci) {
+        cn.omix.util.world.adjustdetect.AdjustDetectorSignals.applied(packet);
+    }
+
+    @Inject(method = "onEntityEquipmentUpdate", at = @At("TAIL"))
+    private void omix$adjustEquipment(net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket packet, CallbackInfo ci) {
+        cn.omix.util.world.adjustdetect.AdjustDetectorSignals.applied(packet);
+    }
+
+    @Inject(method = "onBlockBreakingProgress", at = @At("TAIL"))
+    private void omix$adjustBreak(net.minecraft.network.packet.s2c.play.BlockBreakingProgressS2CPacket packet, CallbackInfo ci) {
+        cn.omix.util.world.adjustdetect.AdjustDetectorSignals.applied(packet);
+    }
+
+    @Inject(method = "onBlockUpdate", at = @At("TAIL"))
+    private void omix$adjustBlock(net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket packet, CallbackInfo ci) {
+        cn.omix.util.world.adjustdetect.AdjustDetectorSignals.applied(packet);
+    }
+
+    @Inject(method = "onEntitySpawn", at = @At("TAIL"))
+    private void omix$adjustSpawn(net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket packet, CallbackInfo ci) {
+        cn.omix.util.world.adjustdetect.AdjustDetectorSignals.applied(packet);
     }
 
     @Inject(method = "onPlayerPositionLook", at = @At(value = "INVOKE",
@@ -77,7 +96,6 @@ public abstract class MixinClientPlayNetworkHandler implements IMinecraft {
             target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/network/PacketApplyBatcher;)V",
             shift = At.Shift.AFTER))
     private void omix$fullMovementVelocity(EntityVelocityUpdateS2CPacket packet, CallbackInfo ci) {
-        cn.omix.util.world.anticheat.AntiCheatSignals.entityPacket(packet);
         if (instance == null || instance.getModuleManager() == null) return;
         Disabler disabler = instance.getModuleManager().getModule(Disabler.class);
         if (disabler != null) disabler.handleFullMovementVelocity(packet);
@@ -86,7 +104,7 @@ public abstract class MixinClientPlayNetworkHandler implements IMinecraft {
     // TAIL runs after forceMainThread and before the next packet can remove/reset the entity.
     @Inject(method = "onEntityStatus", at = @At("TAIL"))
     private void omix$autoLStatus(EntityStatusS2CPacket packet, CallbackInfo ci) {
-        cn.omix.util.world.anticheat.AntiCheatSignals.entityPacket(packet);
+        cn.omix.util.world.adjustdetect.AdjustDetectorSignals.applied(packet);
         AutoLSignals.status(packet);
         if (mc.world != null && packet.getStatus() == net.minecraft.entity.EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES
                 && cn.omix.util.opai.OpaiHud.enabled(cn.omix.util.opai.OpaiHud.Widget.SESSION_HUD))
@@ -95,11 +113,13 @@ public abstract class MixinClientPlayNetworkHandler implements IMinecraft {
 
     @Inject(method = "onEntityDamage", at = @At("TAIL"))
     private void omix$autoLDamage(EntityDamageS2CPacket packet, CallbackInfo ci) {
+        cn.omix.util.world.adjustdetect.AdjustDetectorSignals.applied(packet);
         AutoLSignals.damage(packet);
     }
 
     @Inject(method = "onEntityTrackerUpdate", at = @At("TAIL"))
     private void omix$autoLMetadata(EntityTrackerUpdateS2CPacket packet, CallbackInfo ci) {
+        cn.omix.util.world.adjustdetect.AdjustDetectorSignals.applied(packet);
         AutoLSignals.metadata(packet);
     }
 

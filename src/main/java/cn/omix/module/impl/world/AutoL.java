@@ -61,7 +61,7 @@ public final class AutoL extends Module {
             () -> mode.is("Trigger") && replyMode.is("AI"));
     private final ModeValue wordPattern = new ModeValue("Word Pattern", "Poem",
             "Poem", "Ma Ma", "Pride Plus", "Ci xiao gui", "Crystal PVP", "Clear", "English", "San Guo",
-            "Classic", "Bratty", "Troll", "Troll2", "PanPan", "Custom");
+            "Classic", "Bratty", "Troll", "Troll2", "PanPan", "Custom", "3个汉字+4个数字");
     private final BoolValue nameInFront = new BoolValue("NameInFront", true);
     private final BoolValue sendL = new BoolValue("SendL", false);
     private final BoolValue onlyCheaters = new BoolValue("Only Cheaters", false);

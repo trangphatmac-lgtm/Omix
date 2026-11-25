@@ -14,7 +14,6 @@
 - [Opai / Neverlose 与 Opai HUD 操作及移植说明](opai-neverlose.md)
 - [World 世界交互模块](modules/world.md)
 - [AntiCheat 移植与检测边界](anticheat.md)
-- [AntiCheat Raven-bS 101 项检测、嫌疑评分与 CheatUI](anticheat-raven.md)
 - [AI Tools 及每个参数](ai-tools.md)
 - [Java 脚本、开发面板与 MCP](script/README.md)
 - [脚本数据包与模块控制](script/packet-module-control.md)
@@ -63,8 +62,7 @@ Web 和 Node 相关源码统一位于项目根目录 `src-web/`：`webui/`、`mu
 | `player/blockin/` | `BlockInPlanner` |
 | `player/chest/` | `ChestScreenState`、`ChestScreenGuard`、`ChestInteractionState` |
 | `world/` | `ScaffoldMutex`、`TellyRotationState`、`VictorySignalMatcher` |
-| `world/anticheat/` | `AntiCheatTracker`、`AntiCheatMining`、`AntiCheatAlerts`、`AntiCheatSuspicion`、`AntiCheatScoreHud`、`AntiCheatCheck`、`AntiCheatEnvironment`、`AntiCheatGeometry`、`AntiCheatSignals`（行为检测、挖掘证据、告警冷却、嫌疑评分/排行榜、方块包围检查与主线程数据包观察） |
-| `world/anticheat/raven/` | `RavenChecks`、`RavenCheck`、`RavenDetector` 及快照适配类（HypixelACV2 的 101 项检测、独立 VL/冷却与现代客户端状态采样） |
+| `world/adjustdetect/` | `AdjustHackerDetector`、`AdjustDetectorSignals`（Adjust 检测器的 1.21.11 数据包适配与主线程观察入口） |
 | `opai/` | Opai / Neverlose 设置适配、绘制、配置、六种 HUD、DynamicIsland 与编辑器 |
 | `skeet/` | Gamesense 界面的布局、字体绘制、设置适配、文本编辑和本地配置面板 |
 | `setsuna/` | Pop 环形菜单的布局、原生圆角绘制、设置适配和文本编辑 |
