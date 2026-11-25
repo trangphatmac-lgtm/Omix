@@ -5,6 +5,7 @@ import cn.omix.module.value.impl.ModeValue;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
@@ -84,6 +85,22 @@ class AutoLTriggerTest {
         assertFalse(mode(module, "aiModel").is("exactmodelid"));
         mode(module, "aiProvider").setValue("AnotherProvider");
         assertEquals("(Select)", mode(module, "aiModel").getValue());
+    }
+
+    @Test
+    void combinesIndependentLinesWithoutASeparator() throws ReflectiveOperationException {
+        AutoL module = new AutoL();
+        mode(module, "wordPattern").setValue("3个汉字+4个数字");
+        Set<String> threeLines = Set.copyOf(module.three.lines().toList());
+        Set<String> fourLines = Set.copyOf(module.four.lines().toList());
+        var method = AutoL.class.getDeclaredMethod("getRandomMessage");
+        method.setAccessible(true);
+
+        for (int i = 0; i < 100; i++) {
+            String message = (String) method.invoke(module);
+            assertTrue(threeLines.contains(message.substring(0, 3)), message);
+            assertTrue(fourLines.contains(message.substring(3)), message);
+        }
     }
 
     @Test

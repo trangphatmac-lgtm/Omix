@@ -121,7 +121,7 @@ Reply Mode 默认 Text，使用当前文案回复。选择 AI 后复用项目 Ha
 | AI Model | 从所选 Provider 中选择回复模型。ID 区分大小写，模型目录每 10 秒刷新，离线时保留选择。 | 动态模式；默认 (Select)；选项在运行时加载，保留已保存的选择；显示条件：Mode = Trigger 且 Reply Mode = AI |
 | AI Reply Mode | Reduced 使用普通回复接口，Aggressive 使用激进回复接口。 | 模式；默认 Reduced；可选 Aggressive / Reduced；显示条件：Mode = Trigger 且 Reply Mode = AI |
 | AI Cooldown (s) | 两次 AI 回复请求的最短间隔，单位秒。默认 5，范围 1–30，生成中及冷却中的新触发跳过。 | 数值；默认 5；1–30；步长 1；显示条件：Mode = Trigger 且 Reply Mode = AI |
-| Word Pattern | 选择内置文本集合或 Custom；Classic 组合前后句；Troll2 随机使用所提供 CSV 每条记录的首列文案，换行合并为空格。 用于 Kill 和 Trigger 的 Text 回复。 | 模式；默认 Poem；可选 Poem / Ma Ma / Pride Plus / Ci xiao gui / Crystal PVP / Clear / English / San Guo / Classic / Bratty / Troll / Troll2 / PanPan / Custom / 3个汉字+4个数字 |
+| Word Pattern | 选择内置文本集合或 Custom；Classic 组合前后句；Troll2 随机使用所提供 CSV 每条记录的首列文案，换行合并为空格；3个汉字+4个数字每次从 three 和 four 的多行文本中分别随机抽一行直接拼接，不加空格或标点。用于 Kill 和 Trigger 的 Text 回复。 | 模式；默认 Poem；可选 Poem / Ma Ma / Pride Plus / Ci xiao gui / Crystal PVP / Clear / English / San Guo / Classic / Bratty / Troll / Troll2 / PanPan / Custom / 3个汉字+4个数字 |
 | NameInFront | 文本前加玩家账号名。Kill 使用被击杀玩家，Trigger 使用发言者。 | 布尔；默认 true |
 | SendL | 70% 概率在文本前加全角 Ｌ。 | 布尔；默认 false |
 | Only Cheaters | 仅在目标玩家的 AntiCheat 检测分数大于或等于 Suspicion Threshold 时发送。Kill 检查被击杀玩家，Trigger 检查发言者。默认关闭，开启后需要同时启用 AntiCheat，未启用或无评分则不发送。按 UUID 查询分数，保留死亡后立即移除目标的筛选。 | 布尔；默认 false |
