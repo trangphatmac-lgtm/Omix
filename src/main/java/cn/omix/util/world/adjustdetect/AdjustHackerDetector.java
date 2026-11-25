@@ -80,6 +80,14 @@ public final class AdjustHackerDetector {
         return lastScores.getOrDefault(uuid, 0);
     }
 
+    /** Only players currently tracked and past an Adjust check threshold are marked. */
+    public boolean isCheater(UUID uuid) {
+        if (uuid == null) return false;
+        for (Tracked tracked : players.values())
+            if (tracked.player.getUuid().equals(uuid)) return tracked.cheater;
+        return false;
+    }
+
     private static int score(Tracked tracked) {
         if (tracked.cheater) return 100;
         int best = 0;

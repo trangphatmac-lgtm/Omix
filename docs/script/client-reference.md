@@ -65,7 +65,7 @@ Web 和 Node 相关源码统一位于项目根目录 `src-web/`：`webui/`、`mu
 | `player/blockin/` | `BlockInPlanner` |
 | `player/chest/` | `ChestScreenState`、`ChestScreenGuard`、`ChestInteractionState` |
 | `world/` | `ScaffoldMutex`、`TellyRotationState`、`VictorySignalMatcher` |
-| `world/adjustdetect/` | `AdjustHackerDetector`、`AdjustDetectorSignals`（Adjust 检测器的 1.21.11 数据包适配与主线程观察入口） |
+| `world/adjustdetect/` | `AdjustHackerDetector`、`AdjustDetectorSignals`、`AdjustNameMarker`（Adjust 检测器的 1.21.11 数据包适配、主线程观察入口和显示标记） |
 | `opai/` | Opai / Neverlose 设置适配、绘制、配置、六种 HUD、DynamicIsland 与编辑器 |
 | `skeet/` | Gamesense 界面的布局、字体绘制、设置适配、文本编辑和本地配置面板 |
 | `setsuna/` | Pop 环形菜单的布局、原生圆角绘制、设置适配和文本编辑 |
@@ -1468,7 +1468,7 @@ Classic 保留二维框、血条、护甲和姓名；Sigma 移植 Jello 的 Shad
 
 ## NameTags
 
-移植 Jello 玩家名牌、生命值、朋友/队友背景、特殊昵称徽标、已打开熔炉状态和驯服生物主人名。熔炉关闭后按最后库存与配方估算，再次打开时以服务端同步为准；使用服务端配方展示及缓存的原版配方推算，不在绘制时重载资源。
+移植 Jello 玩家名牌、生命值、朋友/队友背景、特殊昵称徽标、已打开熔炉状态和驯服生物主人名。AntiCheat 启用 Name Marker 且玩家达到检测阈值时，在名字前显示红色感叹号。熔炉关闭后按最后库存与配方估算，再次打开时以服务端同步为准；使用服务端配方展示及缓存的原版配方推算，不在绘制时重载资源。
 
 源码：`src/main/java/cn/omix/module/impl/render/NameTags.java`。
 
@@ -1754,6 +1754,7 @@ Classic 保留二维框、血条、护甲和姓名；Sigma 移植 Jello 的 Shad
 | --- | --- | --- |
 | Show All Detections | 显示每次违规；关闭后仅显示达到作弊阈值的玩家。 | 布尔；默认 true |
 | Ignore Friendly | 排除好友和队友；关闭后允许检测所有其他玩家。 | 布尔；默认 true |
+| Name Marker | 玩家达到 Adjust 检测阈值后，在原版名牌、自定义 NameTags 和 Tab 列表的名字前添加红色感叹号，并将 Tab 对应玩家行染成淡红色；关闭模块或选项后立即隐藏。 | 布尔；默认 true |
 
 ## AutoGG
 

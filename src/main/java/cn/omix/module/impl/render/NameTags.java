@@ -151,7 +151,10 @@ public final class NameTags extends Module {
         try {
             var font = SigmaResources.light(25);
             String displayName = cn.omix.util.translation.TranslationHooks.customNameTag(net.minecraft.text.Text.literal(label.name), label.name).getString();
-            float half = (int) font.getStringWidth(displayName) / 2;
+            boolean marked = label.entity instanceof PlayerEntity player
+                    && cn.omix.util.world.adjustdetect.AdjustNameMarker.marked(player.getUuid());
+            String visibleName = marked ? "! " + displayName : displayName;
+            float half = (int) font.getStringWidth(visibleName) / 2;
             float height = font.getHeight() + 27;
             String badge = BADGES.get(label.name);
             if (badge != null) {
@@ -172,7 +175,10 @@ public final class NameTags extends Module {
             float hurt = label.entity.hurtTime / 3f;
             Render2D.drawRect(context, -half - 10, font.getHeight() - 1 - hurt, (half * 2 + 20) * health, 3 + hurt,
                     SigmaColors.alpha(label.entity instanceof PlayerEntity ? label.entity.getTeamColorValue() | 0xff000000 : SigmaColors.WHITE, .5f));
-            font.drawString(context, displayName, -half, -20, SigmaColors.WHITE);
+            if (marked) {
+                font.drawString(context, "! ", -half, -20, 0xFFFF5555);
+                font.drawString(context, displayName, -half + font.getStringWidth("! "), -20, SigmaColors.WHITE);
+            } else font.drawString(context, displayName, -half, -20, SigmaColors.WHITE);
             var small = SigmaResources.light(14);
             String prefix = small.getStringWidth("Health: 20.0") > half * 2 ? "H: " : "Health: ";
             small.drawString(context, prefix + Math.round(label.entity.getHealth() * 10) / 10f, -half, 10, SigmaColors.WHITE);

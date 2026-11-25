@@ -18,7 +18,7 @@
 | Nuker | 4 | 被破坏方块周围没有可达空间 |
 | Inventory | 3 | 极短间隔内连续生成掉落物 |
 
-检测器实现位于 `src/main/java/cn/omix/util/world/adjustdetect/`，模块入口位于 `src/main/java/cn/omix/module/impl/world/AntiCheat.java`。切世界或关闭模块时清空跟踪和违规次数。默认忽略好友与队友，可通过 `Ignore Friendly` 关闭。`Show All Detections` 默认显示每次违规；关闭后仅显示已经达到作弊阈值的违规。提示代表客户端启发式结果，可能误报。
+检测器实现位于 `src/main/java/cn/omix/util/world/adjustdetect/`，模块入口位于 `src/main/java/cn/omix/module/impl/world/AntiCheat.java`。切世界或关闭模块时清空跟踪和违规次数。默认忽略好友与队友，可通过 `Ignore Friendly` 关闭。`Show All Detections` 默认显示每次违规；关闭后仅显示已经达到作弊阈值的违规。`Name Marker` 默认开启，玩家达到任一检测阈值后，在原版名牌、自定义 NameTags 和 Tab 列表的名字前添加红色 `!`，Tab 对应玩家行同时显示淡红色高亮。标记仅用于显示，关闭模块或该选项后立即消失。提示代表客户端启发式结果，可能误报。
 
 Adjust 原实现依赖 Minecraft 1.8 的实体跟踪器、剑格挡、Hypixel 游戏状态、好友标签和聊天通知。当前版本使用 1.21.11 数据包、实体状态及盾牌格挡语义；Velocity 依据现代伤害包中的来源实体 ID 过滤环境伤害。由于协议和服务器数据不同，检测结果不能与原版逐包等同。`AutoL` 的 Only Cheaters 仍可按 UUID 查询分数：任一检测达到 Adjust 的作弊阈值返回 100，未达到时按最高单项阈值比例返回 0–99。
 

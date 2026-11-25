@@ -62,7 +62,7 @@ Web 和 Node 相关源码统一位于项目根目录 `src-web/`：`webui/`、`mu
 | `player/blockin/` | `BlockInPlanner` |
 | `player/chest/` | `ChestScreenState`、`ChestScreenGuard`、`ChestInteractionState` |
 | `world/` | `ScaffoldMutex`、`TellyRotationState`、`VictorySignalMatcher` |
-| `world/adjustdetect/` | `AdjustHackerDetector`、`AdjustDetectorSignals`（Adjust 检测器的 1.21.11 数据包适配与主线程观察入口） |
+| `world/adjustdetect/` | `AdjustHackerDetector`、`AdjustDetectorSignals`、`AdjustNameMarker`（Adjust 检测器的 1.21.11 数据包适配、主线程观察入口和显示标记） |
 | `opai/` | Opai / Neverlose 设置适配、绘制、配置、六种 HUD、DynamicIsland 与编辑器 |
 | `skeet/` | Gamesense 界面的布局、字体绘制、设置适配、文本编辑和本地配置面板 |
 | `setsuna/` | Pop 环形菜单的布局、原生圆角绘制、设置适配和文本编辑 |

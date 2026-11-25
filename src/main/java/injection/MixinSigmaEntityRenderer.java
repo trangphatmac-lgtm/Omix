@@ -20,5 +20,7 @@ public abstract class MixinSigmaEntityRenderer {
         var tags = Client.instance.getModuleManager().getModule(cn.omix.module.impl.render.NameTags.class);
         if (tags != null && tags.hidesVanillaLabel(entity)) state.displayName = null;
         if (state.displayName != null) state.displayName = cn.omix.util.translation.TranslationHooks.nameTag(state.displayName, entity);
+        if (state.displayName != null && entity instanceof net.minecraft.entity.player.PlayerEntity player)
+            state.displayName = cn.omix.util.world.adjustdetect.AdjustNameMarker.prefix(player.getUuid(), state.displayName);
     }
 }

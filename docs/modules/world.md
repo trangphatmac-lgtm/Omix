@@ -87,6 +87,7 @@
 | --- | --- | --- |
 | Show All Detections | 显示每次违规；关闭后仅显示达到作弊阈值的玩家。 | 布尔；默认 true |
 | Ignore Friendly | 排除好友和队友；关闭后允许检测所有其他玩家。 | 布尔；默认 true |
+| Name Marker | 玩家达到 Adjust 检测阈值后，在原版名牌、自定义 NameTags 和 Tab 列表的名字前添加红色感叹号，并将 Tab 对应玩家行染成淡红色；关闭模块或选项后立即隐藏。 | 布尔；默认 true |
 
 ## AutoGG
 

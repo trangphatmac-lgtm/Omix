@@ -17,6 +17,7 @@ import java.util.UUID;
 public final class AntiCheat extends Module {
     private final BoolValue showAllDetections = new BoolValue("Show All Detections", true);
     private final BoolValue ignoreFriendly = new BoolValue("Ignore Friendly", true);
+    private final BoolValue nameMarker = new BoolValue("Name Marker", true);
     private final AdjustHackerDetector detector = new AdjustHackerDetector();
 
     public AntiCheat() { super("AntiCheat", Category.World); }
@@ -52,5 +53,9 @@ public final class AntiCheat extends Module {
     /** Kept for AutoL's Only Cheaters setting. Reaching an Adjust threshold maps to 100. */
     public int getSuspicionScore(UUID player) {
         return isNativeBehaviorActive() ? detector.getSuspicionScore(player) : 0;
+    }
+
+    public boolean shouldMarkName(UUID player) {
+        return isNativeBehaviorActive() && nameMarker.getValue() && detector.isCheater(player);
     }
 }

@@ -22898,7 +22898,7 @@
     "signature": "public void enqueue(Packet<?> packet, boolean outgoing)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/world/adjustdetect/AdjustHackerDetector.java",
-    "line": 49
+    "line": 50
   },
   {
     "owner": "cn.omix.util.world.adjustdetect.AdjustHackerDetector",
@@ -22906,7 +22906,7 @@
     "signature": "public void clear()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/world/adjustdetect/AdjustHackerDetector.java",
-    "line": 67
+    "line": 68
   },
   {
     "owner": "cn.omix.util.world.adjustdetect.AdjustHackerDetector",
@@ -22914,7 +22914,15 @@
     "signature": "public int getSuspicionScore(UUID uuid)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/world/adjustdetect/AdjustHackerDetector.java",
-    "line": 74
+    "line": 76
+  },
+  {
+    "owner": "cn.omix.util.world.adjustdetect.AdjustHackerDetector",
+    "name": "isCheater",
+    "signature": "public boolean isCheater(UUID uuid)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/adjustdetect/AdjustHackerDetector.java",
+    "line": 84
   },
   {
     "owner": "cn.omix.util.world.adjustdetect.AdjustHackerDetector",
@@ -22922,7 +22930,38 @@
     "signature": "public void tick(MinecraftClient mc, Predicate<PlayerEntity> include, Alert alert)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/world/adjustdetect/AdjustHackerDetector.java",
-    "line": 85
+    "line": 99
+  },
+  {
+    "owner": "cn.omix.util.world.adjustdetect.AdjustNameMarker",
+    "name": "AdjustNameMarker",
+    "signature": "cn.omix.util.world.adjustdetect.AdjustNameMarker",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/adjustdetect/AdjustNameMarker.java"
+  },
+  {
+    "owner": "cn.omix.util.world.adjustdetect.AdjustNameMarker",
+    "name": "AdjustNameMarker",
+    "signature": "public final class AdjustNameMarker",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/adjustdetect/AdjustNameMarker.java",
+    "line": 11
+  },
+  {
+    "owner": "cn.omix.util.world.adjustdetect.AdjustNameMarker",
+    "name": "marked",
+    "signature": "public static boolean marked(UUID player)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/adjustdetect/AdjustNameMarker.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.world.adjustdetect.AdjustNameMarker",
+    "name": "prefix",
+    "signature": "public static Text prefix(UUID player, Text name)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/adjustdetect/AdjustNameMarker.java",
+    "line": 20
   },
   {
     "owner": "cn.omix.util.world.bed.BedBreakerAim",

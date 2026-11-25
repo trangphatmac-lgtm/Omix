@@ -2913,7 +2913,12 @@
 - `cn.omix.util.world.adjustdetect.AdjustHackerDetector` — `public void enqueue(Packet<?> packet, boolean outgoing)`
 - `cn.omix.util.world.adjustdetect.AdjustHackerDetector` — `public void clear()`
 - `cn.omix.util.world.adjustdetect.AdjustHackerDetector` — `public int getSuspicionScore(UUID uuid)`
+- `cn.omix.util.world.adjustdetect.AdjustHackerDetector` — `public boolean isCheater(UUID uuid)`
 - `cn.omix.util.world.adjustdetect.AdjustHackerDetector` — `public void tick(MinecraftClient mc, Predicate<PlayerEntity> include, Alert alert)`
+- `cn.omix.util.world.adjustdetect.AdjustNameMarker` — `cn.omix.util.world.adjustdetect.AdjustNameMarker`
+- `cn.omix.util.world.adjustdetect.AdjustNameMarker` — `public final class AdjustNameMarker`
+- `cn.omix.util.world.adjustdetect.AdjustNameMarker` — `public static boolean marked(UUID player)`
+- `cn.omix.util.world.adjustdetect.AdjustNameMarker` — `public static Text prefix(UUID player, Text name)`
 - `cn.omix.util.world.bed.BedBreakerAim` — `cn.omix.util.world.bed.BedBreakerAim`
 - `cn.omix.util.world.bed.BedBreakerAim` — `public final class BedBreakerAim`
 - `cn.omix.util.world.bed.BedBreakerAim` — `public static float[] find(ClientWorld world, ClientPlayerEntity player, BlockPos pos, double range, boolean legit)`
