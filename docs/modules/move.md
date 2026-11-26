@@ -43,14 +43,17 @@
 
 ## NoSlowDown
 
-使用物品时取消移动减速，可保持疾跑。Grim Full 参考提供的 NoSlow 逆向模型及共享队列策略，保留实际使用手，通过使用状态确认、接收包缓冲和移动包边界恢复；支持食物、饮用药水、弓及未蓄能弩。主副手长按可连续食用，每次完整回放物品栏同步后自动开始下一次；位置纠正及时处理。Grim Full 使用期间锁定快捷栏，双手均为消耗品、已蓄能弩、方块交互和不支持的物品保留原版减速。详见 [Grim Full 实现与验证说明](noslow-grim.md)。
+使用物品时控制移动减速，可保持疾跑。Grim Full 参考提供的 NoSlow 逆向模型及共享队列策略，保留实际使用手，通过使用状态确认、接收包缓冲和移动包边界恢复；支持食物、饮用药水、弓及未蓄能弩。主副手长按可连续食用，每次完整回放物品栏同步后自动开始下一次；位置纠正及时处理。Grim Full 使用期间锁定快捷栏，双手均为消耗品、已蓄能弩、方块交互和不支持的物品保留原版减速。详见 [Grim Full 实现与验证说明](noslow-grim.md)。Rewound 在持续使用物品时取消减速，短暂暂存快捷栏切换、挥手与交互包，在本次移动包之后按顺序发出。Swap 在开始使用时向服务器发送备用槽位与原槽位切换；可选择仅首次、持续使用每 tick，或每 tick 切换并暂存交互包到移动包之后。Legit 保留原版使用减速，按 Blink Ticks 周期暂存客户端移动/交互及非关键接收包，再按顺序恢复。三种新模式均在停用、切换模式、离开世界或使用结束时清理待发/待收包；跨世界包直接丢弃。旧版参考实现以剑格挡为主，1.21.11 原版剑没有持续使用动作，因此触发条件改为当前版本的实际持续使用物品；Swap 的剑限定仅对提供持续使用动作的剑生效。
 
 源码：`src/main/java/cn/omix/module/impl/move/NoSlowDown.java`。
 
 | 配置项 | 简介 | 类型、默认值与限制 |
 | --- | --- | --- |
-| Mode | Vanilla 直接取消物品使用减速；Grim Full 在收到与本次使用手匹配的使用状态后取消减速，使用结束后按顺序完整回放缓冲包，不额外交换主副手。默认仍为 Vanilla。 | 模式；默认 Vanilla；可选 Vanilla / Grim Full |
-| Keep Sprint | 使用物品时保持疾跑；Grim Full 仅在成功进入取消减速阶段时生效，并解除使用物品造成的原版疾跑阻止。 | 布尔；默认 true |
+| Mode | Vanilla 直接取消物品使用减速；Grim Full 在收到与本次使用手匹配的使用状态后取消减速；Rewound 延后交互包；Swap 切换服务器槽位；Legit 周期暂存包并保留原版减速。 | 模式；默认 Vanilla；可选 Vanilla / Grim Full / Rewound / Swap / Legit |
+| Keep Sprint | 取消使用减速时保持疾跑；Grim Full 仅在成功进入取消减速阶段时生效。Legit 保留原版减速。 | 布尔；默认 true |
+| Swap Mode | Once 仅开始使用时交换槽位；Blink 每 tick 交换并暂存交互包至移动包后；Constant 每 tick 交换。 | 模式；默认 Once；可选 Once / Blink / Constant；显示条件：Mode = Swap |
+| Swords only | 仅在持有带持续使用动作的剑时启用 Swap。原版 1.21.11 剑不满足此条件。 | 布尔；默认 false；显示条件：Mode = Swap |
+| Blink Ticks | Legit 连续暂存包的 tick 数，之后释放一次并重新计数。 | 数值；默认 1；1–20；步长 1；显示条件：Mode = Legit |
 
 ## Parkour
 

@@ -27,6 +27,13 @@ public abstract class MixinPacketApplyBatcherEntry<T extends PacketListener> imp
             ci.cancel();
             return;
         }
+        if (instance != null && instance.getModuleManager() != null) {
+            NoSlowDown noSlow = instance.getModuleManager().getModule(NoSlowDown.class);
+            if (noSlow != null && noSlow.isNativeBehaviorActive() && noSlow.receiveLegit(packet, listener)) {
+                ci.cancel();
+                return;
+            }
+        }
         var fly = Fly.activeGrim();
         if (fly != null && fly.receiveGrimPacket(packet)) ci.cancel();
     }

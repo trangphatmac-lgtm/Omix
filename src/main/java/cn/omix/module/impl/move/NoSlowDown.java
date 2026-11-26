@@ -7,6 +7,7 @@ import cn.omix.module.Category;
 import cn.omix.module.Module;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
+import cn.omix.module.value.impl.NumberValue;
 import cn.omix.module.impl.player.AutoBlockIn;
 import cn.omix.module.impl.world.Scaffold;
 import cn.omix.util.network.PacketUtil;
@@ -25,12 +26,19 @@ import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.common.*;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.util.Hand;
+import net.minecraft.item.consume.UseAction;
+import net.minecraft.registry.tag.ItemTags;
+
+import java.util.ArrayDeque;
 
 import static cn.omix.util.player.noslow.GrimNoSlowPackets.describe;
 
 public class NoSlowDown extends Module implements GrimNoSlowState.Host {
-    private final ModeValue mode = new ModeValue("Mode", "Vanilla", "Vanilla", "Grim Full");
+    private final ModeValue mode = new ModeValue("Mode", "Vanilla", "Vanilla", "Grim Full", "Rewound", "Swap", "Legit");
     private final BoolValue keepSprint = new BoolValue("Keep Sprint", true);
+    private final ModeValue swapTiming = new ModeValue("Swap Mode", "Once", () -> mode.is("Swap"), "Once", "Blink", "Constant");
+    private final BoolValue swapSwordsOnly = new BoolValue("Swords only", false, () -> mode.is("Swap"));
+    private final NumberValue legitBlinkTicks = new NumberValue("Blink Ticks", 1, 1, 20, 1, () -> mode.is("Legit"));
     private static final int MAX_BUFFERED_PACKETS = 4096;
     private final GrimNoSlowState flow = new GrimNoSlowState(this);
     private final GrimNoSlowPackets receivePolicy = new GrimNoSlowPackets();
@@ -41,9 +49,21 @@ public class NoSlowDown extends Module implements GrimNoSlowState.Host {
     private boolean slowdownDisabled;
     private boolean replaying;
     private Packet<?> receiving;
+    private final ArrayDeque<Packet<?>> heldOutgoing = new ArrayDeque<>();
+    private final ArrayDeque<Packet<?>> heldIncoming = new ArrayDeque<>();
+    private boolean holdingOutgoing;
+    private boolean holdingIncoming;
+    private boolean flushingAlternate;
+    private int legitTicks;
+    private boolean swapStarted;
+    private int swapSlot = -1;
 
     public NoSlowDown() {
         super("NoSlowDown", Category.Move);
+        mode.onChange((previous, next) -> {
+            reset();
+            clearAlternate(true);
+        });
     }
 
     /** Called by client-thread mixins only; also restores state on a live mode change. */
@@ -57,7 +77,9 @@ public class NoSlowDown extends Module implements GrimNoSlowState.Host {
     }
 
     public boolean allowGrimSprint() {
-        return isNativeBehaviorActive() && mode.is("Grim Full") && keepSprint.getValue() && cancelSlowdown();
+        return isNativeBehaviorActive() && keepSprint.getValue()
+                && (mode.is("Grim Full") && cancelSlowdown()
+                || (mode.is("Rewound") || mode.is("Swap")) && usableItem());
     }
 
     /** Native-protocol equivalent of the supplied NoFall reference's NoSlow phase query. */
@@ -67,6 +89,7 @@ public class NoSlowDown extends Module implements GrimNoSlowState.Host {
 
     @Override
     public void onEnable() {
+        clearAlternate(false);
         discard();
         setSuffix(mode.getValue());
     }
@@ -74,10 +97,12 @@ public class NoSlowDown extends Module implements GrimNoSlowState.Host {
     @Override
     public void onDisable() {
         reset();
+        clearAlternate(true);
     }
 
     @EventTarget
     public void onWorld(WorldEvent event) {
+        clearAlternate(false);
         discard();
     }
 
@@ -85,8 +110,33 @@ public class NoSlowDown extends Module implements GrimNoSlowState.Host {
     @EventPriority(0)
     public void onTick(TickEvent event) {
         setSuffix(mode.getValue());
-        if (mode.is("Grim Full")) tick();
-        else reset();
+        if (mode.is("Grim Full")) {
+            tick();
+            return;
+        }
+        reset();
+        if (!context()) return;
+        if (!usableItem()) {
+            clearAlternate(true);
+            return;
+        }
+        if (mode.is("Rewound")) {
+            holdingOutgoing = true;
+        } else if (mode.is("Swap")) {
+            if (swapTiming.is("Constant")) swapSelectedSlot();
+            else if (swapTiming.is("Blink")) {
+                swapSelectedSlot();
+                holdingOutgoing = true;
+            }
+        } else if (mode.is("Legit")) {
+            if (++legitTicks > legitBlinkTicks.getValue().intValue()) {
+                releaseAlternate();
+                legitTicks = 0;
+            } else {
+                holdingOutgoing = true;
+                holdingIncoming = true;
+            }
+        }
     }
 
     @EventTarget
@@ -99,7 +149,27 @@ public class NoSlowDown extends Module implements GrimNoSlowState.Host {
     public void onPacket(PacketEvent event) {
         if (event.getType() != PacketEvent.Type.Send || !mc.isOnThread() || event.isCancelled()) return;
         if (!mode.is("Grim Full")) {
-            reset();
+            if (flushingAlternate || !context()) return;
+            Packet<?> packet = event.getPacket();
+            if (packet instanceof ClickSlotC2SPacket
+                    || packet instanceof UpdateSelectedSlotC2SPacket && !mode.is("Rewound")
+                    || packet instanceof PlayerActionC2SPacket action
+                    && action.getAction() == PlayerActionC2SPacket.Action.RELEASE_USE_ITEM) {
+                releaseAlternate();
+                swapStarted = false;
+            }
+            if (mode.is("Swap") && packet instanceof PlayerInteractItemC2SPacket use && canStartUse(use.getHand())
+                    && (!swapStarted || !swapTiming.is("Once"))) {
+                swapSelectedSlot();
+                swapStarted = true;
+            }
+            if (holdingOutgoing && shouldHoldOutgoing(packet)) {
+                if (heldOutgoing.size() >= MAX_BUFFERED_PACKETS) releaseAlternate();
+                else {
+                    heldOutgoing.addLast(packet);
+                    event.setCancelled(true);
+                }
+            }
             return;
         }
         if (outgoing(event.getPacket())) event.setCancelled(true);
@@ -114,14 +184,104 @@ public class NoSlowDown extends Module implements GrimNoSlowState.Host {
     public void onSlow(SlowEvent event) {
         if (mc.player == null || mc.world == null) return;
         if (mc.player.isUsingItem() && !mc.player.getActiveItem().isEmpty()
-                && (mode.is("Vanilla") || cancelSlowdown())) {
+                && (mode.is("Vanilla") || mode.is("Rewound") || mode.is("Swap") && usableItem()
+                || mode.is("Grim Full") && cancelSlowdown())) {
             event.setCancelled(true);
             if (keepSprint.getValue()) mc.player.setSprinting(true);
         }
     }
 
+    @EventTarget
+    public void onMotion(MotionEvent event) {
+        if (event.isPost() && (mode.is("Rewound") || mode.is("Swap") && swapTiming.is("Blink"))) {
+            releaseAlternate();
+        }
+    }
+
+    /** Called on the client thread before a received packet is applied. */
+    public boolean receiveLegit(Packet<?> packet, PacketListener listener) {
+        if (!mode.is("Legit") || !holdingIncoming || flushingAlternate || listener != mc.getNetworkHandler()
+                || !context()) return false;
+        if (packet instanceof PlayerPositionLookS2CPacket) {
+            releaseAlternate();
+            return false;
+        }
+        if (packet.transitionsNetworkState()
+                || packet instanceof CommonPingS2CPacket || packet instanceof DisconnectS2CPacket
+                || packet instanceof GameJoinS2CPacket || packet instanceof PlayerRespawnS2CPacket
+                || GrimNoSlowPackets.bypassesBuffer(packet)) return false;
+        if (heldIncoming.size() >= MAX_BUFFERED_PACKETS) {
+            releaseAlternate();
+            return false;
+        }
+        heldIncoming.addLast(packet);
+        return true;
+    }
+
+    private boolean usableItem() {
+        if (mc.player == null || mc.player.hasVehicle() || mc.currentScreen != null) return false;
+        if (!mc.player.isUsingItem() || mc.player.getActiveItem().isEmpty()) return false;
+        return !mode.is("Swap") || !swapSwordsOnly.getValue()
+                || mc.player.getActiveItem().isIn(ItemTags.SWORDS);
+    }
+
+    private boolean canStartUse(Hand hand) {
+        if (mc.player == null || mc.player.hasVehicle() || mc.currentScreen != null) return false;
+        ItemStack stack = mc.player.getStackInHand(hand);
+        return !stack.isEmpty() && stack.getUseAction() != UseAction.NONE
+                && (!swapSwordsOnly.getValue() || stack.isIn(ItemTags.SWORDS));
+    }
+
+    private boolean shouldHoldOutgoing(Packet<?> packet) {
+        if (packet instanceof PlayerMoveC2SPacket) return mode.is("Legit");
+        if (packet instanceof UpdateSelectedSlotC2SPacket) return mode.is("Rewound");
+        return packet instanceof HandSwingC2SPacket || packet instanceof PlayerInteractEntityC2SPacket
+                || packet instanceof PlayerInteractBlockC2SPacket
+                || packet instanceof PlayerInteractItemC2SPacket && mode.is("Legit");
+    }
+
+    private void swapSelectedSlot() {
+        if (mc.player == null || mc.getNetworkHandler() == null) return;
+        int current = mc.player.getInventory().getSelectedSlot();
+        int alternate = swapSlot >= 0 && swapSlot != current ? swapSlot : (current + 1) % 9;
+        swapSlot = alternate;
+        PacketUtil.sendPacketNoEvent(new UpdateSelectedSlotC2SPacket(alternate));
+        PacketUtil.sendPacketNoEvent(new UpdateSelectedSlotC2SPacket(current));
+    }
+
+    private void releaseAlternate() {
+        holdingOutgoing = false;
+        holdingIncoming = false;
+        if (flushingAlternate) return;
+        flushingAlternate = true;
+        try {
+            while (!heldOutgoing.isEmpty() && connection == mc.getNetworkHandler() && world == mc.world
+                    && player == mc.player) PacketUtil.sendPacketNoEvent(heldOutgoing.removeFirst());
+            while (!heldIncoming.isEmpty() && connection == mc.getNetworkHandler() && world == mc.world
+                    && player == mc.player) PacketUtil.receivePacket(heldIncoming.removeFirst());
+        } finally {
+            heldOutgoing.clear();
+            heldIncoming.clear();
+            flushingAlternate = false;
+        }
+    }
+
+    private void clearAlternate(boolean flush) {
+        if (flush) releaseAlternate();
+        else {
+            holdingOutgoing = false;
+            holdingIncoming = false;
+            heldOutgoing.clear();
+            heldIncoming.clear();
+        }
+        legitTicks = 0;
+        swapStarted = false;
+        swapSlot = -1;
+    }
+
     private boolean context() {
         if (connection != mc.getNetworkHandler() || world != mc.world || player != mc.player) {
+            clearAlternate(false);
             discard();
             connection = mc.getNetworkHandler();
             world = mc.world;
