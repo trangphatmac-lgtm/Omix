@@ -2049,6 +2049,7 @@
 - `cn.omix.util.player.ItemSpoofUtil` — `public static ItemStack getStack()`
 - `cn.omix.util.player.ItemUtil` — `cn.omix.util.player.ItemUtil`
 - `cn.omix.util.player.ItemUtil` — `public class ItemUtil implements IMinecraft`
+- `cn.omix.util.player.ItemUtil` — `public static boolean isTrash(ItemStack stack)`
 - `cn.omix.util.player.ItemUtil` — `public static boolean isUseless(int slotIndex, ItemStack stack)`
 - `cn.omix.util.player.ItemUtil` — `public static float getArmorScore(ItemStack stack)`
 - `cn.omix.util.player.ItemUtil` — `public static float getWeaponScore(ItemStack stack)`
@@ -2084,6 +2085,11 @@
 - `cn.omix.util.player.MovementUtil` — `public static Vec3d movementInputToVelocity(Vec3d movementInput, float speed, float yaw)`
 - `cn.omix.util.player.MovementUtil` — `public static boolean movementInput()`
 - `cn.omix.util.player.MovementUtil` — `public static double getBPS()`
+- `cn.omix.util.player.NoRotateCorrection` — `cn.omix.util.player.NoRotateCorrection`
+- `cn.omix.util.player.NoRotateCorrection` — `public final class NoRotateCorrection`
+- `cn.omix.util.player.NoRotateCorrection` — `public static boolean isNearby(EntityPosition change, Set<PositionFlag> relatives, Vec3d currentPosition)`
+- `cn.omix.util.player.NoRotateCorrection` — `public static EntityPosition preserveLook(EntityPosition change, Set<PositionFlag> relatives, EntityPosition current)`
+- `cn.omix.util.player.NoRotateCorrection` — `public static float preservedAngle(float currentAngle, boolean relative)`
 - `cn.omix.util.player.RayCastUtil` — `cn.omix.util.player.RayCastUtil`
 - `cn.omix.util.player.RayCastUtil` — `public class RayCastUtil implements IMinecraft`
 - `cn.omix.util.player.RayCastUtil` — `public static boolean overBlock(BlockPos pos, Direction side, boolean strict)`

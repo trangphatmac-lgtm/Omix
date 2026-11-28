@@ -3,11 +3,15 @@ package injection;
 import cn.omix.util.ai.AiContainerTools;
 import cn.omix.event.impl.PlayerPositionLookEvent;
 import cn.omix.module.impl.exploits.Disabler;
+import cn.omix.module.impl.player.NoRotate;
 import cn.omix.module.impl.player.SpectatorTP;
 import cn.omix.util.IMinecraft;
+import cn.omix.util.player.NoRotateCorrection;
 import cn.omix.util.world.AutoLSignals;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.entity.EntityPosition;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerRotationS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerAbilitiesS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
@@ -19,6 +23,9 @@ import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayNetworkHandler.class)
@@ -76,6 +83,25 @@ public abstract class MixinClientPlayNetworkHandler implements IMinecraft {
         }
         Disabler disabler = instance.getModuleManager().getModule(Disabler.class);
         if (disabler != null && disabler.handleFullMovementCorrection(packet)) ci.cancel();
+    }
+
+    @ModifyArg(method = "onPlayerPositionLook", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;setPosition(Lnet/minecraft/entity/EntityPosition;Ljava/util/Set;Lnet/minecraft/entity/Entity;Z)Z"), index = 0)
+    private EntityPosition omix$preservePositionLook(EntityPosition change, PlayerPositionLookS2CPacket packet) {
+        if (instance == null || instance.getModuleManager() == null || mc.player == null) return change;
+        NoRotate module = instance.getModuleManager().getModule(NoRotate.class);
+        if (module == null || !module.shouldPreserve(packet)) return change;
+        return NoRotateCorrection.preserveLook(change, packet.relatives(), EntityPosition.fromEntity(mc.player));
+    }
+
+    @ModifyArgs(method = "onPlayerRotation", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/entity/EntityPosition;withRotation(FF)Lnet/minecraft/entity/EntityPosition;"))
+    private void omix$preserveRotation(Args args, PlayerRotationS2CPacket packet) {
+        if (instance == null || instance.getModuleManager() == null || mc.player == null) return;
+        NoRotate module = instance.getModuleManager().getModule(NoRotate.class);
+        if (module == null || !module.shouldPreserveRotation()) return;
+        args.set(0, NoRotateCorrection.preservedAngle(mc.player.getYaw(), packet.relativeYaw()));
+        args.set(1, NoRotateCorrection.preservedAngle(mc.player.getPitch(), packet.relativePitch()));
     }
 
     @Inject(method = "onGameStateChange", at = @At("TAIL"))

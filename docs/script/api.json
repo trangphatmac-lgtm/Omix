@@ -16100,11 +16100,19 @@
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
+    "name": "isTrash",
+    "signature": "public static boolean isTrash(ItemStack stack)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
+    "line": 23
+  },
+  {
+    "owner": "cn.omix.util.player.ItemUtil",
     "name": "isUseless",
     "signature": "public static boolean isUseless(int slotIndex, ItemStack stack)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 23
+    "line": 35
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
@@ -16112,7 +16120,7 @@
     "signature": "public static float getArmorScore(ItemStack stack)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 130
+    "line": 142
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
@@ -16120,7 +16128,7 @@
     "signature": "public static float getWeaponScore(ItemStack stack)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 183
+    "line": 195
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
@@ -16128,7 +16136,7 @@
     "signature": "public static float getToolScore(ItemStack stack)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 223
+    "line": 235
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
@@ -16136,7 +16144,7 @@
     "signature": "public static int getBestArmorSlot(EquipmentSlot equipmentSlot)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 282
+    "line": 294
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
@@ -16144,7 +16152,7 @@
     "signature": "public static int getBestWeaponSlot(int targetSlot)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 313
+    "line": 325
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
@@ -16152,7 +16160,7 @@
     "signature": "public static int getBestWeaponSlot()",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 332
+    "line": 344
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
@@ -16160,7 +16168,7 @@
     "signature": "public static int getBestToolSlot(TagKey<Item> toolTag, int targetSlot)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 336
+    "line": 348
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
@@ -16168,7 +16176,7 @@
     "signature": "public static int getBestToolSlot(TagKey<Item> toolTag)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 355
+    "line": 367
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
@@ -16176,7 +16184,7 @@
     "signature": "public static int getBestBlockSlot(int targetSlot)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 359
+    "line": 371
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
@@ -16184,7 +16192,7 @@
     "signature": "public static int getBestPearlSlot(int targetSlot)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 380
+    "line": 392
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
@@ -16192,7 +16200,7 @@
     "signature": "public static int getBestProjectileSlot(int targetSlot)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 399
+    "line": 411
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
@@ -16200,7 +16208,7 @@
     "signature": "public static int getBestFoodSlot(int targetSlot)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 418
+    "line": 430
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
@@ -16208,7 +16216,7 @@
     "signature": "public static boolean isArmor(ItemStack stack)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 503
+    "line": 515
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
@@ -16216,7 +16224,7 @@
     "signature": "public static boolean isSword(ItemStack stack)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 513
+    "line": 525
   },
   {
     "owner": "cn.omix.util.player.ItemUtil",
@@ -16224,7 +16232,7 @@
     "signature": "public static boolean isTool(ItemStack stack)",
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/ItemUtil.java",
-    "line": 517
+    "line": 529
   },
   {
     "owner": "cn.omix.util.player.MovementUtil",
@@ -16376,6 +16384,45 @@
     "kind": "declaration",
     "source": "src/main/java/cn/omix/util/player/MovementUtil.java",
     "line": 173
+  },
+  {
+    "owner": "cn.omix.util.player.NoRotateCorrection",
+    "name": "NoRotateCorrection",
+    "signature": "cn.omix.util.player.NoRotateCorrection",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/player/NoRotateCorrection.java"
+  },
+  {
+    "owner": "cn.omix.util.player.NoRotateCorrection",
+    "name": "NoRotateCorrection",
+    "signature": "public final class NoRotateCorrection",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/NoRotateCorrection.java",
+    "line": 10
+  },
+  {
+    "owner": "cn.omix.util.player.NoRotateCorrection",
+    "name": "isNearby",
+    "signature": "public static boolean isNearby(EntityPosition change, Set<PositionFlag> relatives, Vec3d currentPosition)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/NoRotateCorrection.java",
+    "line": 14
+  },
+  {
+    "owner": "cn.omix.util.player.NoRotateCorrection",
+    "name": "preserveLook",
+    "signature": "public static EntityPosition preserveLook(EntityPosition change, Set<PositionFlag> relatives, EntityPosition current)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/NoRotateCorrection.java",
+    "line": 22
+  },
+  {
+    "owner": "cn.omix.util.player.NoRotateCorrection",
+    "name": "preservedAngle",
+    "signature": "public static float preservedAngle(float currentAngle, boolean relative)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/player/NoRotateCorrection.java",
+    "line": 38
   },
   {
     "owner": "cn.omix.util.player.RayCastUtil",

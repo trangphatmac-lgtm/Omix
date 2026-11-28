@@ -19,6 +19,7 @@ public class InventoryManager extends Module {
     private final BoolValue inventoryOnly = new BoolValue("Inventory Only", false);
     private final BoolValue instant = new BoolValue("Instant", false);
     private final NumberValue delay = new NumberValue("Delay", 50, 0, 1000, 10, () -> !instant.getValue());
+    private final BoolValue dropTrash = new BoolValue("Drop Trash", true);
 
     private final NumberValue weaponSlot = new NumberValue("Weapon Slot", 1, 0, 9, 1);
     private final NumberValue pickaxeSlot = new NumberValue("Pickaxe Slot", 2, 0, 9, 1);
@@ -60,6 +61,10 @@ public class InventoryManager extends Module {
             if (!(mc.currentScreen instanceof InventoryScreen)) return;
         } else {
             if (mc.currentScreen != null && !(mc.currentScreen instanceof InventoryScreen)) return;
+        }
+
+        if (dropTrash.getValue() && (instant || dropTimer.hasTimeElapsed(delay.getValue().longValue()))) {
+            if (dropItems() && !instant) return;
         }
 
         boolean sort = false;
@@ -137,41 +142,39 @@ public class InventoryManager extends Module {
             }
         }
 
-        if (sort && !instant) return;
+    }
 
-        if (instant || dropTimer.hasTimeElapsed(delay.getValue().longValue())) {
-            int prefBow = bowSlot.getValue().intValue() > 0 ? 36 + bowSlot.getValue().intValue() - 1 : -1;
-            int prefRod = fishingRodSlot.getValue().intValue() > 0 ? 36 + fishingRodSlot.getValue().intValue() - 1 : -1;
-            int prefWater = waterBucketSlot.getValue().intValue() > 0 ? 36 + waterBucketSlot.getValue().intValue() - 1 : -1;
-            int prefLava = lavaBucketSlot.getValue().intValue() > 0 ? 36 + lavaBucketSlot.getValue().intValue() - 1 : -1;
+    private boolean dropItems() {
+        int prefBow = bowSlot.getValue().intValue() > 0 ? 36 + bowSlot.getValue().intValue() - 1 : -1;
+        int prefRod = fishingRodSlot.getValue().intValue() > 0 ? 36 + fishingRodSlot.getValue().intValue() - 1 : -1;
+        int prefWater = waterBucketSlot.getValue().intValue() > 0 ? 36 + waterBucketSlot.getValue().intValue() - 1 : -1;
+        int prefLava = lavaBucketSlot.getValue().intValue() > 0 ? 36 + lavaBucketSlot.getValue().intValue() - 1 : -1;
 
-            int keepBowSlot = findBestItemSlot(Items.BOW, prefBow);
-            int keepRodSlot = findBestItemSlot(Items.FISHING_ROD, prefRod);
-            int keepWaterSlot = findBestItemSlot(Items.WATER_BUCKET, prefWater);
-            int keepLavaSlot = findBestItemSlot(Items.LAVA_BUCKET, prefLava);
+        int keepBowSlot = findBestItemSlot(Items.BOW, prefBow);
+        int keepRodSlot = findBestItemSlot(Items.FISHING_ROD, prefRod);
+        int keepWaterSlot = findBestItemSlot(Items.WATER_BUCKET, prefWater);
+        int keepLavaSlot = findBestItemSlot(Items.LAVA_BUCKET, prefLava);
 
-            for (int i = 5; i <= 45; i++) {
-                Slot slot = mc.player.currentScreenHandler.getSlot(i);
+        boolean dropped = false;
+        for (int i = 5; i <= 45; i++) {
+            Slot slot = mc.player.currentScreenHandler.getSlot(i);
+            if (!slot.hasStack()) continue;
 
-                if (slot.hasStack()) {
-                    var item = slot.getStack().getItem();
-                    boolean isDuplicate = false;
+            var item = slot.getStack().getItem();
+            boolean isDuplicate = item == Items.BOW && i != keepBowSlot
+                    || item == Items.FISHING_ROD && i != keepRodSlot
+                    || item == Items.WATER_BUCKET && i != keepWaterSlot
+                    || item == Items.LAVA_BUCKET && i != keepLavaSlot;
 
-                    if (item == Items.BOW && i != keepBowSlot) isDuplicate = true;
-                    else if (item == Items.FISHING_ROD && i != keepRodSlot) isDuplicate = true;
-                    else if (item == Items.WATER_BUCKET && i != keepWaterSlot) isDuplicate = true;
-                    else if (item == Items.LAVA_BUCKET && i != keepLavaSlot) isDuplicate = true;
-
-                    if (isDuplicate || ItemUtil.isUseless(i, slot.getStack())) {
-                        ClickSlotUtil.dropAll(i);
-                        dropTimer.reset();
-                        if (!instant) {
-                            return;
-                        }
-                    }
-                }
+            if (isDuplicate || ItemUtil.isUseless(i, slot.getStack())
+                    || i >= 9 && i <= 44 && ItemUtil.isTrash(slot.getStack())) {
+                ClickSlotUtil.dropAll(i);
+                dropTimer.reset();
+                dropped = true;
+                if (!instant.getValue()) return true;
             }
         }
+        return dropped;
     }
 
     private boolean sortItem(int bestSlot, int targetHotbar) {

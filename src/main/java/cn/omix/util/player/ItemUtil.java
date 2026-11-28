@@ -20,6 +20,18 @@ import net.minecraft.screen.slot.Slot;
 @UtilityClass
 public class ItemUtil implements IMinecraft {
 
+    public boolean isTrash(ItemStack stack) {
+        if (stack == null || stack.isEmpty()
+                || stack.contains(DataComponentTypes.CUSTOM_NAME)
+                || stack.contains(DataComponentTypes.CUSTOM_DATA)) return false;
+        Item item = stack.getItem();
+        return item == Items.ROTTEN_FLESH || item == Items.POISONOUS_POTATO
+                || item == Items.WHEAT_SEEDS || item == Items.BEETROOT_SEEDS
+                || item == Items.DEAD_BUSH || item == Items.STICK
+                || item == Items.STRING || item == Items.FEATHER
+                || item == Items.FLINT || item == Items.BONE;
+    }
+
     public boolean isUseless(int slotIndex, ItemStack stack) {
         if (mc.player == null || stack == null || stack.isEmpty()) return true;
 

@@ -290,6 +290,11 @@
     "source": "src/main/java/cn/omix/module/impl/player/MCF.java"
   },
   {
+    "module": "NoRotate",
+    "selector": "Behavior",
+    "source": "src/main/java/cn/omix/module/impl/player/NoRotate.java"
+  },
+  {
     "module": "Phase",
     "selector": "Mode",
     "source": "src/main/java/cn/omix/module/impl/player/Phase.java"

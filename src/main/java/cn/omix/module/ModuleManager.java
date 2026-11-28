@@ -122,6 +122,7 @@ public class ModuleManager implements IMinecraft {
                 new AutoBlockIn(),
                 new AutoArmor(),
                 new AntiHunger(),
+                new NoRotate(),
                 new AntiLava(),
                 new Stuck(),
                 new Phase(),
