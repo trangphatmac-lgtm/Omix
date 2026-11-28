@@ -22964,6 +22964,29 @@
     "line": 20
   },
   {
+    "owner": "cn.omix.util.world.adjustdetect.AntiCheatChatMessages",
+    "name": "AntiCheatChatMessages",
+    "signature": "cn.omix.util.world.adjustdetect.AntiCheatChatMessages",
+    "kind": "type",
+    "source": "src/main/java/cn/omix/util/world/adjustdetect/AntiCheatChatMessages.java"
+  },
+  {
+    "owner": "cn.omix.util.world.adjustdetect.AntiCheatChatMessages",
+    "name": "AntiCheatChatMessages",
+    "signature": "public final class AntiCheatChatMessages",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/adjustdetect/AntiCheatChatMessages.java",
+    "line": 17
+  },
+  {
+    "owner": "cn.omix.util.world.adjustdetect.AntiCheatChatMessages",
+    "name": "show",
+    "signature": "public void show(MinecraftClient client, UUID player, Text message)",
+    "kind": "declaration",
+    "source": "src/main/java/cn/omix/util/world/adjustdetect/AntiCheatChatMessages.java",
+    "line": 20
+  },
+  {
     "owner": "cn.omix.util.world.bed.BedBreakerAim",
     "name": "BedBreakerAim",
     "signature": "cn.omix.util.world.bed.BedBreakerAim",

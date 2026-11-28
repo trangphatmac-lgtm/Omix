@@ -6,7 +6,7 @@ import cn.omix.event.impl.WorldEvent;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
 import cn.omix.module.value.impl.BoolValue;
-import cn.omix.util.Util;
+import cn.omix.util.world.adjustdetect.AntiCheatChatMessages;
 import cn.omix.util.world.adjustdetect.AdjustHackerDetector;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.text.Text;
@@ -19,6 +19,7 @@ public final class AntiCheat extends Module {
     private final BoolValue ignoreFriendly = new BoolValue("Ignore Friendly", true);
     private final BoolValue nameMarker = new BoolValue("Name Marker", true);
     private final AdjustHackerDetector detector = new AdjustHackerDetector();
+    private final AntiCheatChatMessages chatMessages = new AntiCheatChatMessages();
 
     public AntiCheat() { super("AntiCheat", Category.World); }
     @Override public void onEnable() { detector.clear(); }
@@ -46,7 +47,7 @@ public final class AntiCheat extends Module {
                             .append(Text.literal(" failed check ").formatted(Formatting.GRAY))
                             .append(Text.literal(check).formatted(Formatting.WHITE))
                             .append(Text.literal(" x" + count + " (" + threshold + ")").formatted(Formatting.GRAY));
-                    Util.logToChat(message);
+                    chatMessages.show(mc, player.getUuid(), message);
                 });
     }
 
@@ -55,7 +56,11 @@ public final class AntiCheat extends Module {
         return isNativeBehaviorActive() ? detector.getSuspicionScore(player) : 0;
     }
 
+    public boolean isCheater(UUID player) {
+        return isNativeBehaviorActive() && detector.isCheater(player);
+    }
+
     public boolean shouldMarkName(UUID player) {
-        return isNativeBehaviorActive() && nameMarker.getValue() && detector.isCheater(player);
+        return nameMarker.getValue() && isCheater(player);
     }
 }

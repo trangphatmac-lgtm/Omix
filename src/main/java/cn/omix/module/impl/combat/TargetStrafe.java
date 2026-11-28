@@ -2,11 +2,12 @@ package cn.omix.module.impl.combat;
 
 import cn.omix.management.movement.MovementCorrection;
 import cn.omix.management.rotation.RotationRequest;
-import cn.omix.event.impl.RotationRequestEvent;
+import cn.omix.event.base.annotation.EventPriority;
 import cn.omix.event.base.annotation.EventTarget;
 import cn.omix.event.impl.LivingUpdateEvent;
 import cn.omix.event.impl.MoveEvent;
 import cn.omix.event.impl.MoveInputEvent;
+import cn.omix.event.impl.RotationRequestEvent;
 import cn.omix.module.Category;
 import cn.omix.module.Module;
 import cn.omix.module.impl.world.Scaffold;
@@ -15,11 +16,11 @@ import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
 import cn.omix.util.player.EntityUtil;
-import cn.omix.util.player.MovementUtil;
 import cn.omix.util.player.RotationUtil;
 import lombok.Getter;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.MovementType;
 import net.minecraft.util.math.Vec3d;
 
 @Getter
@@ -87,8 +88,10 @@ public final class TargetStrafe extends Module {
     }
 
     @EventTarget
+    @EventPriority(101)
     public void onMove(MoveEvent event) {
-        if (mc.player == null || mc.options == null || check()) return;
+        // Speed's OldNCP and Rewound modes set the final horizontal movement at priority 100.
+        if (event.getType() != MovementType.SELF || mc.player == null || mc.options == null || check()) return;
 
         if (auto3rdPerson.getValue()) {
             if (!f5 && mc.options.getPerspective() == Perspective.FIRST_PERSON) {
@@ -112,7 +115,7 @@ public final class TargetStrafe extends Module {
         double diffX = goal.x - mc.player.getX();
         double diffZ = goal.z - mc.player.getZ();
 
-        double speed = MovementUtil.getSpeed();
+        double speed = Math.hypot(event.getX(), event.getZ());
         double yaw = Math.atan2(diffZ, diffX);
         double motionX = speed * Math.cos(yaw);
         double motionZ = speed * Math.sin(yaw);

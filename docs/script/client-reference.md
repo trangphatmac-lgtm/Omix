@@ -299,7 +299,7 @@ Text、Color、Key 和 MultiBool 父组不支持此命令直接赋值。模块�
 | --- | --- | --- |
 | Target Mode | Single 持续攻击单个目标；Switch 按间隔轮换目标。 | 模式；默认 Single；可选 Single / Switch |
 | Switch Delay | 轮换目标的间隔，单位毫秒。 | 数值；默认 200；0–1000；步长 50；显示条件：Target Mode = Switch |
-| Priority | 目标排序依据：距离、生命值、视角偏差、存活时间、护甲，或 Smart 分数。Smart 按目标生命值与吸收值 + 100 − 当前主手预计伤害 + 距离平方 / 1000 升序排序；预计伤害采用客户端近战预测，考虑攻击冷却、护甲、抗性和附魔。 | 模式；默认 Distance；可选 Distance / Health / Fov / LivingTime / Armor / Smart |
+| Priority | 目标排序依据：距离、生命值、视角偏差、存活时间、护甲，或 Smart 分数。Smart 优先选择 AntiCheat 已达到检测阈值的玩家，同组内按目标生命值与吸收值 + 100 − 当前主手预计伤害 + 距离平方 / 1000 升序排序；预计伤害采用客户端近战预测，考虑攻击冷却、护甲、抗性和附魔。需开启 AntiCheat；关闭或没有已判定玩家时沿用原评分。Smart 与 Switch 同时使用时，轮换仅从已判定的候选玩家中选取；没有已判定玩家则从全部候选目标中选取。此优先级不依赖 Name Marker 显示选项。 | 模式；默认 Distance；可选 Distance / Health / Fov / LivingTime / Armor / Smart |
 | Combat Mode | 1.8 按 CPS 发起攻击；1.9+ 按武器攻击冷却判断时机。 | 模式；默认 1.8；可选 1.8 / 1.9+ |
 | Max CPS | 旧版攻击频率的随机上限，每秒次数。 | 数值；默认 10；1–20；步长 1；显示条件：Combat Mode = 1.8 |
 | Min CPS | 旧版攻击频率的随机下限，每秒次数。 | 数值；默认 7；1–20；步长 1；显示条件：Combat Mode = 1.8 |

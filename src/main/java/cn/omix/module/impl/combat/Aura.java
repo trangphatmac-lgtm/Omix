@@ -14,6 +14,7 @@ import cn.omix.module.impl.move.KeepSprint;
 import cn.omix.module.impl.world.ScaffoldX;
 import cn.omix.module.impl.world.Scaffold;
 import cn.omix.module.impl.world.BedBreaker;
+import cn.omix.module.impl.world.AntiCheat;
 import cn.omix.module.value.impl.BoolValue;
 import cn.omix.module.value.impl.ModeValue;
 import cn.omix.module.value.impl.NumberValue;
@@ -198,10 +199,16 @@ public class Aura extends Module {
 
         if (targetMode.is("Switch")) {
             if (switchTimer.hasTimeElapsed(switchDelay.getValue().longValue())) {
-                int index = 0;
-                if (targets.size() > 1) {
-                    index = (int) (Math.random() * targets.size());
+                int candidateCount = targets.size();
+                if (priority.is("Smart")) {
+                    AntiCheat antiCheat = getModule(AntiCheat.class);
+                    int cheaterCount = 0;
+                    while (cheaterCount < candidateCount && isDetectedCheater(targets.get(cheaterCount), antiCheat)) {
+                        cheaterCount++;
+                    }
+                    if (cheaterCount > 0) candidateCount = cheaterCount;
                 }
+                int index = candidateCount > 1 ? (int) (Math.random() * candidateCount) : 0;
                 target = targets.isEmpty() ? null : targets.get(index);
                 switchTimer.reset();
             }
@@ -363,12 +370,19 @@ public class Aura extends Module {
             case "Fov" -> Comparator.comparingDouble(RotationUtil::getRotationDifference);
             case "LivingTime" -> Comparator.comparingInt((LivingEntity entity) -> entity.age).reversed();
             case "Armor" -> Comparator.comparingInt(LivingEntity::getArmor);
-            case "Smart" -> Comparator.comparingDouble(entity ->
-                    entity.getHealth() + entity.getAbsorptionAmount()
-                            + 100.0 - MeleeDamagePredictor.predictDamage(mc.player, entity)
-                            + mc.player.squaredDistanceTo(entity) / 1000.0);
+            case "Smart" -> {
+                AntiCheat antiCheat = getModule(AntiCheat.class);
+                yield Comparator.comparingInt((LivingEntity entity) -> isDetectedCheater(entity, antiCheat) ? 0 : 1)
+                        .thenComparingDouble(entity -> entity.getHealth() + entity.getAbsorptionAmount()
+                                + 100.0 - MeleeDamagePredictor.predictDamage(mc.player, entity)
+                                + mc.player.squaredDistanceTo(entity) / 1000.0);
+            }
             default -> Comparator.comparingDouble(RotationUtil::getDistanceToEntity);
         };
+    }
+
+    private boolean isDetectedCheater(LivingEntity entity, AntiCheat antiCheat) {
+        return entity instanceof PlayerEntity player && antiCheat != null && antiCheat.isCheater(player.getUuid());
     }
 
     public boolean filter(LivingEntity entity) {

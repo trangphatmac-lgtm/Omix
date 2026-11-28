@@ -2919,6 +2919,9 @@
 - `cn.omix.util.world.adjustdetect.AdjustNameMarker` — `public final class AdjustNameMarker`
 - `cn.omix.util.world.adjustdetect.AdjustNameMarker` — `public static boolean marked(UUID player)`
 - `cn.omix.util.world.adjustdetect.AdjustNameMarker` — `public static Text prefix(UUID player, Text name)`
+- `cn.omix.util.world.adjustdetect.AntiCheatChatMessages` — `cn.omix.util.world.adjustdetect.AntiCheatChatMessages`
+- `cn.omix.util.world.adjustdetect.AntiCheatChatMessages` — `public final class AntiCheatChatMessages`
+- `cn.omix.util.world.adjustdetect.AntiCheatChatMessages` — `public void show(MinecraftClient client, UUID player, Text message)`
 - `cn.omix.util.world.bed.BedBreakerAim` — `cn.omix.util.world.bed.BedBreakerAim`
 - `cn.omix.util.world.bed.BedBreakerAim` — `public final class BedBreakerAim`
 - `cn.omix.util.world.bed.BedBreakerAim` — `public static float[] find(ClientWorld world, ClientPlayerEntity player, BlockPos pos, double range, boolean legit)`
